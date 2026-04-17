@@ -61,6 +61,24 @@ async function seed() {
   `, [passwordHash]);
   console.log('✅ Usuario administrativo creado');
 
+  // Categorías de eventos del calendario
+  const categoriasEvento = [
+    { nombre: 'Festivo / Día libre',  color: '#E53E3E', icono: '🏖️' },
+    { nombre: 'Evento escolar',       color: '#805AD5', icono: '🎉' },
+    { nombre: 'Entrega de boletas',   color: '#38A169', icono: '📋' },
+    { nombre: 'Reunión de padres',    color: '#D69E2E', icono: '👨‍👩‍👧' },
+    { nombre: 'Taller / Actividad',   color: '#319795', icono: '🎨' },
+    { nombre: 'Pago / Administrativo',color: '#2B6CB0', icono: '💰' },
+    { nombre: 'Excursión',            color: '#C05621', icono: '🚌' },
+  ];
+  for (const cat of categoriasEvento) {
+    await query(
+      'INSERT INTO categorias_evento (nombre, color_hex, icono) VALUES ($1,$2,$3) ON CONFLICT DO NOTHING',
+      [cat.nombre, cat.color, cat.icono]
+    );
+  }
+  console.log('✅ Categorías de eventos creadas');
+
   console.log('\n🏫 Seed completado exitosamente');
   console.log('\n📋 Credenciales de acceso:');
   console.log('   Directora: directora@happyschool.edu.mx / HappySchool2026!');

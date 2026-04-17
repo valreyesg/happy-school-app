@@ -122,7 +122,7 @@
 
 ## 📋 FASE 6 — Calendario, Comunicación y Contenido
 
-- [ ] Calendario de eventos con categorías configurables
+- [x] Calendario de eventos con categorías configurables ✅
 - [ ] Integración Google Calendar API (botón "Agregar a mi Google Calendar")
 - [ ] Temario mensual (PDF o formulario directo)
 - [ ] Menú semanal de comida

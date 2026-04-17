@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../../../.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
 const { query } = require('../config/database');
 const fs = require('fs');
@@ -7,14 +7,8 @@ const path = require('path');
 async function seed() {
   console.log('🌱 Iniciando seed de la base de datos...');
 
-  // Aplicar esquema inicial
-  const schema = fs.readFileSync(
-    path.join(__dirname, '../../migrations/001_schema_inicial.sql'),
-    'utf-8'
-  );
-
-  await query(schema);
-  console.log('✅ Esquema aplicado');
+  // El esquema ya fue aplicado por node-pg-migrate
+  console.log('✅ Esquema ya aplicado vía migración');
 
   // Ciclo escolar activo
   const cicloResult = await query(`

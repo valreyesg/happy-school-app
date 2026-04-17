@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, QrCode, FileText, ChevronDown, X, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -139,6 +140,7 @@ export default function DirectoraAlumnos() {
 // ─── Tarjeta de alumno ────────────────────────────────────────────────────────
 
 function TarjetaAlumno({ alumno, onEditar }) {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const descargarQR = async () => {
@@ -213,6 +215,13 @@ function TarjetaAlumno({ alumno, onEditar }) {
       {/* Acciones */}
       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
+          onClick={() => navigate(`/directora/alumnos/${alumno.id}`)}
+          title="Ver perfil completo"
+          className="p-2 rounded-xl hover:bg-green-50 text-green-600 transition-colors"
+        >
+          <FileText size={18} />
+        </button>
+        <button
           onClick={descargarQR}
           title="Ver QR"
           className="p-2 rounded-xl hover:bg-hs-purple/10 text-hs-purple transition-colors"
@@ -224,7 +233,7 @@ function TarjetaAlumno({ alumno, onEditar }) {
           title="Editar alumno"
           className="p-2 rounded-xl hover:bg-hs-yellow/20 text-hs-yellow-dark transition-colors"
         >
-          <FileText size={18} />
+          ✏️
         </button>
       </div>
     </div>

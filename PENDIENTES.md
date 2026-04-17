@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-16 (fin de sesión)
+## Última actualización: 2026-04-16 (noche — sesión 3 cerrada)
 
 ---
 
@@ -54,41 +54,42 @@
 - [ ] Endpoint `/alumnos/por-qr/:qrData` — buscar alumno por dato del QR
 - [ ] Endpoint `/grupos/mi-grupo` — grupo de la maestra autenticada + alumnos del día
 - [ ] Endpoint `/reportes/dashboard` — stats para dashboard directora
-- [ ] Endpoint documentos: subir, listar, eliminar (con Cloudinary)
-- [ ] Endpoint personas autorizadas: CRUD por alumno
-- [ ] Endpoint blacklist: CRUD, verificación en salida
+- [x] Endpoint documentos: subir, listar, eliminar (con Cloudinary) ✅
+- [x] Endpoint personas autorizadas: CRUD por alumno ✅
+- [x] Endpoint blacklist: CRUD, verificación en salida ✅
 
 ### Web — Directora
-- [ ] Página `DirectoraAlumnos.jsx` — lista con búsqueda, filtro por grupo, semáforo documentación
-- [ ] Modal / formulario crear alumno
-- [ ] Modal / formulario editar alumno
-- [ ] Vista perfil completo del alumno con documentos y personas autorizadas
-- [ ] Página `DirectoraGrupos.jsx` — CRUD grupos, asignación de maestras
-- [ ] Página `DirectoraPersonal.jsx` — CRUD personal, asignación de roles
+- [x] Página `DirectoraAlumnos.jsx` — lista con búsqueda, filtro por grupo, semáforo documentación ✅
+- [x] Modal / formulario crear alumno ✅
+- [x] Modal / formulario editar alumno ✅
+- [x] Vista perfil completo del alumno con documentos y personas autorizadas ✅
+- [x] Página `DirectoraGrupos.jsx` — CRUD grupos, asignación de maestras ✅
+- [x] Página `DirectoraPersonal.jsx` — CRUD personal, asignación de roles ✅
 
 ### Mobile — Maestra
-- [ ] Pantalla `asistencia.jsx` — lista del grupo con estado de entrada, modo manual si no hay QR
-- [ ] Pantalla `bitacora.jsx` — formulario por alumno: baño, comida, ánimo, salud, tarea
+- [x] Pantalla `asistencia.jsx` — lista del grupo con estado de entrada, modo manual si no hay QR ✅
+- [x] Pantalla `bitacora.jsx` — formulario por alumno: baño, pañal, esfínteres, comida, ánimo, salud, tarea ✅
 
 ### Git
-- [ ] `git init` en la raíz del proyecto
-- [ ] Primer commit con toda la FASE 1
-- [ ] Crear repo en GitHub (public, licencia MIT)
-- [ ] Configurar `.env.example` como único archivo de credenciales
+- [x] `git init` en la raíz del proyecto ✅
+- [x] Primer commit con toda la FASE 1 + FASE 2 ✅
+- [x] Repo en GitHub: https://github.com/valreyesg/happy-school-app ✅
+- [x] `.env.example` como único archivo de credenciales ✅
 
 ---
 
 ## 📋 FASE 3 — Bitácora y Asistencia completa
 
-- [ ] Bitácora diaria: registro completo maestra (web + mobile)
-  - [ ] Baño (pipí/popó con + y -)
-  - [ ] Pañal (solo Maternal: hora, condición, irritación)
-  - [ ] Control de esfínteres (Prekinder y Kinder 1)
-  - [ ] Alimentación con foto plato antes/después
-  - [ ] Estado de ánimo (botones emoji grandes)
-  - [ ] Tarea y comportamiento
-  - [ ] Fotos de actividades
-- [ ] Registro de medicamentos + notificación WhatsApp automática
+- [x] Bitácora diaria: registro completo maestra mobile ✅
+  - [x] Baño (pipí/popó con + y -) ✅
+  - [x] Pañal (solo Maternal: hora, condición, irritación) ✅
+  - [x] Control de esfínteres (Prekinder y Kinder 1) ✅
+  - [x] Alimentación ✅
+  - [x] Estado de ánimo (botones emoji grandes) ✅
+  - [x] Tarea y comportamiento ✅
+  - [ ] Fotos de actividades (pendiente)
+- [x] Bitácora lectura padre mobile — completa con navegación por fecha ✅
+- [x] Registro de medicamentos + notificación WhatsApp automática ✅ (backend)
 - [ ] Incidentes y accidentes + firma digital del padre
 - [ ] Reporte de asistencia: exportar Excel y PDF
 - [ ] Vista de asistencia mensual por grupo

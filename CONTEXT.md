@@ -1,8 +1,8 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-16
-### Sesión: FASE 1 completada — Fundación del proyecto
+### Última actualización: 2026-04-16 (noche — sesión 3)
+### Sesión: Bitácora mobile + Grupos web + Asistencia mobile completados
 
 ---
 
@@ -48,23 +48,31 @@
 ---
 
 ## Funcionalidades en Progreso 🔄
-- FASE 2 iniciada: endpoints urgentes completados, siguiente: CRUD alumnos en web + bitácora
+- FASE 3 iniciada: bitácora, asistencia y grupos completados. Siguiente: medicamentos, incidentes, reportes.
 
 ---
 
-## Completado en FASE 2 (sesión 2026-04-16 cont.)
+## Completado en sesión 3 (2026-04-16)
+- `mobile/app/(maestra)/bitacora.jsx` — pantalla completa: selector de alumno → formulario con ánimo, baño, pañal (Maternal), esfínteres, comida, tarea, comportamiento, salud, notas + guardar con upsert
+- `web/src/pages/directora/Grupos.jsx` — CRUD completo: tarjetas por nivel con barra de ocupación, modal crear/editar (nombre, nivel, turno, horario, capacidad, color, maestra titular, activo/inactivo)
+- `mobile/app/(maestra)/asistencia.jsx` — lista del grupo con semáforo en tiempo real (refresh 30s), buscador, filtros (todos/pendientes/presentes), modal de registro manual (presente/retardo/ausente + temperatura + notas)
+- `backend/src/routes/personal.js` — CRUD completo: GET lista (filtros activo/rol), GET detalle, POST crear (personal + usuario en una sola operación), PUT editar (sincroniza activo/rol en usuarios), POST reset-password, POST asignar-grupo, DELETE quitar-grupo
+- `web/src/pages/directora/Personal.jsx` — tarjetas con rol coloreado, grupos asignados con ⭐ titular, badge "sin acceder", stats (activos/sin grupo/sin login), modal crear/editar con datos personales + cuenta + asignación de grupo, confirmación de reset de contraseña
+- `mobile/app/(padre)/bitacora.jsx` — lectura completa de la bitácora: selector de fecha (‹/›), ánimo héroe, resumen visual 4 iconos, secciones: alimentación, tarea/conducta, baño, pañal, esfínteres, salud (alertas rojas), medicamentos, notas de la maestra
+- `backend/src/routes/alumnos.js` — 8 nuevos endpoints: GET/POST/DELETE documentos (Cloudinary), GET/POST/DELETE personas autorizadas (máx. 2, foto + INE x2 obligatorios), GET/POST/DELETE blacklist
+- `web/src/pages/directora/AlumnoPerfil.jsx` — ruta `/directora/alumnos/:id`: perfil completo con foto/QR/datos médicos, tutores, personas autorizadas (formulario con 3 fotos drag), documentos (subir PDF/imagen + semáforo de requisitos), notas
+- `web/src/pages/directora/Alumnos.jsx` — botón "Ver perfil" (FileText) navega a `/directora/alumnos/:id`
+- `web/src/App.jsx` — ruta `alumnos/:id` → DirectoraAlumnoPerfil
+
+## Completado en sesión 2 (2026-04-16)
 - `GET /alumnos/por-qr/:qrData` — devuelve alumno + estado de entrada de hoy + retardos del mes
 - `GET /grupos/mi-grupo` — devuelve grupo de la maestra + alumnos con asistencia y bitácora del día
 - `GET /reportes/dashboard` — stats completas: asistencia, pagos, retardos, documentación, por grupo
+- `web/src/pages/directora/Alumnos.jsx` — CRUD completo con búsqueda, filtros, modal crear/editar
+- `backend/src/routes/bitacora.js` — rutas completas: GET, POST /guardar, POST /panial, POST /medicamento
 
-## Pendientes — Continuación FASE 2
+## Pendientes — Continuación
 Ver PENDIENTES.md para el detalle completo.
-
-**Siguiente en esta sesión:**
-1. Página web `DirectoraAlumnos.jsx` — lista con búsqueda, crear, editar alumno
-2. Pantalla mobile `asistencia.jsx` — lista del grupo con modo manual (sin QR)
-3. Pantalla mobile `bitacora.jsx` — formulario completo de la maestra
-4. Git init + primer commit + GitHub
 
 ---
 

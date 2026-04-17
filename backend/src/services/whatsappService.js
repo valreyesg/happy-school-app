@@ -1,10 +1,16 @@
-const twilio = require('twilio');
 const { query } = require('../config/database');
 
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+// Lazy init — solo falla si se intenta enviar sin credenciales reales
+let _client = null;
+const getClient = () => {
+  if (!_client) {
+    const sid = process.env.TWILIO_ACCOUNT_SID;
+    if (!sid || !sid.startsWith('AC')) return null;
+    const twilio = require('twilio');
+    _client = twilio(sid, process.env.TWILIO_AUTH_TOKEN);
+  }
+  return _client;
+};
 
 const FROM = process.env.TWILIO_WHATSAPP_FROM;
 
@@ -37,6 +43,12 @@ const enviarMensaje = async ({ telefono, clave, variables, alumnoId, mensajeDire
   }
 
   const telefonoWA = `whatsapp:+52${telefono.replace(/\D/g, '')}`;
+
+  const client = getClient();
+  if (!client) {
+    console.warn('WhatsApp: Twilio no configurado, mensaje omitido.');
+    return { omitido: true };
+  }
 
   try {
     const response = await client.messages.create({

@@ -1,0 +1,3 @@
+# Normalizar saltos de línea a LF en el repo, cualquier OS que use
+* text=auto eol=lf
+*.bat text eol=crlf

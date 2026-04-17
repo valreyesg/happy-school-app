@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Nunito', ui-rounded, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #ffffff;
+    color: #2D3748;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 800;
+  }
+}
+
+@layer components {
+  /* Botones base Happy School */
+  .btn-hs {
+    @apply font-bold rounded-2xl px-6 py-3 transition-all duration-200
+           focus:outline-none focus:ring-4 active:scale-95 cursor-pointer;
+  }
+
+  .btn-primary {
+    @apply btn-hs bg-hs-purple text-white hover:bg-hs-purple-dark
+           focus:ring-hs-purple/30 shadow-hs;
+  }
+
+  .btn-red {
+    @apply btn-hs bg-hs-red text-white hover:bg-hs-red-dark focus:ring-hs-red/30;
+  }
+
+  .btn-green {
+    @apply btn-hs bg-hs-green text-white hover:bg-hs-green-dark focus:ring-hs-green/30;
+  }
+
+  .btn-yellow {
+    @apply btn-hs bg-hs-yellow text-white hover:bg-hs-yellow-dark focus:ring-hs-yellow/30;
+  }
+
+  .btn-outline {
+    @apply btn-hs border-2 border-hs-purple text-hs-purple hover:bg-hs-purple hover:text-white;
+  }
+
+  /* Cards */
+  .card-hs {
+    @apply bg-white rounded-3xl shadow-hs p-6 border border-gray-100;
+  }
+
+  /* Inputs */
+  .input-hs {
+    @apply w-full rounded-2xl border-2 border-gray-200 px-4 py-3 font-semibold
+           focus:outline-none focus:border-hs-purple transition-colors duration-200
+           placeholder:text-gray-400 placeholder:font-normal;
+  }
+
+  /* Semáforo badges */
+  .badge-verde {
+    @apply inline-flex items-center gap-1 bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-bold;
+  }
+
+  .badge-amarillo {
+    @apply inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 rounded-full px-3 py-1 text-sm font-bold;
+  }
+
+  .badge-rojo {
+    @apply inline-flex items-center gap-1 bg-red-100 text-red-700 rounded-full px-3 py-1 text-sm font-bold;
+  }
+
+  .badge-gris {
+    @apply inline-flex items-center gap-1 bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-sm font-bold;
+  }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 rounded-2xl;
+  }
+
+  /* Avatar alumno */
+  .avatar-alumno {
+    @apply w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-md;
+  }
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b794f4;
+  border-radius: 10px;
+}

@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Happy School",
+    "slug": "happy-school-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E9D5FF"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "mx.happyschool.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Para tomar fotos de alumnos y actividades",
+        "NSPhotoLibraryUsageDescription": "Para subir fotos a la bitácora",
+        "NSFaceIDUsageDescription": "Para autenticación rápida"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#E9D5FF"
+      },
+      "package": "mx.happyschool.app",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#805AD5"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Necesitamos acceso a la cámara para escanear QR y tomar fotos"
+        }
+      ]
+    ],
+    "scheme": "happyschool",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "tu-project-id"
+      }
+    }
+  }
+}

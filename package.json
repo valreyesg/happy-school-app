@@ -1,0 +1,22 @@
+{
+  "name": "happy-school-app",
+  "version": "1.0.0",
+  "description": "Happy School App — Comunidad Infantil",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "web"
+  ],
+  "scripts": {
+    "backend": "npm run dev --workspace=backend",
+    "web": "npm run dev --workspace=web",
+    "install:all": "npm install && cd mobile && npx expo install",
+    "db:migrate": "npm run migrate --workspace=backend",
+    "db:seed": "npm run seed --workspace=backend"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "license": "MIT"
+}

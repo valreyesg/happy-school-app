@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-17 (sesión 5 cerrada)
+## Última actualización: 2026-04-17 (sesión 6 cerrada)
 
 ---
 
@@ -41,8 +41,12 @@
 ---
 
 ## 🐛 Bugs Conocidos
-- Calendario web en blanco — pendiente debug
+- ~~Calendario web en blanco~~ ✅ RESUELTO sesión 6
 - IP hardcodeada en `mobile/src/services/api.js` línea 4
+
+## 🔧 Deuda técnica — Constraints únicos (detectado sesión 6)
+- [ ] Auditar todas las tablas y agregar UNIQUE donde falte (migración 004)
+- [ ] Especialmente: `plantillas_whatsapp`, `configuracion`, `ciclos_escolares`
 
 ---
 

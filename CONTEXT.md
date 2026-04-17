@@ -1,8 +1,8 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-17 (sesión 5 cerrada)
-### Sesión: FASE 4 Pagos completa + corrección de duplicados y constraints únicos
+### Última actualización: 2026-04-17 (sesión 6 cerrada)
+### Sesión: Bug fix calendario web — proceso stale + duplicados categorias_evento
 
 ---
 
@@ -105,8 +105,19 @@ Ejecutar `fix_db.ps1` en `C:\Users\vreyesg\AppData\Local\Temp\` — limpia datos
 ---
 
 ## Problemas Conocidos
-- Calendario web muestra pantalla en blanco — pendiente debug (posiblemente tabla `categorias_evento` sin datos o error en el frontend)
+- ~~Calendario web en blanco~~ ✅ RESUELTO sesión 6 — el proceso del backend estaba desactualizado (ver nota abajo)
 - IP hardcodeada en `mobile/src/services/api.js` línea 4 → cambiar a IP real
+
+## Nota crítica de operación — Backend
+**Siempre reiniciar el proceso del backend** al iniciar sesión de desarrollo.
+Node.js no recarga archivos automáticamente. Si el proceso lleva corriendo desde una sesión anterior, puede estar ejecutando código viejo.
+Comando: matar proceso en puerto 3000 y volver a correr `node src/index.js`
+
+## Regla de calidad — Constraints únicos
+Toda tabla debe tener UNIQUE o PRIMARY KEY en columnas que no deban repetirse.
+Tablas ya protegidas: `usuarios(email)`, `alumnos(curp)`, `grupos(nombre+ciclo_id)`,
+`conceptos_pago(nombre)`, `categorias_evento(nombre)` — migración 003.
+**Pendiente revisar**: otras tablas que puedan acumular duplicados.
 
 ---
 

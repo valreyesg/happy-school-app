@@ -1,8 +1,8 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-16 (noche — sesión 3)
-### Sesión: Bitácora mobile + Grupos web + Asistencia mobile completados
+### Última actualización: 2026-04-16 (noche — sesión 4 cerrada)
+### Sesión: Calendario completo (backend + web directora + mobile padre) — pendiente debug pantalla en blanco
 
 ---
 

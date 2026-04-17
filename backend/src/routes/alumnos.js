@@ -12,6 +12,23 @@ router.use(authenticate);
 
 router.get('/', ctrl.listar);
 router.get('/por-qr/:qrData', ctrl.buscarPorQR);
+
+// GET /alumnos/mis-hijos — alumnos vinculados al padre autenticado
+router.get('/mis-hijos', async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
+             g.nombre AS grupo_nombre, g.color_hex
+      FROM tutores t
+      JOIN alumnos a ON t.alumno_id = a.id
+      JOIN grupos g ON a.grupo_id = g.id
+      WHERE t.usuario_id = $1 AND a.activo = true
+      ORDER BY a.nombre_completo
+    `, [req.user.id]);
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
 router.get('/:id', ctrl.obtener);
 
 router.post('/', authorize('directora', 'administrativo'), ctrl.crear);

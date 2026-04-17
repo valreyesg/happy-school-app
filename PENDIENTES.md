@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-16 (noche — sesión 3 cerrada)
+## Última actualización: 2026-04-17 (sesión 5 en curso)
 
 ---
 
@@ -98,14 +98,15 @@
 
 ## 📋 FASE 4 — Control de Pagos
 
-- [ ] CRUD conceptos de pago configurables
-- [ ] Registro de pagos con recargos automáticos (cálculo día 6+)
-- [ ] Dashboard financiero con semáforo (verde/amarillo/rojo/suspendido)
-- [ ] Control de comida semanal (pago lunes, suspensión martes)
+- [x] CRUD conceptos de pago configurables ✅
+- [x] Registro de pagos con recargos automáticos (cálculo día 6+) ✅
+- [x] Dashboard financiero con semáforo (verde/amarillo/rojo/suspendido) ✅
+- [x] Control de comida semanal (pago lunes, suspensión martes) ✅ (backend + mobile)
+- [x] Estado de cuenta familiar consolidado — mobile padre ✅
+- [x] `GET /alumnos/mis-hijos` — endpoint para padre mobile ✅
 - [ ] Cobros de extensión de horario automáticos ($125/hr)
 - [ ] Generación de recibos en PDF
 - [ ] Envío de recibo por WhatsApp (automático al registrar pago)
-- [ ] Estado de cuenta familiar consolidado (familias con varios hijos)
 - [ ] Exportación Excel y PDF por alumno / grupo / mes
 
 ---

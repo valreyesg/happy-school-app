@@ -57,7 +57,7 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
   const [form, setForm] = useState({
     alumno_id: alumno?.id || '',
     concepto_id: '',
-    monto_base: '',
+    monto: '',
     mes_correspondiente: mes,
     anio_correspondiente: anio,
     metodo_pago: 'efectivo',
@@ -84,12 +84,12 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
 
   const handleConcepto = (id) => {
     const cp = conceptos.find(c => c.id === id);
-    setForm(f => ({ ...f, concepto_id: id, monto_base: cp ? cp.monto_base : '' }));
+    setForm(f => ({ ...f, concepto_id: id, monto: cp ? cp.monto : '' }));
   };
 
   const submit = (e) => {
     e.preventDefault();
-    if (!form.alumno_id || !form.concepto_id || !form.monto_base)
+    if (!form.alumno_id || !form.concepto_id || !form.monto)
       return setError('Alumno, concepto y monto son obligatorios');
     mut.mutate(form);
   };
@@ -131,7 +131,7 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
             <select className="input-hs" value={form.concepto_id} onChange={e => handleConcepto(e.target.value)} required>
               <option value="">Selecciona un concepto...</option>
               {conceptos.map(c => (
-                <option key={c.id} value={c.id}>{c.nombre} — {fmt(c.monto_base)}</option>
+                <option key={c.id} value={c.id}>{c.nombre} — {fmt(c.monto)}</option>
               ))}
             </select>
           </div>
@@ -153,8 +153,8 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
 
           <div>
             <label className="block text-xs font-bold text-gray-600 mb-1">Monto base *</label>
-            <input type="number" step="0.01" className="input-hs" value={form.monto_base}
-              onChange={e => setForm(f => ({ ...f, monto_base: e.target.value }))} required />
+            <input type="number" step="0.01" className="input-hs" value={form.monto}
+              onChange={e => setForm(f => ({ ...f, monto: e.target.value }))} required />
           </div>
 
           {conceptoSel?.dia_recargo && (
@@ -219,13 +219,13 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
 // ─── Modal Conceptos ──────────────────────────────────────────────────────────
 
 function ModalConceptos({ conceptos, onClose }) {
-  const [form, setForm] = useState({ nombre: '', tipo: 'colegiatura', monto_base: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 });
+  const [form, setForm] = useState({ nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 });
   const [error, setError] = useState('');
   const qc = useQueryClient();
 
   const crear = useMutation({
     mutationFn: d => api.post('/pagos/conceptos', d).then(r => r.data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pagos-conceptos'] }); setForm({ nombre: '', tipo: 'colegiatura', monto_base: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pagos-conceptos'] }); setForm({ nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 }); },
     onError: e => setError(e.response?.data?.error || 'Error'),
   });
 
@@ -249,7 +249,7 @@ function ModalConceptos({ conceptos, onClose }) {
               <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                 <div>
                   <p className="font-bold text-gray-800 text-sm">{c.nombre}</p>
-                  <p className="text-xs text-gray-500">{c.tipo} · {fmt(c.monto_base)}
+                  <p className="text-xs text-gray-500">{c.tipo} · {fmt(c.monto)}
                     {c.dia_recargo ? ` · Recargo día ${c.dia_recargo}` : ''}
                   </p>
                 </div>
@@ -276,8 +276,8 @@ function ModalConceptos({ conceptos, onClose }) {
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 block mb-1">Monto base</label>
-                <input type="number" step="0.01" className="input-hs" value={form.monto_base}
-                  onChange={e => setForm(f => ({ ...f, monto_base: e.target.value }))} />
+                <input type="number" step="0.01" className="input-hs" value={form.monto}
+                  onChange={e => setForm(f => ({ ...f, monto: e.target.value }))} />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 block mb-1">Día de pago</label>

@@ -19,10 +19,11 @@ router.get('/mis-hijos', async (req, res, next) => {
     const result = await query(`
       SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
              g.nombre AS grupo_nombre, g.color_hex
-      FROM tutores t
-      JOIN alumnos a ON t.alumno_id = a.id
+      FROM padres p
+      JOIN alumno_padre ap ON ap.padre_id = p.id
+      JOIN alumnos a ON ap.alumno_id = a.id
       JOIN grupos g ON a.grupo_id = g.id
-      WHERE t.usuario_id = $1 AND a.activo = true
+      WHERE p.usuario_id = $1 AND a.deleted_at IS NULL
       ORDER BY a.nombre_completo
     `, [req.user.id]);
     res.json(result.rows);

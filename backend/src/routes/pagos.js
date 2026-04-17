@@ -52,16 +52,16 @@ router.get('/conceptos', async (req, res, next) => {
 
 router.post('/conceptos', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, descripcion, monto_base, tipo, es_mensual, es_recurrente,
+    const { nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
             dia_pago, dia_recargo, monto_recargo_dia } = req.body;
-    if (!nombre || !monto_base || !tipo)
-      return res.status(400).json({ error: 'nombre, monto_base y tipo son obligatorios' });
+    if (!nombre || !monto || !tipo)
+      return res.status(400).json({ error: 'nombre, monto y tipo son obligatorios' });
 
     const r = await query(`
       INSERT INTO conceptos_pago
-        (nombre, descripcion, monto_base, tipo, es_mensual, es_recurrente, dia_pago, dia_recargo, monto_recargo_dia)
+        (nombre, descripcion, monto, tipo, es_mensual, es_recurrente, dia_pago, dia_recargo, monto_recargo_dia)
       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *
-    `, [nombre, descripcion || null, monto_base, tipo,
+    `, [nombre, descripcion || null, monto, tipo,
         es_mensual ?? false, es_recurrente ?? false,
         dia_pago || null, dia_recargo || null, monto_recargo_dia || 0]);
     res.status(201).json(r.rows[0]);
@@ -70,13 +70,13 @@ router.post('/conceptos', authorize('directora'), async (req, res, next) => {
 
 router.put('/conceptos/:id', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, descripcion, monto_base, tipo, es_mensual, es_recurrente,
+    const { nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
             dia_pago, dia_recargo, monto_recargo_dia, activo } = req.body;
     await query(`
       UPDATE conceptos_pago SET
         nombre           = COALESCE($1, nombre),
         descripcion      = COALESCE($2, descripcion),
-        monto_base       = COALESCE($3, monto_base),
+        monto       = COALESCE($3, monto),
         tipo             = COALESCE($4, tipo),
         es_mensual       = COALESCE($5, es_mensual),
         es_recurrente    = COALESCE($6, es_recurrente),
@@ -86,7 +86,7 @@ router.put('/conceptos/:id', authorize('directora'), async (req, res, next) => {
         activo           = COALESCE($10, activo),
         updated_at       = NOW()
       WHERE id = $11
-    `, [nombre, descripcion, monto_base, tipo, es_mensual, es_recurrente,
+    `, [nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
         dia_pago, dia_recargo, monto_recargo_dia, activo, req.params.id]);
     res.json({ ok: true });
   } catch (err) { next(err); }
@@ -181,7 +181,9 @@ router.get('/estado/:alumnoId', async (req, res, next) => {
     // Padres solo pueden ver sus hijos
     if (req.user.rol_principal === 'padre') {
       const check = await query(
-        `SELECT 1 FROM tutores WHERE usuario_id = $1 AND alumno_id = $2`,
+        `SELECT 1 FROM padres p
+         JOIN alumno_padre ap ON ap.padre_id = p.id
+         WHERE p.usuario_id = $1 AND ap.alumno_id = $2`,
         [req.user.id, req.params.alumnoId]
       );
       if (!check.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
@@ -266,12 +268,12 @@ router.get('/', authorize('directora', 'administrativo'), async (req, res, next)
 router.post('/', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
     const {
-      alumno_id, concepto_id, monto_base, mes_correspondiente, anio_correspondiente,
+      alumno_id, concepto_id, monto, mes_correspondiente, anio_correspondiente,
       metodo_pago, referencia, notas, fecha_pago, aplicar_recargo,
     } = req.body;
 
-    if (!alumno_id || !concepto_id || !monto_base)
-      return res.status(400).json({ error: 'alumno_id, concepto_id y monto_base son obligatorios' });
+    if (!alumno_id || !concepto_id || !monto)
+      return res.status(400).json({ error: 'alumno_id, concepto_id y monto son obligatorios' });
 
     const m  = parseInt(mes_correspondiente)  || new Date().getMonth() + 1;
     const a  = parseInt(anio_correspondiente) || new Date().getFullYear();
@@ -282,7 +284,7 @@ router.post('/', authorize('directora', 'administrativo'), async (req, res, next
       ? calcularRecargo(cp.rows[0], m, a)
       : { monto_recargo: 0, dias_atraso: 0 };
 
-    const base  = parseFloat(monto_base);
+    const base  = parseFloat(monto);
     const total = +(base + monto_recargo).toFixed(2);
     const fechaLimite = cp.rows[0].dia_pago
       ? new Date(a, m - 1, cp.rows[0].dia_pago).toISOString().slice(0, 10)
@@ -316,7 +318,7 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
       `SELECT * FROM conceptos_pago WHERE es_mensual = true AND activo = true`
     );
     const alumnos = await query(
-      `SELECT id FROM alumnos WHERE activo = true`
+      `SELECT id FROM alumnos WHERE deleted_at IS NULL`
     );
 
     let creados = 0;
@@ -339,7 +341,7 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
             (alumno_id, concepto_id, monto_base, monto_recargo, monto_total,
              estado, mes_correspondiente, anio_correspondiente, fecha_limite, registrado_por)
           VALUES ($1,$2,$3,0,$3,'pendiente',$4,$5,$6,$7)
-        `, [al.id, cp.id, cp.monto_base, m, a, fechaLimite, req.user.id]);
+        `, [al.id, cp.id, cp.monto, m, a, fechaLimite, req.user.id]);
         creados++;
       }
     }

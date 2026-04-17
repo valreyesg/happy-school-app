@@ -1,8 +1,8 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-16 (noche — sesión 4 cerrada)
-### Sesión: Calendario completo (backend + web directora + mobile padre) — pendiente debug pantalla en blanco
+### Última actualización: 2026-04-17 (sesión 5 cerrada)
+### Sesión: FASE 4 Pagos completa + corrección de duplicados y constraints únicos
 
 ---
 
@@ -18,61 +18,95 @@
 ## Funcionalidades Completadas ✅
 
 ### FASE 1 — Fundación (2026-04-16)
-- CONTEXT.md y PENDIENTES.md
 - Monorepo: npm workspaces (backend + web) + mobile independiente
-- Esquema PostgreSQL completo (50+ tablas, ENUMs, índices, datos iniciales, seed)
+- Esquema PostgreSQL completo (50+ tablas, ENUMs, índices)
 - Backend Node.js + Express: auth JWT con rotación de refresh tokens
-- Middleware: authenticate, authorize (roles dinámicos), errorHandler, validateRequest
-- Controllers: authController (login/refresh/logout/cambiarPassword/perfil), alumnosController (CRUD + foto + QR)
+- Middleware: authenticate, authorize (roles dinámicos), errorHandler
+- Controllers: authController, alumnosController (CRUD + foto + QR)
 - Rutas completas: auth, alumnos, grupos, asistencia
-- Ruta asistencia: filtro de entrada con retardos automáticos + notificaciones WhatsApp automáticas
-- Servicios: cloudinaryService, whatsappService (Twilio), qrService
-- Stubs de rutas: personal, bitacora, pagos, calendario, evaluaciones, galeria, chat, notificaciones, config, reportes
-- Seed inicial: grupos, roles, plantillas WhatsApp (19 plantillas), categorías de eventos, configuración general
-- Web React + Tailwind: paleta Happy School completa (rojo, amarillo, verde, morado)
-- Web: CSS utilitario (btn-hs, card-hs, input-hs, badge-semaforo, skeleton)
-- Web: Logo, Semaforo, AvatarAlumno, SkeletonCard (componentes base)
-- Web: SplashPage animada, LoginPage con gradiente, Dashboard directora con semáforo
-- Web: DirectoraLayout con sidebar, layouts para los 4 portales
-- Web: Router completo con PrivateRoute por rol, todas las páginas stub
-- Web: authStore (Zustand + persist), api.js (axios + refresh automático)
-- Mobile Expo Router: app.json, babel.config.js, tailwind (NativeWind)
-- Mobile: authStore (SecureStore), api.js (axios + refresh)
-- Mobile: Splash, LoginScreen con KeyboardAvoidingView
-- Mobile: Tabs maestra (Inicio, Asistencia, Bitácora, Galería, QR Scanner)
-- Mobile: QR Scanner COMPLETO: escaneo → foto alumno → checklist 8 puntos → resultado semáforo
-- Mobile: Dashboard maestra con modo entrada automático 7:00–8:30am
-- Mobile: Tabs padre (Inicio, Bitácora, Pagos, Calendario, Chat)
-- Mobile: Dashboard padre con tarjetas de hijos y resumen de bitácora
+- Asistencia: retardos automáticos + notificaciones WhatsApp
+- Servicios: cloudinaryService, whatsappService (Twilio lazy init), qrService
+- Seed inicial: grupos, roles, plantillas WhatsApp (19), categorías, config general
+- Web: paleta Happy School, CSS utilitario, componentes base
+- Web: SplashPage, LoginPage, Dashboard directora con semáforo
+- Web: 4 layouts (directora, administrativo, maestra, padre), router completo
+- Web: authStore (Zustand + persist), api.js (axios + refresh auto)
+- Mobile: authStore (SecureStore), Splash, Login, redirect por rol
+- Mobile: QR Scanner completo (escaneo → checklist → semáforo)
+- Mobile: Tabs maestra y padre con dashboards
+
+### FASE 2 — Alumnos y Grupos (2026-04-16)
+- `GET /alumnos/por-qr/:qrData` — QR scanner mobile
+- `GET /grupos/mi-grupo` — dashboard maestra
+- `GET /reportes/dashboard` — stats directora web
+- `web/src/pages/directora/Alumnos.jsx` — CRUD completo
+- `backend/src/routes/bitacora.js` — GET, POST /guardar, POST /panial, POST /medicamento
+- Git init, primer commit, repo GitHub: https://github.com/valreyesg/happy-school-app
+
+### FASE 3 — Bitácora y módulos completos (2026-04-16)
+- `mobile/app/(maestra)/bitacora.jsx` — formulario completo (ánimo, baño, pañal, esfínteres, comida, tarea, salud, notas)
+- `mobile/app/(maestra)/asistencia.jsx` — semáforo en tiempo real (refresh 30s), modal manual
+- `web/src/pages/directora/Grupos.jsx` — CRUD grupos con barra de ocupación
+- `backend/src/routes/personal.js` — CRUD personal + reset-password + asignación de grupos
+- `web/src/pages/directora/Personal.jsx` — tarjetas con rol, grupos asignados, badge primer login
+- `mobile/app/(padre)/bitacora.jsx` — lectura completa con selector de fecha
+- `backend/src/routes/alumnos.js` — documentos, personas autorizadas, blacklist
+- `web/src/pages/directora/AlumnoPerfil.jsx` — perfil completo con documentos y personas autorizadas
+- Calendario completo: `backend/src/routes/calendario.js`, `web/…/Calendario.jsx`, `mobile/…/calendario.jsx`
+- Migración 002: índices UNIQUE para curp, grupos(nombre+ciclo), conceptos_pago(nombre)
+
+### FASE 4 — Control de Pagos (2026-04-17)
+- `backend/src/routes/pagos.js` — CRUD conceptos, registro de pagos con recargo automático (día 6+), dashboard financiero, estado de cuenta por alumno, generación masiva de cargos, comida semanal
+- `web/src/pages/directora/Pagos.jsx` — dashboard con semáforo, stats, top morosos, tabla expandible por alumno, modal de pago, gestión de conceptos
+- `mobile/app/(padre)/pagos.jsx` — estado de cuenta por hijo, semáforo, saldo pendiente, comida semanal, historial por mes
+- `GET /alumnos/mis-hijos` — alumnos vinculados al padre (tabla `alumno_padre`)
 
 ---
 
-## Funcionalidades en Progreso 🔄
-- FASE 3 iniciada: bitácora, asistencia y grupos completados. Siguiente: medicamentos, incidentes, reportes.
+## Entorno de Desarrollo
+
+### Cómo iniciar
+```
+# Backend (en terminal en /backend)
+node src/index.js
+
+# Web (en terminal en /web)
+npm run dev
+
+# Seed (solo si la DB está vacía o quieres restaurar datos de prueba)
+node src/database/seed.js
+```
+
+### Credenciales de prueba (contraseña: HappySchool2026!)
+| Rol | Email |
+|-----|-------|
+| Directora | directora@happyschool.edu.mx |
+| Administrativo | admin@happyschool.edu.mx |
+| Maestra Maternal | maternal@happyschool.edu.mx |
+| Maestra Prekinder | prekinder@happyschool.edu.mx |
+| Maestra Kinder 1 | kinder1@happyschool.edu.mx |
+| Maestra Kinder 2 | kinder2@happyschool.edu.mx |
+| Maestra Kinder 3 | kinder3@happyschool.edu.mx |
+| Padre (alumna Ana García López) | padre@happyschool.edu.mx |
+
+### Si el seed crea duplicados
+Ejecutar `fix_db.ps1` en `C:\Users\vreyesg\AppData\Local\Temp\` — limpia datos de prueba, aplica migraciones pendientes y re-inserta el seed.
 
 ---
 
-## Completado en sesión 3 (2026-04-16)
-- `mobile/app/(maestra)/bitacora.jsx` — pantalla completa: selector de alumno → formulario con ánimo, baño, pañal (Maternal), esfínteres, comida, tarea, comportamiento, salud, notas + guardar con upsert
-- `web/src/pages/directora/Grupos.jsx` — CRUD completo: tarjetas por nivel con barra de ocupación, modal crear/editar (nombre, nivel, turno, horario, capacidad, color, maestra titular, activo/inactivo)
-- `mobile/app/(maestra)/asistencia.jsx` — lista del grupo con semáforo en tiempo real (refresh 30s), buscador, filtros (todos/pendientes/presentes), modal de registro manual (presente/retardo/ausente + temperatura + notas)
-- `backend/src/routes/personal.js` — CRUD completo: GET lista (filtros activo/rol), GET detalle, POST crear (personal + usuario en una sola operación), PUT editar (sincroniza activo/rol en usuarios), POST reset-password, POST asignar-grupo, DELETE quitar-grupo
-- `web/src/pages/directora/Personal.jsx` — tarjetas con rol coloreado, grupos asignados con ⭐ titular, badge "sin acceder", stats (activos/sin grupo/sin login), modal crear/editar con datos personales + cuenta + asignación de grupo, confirmación de reset de contraseña
-- `mobile/app/(padre)/bitacora.jsx` — lectura completa de la bitácora: selector de fecha (‹/›), ánimo héroe, resumen visual 4 iconos, secciones: alimentación, tarea/conducta, baño, pañal, esfínteres, salud (alertas rojas), medicamentos, notas de la maestra
-- `backend/src/routes/alumnos.js` — 8 nuevos endpoints: GET/POST/DELETE documentos (Cloudinary), GET/POST/DELETE personas autorizadas (máx. 2, foto + INE x2 obligatorios), GET/POST/DELETE blacklist
-- `web/src/pages/directora/AlumnoPerfil.jsx` — ruta `/directora/alumnos/:id`: perfil completo con foto/QR/datos médicos, tutores, personas autorizadas (formulario con 3 fotos drag), documentos (subir PDF/imagen + semáforo de requisitos), notas
-- `web/src/pages/directora/Alumnos.jsx` — botón "Ver perfil" (FileText) navega a `/directora/alumnos/:id`
-- `web/src/App.jsx` — ruta `alumnos/:id` → DirectoraAlumnoPerfil
+## Notas de Schema Importantes (para evitar errores futuros)
+- `conceptos_pago.monto` — el campo es `monto` (NO `monto_base`)
+- `pagos.monto_base` — el campo es `monto_base` (NO `monto`)
+- `alumnos` no tiene columna `activo` — usar `deleted_at IS NULL`
+- `personal` no tiene `puesto` ni `ciclo_id` — solo `nombre_completo`, `usuario_id`, etc.
+- La relación padres↔alumnos es tabla `alumno_padre` (NO `tutores`)
+- Asignación de maestras a grupos: tabla `asignaciones_grupo` (NO `grupos_personal`)
 
-## Completado en sesión 2 (2026-04-16)
-- `GET /alumnos/por-qr/:qrData` — devuelve alumno + estado de entrada de hoy + retardos del mes
-- `GET /grupos/mi-grupo` — devuelve grupo de la maestra + alumnos con asistencia y bitácora del día
-- `GET /reportes/dashboard` — stats completas: asistencia, pagos, retardos, documentación, por grupo
-- `web/src/pages/directora/Alumnos.jsx` — CRUD completo con búsqueda, filtros, modal crear/editar
-- `backend/src/routes/bitacora.js` — rutas completas: GET, POST /guardar, POST /panial, POST /medicamento
+---
 
-## Pendientes — Continuación
-Ver PENDIENTES.md para el detalle completo.
+## Problemas Conocidos
+- Calendario web muestra pantalla en blanco — pendiente debug (posiblemente tabla `categorias_evento` sin datos o error en el frontend)
+- IP hardcodeada en `mobile/src/services/api.js` línea 4 → cambiar a IP real
 
 ---
 
@@ -83,112 +117,49 @@ Ver PENDIENTES.md para el detalle completo.
 - **Web:** React con Tailwind CSS
 - **Backend:** Node.js + Express
 - **Base de datos:** PostgreSQL
-- **Autenticación:** JWT (access token 15min + refresh token 7 días, rotación)
-- **Archivos:** Cloudinary (fotos y documentos)
-- **Push notifications:** Firebase Cloud Messaging (FCM)
-- **WhatsApp:** Twilio WhatsApp Business API
-- **Calendario:** Google Calendar API
-- **Exportación:** xlsx + pdfkit
+- **Autenticación:** JWT (access 15min + refresh 7 días, rotación)
+- **Archivos:** Cloudinary
+- **Push:** Firebase Cloud Messaging
+- **WhatsApp:** Twilio (lazy init para evitar crash con credentials placeholder)
+- **Calendario:** Google Calendar API (pendiente)
+- **Exportación:** xlsx + pdfkit (pendiente)
 
 ### Estructura del Monorepo
 ```
 APP-KINDER/
-├── MEMORY.md           ← LEER PRIMERO
-├── CONTEXT.md          ← LEER SEGUNDO
-├── PENDIENTES.md       ← LEER TERCERO
-├── README.md
-├── LICENSE (MIT)
-├── package.json (workspace root: backend + web)
+├── MEMORY.md / CONTEXT.md / PENDIENTES.md
 ├── backend/
+│   ├── migrations/  001_schema_inicial.sql, 002_unique_constraints.sql
 │   ├── src/
-│   │   ├── config/database.js
-│   │   ├── controllers/     authController.js, alumnosController.js
-│   │   ├── middleware/      auth.js, errorHandler.js, validateRequest.js
-│   │   ├── routes/          index.js + 13 módulos
-│   │   └── services/        cloudinaryService.js, whatsappService.js, qrService.js
-│   ├── migrations/          001_schema_inicial.sql
-│   ├── src/database/seed.js
-│   ├── database.json        (node-pg-migrate config)
-│   └── package.json
+│   │   ├── controllers/   authController.js, alumnosController.js
+│   │   ├── middleware/     auth.js, errorHandler.js, validateRequest.js
+│   │   ├── routes/        index.js + 14 módulos completos
+│   │   ├── services/      cloudinaryService, whatsappService, qrService
+│   │   └── database/      seed.js
+│   └── .env (no en git — credenciales reales)
 ├── web/
-│   ├── src/
-│   │   ├── components/ui/   Logo, Semaforo, AvatarAlumno, SkeletonCard
-│   │   ├── layouts/         DirectoraLayout, AdministrativoLayout, MaestraLayout, PadreLayout
-│   │   ├── pages/           directora/, administrativo/, maestra/, padre/
-│   │   ├── store/authStore.js
-│   │   ├── services/api.js
-│   │   ├── App.jsx
-│   │   └── index.css
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   └── package.json
+│   └── src/pages/directora/  Dashboard, Alumnos, AlumnoPerfil, Grupos,
+│                              Personal, Pagos, Calendario, Evaluaciones, Config
 └── mobile/
-    ├── app/
-    │   ├── _layout.jsx
-    │   ├── index.jsx        (Splash)
-    │   ├── login.jsx
-    │   ├── (maestra)/       _layout, index, asistencia, bitacora, galeria, qr-scanner
-    │   └── (padre)/         _layout, index, bitacora, pagos, calendario, chat, galeria, qr
-    ├── src/
-    │   ├── store/authStore.js (SecureStore)
-    │   └── services/api.js
-    ├── app.json
-    ├── babel.config.js
-    ├── tailwind.config.js
-    └── package.json
+    └── app/
+        ├── (maestra)/  index, asistencia, bitacora, galeria, qr-scanner
+        └── (padre)/    index, bitacora, pagos, calendario, chat
 ```
 
 ### Roles del Sistema
 | Rol | Acceso |
 |-----|--------|
-| directora | Todo — académico y configuración |
-| administrativo | Todo financiero |
-| maestra_titular | Solo su grupo asignado |
+| directora | Todo |
+| administrativo | Financiero |
+| maestra_titular | Solo su grupo |
 | maestra_especial | Grupos y días asignados |
-| maestra_puerta | Solo entrada/salida del día |
-| padre | Solo su(s) hijo(s) |
-
-### Paleta de Colores Happy School
-- Rojo: `#E53E3E` / `#FC8181`
-- Amarillo: `#D69E2E` / `#F6E05E`
-- Verde: `#38A169` / `#68D391`
-- Morado: `#805AD5` / `#B794F4`
-- Fondo: `#FFFFFF`
-
-### Semáforo de Estado
-- 🟢 Verde: Al corriente / Bien
-- 🟡 Amarillo: Atención / En período de pago
-- 🔴 Rojo: Urgente / Con atraso
-- ⛔ Gris: Suspendido / Más de 30 días
+| maestra_puerta | Solo entrada/salida |
+| padre | Solo sus hijo(s) |
 
 ### Reglas de Negocio Clave
 - Horario entrada sin retardo: 7:00–8:30am (8:31+ = retardo automático)
 - Máx. 3 retardos/mes → al 4to no entra ese día
-- Colegiatura: pago sin recargo del 1 al 5 del mes, recargo desde el día 6
-- Comida: pago obligatorio cada lunes → sin pago = sin servicio el martes
-- Personas autorizadas para recoger: máx. 2, requieren foto + INE obligatorios
-- Extensión de horario: $125/hora o fracción después del horario normal
-- Alerta a padres si no recogen al alumno en 5 minutos
-
----
-
-## Credenciales de desarrollo (seed)
-- **Directora:** directora@happyschool.edu.mx / HappySchool2026!
-- **Admin:** admin@happyschool.edu.mx / HappySchool2026!
-
----
-
-## Problemas Conocidos
-- Los endpoints `/alumnos/por-qr/`, `/grupos/mi-grupo` y `/reportes/dashboard` aún no existen — el mobile los necesita para funcionar completamente
-- Mobile: cambiar la IP en `mobile/src/services/api.js` línea 4 por la IP real de tu máquina en desarrollo
-
----
-
-## Notas Importantes
-- Todo el sistema en **español**
-- Licencia **MIT** — GitHub opensource
-- Máximo **2 toques** para cualquier acción frecuente (regla de UX)
-- Todos los catálogos en base de datos, **nunca hardcodeados**
-- Preparado para escalar hasta 200 alumnos sin cambios de arquitectura
-- En mobile, el QR Scanner activa el modo entrada automáticamente entre 7:00 y 8:30am
+- Colegiatura: pago sin recargo del 1 al 5, recargo desde día 6 ($50/día)
+- Comida: pago lunes → sin pago = sin servicio el martes
+- Personas autorizadas para recoger: máx. 2, foto + INE obligatorios
+- Extensión de horario: $125/hora después del horario normal

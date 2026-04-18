@@ -9,9 +9,12 @@ router.use(authenticate);
 // Devuelve todas las stats que muestra la pantalla de inicio
 router.get('/dashboard', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
-    const hoy = new Date().toISOString().split('T')[0];
-    const mesActual = new Date().getMonth() + 1;
-    const anioActual = new Date().getFullYear();
+    // Usar CURRENT_DATE de PostgreSQL para respetar zona horaria local del servidor
+    const { rows: [{ hoy, mes_actual: mesActual, anio_actual: anioActual }] } = await query(
+      `SELECT CURRENT_DATE::text AS hoy,
+              EXTRACT(MONTH FROM CURRENT_DATE)::int AS mes_actual,
+              EXTRACT(YEAR  FROM CURRENT_DATE)::int AS anio_actual`
+    );
 
     // Ejecutar todas las queries en paralelo para máxima velocidad
     const [
@@ -33,13 +36,13 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           AND c.activo = true
       `),
 
-      // Asistencia de hoy: presentes, ausentes, retardos
+      // Asistencia de hoy: presentes+retardos = en escuela, ausentes, no_entrada
       query(`
         SELECT
-          COUNT(*) FILTER (WHERE estado = 'presente') AS presentes,
-          COUNT(*) FILTER (WHERE estado = 'ausente')  AS ausentes,
-          COUNT(*) FILTER (WHERE estado = 'retardo')  AS retardos,
-          COUNT(*) FILTER (WHERE estado = 'no_entrada') AS no_entrada
+          COUNT(*) FILTER (WHERE estado IN ('presente','retardo')) AS presentes,
+          COUNT(*) FILTER (WHERE estado = 'ausente')               AS ausentes,
+          COUNT(*) FILTER (WHERE estado = 'retardo')               AS retardos,
+          COUNT(*) FILTER (WHERE estado = 'no_entrada')            AS no_entrada
         FROM asistencia
         WHERE fecha = $1
       `, [hoy]),
@@ -105,8 +108,8 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           g.nombre AS grupo_nombre,
           g.color_hex,
           COUNT(a.id) AS total,
-          COUNT(ast.id) FILTER (WHERE ast.estado = 'presente') AS presentes,
-          COUNT(ast.id) FILTER (WHERE ast.estado = 'retardo')  AS retardos
+          COUNT(ast.id) FILTER (WHERE ast.estado IN ('presente','retardo')) AS presentes,
+          COUNT(ast.id) FILTER (WHERE ast.estado = 'retardo')              AS retardos
         FROM grupos g
         LEFT JOIN alumnos a ON a.grupo_id = g.id
           AND a.deleted_at IS NULL

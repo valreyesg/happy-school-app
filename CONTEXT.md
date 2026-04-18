@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-17 (sesión 8 cerrada)
-### Sesión: Deuda técnica + identidad visual — constraints únicos, emojis, Miss/Teacher, saludos dinámicos
-### Próxima sesión: validar cambios en browser, luego Galería Maestra web, Vista asistencia mensual o FASE 5
+### Última actualización: 2026-04-17 (sesión 9 cerrada)
+### Sesión: Vista asistencia mensual directora + bug crítico zona horaria (backend + frontend)
+### Próxima sesión: Galería Maestra web (`/maestra/galeria`) o FASE 5 inscripciones
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**
@@ -59,9 +59,23 @@ Ejecutar `fix_db.ps1` en `C:\Users\vreyesg\AppData\Local\Temp\` — limpia datos
 - IP hardcodeada en `mobile/src/services/api.js` línea 4 → cambiar a IP real
 
 ## Nota crítica de operación — Backend
-**Siempre reiniciar el proceso del backend** al iniciar sesión de desarrollo.
-Node.js no recarga archivos automáticamente. Si el proceso lleva corriendo desde una sesión anterior, puede estar ejecutando código viejo.
-Comando: matar proceso en puerto 3000 y volver a correr `node src/index.js`
+**REGLA ABSOLUTA: Claude debe reiniciar el backend después de cualquier cambio en rutas o controladores.**
+Node.js no recarga archivos automáticamente. Si el proceso lleva corriendo, ejecuta código viejo y las nuevas rutas no existen.
+
+Comandos (ejecutar en secuencia desde `/backend`):
+```bash
+kill -9 $(ps aux | grep node | grep -v grep | awk '{print $1}') 2>/dev/null
+sleep 1
+node src/index.js &
+sleep 3 && curl -s http://localhost:3000/health
+```
+Si `kill` no funciona por PID, usar: `kill -9 PID_DEL_PROCESO_HIJO` (segundo número en la fila de `ps aux`).
+
+## ⚠️ REGLA CRÍTICA — Fechas y zona horaria
+**NUNCA usar `new Date().toISOString().split('T')[0]`** para obtener la fecha de "hoy", ni en backend ni en frontend.
+Razón: devuelve fecha UTC. Después de las 6pm México (UTC-6) ya es el día siguiente en UTC → asistencia y bitácora aparecen vacías o con fecha incorrecta.
+- **Backend:** usar `CURRENT_DATE` de PostgreSQL, o `COALESCE($n::date, CURRENT_DATE)` cuando el parámetro es opcional.
+- **Frontend:** usar `new Date().toLocaleDateString('en-CA')` → devuelve `'YYYY-MM-DD'` en hora local del navegador.
 
 ## Regla de calidad — Constraints únicos
 **Pendiente revisar**: otras tablas que puedan acumular duplicados.

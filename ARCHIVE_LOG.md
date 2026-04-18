@@ -28,6 +28,12 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 9 — Completada (2026-04-17)
+- [x] Vista asistencia directora — tabla-matriz mensual con toggle Hoy/Mensual, navegador mes/año, totales por alumno (presentes, retardos, no entró)
+- [x] Endpoint `GET /asistencia/grupo/:id/mensual?mes=&anio=` — agrupa por alumno con `dias: { 'YYYY-MM-DD': estado }`, usa `TO_CHAR` para evitar ambigüedad de timezone
+- [x] UNIQUE constraint `ciclos_escolares(nombre)` — 6 duplicados eliminados, migración 006 aplicada (sesión 8, movido aquí)
+- [x] **BUG CRÍTICO — Zona horaria UTC vs hora local:** `new Date().toISOString().split('T')[0]` devuelve fecha UTC; después de las 6pm México ya es el día siguiente → asistencia y bitácora aparecían vacías o con fecha incorrecta. Fix backend (`asistencia.js`, `reportes.js`, `bitacora.js`, `grupos.js`): `COALESCE($n::date, CURRENT_DATE)` en SQL. Fix frontend (`padre/Bitacora.jsx`, `maestra/Bitacora.jsx`): `new Date().toLocaleDateString('en-CA')`.
+
 ## ✅ SESIÓN 8 — Completada (2026-04-17)
 - [x] Migración 006 — UNIQUE constraint `ciclos_escolares(nombre)` + script `fix_duplicados_ciclos.js` que eliminó 6 duplicados y reasignó todas las FKs
 - [x] Migración 007 — campo `genero VARCHAR(10)` en tabla `personal` (valores: f/m/o)

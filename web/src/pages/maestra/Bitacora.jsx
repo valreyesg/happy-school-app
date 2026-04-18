@@ -116,7 +116,7 @@ function ListaAlumnos({ alumnos, seleccionado, onSeleccionar }) {
 
 function FormBitacora({ alumno, onGuardado }) {
   const queryClient = useQueryClient();
-  const fecha = new Date().toISOString().split('T')[0];
+  const fecha = new Date().toLocaleDateString('en-CA');
 
   const grupoNivel = (alumno.nivel_codigo || '').toLowerCase();
   const mostrarEsfinteres = !alumno.usa_panial && (

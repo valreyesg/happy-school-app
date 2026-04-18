@@ -18,15 +18,26 @@ router.get('/mis-hijos', async (req, res, next) => {
   try {
     const result = await query(`
       SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
-             g.nombre AS grupo_nombre, g.color_hex
+             g.nombre AS grupo_nombre, g.color_hex,
+             b.estado_animo, b.tarea_realizada, b.comportamiento, b.notas,
+             rc.cuanto_comio
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
       JOIN alumnos a ON ap.alumno_id = a.id
       JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN bitacora_diaria b  ON b.alumno_id  = a.id AND b.fecha  = CURRENT_DATE
+      LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = CURRENT_DATE
       WHERE p.usuario_id = $1 AND a.deleted_at IS NULL
       ORDER BY a.nombre_completo
     `, [req.user.id]);
-    res.json(result.rows);
+
+    const rows = result.rows.map(r => {
+      const { estado_animo, cuanto_comio, tarea_realizada, comportamiento, notas, ...alumno } = r;
+      const bitacora_hoy = estado_animo !== null ? { estado_animo, cuanto_comio, tarea_realizada, comportamiento, notas } : null;
+      return { ...alumno, bitacora_hoy };
+    });
+
+    res.json(rows);
   } catch (err) { next(err); }
 });
 

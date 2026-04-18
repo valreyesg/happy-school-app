@@ -11,45 +11,47 @@ router.use(authenticate);
 router.get('/:alumnoId', async (req, res, next) => {
   try {
     const { alumnoId } = req.params;
-    const fecha = req.query.fecha || new Date().toISOString().split('T')[0];
+    const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [bitacora, banio, comida, panial, esfinteres, medicamentos] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos] = await Promise.all([
+
+      query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
       query(`
         SELECT bd.*, p.nombre_completo AS maestra_nombre
         FROM bitacora_diaria bd
         LEFT JOIN personal p ON bd.maestra_id = p.id
-        WHERE bd.alumno_id = $1 AND bd.fecha = $2
+        WHERE bd.alumno_id = $1 AND bd.fecha = COALESCE($2::date, CURRENT_DATE)
       `, [alumnoId, fecha]),
 
       query(
-        'SELECT * FROM registro_banio WHERE alumno_id = $1 AND fecha = $2',
+        'SELECT * FROM registro_banio WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)',
         [alumnoId, fecha]
       ),
 
       query(
-        'SELECT * FROM registro_comida WHERE alumno_id = $1 AND fecha = $2',
+        'SELECT * FROM registro_comida WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)',
         [alumnoId, fecha]
       ),
 
       query(
-        'SELECT * FROM registro_panial WHERE alumno_id = $1 AND DATE(hora) = $2 ORDER BY hora',
+        'SELECT * FROM registro_panial WHERE alumno_id = $1 AND DATE(hora) = COALESCE($2::date, CURRENT_DATE) ORDER BY hora',
         [alumnoId, fecha]
       ),
 
       query(
-        'SELECT * FROM control_esfinteres WHERE alumno_id = $1 AND fecha = $2',
+        'SELECT * FROM control_esfinteres WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)',
         [alumnoId, fecha]
       ),
 
       query(
-        'SELECT * FROM medicamentos WHERE alumno_id = $1 AND fecha = $2 ORDER BY hora_administracion',
+        'SELECT * FROM medicamentos WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE) ORDER BY hora_administracion',
         [alumnoId, fecha]
       ),
     ]);
 
     res.json({
-      fecha,
+      fecha: fechaRow.rows[0].f,
       alumno_id: alumnoId,
       bitacora:    bitacora.rows[0]    || null,
       banio:       banio.rows[0]       || null,
@@ -78,7 +80,7 @@ router.post('/guardar', async (req, res, next) => {
       fue_solo, pidio_ir, tuvo_accidente, descripcion_accidente, necesito_ayuda, notas_progreso,
     } = req.body;
 
-    const fechaFinal = fecha || new Date().toISOString().split('T')[0];
+    const { rows: [{ f: fechaFinal }] } = await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha || null]);
 
     // Obtener personal_id de la maestra autenticada
     const personalResult = await query(

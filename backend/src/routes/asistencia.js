@@ -69,7 +69,7 @@ router.post('/entrada', async (req, res, next) => {
       ON CONFLICT (alumno_id, fecha)
       DO UPDATE SET
         hora_entrada=NOW(), es_retardo=$2, puede_entrar=$15,
-        motivo_no_entrada=$16, updated_at=NOW()
+        motivo_no_entrada=$16
       RETURNING *
     `, [
       alumno_id, esRetardo, numRetardos,
@@ -219,19 +219,59 @@ router.post('/salida', async (req, res, next) => {
 // Vista de asistencia por grupo y fecha
 router.get('/grupo/:grupo_id', async (req, res, next) => {
   try {
-    const { fecha = new Date().toISOString().split('T')[0] } = req.query;
+    const fecha = req.query.fecha || null; // null → PostgreSQL usa CURRENT_DATE (hora local)
     const result = await query(`
       SELECT a.id, a.nombre_completo, a.foto_url,
         COALESCE(ast.estado, 'ausente') AS estado_asistencia,
-        re.hora_entrada, re.es_retardo, re.puede_entrar
+        re.hora_entrada, re.es_retardo, re.puede_entrar, re.motivo_no_entrada,
+        re.uñas_cortadas, re.sin_lagañas, re.sin_fiebre, re.temperatura,
+        re.sin_sintomas, re.sintomas_notas, re.panial_limpio,
+        re.trae_uniforme, re.trae_bata, re.trae_termo, re.agua_suficiente,
+        re.numero_retardo_mes, re.qr_escaneado
       FROM alumnos a
-      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $2
-      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = $2
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = COALESCE($2::date, CURRENT_DATE)
       WHERE a.grupo_id = $1 AND a.deleted_at IS NULL
         AND a.estado IN ('inscrito','reinscrito')
       ORDER BY a.nombre_completo
     `, [req.params.grupo_id, fecha]);
     res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// Vista mensual de asistencia por grupo
+router.get('/grupo/:grupo_id/mensual', async (req, res, next) => {
+  try {
+    const now = new Date();
+    const mes  = parseInt(req.query.mes  || now.getMonth() + 1);
+    const anio = parseInt(req.query.anio || now.getFullYear());
+
+    const result = await query(`
+      SELECT a.id, a.nombre_completo, a.foto_url,
+             TO_CHAR(ast.fecha, 'YYYY-MM-DD') AS fecha,
+             ast.estado
+      FROM alumnos a
+      LEFT JOIN asistencia ast
+        ON ast.alumno_id = a.id
+       AND EXTRACT(MONTH FROM ast.fecha) = $2
+       AND EXTRACT(YEAR  FROM ast.fecha) = $3
+      WHERE a.grupo_id = $1
+        AND a.deleted_at IS NULL
+        AND a.estado IN ('inscrito','reinscrito')
+      ORDER BY a.nombre_completo, ast.fecha
+    `, [req.params.grupo_id, mes, anio]);
+
+    // Agrupar por alumno → { id, nombre_completo, foto_url, dias: { 'YYYY-MM-DD': estado } }
+    const mapa = {};
+    for (const row of result.rows) {
+      if (!mapa[row.id]) {
+        mapa[row.id] = { id: row.id, nombre_completo: row.nombre_completo, foto_url: row.foto_url, dias: {} };
+      }
+      if (row.fecha) {
+        mapa[row.id].dias[row.fecha] = row.estado;
+      }
+    }
+    res.json(Object.values(mapa));
   } catch (err) { next(err); }
 });
 

@@ -62,7 +62,7 @@ function SelectorFecha({ fecha, onChange }) {
   const date = new Date(fecha + 'T12:00:00');
   const anterior = new Date(date); anterior.setDate(anterior.getDate() - 1);
   const siguiente = new Date(date); siguiente.setDate(siguiente.getDate() + 1);
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = new Date().toLocaleDateString('en-CA');
   const esHoy = fecha === hoy;
 
   const fmt = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -122,7 +122,7 @@ export default function PadreBitacora() {
   const [params] = useSearchParams();
   const alumnoId = params.get('alumnoId');
   const nombreParam = params.get('nombre');
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = new Date().toLocaleDateString('en-CA');
   const [fecha, setFecha] = useState(hoy);
 
   const { data: hijos = [] } = useQuery({

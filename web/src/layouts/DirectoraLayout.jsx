@@ -1,7 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
-  LayoutDashboard, Users, BookOpen, UserCheck, CreditCard,
+  LayoutDashboard, Users, UserCheck, CreditCard, ClipboardList,
   Calendar, Star, Settings, LogOut, Menu, X, GraduationCap,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
@@ -9,9 +9,10 @@ import Logo from '@/components/ui/Logo';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
-  { to: '/directora',             icon: LayoutDashboard, label: 'Inicio',         exact: true },
-  { to: '/directora/alumnos',     icon: Users,           label: 'Alumnos' },
-  { to: '/directora/grupos',      icon: GraduationCap,   label: 'Grupos' },
+  { to: '/directora',            icon: LayoutDashboard, label: 'Inicio',      exact: true },
+  { to: '/directora/asistencia', icon: ClipboardList,   label: 'Asistencia' },
+  { to: '/directora/alumnos',    icon: Users,           label: 'Alumnos' },
+  { to: '/directora/grupos',     icon: GraduationCap,   label: 'Grupos' },
   { to: '/directora/personal',    icon: UserCheck,       label: 'Personal' },
   { to: '/directora/pagos',       icon: CreditCard,      label: 'Pagos' },
   { to: '/directora/calendario',  icon: Calendar,        label: 'Calendario' },

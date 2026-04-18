@@ -21,6 +21,7 @@ import DirectoraCalendario from '@/pages/directora/Calendario';
 import DirectoraEvaluaciones from '@/pages/directora/Evaluaciones';
 import DirectoraConfig from '@/pages/directora/Configuracion';
 import DirectoraAlumnoPerfil from '@/pages/directora/AlumnoPerfil';
+import DirectoraAsistencia from '@/pages/directora/Asistencia';
 
 // Páginas de administrativo
 import AdminDashboard from '@/pages/administrativo/Dashboard';
@@ -83,6 +84,7 @@ export default function App() {
         <Route index element={<DirectoraDashboard />} />
         <Route path="alumnos" element={<DirectoraAlumnos />} />
         <Route path="alumnos/:id" element={<DirectoraAlumnoPerfil />} />
+        <Route path="asistencia" element={<DirectoraAsistencia />} />
         <Route path="grupos" element={<DirectoraGrupos />} />
         <Route path="personal" element={<DirectoraPersonal />} />
         <Route path="pagos" element={<DirectoraPagos />} />

@@ -100,6 +100,20 @@ router.get('/mi-grupo', async (req, res, next) => {
         re.hora_entrada,
         re.es_retardo,
         re.puede_entrar,
+        re.motivo_no_entrada,
+        re.numero_retardo_mes,
+        re.temperatura,
+        re.sin_fiebre,
+        re.sin_sintomas,
+        re.sintomas_notas,
+        re.uñas_cortadas,
+        re.sin_lagañas,
+        re.panial_limpio,
+        re.trae_uniforme,
+        re.trae_bata,
+        re.trae_termo,
+        re.agua_suficiente,
+        re.qr_escaneado,
         -- Bitácora hoy (resumen)
         bd.estado_animo,
         bd.tarea_realizada,
@@ -123,8 +137,8 @@ router.get('/mi-grupo', async (req, res, next) => {
       ...grupo,
       alumnos: alumnosResult.rows,
       total_alumnos: alumnosResult.rows.length,
-      presentes_hoy: alumnosResult.rows.filter(a => a.estado_asistencia === 'presente').length,
-      fecha: new Date().toISOString().split('T')[0],
+      presentes_hoy: alumnosResult.rows.filter(a => ['presente','retardo'].includes(a.estado_asistencia)).length,
+      fecha: (await query(`SELECT CURRENT_DATE::text AS f`)).rows[0].f,
     });
   } catch (err) { next(err); }
 });

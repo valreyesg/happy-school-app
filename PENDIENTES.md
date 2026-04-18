@@ -1,12 +1,11 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-17 (sesión 8 cerrada)
+## Última actualización: 2026-04-17 (sesión 9 cerrada)
 
 ---
 
 ## 🔧 Deuda Técnica (Prioritaria)
 - [ ] IP hardcodeada en `mobile/src/services/api.js` línea 4 → cambiar a IP real del servidor
-- [x] UNIQUE constraint en `ciclos_escolares(nombre)` ✅ sesión 8 — 6 duplicados eliminados, migración 006 aplicada
 - [ ] Auditar `plantillas_whatsapp` y `configuracion` — posibles duplicados sin constraint
 
 ---
@@ -15,7 +14,6 @@
 - [ ] Fotos de actividades en bitácora (galería por día)
 - [ ] Incidentes y accidentes + firma digital del padre
 - [ ] Reporte de asistencia: exportar Excel y PDF
-- [ ] Vista de asistencia mensual por grupo (directora)
 - [ ] Galería maestra web (placeholder existe en `/maestra/galeria`)
 
 ---

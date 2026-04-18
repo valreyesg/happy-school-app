@@ -58,10 +58,10 @@ export default function LoginPage() {
         </p>
 
         <div className="mt-8 flex gap-4 text-3xl">
-          <span className="animate-bounce" style={{ animationDelay: '0s' }}>👩‍🏫</span>
-          <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>👨‍👩‍👧</span>
-          <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>👧</span>
-          <span className="animate-bounce" style={{ animationDelay: '0.6s' }}>👦</span>
+          <span className="animate-bounce" style={{ animationDelay: '0s' }}>👩🏻‍🏫</span>
+          <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>👨🏻‍👩🏻‍👧🏻</span>
+          <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>👧🏻</span>
+          <span className="animate-bounce" style={{ animationDelay: '0.6s' }}>👦🏻</span>
         </div>
       </div>
 

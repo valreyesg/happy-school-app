@@ -10,6 +10,12 @@ import api from '@/services/api';
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
 const EMOJIS_COMIDA = { nada: '🍽️', poco: '🥢', mitad: '🍱', todo: '✅' };
 
+const SALUDO_PARENTESCO = { madre: 'Mamá', papa: 'Papá', padre: 'Papá' };
+function saludoPadre(parentesco, nombre) {
+  const titulo = SALUDO_PARENTESCO[parentesco?.toLowerCase()];
+  return titulo ? `¡Hola, ${titulo} ${nombre?.split(' ')[0]}!` : `¡Hola, ${nombre?.split(' ')[0]}!`;
+}
+
 export default function PadreDashboard() {
   const { usuario } = useAuthStore();
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -26,11 +32,11 @@ export default function PadreDashboard() {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
-              ¡Hola, {usuario?.nombre?.split(' ')[0]}! 👋
+              {saludoPadre(usuario?.parentesco, usuario?.nombre)} 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <Text style={{ fontSize: 36 }}>👨‍👩‍👧</Text>
+          <Text style={{ fontSize: 36 }}>👨🏻‍👩🏻‍👧🏻</Text>
         </View>
 
         {/* Mis hijos */}
@@ -83,7 +89,7 @@ function HijoCard({ hijo }) {
           <Image source={{ uri: hijo.foto_url }} style={styles.hijoFoto} />
         ) : (
           <View style={[styles.hijoFoto, styles.hijoFotoPlaceholder]}>
-            <Text style={{ fontSize: 40 }}>👧</Text>
+            <Text style={{ fontSize: 40 }}>👧🏻</Text>
           </View>
         )}
         <View style={{ flex: 1 }}>

@@ -184,7 +184,7 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
           <Image source={{ uri: alumno.foto_url }} style={styles.alumnoFotoGrande} />
         ) : (
           <View style={[styles.alumnoFotoGrande, { backgroundColor: '#E9D5FF', alignItems: 'center', justifyContent: 'center' }]}>
-            <Text style={{ fontSize: 48 }}>👧</Text>
+            <Text style={{ fontSize: 48 }}>👧🏻</Text>
           </View>
         )}
         <View>

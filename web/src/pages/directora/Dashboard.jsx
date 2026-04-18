@@ -43,7 +43,7 @@ export default function DirectoraDashboard() {
           <>
             <StatCard
               icon={Users}
-              emoji="👧"
+              emoji="👧🏻"
               label="Alumnos inscritos"
               value={resumen?.totalAlumnos || 0}
               sublabel="Ciclo actual"
@@ -52,9 +52,9 @@ export default function DirectoraDashboard() {
             <StatCard
               icon={CheckCircle}
               emoji="✅"
-              label="Presentes hoy"
+              label="En escuela hoy"
               value={resumen?.presentesHoy || 0}
-              sublabel="Hasta ahora"
+              sublabel={`${resumen?.retardosHoy || 0} con retardo`}
               color="bg-hs-green"
             />
             <StatCard

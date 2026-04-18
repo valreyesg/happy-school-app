@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   StyleSheet, ActivityIndicator, Alert, Switch, KeyboardAvoidingView, Platform,
@@ -153,40 +153,43 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
   const [notasProgreso, setNotasProgreso] = useState('');
 
   // ── Cargar datos existentes ──
-  const { isLoading } = useQuery({
+  const { isLoading, data: bitacoraExistente } = useQuery({
     queryKey: ['bitacora', alumnoId, fecha],
     queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
-    onSuccess: data => {
-      if (data.bitacora) {
-        setAnimo(data.bitacora.estado_animo || null);
-        setTareaRealizada(data.bitacora.tarea_realizada ?? null);
-        setComportamiento(data.bitacora.comportamiento || null);
-        setComportamientoNotas(data.bitacora.comportamiento_notas || '');
-        setTuvoFiebre(data.bitacora.tuvo_fiebre || false);
-        setTemperatura(data.bitacora.temperatura_dia?.toString() || '');
-        setSeEnfermo(data.bitacora.se_enfermo || false);
-        setDescripcionEnfermedad(data.bitacora.descripcion_enfermedad || '');
-        setNotas(data.bitacora.notas || '');
-      }
-      if (data.banio) {
-        setPipiCount(data.banio.pipi_count || 0);
-        setPopoCount(data.banio.popo_count || 0);
-      }
-      if (data.comida) {
-        setQueComio(data.comida.que_comio || '');
-        setCuantoComio(data.comida.cuanto_comio || null);
-        setObservacionesComida(data.comida.observaciones || '');
-      }
-      if (data.esfinteres) {
-        setFueSolo(data.esfinteres.fue_solo ?? null);
-        setPidioIr(data.esfinteres.pidio_ir ?? null);
-        setTuvoAccidente(data.esfinteres.tuvo_accidente ?? null);
-        setDescripcionAccidente(data.esfinteres.descripcion_accidente || '');
-        setNecesitaAyuda(data.esfinteres.necesito_ayuda ?? null);
-        setNotasProgreso(data.esfinteres.notas_progreso || '');
-      }
-    },
   });
+
+  useEffect(() => {
+    if (!bitacoraExistente) return;
+    const data = bitacoraExistente;
+    if (data.bitacora) {
+      setAnimo(data.bitacora.estado_animo || null);
+      setTareaRealizada(data.bitacora.tarea_realizada ?? null);
+      setComportamiento(data.bitacora.comportamiento || null);
+      setComportamientoNotas(data.bitacora.comportamiento_notas || '');
+      setTuvoFiebre(data.bitacora.tuvo_fiebre || false);
+      setTemperatura(data.bitacora.temperatura_dia?.toString() || '');
+      setSeEnfermo(data.bitacora.se_enfermo || false);
+      setDescripcionEnfermedad(data.bitacora.descripcion_enfermedad || '');
+      setNotas(data.bitacora.notas || '');
+    }
+    if (data.banio) {
+      setPipiCount(data.banio.pipi_count || 0);
+      setPopoCount(data.banio.popo_count || 0);
+    }
+    if (data.comida) {
+      setQueComio(data.comida.que_comio || '');
+      setCuantoComio(data.comida.cuanto_comio || null);
+      setObservacionesComida(data.comida.observaciones || '');
+    }
+    if (data.esfinteres) {
+      setFueSolo(data.esfinteres.fue_solo ?? null);
+      setPidioIr(data.esfinteres.pidio_ir ?? null);
+      setTuvoAccidente(data.esfinteres.tuvo_accidente ?? null);
+      setDescripcionAccidente(data.esfinteres.descripcion_accidente || '');
+      setNecesitaAyuda(data.esfinteres.necesito_ayuda ?? null);
+      setNotasProgreso(data.esfinteres.notas_progreso || '');
+    }
+  }, [bitacoraExistente]);
 
   // ── Pañal: registros del día ──
   const { data: bitacoraData } = useQuery({
@@ -420,8 +423,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
         <Seccion titulo="Comportamiento">
           <View style={s.compRow}>
             {[
-              { key: 'excelente', icon: '⭐', label: 'Excelente' },
-              { key: 'bueno', icon: '👍', label: 'Bueno' },
+              { key: 'muy_bien',         icon: '⭐', label: 'Muy bien'  },
+              { key: 'bien',             icon: '👍', label: 'Bien'      },
               { key: 'necesita_mejorar', icon: '⚠️', label: 'A mejorar' },
             ].map(c => (
               <TouchableOpacity

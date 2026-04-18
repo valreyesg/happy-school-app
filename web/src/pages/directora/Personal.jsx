@@ -6,9 +6,9 @@ import api from '../../services/api';
 const ROLES = [
   { value: 'directora',        label: 'Directora' },
   { value: 'administrativo',   label: 'Administrativo' },
-  { value: 'maestra_titular',  label: 'Maestra titular' },
-  { value: 'maestra_especial', label: 'Maestra especial' },
-  { value: 'maestra_puerta',   label: 'Maestra de puerta' },
+  { value: 'maestra_titular',  label: 'Miss titular' },
+  { value: 'maestra_especial', label: 'Miss especial' },
+  { value: 'maestra_puerta',   label: 'Miss de puerta' },
 ];
 
 const ROL_COLOR = {
@@ -35,6 +35,7 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
     email:           persona?.usuario_email   || persona?.email || '',
     telefono:        persona?.telefono        || '',
     rol_principal:   persona?.rol_principal   || 'maestra_titular',
+    genero:          persona?.genero          || 'f',
     curp:            persona?.curp            || '',
     rfc:             persona?.rfc             || '',
     fecha_ingreso:   persona?.fecha_ingreso   || '',
@@ -154,6 +155,14 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
                   {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
               </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Género</label>
+                <select className="input-hs w-full" value={form.genero} onChange={e => set('genero', e.target.value)}>
+                  <option value="f">Femenino</option>
+                  <option value="m">Masculino</option>
+                  <option value="o">Otro</option>
+                </select>
+              </div>
               {esNuevo && (
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Contraseña inicial</label>
@@ -207,7 +216,7 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
 
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input type="checkbox" className="rounded" checked={esTitular} onChange={e => setEsTitular(e.target.checked)} />
-                <span className="text-sm font-semibold text-gray-600">Asignar como maestra titular del grupo</span>
+                <span className="text-sm font-semibold text-gray-600">Asignar como Miss titular del grupo</span>
               </label>
 
               {!esNuevo && grupoId && (
@@ -398,7 +407,7 @@ export default function DirectoraPersonal() {
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-800">Personal 👩‍🏫</h1>
+          <h1 className="text-3xl font-black text-gray-800">Personal 👩🏻‍🏫</h1>
           <p className="text-gray-500 text-sm font-semibold mt-1">
             {filtrado.length} persona{filtrado.length !== 1 ? 's' : ''} · gestiona cuentas, roles y asignaciones
           </p>
@@ -453,7 +462,7 @@ export default function DirectoraPersonal() {
         </div>
       ) : filtrado.length === 0 ? (
         <div className="card-hs flex flex-col items-center justify-center py-16 text-center">
-          <div className="text-5xl mb-4">👩‍🏫</div>
+          <div className="text-5xl mb-4">👩🏻‍🏫</div>
           <h3 className="text-xl font-black text-gray-700">No hay personal</h3>
           <p className="text-gray-400 font-semibold mt-2 mb-6">
             {busqueda ? 'Sin resultados para tu búsqueda.' : 'Crea el primer registro de personal.'}

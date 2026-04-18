@@ -28,11 +28,13 @@ export default function MaestraDashboard() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>¡Hola, {usuario?.nombre?.split(' ')[0]}! 👋</Text>
+            <Text style={styles.greeting}>
+              ¡Bienvenid{usuario?.genero === 'm' ? 'o, Teacher' : 'a, Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
+            </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
           <View style={styles.avatarMaestra}>
-            <Text style={{ fontSize: 24 }}>👩‍🏫</Text>
+            <Text style={{ fontSize: 24 }}>👩🏻‍🏫</Text>
           </View>
         </View>
 
@@ -94,7 +96,7 @@ export default function MaestraDashboard() {
                   <Image source={{ uri: alumno.foto_url }} style={styles.alumnoFoto} />
                 ) : (
                   <View style={[styles.alumnoFoto, styles.alumnoFotoPlaceholder]}>
-                    <Text style={{ fontSize: 24 }}>👧</Text>
+                    <Text style={{ fontSize: 24 }}>👧🏻</Text>
                   </View>
                 )}
 
@@ -110,11 +112,20 @@ export default function MaestraDashboard() {
                 {/* Estado asistencia */}
                 <View style={[
                   styles.estadoBadge,
-                  { backgroundColor: alumno.estado_asistencia === 'presente' ? '#C6F6D5' : '#FED7D7' }
+                  { backgroundColor:
+                      ['presente','retardo'].includes(alumno.estado_asistencia) ? '#C6F6D5'
+                    : alumno.estado_asistencia === 'no_entrada' ? '#FED7D7'
+                    : '#E2E8F0' }
                 ]}>
                   <Text style={{ fontSize: 12, fontWeight: '800',
-                    color: alumno.estado_asistencia === 'presente' ? '#276749' : '#C53030' }}>
-                    {alumno.estado_asistencia === 'presente' ? '✅' : '❌'}
+                    color:
+                      ['presente','retardo'].includes(alumno.estado_asistencia) ? '#276749'
+                    : alumno.estado_asistencia === 'no_entrada' ? '#C53030'
+                    : '#718096' }}>
+                    {alumno.estado_asistencia === 'presente'   ? '✅'
+                   : alumno.estado_asistencia === 'retardo'    ? '⏰'
+                   : alumno.estado_asistencia === 'no_entrada' ? '🚫'
+                   : '⬜'}
                   </Text>
                 </View>
               </TouchableOpacity>

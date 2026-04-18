@@ -130,7 +130,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Maestra titular</label>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Miss titular</label>
               <select className="input-hs w-full" value={form.maestra_titular_id} onChange={e => set('maestra_titular_id', e.target.value)}>
                 <option value="">— Sin asignar —</option>
                 {(maestras || []).map(m => (
@@ -198,9 +198,9 @@ function TarjetaGrupo({ grupo, maestras, onEdit }) {
 
       {/* Maestra */}
       <div className="mt-3 flex items-center gap-2">
-        <span className="text-lg">👩‍🏫</span>
+        <span className="text-lg">👩🏻‍🏫</span>
         <span className="text-sm font-semibold text-gray-600">
-          {grupo.maestra_nombre || <em className="text-gray-400">Sin maestra asignada</em>}
+          {grupo.maestra_nombre || <em className="text-gray-400">Sin Miss asignada</em>}
         </span>
       </div>
 
@@ -268,7 +268,7 @@ export default function DirectoraGrupos() {
         <div>
           <h1 className="text-3xl font-black text-gray-800">Grupos 🏫</h1>
           <p className="text-gray-500 text-sm font-semibold mt-1">
-            {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, maestras y horarios
+            {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
           </p>
         </div>
         <div className="flex items-center gap-3">

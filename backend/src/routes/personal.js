@@ -93,7 +93,7 @@ router.post('/', authorize('directora'), async (req, res, next) => {
   try {
     const {
       nombre_completo, curp, rfc, telefono, email,
-      fecha_ingreso, rol_principal,
+      fecha_ingreso, rol_principal, genero,
       password_inicial,
     } = req.body;
 
@@ -112,10 +112,10 @@ router.post('/', authorize('directora'), async (req, res, next) => {
 
     // Crear registro personal
     const personalResult = await query(`
-      INSERT INTO personal (usuario_id, nombre_completo, curp, rfc, telefono, email, fecha_ingreso)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO personal (usuario_id, nombre_completo, curp, rfc, telefono, email, fecha_ingreso, genero)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING id
-    `, [usuarioId, nombre_completo, curp || null, rfc || null, telefono || null, email, fecha_ingreso || null]);
+    `, [usuarioId, nombre_completo, curp || null, rfc || null, telefono || null, email, fecha_ingreso || null, genero || 'f']);
 
     res.status(201).json({ ok: true, personal_id: personalResult.rows[0].id, usuario_id: usuarioId });
   } catch (err) {
@@ -129,7 +129,7 @@ router.put('/:id', authorize('directora'), async (req, res, next) => {
   try {
     const {
       nombre_completo, curp, rfc, telefono, email,
-      fecha_ingreso, activo, rol_principal,
+      fecha_ingreso, activo, rol_principal, genero,
     } = req.body;
 
     await query(`
@@ -141,9 +141,10 @@ router.put('/:id', authorize('directora'), async (req, res, next) => {
         email           = COALESCE($5, email),
         fecha_ingreso   = COALESCE($6, fecha_ingreso),
         activo          = COALESCE($7, activo),
+        genero          = COALESCE($8, genero),
         updated_at      = NOW()
-      WHERE id = $8
-    `, [nombre_completo, curp, rfc, telefono, email, fecha_ingreso, activo, req.params.id]);
+      WHERE id = $9
+    `, [nombre_completo, curp, rfc, telefono, email, fecha_ingreso, activo, genero || null, req.params.id]);
 
     // Actualizar rol en usuarios si se indicó
     if (rol_principal) {

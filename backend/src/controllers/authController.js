@@ -23,8 +23,13 @@ const login = async (req, res, next) => {
 
     const result = await query(
       `SELECT u.id, u.nombre, u.email, u.password_hash, u.rol_principal, u.activo,
-              u.foto_url, u.primer_login
-       FROM usuarios u WHERE u.email = $1`,
+              u.foto_url, u.primer_login,
+              pad.parentesco,
+              per.genero
+       FROM usuarios u
+       LEFT JOIN padres pad ON pad.usuario_id = u.id
+       LEFT JOIN personal per ON per.usuario_id = u.id
+       WHERE u.email = $1`,
       [email.toLowerCase().trim()]
     );
 
@@ -74,6 +79,8 @@ const login = async (req, res, next) => {
         roles: rolesResult.rows,
         fotoUrl: usuario.foto_url,
         primerLogin: usuario.primer_login,
+        parentesco: usuario.parentesco || null,
+        genero: usuario.genero || null,
       },
     });
   } catch (err) {
@@ -158,8 +165,13 @@ const perfil = async (req, res, next) => {
   try {
     const result = await query(
       `SELECT u.id, u.nombre, u.email, u.rol_principal, u.foto_url, u.telefono,
-              u.ultimo_acceso, u.created_at
-       FROM usuarios u WHERE u.id = $1`,
+              u.ultimo_acceso, u.created_at,
+              pad.parentesco,
+              per.genero
+       FROM usuarios u
+       LEFT JOIN padres pad ON pad.usuario_id = u.id
+       LEFT JOIN personal per ON per.usuario_id = u.id
+       WHERE u.id = $1`,
       [req.user.id]
     );
     res.json(result.rows[0]);

@@ -395,14 +395,14 @@ export default function DirectoraAlumnoPerfil() {
                 <span className="font-semibold text-blue-600">ℹ️ {alumno.condiciones_especiales}</span>
               )}
               {alumno.usa_panial && (
-                <span className="font-bold text-pink-500">👶 Usa pañal</span>
+                <span className="font-bold text-pink-500">👶🏻 Usa pañal</span>
               )}
             </div>
 
             {/* Médico */}
             {alumno.medico_nombre && (
               <p className="mt-2 text-xs text-gray-500 font-semibold">
-                👨‍⚕️ {alumno.medico_nombre}{alumno.medico_telefono ? ` · ${alumno.medico_telefono}` : ''}
+                👨🏻‍⚕️ {alumno.medico_nombre}{alumno.medico_telefono ? ` · ${alumno.medico_telefono}` : ''}
               </p>
             )}
           </div>

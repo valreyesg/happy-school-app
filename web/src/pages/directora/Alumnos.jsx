@@ -43,7 +43,7 @@ export default function DirectoraAlumnos() {
       {/* Encabezado */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-800">Alumnos 👧</h1>
+          <h1 className="text-3xl font-black text-gray-800">Alumnos 👧🏻</h1>
           <p className="text-gray-500 font-semibold mt-1">
             {total} alumno{total !== 1 ? 's' : ''} registrado{total !== 1 ? 's' : ''}
           </p>
@@ -327,7 +327,7 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
                 <img src={fotoPreview} alt="Foto" className="w-24 h-24 rounded-2xl object-cover border-4 border-hs-purple/20" />
               ) : (
                 <div className="w-24 h-24 rounded-2xl bg-hs-purple/10 flex items-center justify-center border-4 border-dashed border-hs-purple/30">
-                  <span className="text-3xl">👧</span>
+                  <span className="text-3xl">👧🏻</span>
                 </div>
               )}
             </div>

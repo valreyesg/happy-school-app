@@ -152,7 +152,7 @@ export default function BitacoraPadreScreen() {
           <Text style={s.emptyTitulo}>Bitácora no disponible</Text>
           <Text style={s.emptyTxt}>
             {fecha === hoy
-              ? 'La maestra aún no ha guardado la bitácora de hoy. Vuelve a revisar más tarde.'
+              ? 'La Miss aún no ha guardado la bitácora de hoy. Vuelve a revisar más tarde.'
               : 'No hay registro para esta fecha.'}
           </Text>
         </View>
@@ -234,7 +234,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Pañal (Maternal) ─ */}
           {panial.length > 0 && (
-            <Seccion titulo="Cambios de pañal" emoji="👶">
+            <Seccion titulo="Cambios de pañal" emoji="👶🏻">
               {panial.map((p, i) => (
                 <View key={i} style={s.panialLog}>
                   <Text style={s.panialHora}>
@@ -297,7 +297,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Notas generales ─ */}
           {bit.notas && (
-            <Seccion titulo="Mensaje de la maestra" emoji="💬">
+            <Seccion titulo="Mensaje de la Miss" emoji="💬">
               <View style={s.notasBox}>
                 <Text style={s.notasTxt}>{bit.notas}</Text>
               </View>
@@ -306,7 +306,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Maestra ─ */}
           {bit.maestra_nombre && (
-            <Text style={s.maestraTxt}>Bitácora registrada por {bit.maestra_nombre}</Text>
+            <Text style={s.maestraTxt}>Bitácora registrada por Miss {bit.maestra_nombre}</Text>
           )}
 
         </ScrollView>

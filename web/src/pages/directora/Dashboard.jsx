@@ -4,6 +4,14 @@ import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
 const StatCard = ({ icon: Icon, label, value, sublabel, color, emoji }) => (
   <div className="card-hs hover:shadow-hs-lg transition-shadow duration-200">
     <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center mb-4`}>
@@ -22,7 +30,14 @@ export default function DirectoraDashboard() {
   const { data: resumen, isLoading } = useQuery({
     queryKey: ['dashboard-directora'],
     queryFn: () => api.get('/reportes/dashboard').then(r => r.data),
-    refetchInterval: 60000, // actualiza cada minuto
+    refetchInterval: 60000,
+  });
+
+  const { data: cumpleanosHoy = [] } = useQuery({
+    queryKey: ['cumpleanos-hoy'],
+    queryFn: () => api.get('/alumnos').then(r =>
+      (r.data.alumnos || []).filter(a => esCumpleanos(a.fecha_nacimiento))
+    ),
   });
 
   return (
@@ -34,6 +49,19 @@ export default function DirectoraDashboard() {
         </h1>
         <p className="text-gray-500 font-semibold capitalize mt-1">{hoy}</p>
       </div>
+
+      {/* Banner cumpleaños */}
+      {cumpleanosHoy.length > 0 && (
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 flex flex-wrap gap-2 items-center">
+          <span className="text-2xl">🎂</span>
+          <div>
+            <p className="font-black text-yellow-800 text-sm">
+              ¡Hoy cumplen años: {cumpleanosHoy.map(a => `${a.nombre_completo.split(' ')[0]} (${a.grupo_nombre})`).join(', ')}!
+            </p>
+            <p className="text-xs text-yellow-600 font-semibold">No olvides festejarlos 🎈</p>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

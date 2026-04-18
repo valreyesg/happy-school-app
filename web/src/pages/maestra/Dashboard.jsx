@@ -7,6 +7,14 @@ import api from '../../services/api';
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
 
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
 const BADGE_CONFIG = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  icon: '✅', label: 'Presente' },
   retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: '⏰', label: 'Retardo' },
@@ -63,6 +71,7 @@ export default function MaestraDashboard() {
 
   const alumnos = grupo?.alumnos || [];
   const totalAlumnos = alumnos.length;
+  const cumpleanosHoy = alumnos.filter(a => esCumpleanos(a.fecha_nacimiento));
   const enEscuela = alumnos.filter(a => ['presente', 'retardo'].includes(a.estado_asistencia)).length;
   const retardos = alumnos.filter(a => a.estado_asistencia === 'retardo').length;
   const bitacorasGuardadas = alumnos.filter(a => a.estado_animo !== null).length;
@@ -86,6 +95,19 @@ export default function MaestraDashboard() {
           </span>
         )}
       </div>
+
+      {/* Banner cumpleaños */}
+      {cumpleanosHoy.length > 0 && (
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 flex flex-wrap gap-2 items-center">
+          <span className="text-2xl">🎂</span>
+          <div>
+            <p className="font-black text-yellow-800 text-sm">
+              ¡Hoy es el cumpleaños de {cumpleanosHoy.map(a => a.nombre_completo.split(' ')[0]).join(' y ')}!
+            </p>
+            <p className="text-xs text-yellow-600 font-semibold">No olvides felicitarl{cumpleanosHoy.length > 1 ? 'os' : 'o/a'} 🎈</p>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">

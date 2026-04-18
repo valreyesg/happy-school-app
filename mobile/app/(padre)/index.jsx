@@ -140,9 +140,6 @@ function HijoCard({ hijo }) {
         <Text style={styles.sinBitacora}>La bitácora de hoy aún no está lista 📝</Text>
       )}
 
-      <View style={styles.verMasBtn}>
-        <Text style={styles.verMasText}>Ver bitácora completa →</Text>
-      </View>
     </TouchableOpacity>
   );
 }
@@ -189,10 +186,6 @@ const styles = StyleSheet.create({
   sinBitacora: {
     padding: 16, textAlign: 'center', color: '#A0AEC0', fontWeight: '600', fontSize: 14,
   },
-  verMasBtn: {
-    paddingHorizontal: 16, paddingBottom: 16,
-  },
-  verMasText: { color: '#E53E3E', fontWeight: '800', fontSize: 14 },
   sectionTitle: {
     fontSize: 18, fontWeight: '900', color: '#2D3748',
     marginHorizontal: 16, marginTop: 8, marginBottom: 12,

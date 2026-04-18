@@ -16,7 +16,10 @@ function HijoCard({ hijo }) {
   const bit = hijo.bitacora_hoy;
 
   return (
-    <div className="card-hs overflow-hidden border border-red-100">
+    <Link
+      to={`/padre/bitacora?alumnoId=${hijo.id}&nombre=${encodeURIComponent(hijo.nombre_completo)}`}
+      className="card-hs overflow-hidden border border-red-100 block hover:shadow-md transition-shadow"
+    >
       {/* Header */}
       <div className="flex items-center gap-4 p-5 border-b border-red-50">
         {hijo.foto_url ? (
@@ -28,6 +31,7 @@ function HijoCard({ hijo }) {
           <h2 className="text-lg font-black text-gray-800">{hijo.nombre_completo}</h2>
           <p className="text-sm font-bold text-red-500 mt-0.5">{hijo.grupo_nombre || hijo.grupo}</p>
         </div>
+        <span className="text-red-400 text-lg">›</span>
       </div>
 
       {/* Bitácora del día */}
@@ -64,16 +68,7 @@ function HijoCard({ hijo }) {
           <p className="text-sm font-semibold">La bitácora de hoy aún no está lista</p>
         </div>
       )}
-
-      <div className="px-5 pb-5">
-        <Link
-          to={`/padre/bitacora?alumnoId=${hijo.id}&nombre=${encodeURIComponent(hijo.nombre_completo)}`}
-          className="block w-full text-center py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-colors"
-        >
-          Ver bitácora completa →
-        </Link>
-      </div>
-    </div>
+    </Link>
   );
 }
 

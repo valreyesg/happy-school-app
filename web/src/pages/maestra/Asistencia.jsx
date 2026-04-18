@@ -40,6 +40,14 @@ const CHECKS_DEFAULT = {
   agua_suficiente: false,
 };
 
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
 function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [form, setForm] = useState(CHECKS_DEFAULT);
   const queryClient = useQueryClient();
@@ -123,6 +131,13 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
             <X size={20} />
           </button>
         </div>
+
+        {/* Banner cumpleaños */}
+        {esCumpleanos(alumno.fecha_nacimiento) && (
+          <div className="mx-5 mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-center animate-bounce-once">
+            <p className="font-black text-yellow-700 text-sm">🎂 ¡Hoy es el cumpleaños de {alumno.nombre_completo.split(' ')[0]}! 🎈</p>
+          </div>
+        )}
 
         {/* Body */}
         <div className="overflow-y-auto flex-1 p-5 space-y-3">

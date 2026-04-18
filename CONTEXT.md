@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-17 (sesión 9 cerrada)
-### Sesión: Vista asistencia mensual directora + bug crítico zona horaria (backend + frontend)
-### Próxima sesión: Galería Maestra web (`/maestra/galeria`) o FASE 5 inscripciones
+### Última actualización: 2026-04-17 (sesión 10 cerrada)
+### Sesión: Deuda técnica + UX padre (botón bitácora) + alerta cumpleaños (filtro entrada, dashboards maestra y directora)
+### Próxima sesión: Validar visibilidad de cambios sesión 10 (botón bitácora + banners cumpleaños) — investigar por qué no se reflejaban en browser
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

@@ -149,6 +149,14 @@ export default function QRScannerScreen() {
   );
 }
 
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
 // Checklist rápido de filtro de entrada
 function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
   const [checks, setChecks] = useState({
@@ -192,6 +200,13 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
           <Text style={styles.alumnoGrupo}>{alumno.grupo_nombre}</Text>
         </View>
       </View>
+
+      {/* Banner cumpleaños */}
+      {esCumpleanos(alumno.fecha_nacimiento) && (
+        <View style={styles.cumpleBanner}>
+          <Text style={styles.cumpleText}>🎂 ¡Hoy es el cumple de {alumno.nombre_completo.split(' ')[0]}! 🎈</Text>
+        </View>
+      )}
 
       {/* Checklist */}
       <View style={styles.checklist}>
@@ -291,6 +306,11 @@ const styles = StyleSheet.create({
   alumnoFotoGrande: { width: 80, height: 80, borderRadius: 20 },
   alumnoNombreGrande: { fontSize: 18, fontWeight: '900', color: '#2D3748' },
   alumnoGrupo: { fontSize: 14, fontWeight: '600', color: '#805AD5', marginTop: 2 },
+  cumpleBanner: {
+    backgroundColor: '#FEFCBF', borderWidth: 2, borderColor: '#F6E05E',
+    borderRadius: 16, padding: 12, marginBottom: 12, alignItems: 'center',
+  },
+  cumpleText: { fontWeight: '900', color: '#744210', fontSize: 15, textAlign: 'center' },
   checklist: { gap: 8, marginBottom: 16 },
   checkItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,

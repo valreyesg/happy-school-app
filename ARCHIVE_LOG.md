@@ -28,6 +28,18 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 10 — Completada (2026-04-17)
+- [x] IP hardcodeada `mobile/src/services/api.js:4` → corregida a `192.168.1.93`
+- [x] Auditoría duplicados `plantillas_whatsapp` / `configuracion_general` → ya tenían UNIQUE constraint, sin deuda
+- [x] Dashboard padre (web): tarjeta hijo convertida en `<Link>` completo, eliminado botón "Ver bitácora completa →"
+- [x] Dashboard padre (mobile): eliminado texto "Ver bitácora completa →" redundante (tarjeta ya era TouchableOpacity)
+- [x] Alerta cumpleaños 🎂 en filtro de entrada QR — maestra web (`Asistencia.jsx`) y maestra mobile (`qr-scanner.jsx`) — función `esCumpleanos()` con hora local (`en-CA`)
+- [x] Alerta cumpleaños 🎂 en dashboard maestra web — usa alumnos de `mi-grupo` (no query extra)
+- [x] Alerta cumpleaños 🎂 en dashboard directora web — query separada `GET /alumnos` filtrando por hoy
+- [x] `fecha_nacimiento` Ana García López (Maternal) actualizada a 2022-04-17 para testing
+- [x] Auditoría hardcoded: 5 variables identificadas — `ROLES`, `METODOS`, `TIPOS_CONCEPTO`, `TIPOS_DOC`, `DOC_REQUERIDOS` (pendiente migración a DB)
+- ⚠️ **PENDIENTE VALIDAR:** cambios del botón bitácora y banners de cumpleaños no se visualizaban al cierre de sesión — investigar en sesión 11
+
 ## ✅ SESIÓN 9 — Completada (2026-04-17)
 - [x] Vista asistencia directora — tabla-matriz mensual con toggle Hoy/Mensual, navegador mes/año, totales por alumno (presentes, retardos, no entró)
 - [x] Endpoint `GET /asistencia/grupo/:id/mensual?mes=&anio=` — agrupa por alumno con `dias: { 'YYYY-MM-DD': estado }`, usa `TO_CHAR` para evitar ambigüedad de timezone

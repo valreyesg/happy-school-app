@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 const API_URL = __DEV__
-  ? 'http://192.168.1.100:3000/api' // Cambiar a IP de tu máquina en desarrollo
+  ? 'http://192.168.1.93:3000/api'
   : 'https://tu-dominio-produccion.com/api';
 
 const api = axios.create({

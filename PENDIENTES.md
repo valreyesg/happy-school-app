@@ -5,8 +5,10 @@
 ---
 
 ## 🔧 Deuda Técnica (Prioritaria)
-- [ ] IP hardcodeada en `mobile/src/services/api.js` línea 4 → cambiar a IP real del servidor
-- [ ] Auditar `plantillas_whatsapp` y `configuracion` — posibles duplicados sin constraint
+- [x] IP hardcodeada en `mobile/src/services/api.js` línea 4 → corregida a `192.168.1.93` ✅ sesión 10
+- [x] Auditar `plantillas_whatsapp` y `configuracion` — ya tenían UNIQUE constraint, sin deuda ✅ sesión 10
+- [ ] ⚠️ **VALIDAR sesión 11:** Botón "Ver bitácora" eliminado en dashboard padre (web + mobile) — cambios no visibles al cierre de sesión 10, investigar caché/proceso Vite
+- [ ] ⚠️ **VALIDAR sesión 11:** Banners cumpleaños 🎂 en dashboard maestra, directora y filtro de entrada — idem
 
 ---
 

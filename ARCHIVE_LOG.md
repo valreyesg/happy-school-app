@@ -28,6 +28,12 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 11 — Completada (2026-04-17)
+- [x] **Bug `esCumpleanos` — fecha ISO vs YYYY-MM-DD:** el API devuelve `fecha_nacimiento` como ISO completo (`"2022-04-17T05:00:00.000Z"`); la función concatenaba `+ 'T12:00:00'` produciendo fecha inválida → `esCumpleanos` siempre devolvía `false`. Fix: `.substring(0, 10)` en los 4 archivos afectados: `web/maestra/Dashboard.jsx`, `web/directora/Dashboard.jsx`, `web/maestra/Asistencia.jsx`, `mobile/(maestra)/qr-scanner.jsx`
+- [x] Regla documentada en `SCHEMA_SHORTCUT.md` y `CONTEXT.md` — nunca concatenar fechas del API sin extraer `substring(0,10)` primero
+- [x] Banners cumpleaños 🎂 validados y funcionando correctamente tras el fix
+- ⚠️ **PENDIENTE SESIÓN 12:** Botón "Ver bitácora completa →" sigue visible en vista Bitácora del padre (web) al navegar desde dashboard o menú lateral
+
 ## ✅ SESIÓN 10 — Completada (2026-04-17)
 - [x] IP hardcodeada `mobile/src/services/api.js:4` → corregida a `192.168.1.93`
 - [x] Auditoría duplicados `plantillas_whatsapp` / `configuracion_general` → ya tenían UNIQUE constraint, sin deuda

@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-17 (sesión 10 cerrada)
-### Sesión: Deuda técnica + UX padre (botón bitácora) + alerta cumpleaños (filtro entrada, dashboards maestra y directora)
-### Próxima sesión: Validar visibilidad de cambios sesión 10 (botón bitácora + banners cumpleaños) — investigar por qué no se reflejaban en browser
+### Última actualización: 2026-04-17 (sesión 11 cerrada)
+### Sesión: Fix bug `esCumpleanos` (fecha ISO vs YYYY-MM-DD) en 4 archivos — banners cumpleaños ahora funcionan
+### Próxima sesión: Botón "Ver bitácora completa →" sigue visible en vista Bitácora del padre (web) al navegar desde dashboard o menú lateral — investigar y eliminar
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**
@@ -76,6 +76,12 @@ Si `kill` no funciona por PID, usar: `kill -9 PID_DEL_PROCESO_HIJO` (segundo nú
 Razón: devuelve fecha UTC. Después de las 6pm México (UTC-6) ya es el día siguiente en UTC → asistencia y bitácora aparecen vacías o con fecha incorrecta.
 - **Backend:** usar `CURRENT_DATE` de PostgreSQL, o `COALESCE($n::date, CURRENT_DATE)` cuando el parámetro es opcional.
 - **Frontend:** usar `new Date().toLocaleDateString('en-CA')` → devuelve `'YYYY-MM-DD'` en hora local del navegador.
+
+## ⚠️ REGLA CRÍTICA — Formato de fechas del API
+Los campos `DATE`/`TIMESTAMP` de la DB llegan del API como ISO completo (`"2022-04-17T05:00:00.000Z"`), **no** como `"YYYY-MM-DD"`.
+**NUNCA** concatenar directamente `fecha + 'T12:00:00'` → produce fecha inválida, la lógica falla silenciosamente (siempre `false`).
+**SIEMPRE** extraer primero: `fecha.substring(0, 10)` antes de parsear o comparar.
+Aplica en: comparadores de cumpleaños, vencimientos, rangos, cualquier campo fecha del API.
 
 ## Regla de calidad — Constraints únicos
 **Pendiente revisar**: otras tablas que puedan acumular duplicados.

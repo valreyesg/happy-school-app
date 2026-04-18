@@ -153,7 +153,7 @@ function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;
   const hoy = new Date().toLocaleDateString('en-CA');
   const [, mesHoy, diaHoy] = hoy.split('-');
-  const fn = new Date(fecha_nacimiento + 'T12:00:00');
+  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
   return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
 }
 

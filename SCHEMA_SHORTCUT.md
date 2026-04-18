@@ -8,6 +8,12 @@
 - **Relación Padres:** La tabla es `alumno_padre` (NO `tutores`).
 - **Asignación de maestras a grupos:** La tabla es `asignaciones_grupo` (NO `grupos_personal`).
 
+## ⚠️ FORMATO DE FECHAS DEL API (sesión 11 — BUG CRÍTICO)
+El campo `fecha_nacimiento` (y cualquier columna `DATE`/`TIMESTAMP`) llega del API como ISO completo: `"2022-04-17T05:00:00.000Z"`, **NO** como `"2022-04-17"`.
+- **NUNCA** hacer `fecha_nacimiento + 'T12:00:00'` → produce fecha inválida y lógica silenciosa rota.
+- **SIEMPRE** extraer solo la parte date: `fecha_nacimiento.substring(0, 10)` antes de parsear o comparar.
+- Aplica en todos los comparadores de fecha en frontend (cumpleaños, vencimientos, rangos, etc.).
+
 ## 🆕 COLUMNAS AÑADIDAS (sesión 8)
 - `personal.genero` — VARCHAR(10), valores: `f` | `m` | `o` (default `f`)
 - `padres.parentesco` — ya existía: `padre` | `madre` | `tutor` | `abuelo` | etc.

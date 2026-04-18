@@ -1,14 +1,11 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-17 (sesión 9 cerrada)
+## Última actualización: 2026-04-17 (sesión 11 cerrada)
 
 ---
 
 ## 🔧 Deuda Técnica (Prioritaria)
-- [x] IP hardcodeada en `mobile/src/services/api.js` línea 4 → corregida a `192.168.1.93` ✅ sesión 10
-- [x] Auditar `plantillas_whatsapp` y `configuracion` — ya tenían UNIQUE constraint, sin deuda ✅ sesión 10
-- [ ] ⚠️ **VALIDAR sesión 11:** Botón "Ver bitácora" eliminado en dashboard padre (web + mobile) — cambios no visibles al cierre de sesión 10, investigar caché/proceso Vite
-- [ ] ⚠️ **VALIDAR sesión 11:** Banners cumpleaños 🎂 en dashboard maestra, directora y filtro de entrada — idem
+- [ ] ⚠️ **SESIÓN 12:** Botón "Ver bitácora completa →" sigue apareciendo en la vista Bitácora del portal padre (web) al navegar desde el dashboard o desde el menú lateral — rastrear todos los consumidores y eliminar.
 
 ---
 

@@ -28,6 +28,13 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 13 — Completada (2026-04-18)
+- [x] **Endpoint `GET /asistencia/filtro-entrada`:** devuelve todos los grupos activos con alumnos y estado de entrada del día. Si el usuario tiene grupo asignado (titular/especial) filtra solo ese grupo; si no (maestra_puerta/directora), devuelve todos.
+- [x] **Página `FiltroEntrada.jsx`** en `/maestra/filtro-entrada`: reloj en tiempo real, banner cumpleaños, stats Registrados/Pendientes/Total, búsqueda por nombre, alumnos agrupados por grupo (pendientes primero), modal checklist de entrada (salud, higiene, materiales).
+- [x] **QR Scanner integrado:** botón "Escanear QR" usa `html5-qrcode` con cámara trasera → localiza al alumno por UUID → abre modal de checklist automáticamente con `qr_escaneado: true`.
+- [x] **Nav y ruta:** ícono `DoorOpen` "Filtro Entrada" añadido a `MaestraLayout.jsx`; ruta `/maestra/filtro-entrada` registrada en `App.jsx`.
+- [x] **Bug proceso viejo backend:** proceso node no recargaba rutas nuevas → resuelto con `taskkill` + reinicio limpio.
+
 ## ✅ SESIÓN 12 — Completada (2026-04-18)
 - [x] **Botón "Ver bitácora completa →" eliminado:** reemplazado con `<Navigate replace>` en `web/pages/padre/Bitacora.jsx` — cuando el padre tiene un solo hijo y navega sin `alumnoId`, redirige automáticamente sin paso intermedio
 - [x] **Validación semáforo "Al Corriente":** en `web/pages/padre/Pagos.jsx` — si `saldo_pendiente > 0` y el backend devuelve `semaforo: 'verde'` (pago pendiente aún no vencido), se fuerza `amarillo` en el cliente

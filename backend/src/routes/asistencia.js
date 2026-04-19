@@ -216,6 +216,66 @@ router.post('/salida', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Filtro de entrada — todos los alumnos activos agrupados por grupo
+// Para maestra_puerta (sin grupo asignado) devuelve TODOS; para titular devuelve su grupo
+router.get('/filtro-entrada', async (req, res, next) => {
+  try {
+    // Verificar si tiene grupo asignado (titular/especial)
+    const grupoAsig = await query(`
+      SELECT g.id, g.nombre, g.color_hex
+      FROM asignaciones_grupo ag
+      JOIN grupos g ON ag.grupo_id = g.id
+      JOIN personal p ON ag.personal_id = p.id
+      JOIN ciclos_escolares c ON ag.ciclo_id = c.id
+      WHERE p.usuario_id = $1 AND ag.activo = true AND c.activo = true
+      ORDER BY ag.es_titular DESC
+      LIMIT 1
+    `, [req.user.id]);
+
+    const whereGrupo = grupoAsig.rows.length > 0
+      ? `AND a.grupo_id = '${grupoAsig.rows[0].id}'`
+      : '';
+
+    const result = await query(`
+      SELECT
+        a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
+        g.id AS grupo_id, g.nombre AS grupo_nombre, g.color_hex AS grupo_color,
+        COALESCE(ast.estado, 'ausente') AS estado_asistencia,
+        re.hora_entrada, re.es_retardo, re.puede_entrar, re.motivo_no_entrada,
+        re.numero_retardo_mes, re.temperatura,
+        re.sin_fiebre, re.sin_sintomas, re.sintomas_notas,
+        re.uñas_cortadas, re.sin_lagañas, re.panial_limpio,
+        re.trae_uniforme, re.trae_bata, re.trae_termo, re.agua_suficiente,
+        re.qr_escaneado
+      FROM alumnos a
+      JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      WHERE a.deleted_at IS NULL AND a.estado IN ('inscrito','reinscrito')
+        AND g.deleted_at IS NULL AND g.activo = true
+        ${whereGrupo}
+      ORDER BY g.nivel, g.nombre, a.nombre_completo
+    `);
+
+    // Agrupar por grupo
+    const grupos = {};
+    for (const row of result.rows) {
+      if (!grupos[row.grupo_id]) {
+        grupos[row.grupo_id] = {
+          id: row.grupo_id,
+          nombre: row.grupo_nombre,
+          color_hex: row.grupo_color,
+          alumnos: [],
+        };
+      }
+      grupos[row.grupo_id].alumnos.push(row);
+    }
+
+    const fecha = (await query(`SELECT CURRENT_DATE::text AS f`)).rows[0].f;
+    res.json({ grupos: Object.values(grupos), fecha });
+  } catch (err) { next(err); }
+});
+
 // Vista de asistencia por grupo y fecha
 router.get('/grupo/:grupo_id', async (req, res, next) => {
   try {

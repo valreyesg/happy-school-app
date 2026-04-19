@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-18 (sesión 12 cerrada)
+## Última actualización: 2026-04-18 (sesión 13 cerrada)
 
 ---
 
@@ -110,10 +110,10 @@
 ## 3. IDENTIDAD VISUAL Y LENGUAJE (DIVERSIDAD Y CULTURA)
 - [x] **Unificación de Etnia:** ✅ sesión 8 — tono de piel claro 🏻 aplicado en 16 archivos (👧🏻👦🏻👶🏻👩🏻‍🏫)
 - [x] **Localización de Lenguaje (Miss/Teacher):** ✅ sesión 8 — etiquetas "Maestra"→"Miss"/"Teacher" + saludos dinámicos por `genero` (personal) y `parentesco` (padres) en web y mobile
-- [ ] **Dashboard Dinámico y Configurable:**
-    - Implementar tabla `settings` para rangos horarios: **Entrada**, **Académico** y **Salida/QR**.
-    - El Dashboard cambia automáticamente según la hora y configuración de `settings`.
-    - Alerta especial: "¡Hoy es el cumple de [Nombre]! 🎈" durante el filtro de entrada.
+- [~] **Dashboard Dinámico y Configurable:**
+    - [ ] Implementar tabla `settings` para rangos horarios: **Entrada**, **Académico** y **Salida/QR**.
+    - [ ] El Dashboard cambia automáticamente según la hora y configuración de `settings`.
+    - [x] Alerta especial: "¡Hoy es el cumple de [Nombre]! 🎈" durante el filtro de entrada. ✅ sesión 13
 
 ## 4. GESTIÓN DE ALUMNOS Y SEGURIDAD FAMILIAR
 - [ ] **Perfil 360° y Seguridad:**

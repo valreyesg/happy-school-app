@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-18 (sesión 12 cerrada)
-### Sesión: UX portal padre — redirección automática Bitácora hijo único, validación semáforo pagos, orden jerárquico recibos (mes actual visible, anteriores detrás de "Ver Todos")
-### Próxima sesión: 3 pendientes rápidos identificados — (1) alerta cumpleaños en filtro entrada, (2) contador asistencia en tiempo real en dashboard Miss, (3) bitácora del día directa en dashboard padre
+### Última actualización: 2026-04-18 (sesión 13 cerrada)
+### Sesión: Portal Filtro de Entrada web — ruta /maestra/filtro-entrada, endpoint GET /asistencia/filtro-entrada, QR scanner con html5-qrcode, nav MaestraLayout, alerta cumpleaños integrada
+### Próxima sesión: (1) contador asistencia en tiempo real en dashboard Miss, (2) bitácora del día directa en dashboard padre, (3) tabla settings para rangos horarios dinámicos
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

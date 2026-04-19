@@ -1,15 +1,16 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { LayoutDashboard, CheckSquare, BookOpen, Image, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, DoorOpen, CheckSquare, BookOpen, Image, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
-  { to: '/maestra',           icon: LayoutDashboard, label: 'Inicio',    exact: true },
-  { to: '/maestra/asistencia',icon: CheckSquare,     label: 'Asistencia' },
-  { to: '/maestra/bitacora',  icon: BookOpen,        label: 'Bitácora'   },
-  { to: '/maestra/galeria',   icon: Image,           label: 'Galería'    },
+  { to: '/maestra',                  icon: LayoutDashboard, label: 'Inicio',         exact: true },
+  { to: '/maestra/filtro-entrada',   icon: DoorOpen,        label: 'Filtro Entrada'  },
+  { to: '/maestra/asistencia',       icon: CheckSquare,     label: 'Asistencia'      },
+  { to: '/maestra/bitacora',         icon: BookOpen,        label: 'Bitácora'        },
+  { to: '/maestra/galeria',          icon: Image,           label: 'Galería'         },
 ];
 
 function saludoMiss(genero) {

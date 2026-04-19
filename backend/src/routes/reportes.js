@@ -24,6 +24,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       retardosMesResult,
       docsPendientesResult,
       asistenciaPorGrupoResult,
+      salidasAnticipadasResult,
     ] = await Promise.all([
 
       // Total de alumnos inscritos en ciclo activo
@@ -119,6 +120,24 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         GROUP BY g.id, g.nombre, g.color_hex
         ORDER BY g.nivel
       `, [hoy]),
+
+      // Todas las salidas de hoy con flag de anticipada
+      query(`
+        SELECT
+          a.id, a.nombre_completo,
+          g.nombre AS grupo_nombre, g.color_hex,
+          rs.hora_salida,
+          rs.nombre_quien_recoge,
+          rs.recogido_por_tipo,
+          rs.autorizado,
+          (rs.hora_salida AT TIME ZONE 'America/Mexico_City')::time <
+            (SELECT valor::time FROM configuracion_general WHERE clave = 'hora_salida_normal') AS es_anticipada
+        FROM registro_salida rs
+        JOIN alumnos a ON rs.alumno_id = a.id
+        LEFT JOIN grupos g ON a.grupo_id = g.id
+        WHERE rs.fecha = $1
+        ORDER BY g.nivel, g.nombre, rs.hora_salida
+      `, [hoy]),
     ]);
 
     const pagos = pagosSemResult.rows[0];
@@ -137,6 +156,8 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       retardosMes:         retardosMesResult.rows,
       documentacionPendiente: docsPendientesResult.rows,
       asistenciaPorGrupo:  asistenciaPorGrupoResult.rows,
+      salidasHoy:          salidasAnticipadasResult.rows,
+      salidasAnticipadas:  salidasAnticipadasResult.rows.filter(r => r.es_anticipada),
     });
   } catch (err) { next(err); }
 });

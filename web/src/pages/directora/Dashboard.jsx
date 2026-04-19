@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck, Settings } from 'lucide-react';
@@ -23,6 +24,104 @@ const StatCard = ({ icon: Icon, label, value, sublabel, color, emoji }) => (
     {sublabel && <div className="text-xs text-gray-400 font-semibold mt-1">{sublabel}</div>}
   </div>
 );
+
+function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading }) {
+  const [grupoAbierto, setGrupoAbierto] = useState(null);
+
+  // Agrupar salidas por grupo
+  const porGrupo = asistenciaPorGrupo.map(g => {
+    const salidas = salidasHoy.filter(s => s.grupo_nombre === g.grupo_nombre);
+    const anticipadas = salidas.filter(s => s.es_anticipada).length;
+    const noAutorizadas = salidas.filter(s => !s.autorizado).length;
+    return { ...g, salidas, anticipadas, noAutorizadas };
+  });
+
+  return (
+    <div className="card-hs">
+      <h2 className="text-lg font-black text-gray-800 mb-4">🚪 Salidas registradas hoy — por grupo</h2>
+      {isLoading ? (
+        <div className="skeleton h-24 rounded-2xl" />
+      ) : (
+        <div className="space-y-3">
+          {porGrupo.map(g => {
+            const abierto = grupoAbierto === g.grupo_id;
+            const enEscuela = parseInt(g.presentes) - g.salidas.length;
+            return (
+              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
+                style={{ borderColor: g.color_hex + '50' }}>
+                {/* Cabecera del grupo — siempre visible */}
+                <button
+                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
+                  className="w-full flex items-center gap-3 p-4 text-left transition-colors hover:opacity-90"
+                  style={{ background: g.color_hex + '15' }}
+                >
+                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: g.color_hex }} />
+                  <span className="font-black text-gray-700 flex-1">{g.grupo_nombre}</span>
+
+                  {/* Chips resumen */}
+                  <div className="flex items-center gap-2 text-xs font-bold">
+                    <span className="bg-white/80 text-gray-600 px-2 py-0.5 rounded-full">
+                      {g.salidas.length}/{g.presentes} salieron
+                    </span>
+                    {enEscuela > 0 && (
+                      <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                        {enEscuela} en escuela
+                      </span>
+                    )}
+                    {g.anticipadas > 0 && (
+                      <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
+                        ⚠️ {g.anticipadas}
+                      </span>
+                    )}
+                    {g.noAutorizadas > 0 && (
+                      <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                        🚨 {g.noAutorizadas}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-gray-400 text-sm ml-1">{abierto ? '▲' : '▼'}</span>
+                </button>
+
+                {/* Detalle expandible */}
+                {abierto && (
+                  <div className="divide-y divide-gray-50">
+                    {g.salidas.length === 0 ? (
+                      <p className="px-4 py-3 text-sm text-gray-400 font-semibold">Sin salidas registradas</p>
+                    ) : (
+                      g.salidas.map(a => (
+                        <div key={a.id + a.hora_salida} className={`flex items-center gap-3 px-4 py-3 ${a.es_anticipada ? 'bg-orange-50' : 'bg-white'}`}>
+                          <span className="text-base">{!a.autorizado ? '🚨' : a.es_anticipada ? '⚠️' : '✅'}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                            {a.nombre_quien_recoge && (
+                              <p className="text-xs text-gray-400 font-semibold truncate">
+                                Recogido por: {a.nombre_quien_recoge}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className={`font-black text-sm ${
+                              !a.autorizado ? 'text-red-600' : a.es_anticipada ? 'text-orange-600' : 'text-green-600'
+                            }`}>
+                              {new Date(a.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                            </span>
+                            {a.es_anticipada && (
+                              <p className="text-xs text-orange-400 font-semibold">anticipada</p>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DirectoraDashboard() {
   const { usuario } = useAuthStore();
@@ -138,6 +237,13 @@ export default function DirectoraDashboard() {
           </div>
         )}
       </div>
+
+      {/* Salidas por grupo hoy */}
+      <SalidasPorGrupo
+        salidasHoy={resumen?.salidasHoy || []}
+        asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
+        isLoading={isLoading}
+      />
 
       {/* Fila inferior */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

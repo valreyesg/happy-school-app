@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CheckSquare, BookOpen, Users, Clock, UserX, Image } from 'lucide-react';
+import { CheckSquare, BookOpen, Users, Clock, UserX, Image, LogOut, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
@@ -97,6 +97,15 @@ export default function MaestraDashboard() {
   const ausentes = alumnos.filter(a => !a.estado_asistencia || a.estado_asistencia === 'ausente').length;
   const bitacorasGuardadas = alumnos.filter(a => a.estado_animo !== null).length;
 
+  const horaSalidaNormal = configHorario?.horarios?.hora_salida_normal || '15:00';
+  const salidasAnticipadas = alumnos.filter(a => {
+    if (!a.salida_id || !a.hora_salida) return false;
+    const horaSalida = new Date(a.hora_salida).toLocaleTimeString('en-CA', {
+      hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City',
+    });
+    return horaSalida < horaSalidaNormal;
+  });
+
   const horaFinFiltro = configHorario?.horarios?.hora_fin_filtro || '08:30';
   const horaInicioFiltro = configHorario?.horarios?.hora_inicio_filtro || '07:00';
   const filtroAbierto = horaActual >= horaInicioFiltro && horaActual <= horaFinFiltro;
@@ -180,6 +189,23 @@ export default function MaestraDashboard() {
         </div>
       )}
 
+      {/* Banner salidas anticipadas */}
+      {salidasAnticipadas.length > 0 && (
+        <Link to="/maestra/filtro-salida"
+          className="block bg-orange-50 border-2 border-orange-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-orange-100 transition-colors">
+          <AlertTriangle size={22} className="text-orange-500 shrink-0" />
+          <div className="flex-1">
+            <p className="font-black text-orange-800 text-sm">
+              {salidasAnticipadas.length} salida{salidasAnticipadas.length > 1 ? 's' : ''} anticipada{salidasAnticipadas.length > 1 ? 's' : ''} hoy
+            </p>
+            <p className="text-xs text-orange-600 font-semibold">
+              {salidasAnticipadas.map(a => a.nombre_completo.split(' ')[0]).join(', ')} — antes de las {horaSalidaNormal}
+            </p>
+          </div>
+          <span className="text-2xl font-black text-orange-500">{salidasAnticipadas.length}</span>
+        </Link>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy"      color="bg-green-500" />
@@ -236,7 +262,8 @@ export default function MaestraDashboard() {
                 <tr className="border-b border-gray-100">
                   <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3">Alumno</th>
                   <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3 hidden sm:table-cell">Ánimo</th>
-                  <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3">Asistencia</th>
+                  <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3">Entrada</th>
+                  <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3 hidden sm:table-cell">Salida</th>
                   <th className="text-left text-xs font-black text-gray-400 uppercase tracking-wide px-4 py-3 hidden md:table-cell">Bitácora</th>
                   <th className="px-4 py-3" />
                 </tr>
@@ -273,9 +300,47 @@ export default function MaestraDashboard() {
                       )}
                     </td>
 
-                    {/* Asistencia */}
+                    {/* Entrada */}
                     <td className="px-4 py-3">
-                      <EstadoBadge estado={alumno.estado_asistencia} />
+                      <div className="space-y-1">
+                        <EstadoBadge estado={alumno.estado_asistencia} />
+                        {alumno.hora_entrada && (
+                          <p className="text-xs text-gray-400 font-semibold flex items-center gap-1">
+                            <Clock size={10} />
+                            {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                          </p>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Salida */}
+                    <td className="px-4 py-3 hidden sm:table-cell">
+                      {alumno.salida_id ? (
+                        <div className="space-y-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                            (() => {
+                              const h = new Date(alumno.hora_salida).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
+                              return h < horaSalidaNormal ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
+                            })()
+                          }`}>
+                            <LogOut size={10} />
+                            {new Date(alumno.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                          </span>
+                          {alumno.nombre_quien_recoge && (
+                            <p className="text-xs text-gray-400 font-semibold truncate max-w-[100px]">
+                              {alumno.nombre_quien_recoge}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        alumno.estado_asistencia !== 'ausente' && alumno.estado_asistencia !== 'no_entrada' ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-50 text-green-600">
+                            🏫 En escuela
+                          </span>
+                        ) : (
+                          <span className="text-gray-300 text-xs">—</span>
+                        )
+                      )}
                     </td>
 
                     {/* Bitácora */}

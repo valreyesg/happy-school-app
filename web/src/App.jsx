@@ -33,6 +33,7 @@ import AdminInscripciones from '@/pages/administrativo/Inscripciones';
 import MaestraDashboard from '@/pages/maestra/Dashboard';
 import MaestraAsistencia from '@/pages/maestra/Asistencia';
 import MaestraFiltroEntrada from '@/pages/maestra/FiltroEntrada';
+import MaestraFiltroSalida from '@/pages/maestra/FiltroSalida';
 import MaestraBitacora from '@/pages/maestra/Bitacora';
 import MaestraGaleria from '@/pages/maestra/Galeria';
 
@@ -117,6 +118,7 @@ export default function App() {
       }>
         <Route index element={<MaestraDashboard />} />
         <Route path="filtro-entrada" element={<MaestraFiltroEntrada />} />
+        <Route path="filtro-salida" element={<MaestraFiltroSalida />} />
         <Route path="asistencia" element={<MaestraAsistencia />} />
         <Route path="bitacora" element={<MaestraBitacora />} />
         <Route path="galeria" element={<MaestraGaleria />} />

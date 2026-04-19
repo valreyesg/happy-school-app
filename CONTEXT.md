@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 18 cerrada)
-### Sesión: (1) Endpoint GET/PUT `/api/config/horarios` sobre `configuracion_general`. (2) Página Configuración directora con UI editable de horarios y reglas de negocio. (3) Monitor puntualidad en Dashboard Miss — banner dinámico con hora límite desde DB. (4) Fix timezone retardo (`toLocaleTimeString` con `America/Mexico_City`). (5) Panel horarios en Dashboard directora con enlace a Configuración. (6) Reorden Dashboard directora: Asistencia por grupo sube sobre Documentación/Retardos.
-### Próxima sesión: (1) UI de registro de salida + alerta de salida anticipada vs `hora_salida_normal`, (2) salidas anticipadas en monitor dashboard Miss
+### Última actualización: 2026-04-19 (sesión 19 cerrada)
+### Sesión: (1) Endpoint GET `/api/asistencia/filtro-salida` + página `/maestra/filtro-salida` — lista por grupo de alumnos presentes, modal selector "quién recoge", banner ámbar salida anticipada. (2) JOIN `registro_salida` en `/grupos/mi-grupo`. (3) Dashboard Miss: columnas Entrada/Salida en tabla + banner naranja salidas anticipadas. (4) Dashboard Directora: panel "Salidas por grupo hoy" expandible por grupo con chips resumen (normales / anticipadas / en escuela) y detalle individual con hora coloreada.
+### Próxima sesión: Fotos de actividades en bitácora (galería por día)
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

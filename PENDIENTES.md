@@ -1,18 +1,16 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 18 cerrada)
+## Última actualización: 2026-04-19 (sesión 19 cerrada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
-- [ ] UI de registro de salida (endpoint ya existe en backend)
-- [ ] Alerta de salida anticipada vs `hora_salida_normal` de `configuracion_general`
+- [ ] Fotos de actividades en bitácora (galería por día)
+- [ ] Incidentes y accidentes + firma digital del padre
 
 ---
 
 ## 📋 FASE 3 — Pendientes
-- [ ] Fotos de actividades en bitácora (galería por día)
-- [ ] Incidentes y accidentes + firma digital del padre
 - [ ] Reporte de asistencia: exportar Excel y PDF
 - [ ] Galería maestra web (placeholder existe en `/maestra/galeria`)
 
@@ -23,13 +21,6 @@
 - [ ] Generación de recibos en PDF
 - [ ] Envío de recibo por WhatsApp al registrar pago
 - [ ] Exportación Excel y PDF por alumno / grupo / mes
-
----
-
-## 📋 PRÓXIMAS PRIORIDADES (post sesión 17)
-- [x] Tabla `settings` para rangos horarios dinámicos — usa `configuracion_general` existente, endpoint GET/PUT `/api/config/horarios`, UI en Configuración directora ✅ sesión 18
-- [x] Monitor puntualidad — banner en dashboard Miss con estado filtro (abierto/cerrado) y contador retardos vs `hora_fin_filtro` ✅ sesión 18
-- [x] Exposición bitácora directa en dashboard del padre (sin clic extra) ✅ sesión 17
 
 ---
 
@@ -112,8 +103,7 @@
     - Generación de "Pase de Invitado" (QR único con vigencia de 2 horas) para que el padre lo envíe por WhatsApp a terceros autorizados.
 - [ ] **Detección Automática de Hermanos:**
     - Al escanear el QR de salida, mostrar alerta si el alumno tiene hermanos en otros grupos para gestionar la entrega conjunta.
-- [ ] **Protocolo de Salida Anticipada:**
-    - Implementar alerta automática si se registra salida antes del horario configurado en `settings`.
+- [ ] **Protocolo de Salida Anticipada — Avanzado:**
     - **Formulario de Incidencia:** Capturar motivo, hora exacta y quién retira.
     - **Firma de Respaldo:** Agregar componente de firma digital para el tutor en salidas fuera de horario.
     - **Notificación:** Enviar aviso push automático al otro padre/tutor informando que el alumno ha sido retirado.
@@ -121,7 +111,7 @@
 ## 3. IDENTIDAD VISUAL Y LENGUAJE (DIVERSIDAD Y CULTURA)
 - [x] **Unificación de Etnia:** ✅ sesión 8 — tono de piel claro 🏻 aplicado en 16 archivos (👧🏻👦🏻👶🏻👩🏻‍🏫)
 - [x] **Localización de Lenguaje (Miss/Teacher):** ✅ sesión 8 — etiquetas "Maestra"→"Miss"/"Teacher" + saludos dinámicos por `genero` (personal) y `parentesco` (padres) en web y mobile
-- [~] **Dashboard Dinámico y Configurable:**
+- [x] **Dashboard Dinámico y Configurable:**
     - [x] Implementar tabla `settings` para rangos horarios: **Entrada**, **Académico** y **Salida/QR**. ✅ sesión 18
     - [x] El Dashboard cambia automáticamente según la hora y configuración de `settings`. ✅ sesión 18
     - [x] Alerta especial: "¡Hoy es el cumple de [Nombre]! 🎈" durante el filtro de entrada. ✅ sesión 13
@@ -198,11 +188,11 @@
 - [ ] **Reporte para la Miss:**
     - Panel resumen que muestre: "12/15 alumnos entregaron la tarea de hoy".
 
-##  11.MÉTRICAS DE CONTROL EN DASHBOARD (VISTA MISS/TEACHER).
+## 11. MÉTRICAS DE CONTROL EN DASHBOARD (VISTA MISS/TEACHER)
 - [x] **Contador de Asistencia en Tiempo Real:** ✅ sesión 14 — 4 StatCards: En escuela hoy, Retardos, Ausentes, Bitácoras guardadas
-- [~] **Monitor de Puntualidad y Estatus:**
+- [x] **Monitor de Puntualidad y Estatus:**
     - [x] **Retardos:** Banner en dashboard Miss con estado filtro y contador vs `hora_fin_filtro`. ✅ sesión 18
-    - [ ] **Salidas Anticipadas:** Alerta visual si un niño ha sido retirado antes del horario académico.
+    - [x] **Salidas Anticipadas:** Banner naranja en dashboard Miss + columna Entrada/Salida en tabla. ✅ sesión 19
 - [ ] **Indicador de Comedor:**
     - Basado en la confirmación del domingo, mostrar cuántos niños del grupo requieren servicio de comida ese día para validación con cocina.
 - [ ] **Pendientes de Tarea:**

@@ -28,6 +28,13 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 19 — Completada (2026-04-19)
+- [x] **Endpoint GET `/api/asistencia/filtro-salida`:** Devuelve alumnos con `estado IN ('presente','retardo')` hoy sin salida registrada, agrupados por grupo. Incluye padres y personas_autorizadas por alumno (para el selector "quién recoge") y `hora_salida_normal` desde `configuracion_general`.
+- [x] **Página `/maestra/filtro-salida`:** Lista por grupo con tarjeta por alumno (estado "En escuela" / hora de salida). Modal con selector radio de quién recoge (padres + personas autorizadas + "otro"). Banner ámbar "⚠️ SALIDA ANTICIPADA" en modal y pantalla global si la hora actual es antes de `hora_salida_normal`. Nav item "Registro Salida" (ícono `DoorClosed`) en `MaestraLayout` entre Filtro Entrada y Asistencia.
+- [x] **JOIN `registro_salida` en `/grupos/mi-grupo`:** Agrega `salida_id`, `hora_salida`, `nombre_quien_recoge`, `recogido_por_tipo`, `salida_autorizada` a cada alumno del grupo.
+- [x] **Dashboard Miss — columnas Entrada/Salida:** Tabla divide "Asistencia" en dos columnas: "Entrada" (badge estado + hora de llegada) y "Salida" (hora en azul=normal / naranja=anticipada, "En escuela" si no ha salido). Banner naranja enlazado a `/maestra/filtro-salida` cuando hay salidas anticipadas, con nombres.
+- [x] **Dashboard Directora — panel Salidas por grupo hoy:** Reemplaza lista plana por acordeón por grupo. Cabecera siempre visible con chips: `X/Y salieron · X en escuela · ⚠️ X anticipadas · 🚨 X no autorizadas`. Al expandir muestra lista con hora verde (normal), naranja (anticipada) o roja (no autorizada) y quién recogió. Query en `/reportes/dashboard` devuelve `salidasHoy` (todas) y `salidasAnticipadas` (filtradas por `hora_salida_normal`).
+
 ## ✅ SESIÓN 18 — Completada (2026-04-19)
 - [x] **Endpoint GET/PUT `/api/config/horarios`:** Lee y actualiza claves de `configuracion_general` (hora_inicio_filtro, hora_fin_filtro, hora_salida_normal, hora_salida_extension, costo_extension_hora, max_retardos_mes, dia_inicio_pago, dia_fin_pago, alerta_minutos_sin_recoger). GET disponible a todos los roles, PUT solo directora.
 - [x] **Página Configuración directora (`/directora/configuracion`):** UI con 4 secciones (Entrada, Horario/Salida, Reglas de negocio, Período de pagos). Campos `input type="time"` y `number`. Botón guardar con feedback visual. Era placeholder `🚧`.

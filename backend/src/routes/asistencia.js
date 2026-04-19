@@ -342,4 +342,85 @@ router.get('/grupo/:grupo_id/mensual', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Filtro de salida — alumnos presentes hoy sin salida registrada
+router.get('/filtro-salida', async (req, res, next) => {
+  try {
+    // hora_salida_normal de config
+    const cfgResult = await query(
+      `SELECT valor FROM configuracion_general WHERE clave = 'hora_salida_normal' LIMIT 1`
+    );
+    const hora_salida_normal = cfgResult.rows[0]?.valor || '15:00';
+
+    // Alumnos presentes hoy, agrupados por grupo, con flag de salida ya registrada
+    const result = await query(`
+      SELECT
+        a.id, a.nombre_completo, a.foto_url,
+        g.id AS grupo_id, g.nombre AS grupo_nombre, g.color_hex AS grupo_color,
+        COALESCE(ast.estado, 'ausente') AS estado_asistencia,
+        re.hora_entrada,
+        rs.id AS salida_id, rs.hora_salida, rs.autorizado AS salida_autorizada,
+        rs.nombre_quien_recoge
+      FROM alumnos a
+      JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = CURRENT_DATE
+      WHERE a.deleted_at IS NULL AND a.estado IN ('inscrito','reinscrito')
+        AND g.deleted_at IS NULL AND g.activo = true
+        AND ast.estado IN ('presente','retardo')
+      ORDER BY g.nivel, g.nombre, a.nombre_completo
+    `);
+
+    // Padres y personas autorizadas por alumno (para el selector "quién recoge")
+    const alumnoIds = [...new Set(result.rows.map(r => r.id))];
+    let padresMap = {};
+    let autorizadosMap = {};
+
+    if (alumnoIds.length > 0) {
+      const padresResult = await query(`
+        SELECT ap.alumno_id, p.id, p.nombre_completo, p.parentesco
+        FROM alumno_padre ap
+        JOIN padres p ON ap.padre_id = p.id
+        WHERE ap.alumno_id = ANY($1)
+        ORDER BY ap.es_tutor_principal DESC, p.nombre_completo
+      `, [alumnoIds]);
+      for (const r of padresResult.rows) {
+        if (!padresMap[r.alumno_id]) padresMap[r.alumno_id] = [];
+        padresMap[r.alumno_id].push({ id: r.id, nombre: r.nombre_completo, tipo: r.parentesco });
+      }
+
+      const autResult = await query(`
+        SELECT id, alumno_id, nombre_completo, parentesco
+        FROM personas_autorizadas
+        WHERE alumno_id = ANY($1) AND activo = true
+        ORDER BY nombre_completo
+      `, [alumnoIds]);
+      for (const r of autResult.rows) {
+        if (!autorizadosMap[r.alumno_id]) autorizadosMap[r.alumno_id] = [];
+        autorizadosMap[r.alumno_id].push({ id: r.id, nombre: r.nombre_completo, parentesco: r.parentesco });
+      }
+    }
+
+    // Agrupar por grupo
+    const grupos = {};
+    for (const row of result.rows) {
+      if (!grupos[row.grupo_id]) {
+        grupos[row.grupo_id] = {
+          id: row.grupo_id,
+          nombre: row.grupo_nombre,
+          color_hex: row.grupo_color,
+          alumnos: [],
+        };
+      }
+      grupos[row.grupo_id].alumnos.push({
+        ...row,
+        padres: padresMap[row.id] || [],
+        autorizados: autorizadosMap[row.id] || [],
+      });
+    }
+
+    res.json({ grupos: Object.values(grupos), hora_salida_normal });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

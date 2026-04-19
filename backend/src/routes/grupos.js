@@ -134,6 +134,12 @@ router.get('/mi-grupo', async (req, res, next) => {
         re.trae_termo,
         re.agua_suficiente,
         re.qr_escaneado,
+        -- Salida
+        rs.id AS salida_id,
+        rs.hora_salida,
+        rs.nombre_quien_recoge,
+        rs.recogido_por_tipo,
+        rs.autorizado AS salida_autorizada,
         -- Bitácora (resumen)
         bd.estado_animo,
         bd.tarea_realizada,
@@ -144,6 +150,7 @@ router.get('/mi-grupo', async (req, res, next) => {
       FROM alumnos a
       LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN bitacora_diaria bd ON bd.alumno_id = a.id AND bd.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_banio rb ON rb.alumno_id = a.id AND rb.fecha = COALESCE($2::date, CURRENT_DATE)

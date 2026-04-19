@@ -1,0 +1,308 @@
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { X, Clock, AlertTriangle } from 'lucide-react';
+import api from '@/services/api';
+import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import toast from 'react-hot-toast';
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function horaTexto(ts) {
+  if (!ts) return null;
+  return new Date(ts).toLocaleTimeString('es-MX', {
+    hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City',
+  });
+}
+
+function esSalidaAnticipada(horaSalidaNormal) {
+  if (!horaSalidaNormal) return false;
+  const ahora = new Date();
+  const [h, m] = horaSalidaNormal.split(':').map(Number);
+  const limite = new Date();
+  limite.setHours(h, m, 0, 0);
+  return ahora < limite;
+}
+
+// ── Modal salida ───────────────────────────────────────────────────────────────
+
+function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
+  const queryClient = useQueryClient();
+
+  // Construir opciones para el selector
+  const opciones = [
+    ...alumno.padres.map(p => ({ tipo: 'padre', id: p.id, label: `${p.nombre} (${p.tipo})` })),
+    ...alumno.autorizados.map(a => ({ tipo: 'autorizado', id: a.id, label: `${a.nombre} (${a.parentesco})` })),
+    { tipo: 'otro', id: 'otro', label: '👤 Otro (escribir nombre)' },
+  ];
+
+  const [seleccion, setSeleccion] = useState(opciones[0]?.id || 'otro');
+  const [nombreOtro, setNombreOtro] = useState('');
+  const anticipada = esSalidaAnticipada(horaSalidaNormal);
+
+  const mutation = useMutation({
+    mutationFn: (data) => api.post('/asistencia/salida', data).then(r => r.data),
+    onSuccess: (data) => {
+      if (!data.autorizado) {
+        toast.error(`🚨 ALERTA — ${alumno.nombre_completo.split(' ')[0]} retirado por persona NO autorizada`);
+      } else {
+        toast.success(`🚪 Salida registrada — ${alumno.nombre_completo.split(' ')[0]}`);
+      }
+      queryClient.invalidateQueries({ queryKey: ['filtro-salida'] });
+      onSuccess();
+    },
+    onError: () => toast.error('Error al registrar salida'),
+  });
+
+  const handleSubmit = () => {
+    const opcion = opciones.find(o => o.id === seleccion);
+    const payload = { alumno_id: alumno.id };
+
+    if (opcion?.tipo === 'padre') {
+      payload.padre_id = opcion.id;
+    } else if (opcion?.tipo === 'autorizado') {
+      payload.persona_autorizada_id = opcion.id;
+    } else {
+      if (!nombreOtro.trim()) {
+        toast.error('Escribe el nombre de quien recoge');
+        return;
+      }
+      payload.nombre_quien_recoge = nombreOtro.trim();
+    }
+
+    mutation.mutate(payload);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center gap-3 p-5 border-b border-gray-100">
+          <AvatarAlumno alumno={alumno} size="md" />
+          <div className="flex-1">
+            <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
+            <p className="text-xs text-gray-400 font-semibold">
+              {alumno.grupo_nombre}
+              {alumno.hora_entrada && (
+                <> · Entró a las {horaTexto(alumno.hora_entrada)}</>
+              )}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          {/* Alerta salida anticipada */}
+          {anticipada && (
+            <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
+              <AlertTriangle size={22} className="text-amber-600 shrink-0" />
+              <div>
+                <p className="font-black text-amber-700 text-sm">⚠️ SALIDA ANTICIPADA</p>
+                <p className="text-xs text-amber-600 font-semibold">
+                  El horario normal de salida es a las {horaSalidaNormal}. ¿Confirmar salida anticipada?
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Hora actual */}
+          <div className="flex items-center gap-2 text-sm text-gray-500 font-semibold">
+            <Clock size={15} />
+            <span>
+              Hora de salida: {new Date().toLocaleTimeString('es-MX', {
+                hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City',
+              })}
+            </span>
+          </div>
+
+          {/* Selector quien recoge */}
+          <div>
+            <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">¿Quién recoge?</p>
+            <div className="space-y-2">
+              {opciones.map(op => (
+                <button key={op.id} type="button"
+                  onClick={() => setSeleccion(op.id)}
+                  className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 text-sm font-bold text-left transition-all
+                    ${seleccion === op.id
+                      ? 'border-hs-purple bg-purple-50 text-hs-purple'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                  <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center
+                    ${seleccion === op.id ? 'border-hs-purple bg-hs-purple' : 'border-gray-300'}`}>
+                    {seleccion === op.id && <span className="w-2 h-2 rounded-full bg-white" />}
+                  </span>
+                  {op.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Input nombre si "otro" */}
+          {seleccion === 'otro' && (
+            <input
+              type="text"
+              placeholder="Nombre completo de quien recoge"
+              value={nombreOtro}
+              onChange={e => setNombreOtro(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-hs-purple transition-colors"
+            />
+          )}
+        </div>
+
+        {/* Botón */}
+        <div className="px-5 pb-5">
+          <button onClick={handleSubmit} disabled={mutation.isPending}
+            className={`w-full py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
+              ${anticipada ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-purple-700'}`}>
+            {mutation.isPending ? 'Registrando...' : '🚪 Registrar Salida'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tarjeta alumno ─────────────────────────────────────────────────────────────
+
+function TarjetaAlumno({ alumno, onTap }) {
+  const yaSalio = !!alumno.salida_id;
+  return (
+    <div
+      onClick={() => !yaSalio && onTap(alumno)}
+      className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all
+        ${yaSalio
+          ? 'border-gray-100 bg-gray-50 opacity-50 cursor-default'
+          : 'border-orange-200 bg-white hover:border-orange-400 hover:shadow-md cursor-pointer active:scale-95'}`}
+    >
+      <AvatarAlumno alumno={alumno} size="md" />
+      <div className="flex-1 min-w-0">
+        <p className="font-black text-gray-800 truncate">{alumno.nombre_completo}</p>
+        <p className="text-xs text-gray-400 font-semibold flex items-center gap-1 mt-0.5">
+          {alumno.hora_entrada && (
+            <><Clock size={11} /> Entró {horaTexto(alumno.hora_entrada)}</>
+          )}
+        </p>
+      </div>
+      {yaSalio ? (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-gray-100 text-gray-500">
+          ✅ {horaTexto(alumno.hora_salida)}
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-orange-100 text-orange-700">
+          🏫 En escuela
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── Vista principal ────────────────────────────────────────────────────────────
+
+export default function FiltroSalida() {
+  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['filtro-salida'],
+    queryFn: () => api.get('/asistencia/filtro-salida').then(r => r.data),
+    refetchInterval: 20000,
+  });
+
+  const grupos = data?.grupos ?? [];
+  const horaSalidaNormal = data?.hora_salida_normal || '15:00';
+  const anticipada = esSalidaAnticipada(horaSalidaNormal);
+
+  const todosAlumnos = grupos.flatMap(g => g.alumnos);
+  const enEscuela = todosAlumnos.filter(a => !a.salida_id).length;
+  const yaSalieron = todosAlumnos.filter(a => !!a.salida_id).length;
+
+  const q = busqueda.toLowerCase().trim();
+  const gruposFiltrados = q
+    ? grupos.map(g => ({ ...g, alumnos: g.alumnos.filter(a => a.nombre_completo.toLowerCase().includes(q)) }))
+            .filter(g => g.alumnos.length > 0)
+    : grupos;
+
+  const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  return (
+    <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-black text-gray-800">Registro de Salida 🚪</h1>
+        <p className="text-gray-500 font-semibold capitalize mt-0.5">{hoy}</p>
+      </div>
+
+      {/* Banner salida anticipada (global) */}
+      {!isLoading && anticipada && enEscuela > 0 && (
+        <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
+          <AlertTriangle size={22} className="text-amber-600 shrink-0" />
+          <p className="font-black text-amber-700 text-sm">
+            ⚠️ Horario normal de salida: <span className="font-mono">{horaSalidaNormal}</span> — cualquier salida ahora es anticipada
+          </p>
+        </div>
+      )}
+
+      {/* Stats */}
+      {!isLoading && (
+        <div className="grid grid-cols-2 gap-3">
+          <div className="card-hs p-4 text-center">
+            <p className="text-3xl font-black text-orange-500">{enEscuela}</p>
+            <p className="text-xs font-bold text-gray-500 mt-1">En escuela</p>
+          </div>
+          <div className="card-hs p-4 text-center">
+            <p className="text-3xl font-black text-green-600">{yaSalieron}</p>
+            <p className="text-xs font-bold text-gray-500 mt-1">Ya salieron</p>
+          </div>
+        </div>
+      )}
+
+      {/* Búsqueda */}
+      <input
+        type="search"
+        placeholder="🔍 Buscar alumno..."
+        value={busqueda}
+        onChange={e => setBusqueda(e.target.value)}
+        className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-hs-purple transition-colors"
+      />
+
+      {/* Lista por grupo */}
+      {isLoading ? (
+        <div className="card-hs p-12 flex items-center justify-center">
+          <div className="animate-spin w-10 h-10 border-4 border-hs-purple border-t-transparent rounded-full" />
+        </div>
+      ) : gruposFiltrados.length === 0 ? (
+        <div className="card-hs p-10 text-center">
+          <p className="text-4xl mb-2">🎉</p>
+          <p className="font-black text-gray-600">Todos los alumnos ya salieron</p>
+        </div>
+      ) : (
+        gruposFiltrados.map(grupo => {
+          const pendientes = grupo.alumnos.filter(a => !a.salida_id);
+          const salidos    = grupo.alumnos.filter(a => !!a.salida_id);
+          return (
+            <section key={grupo.id}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: grupo.color_hex || '#F97316' }} />
+                <h2 className="font-black text-gray-700 text-sm uppercase tracking-wider">{grupo.nombre}</h2>
+                <span className="text-xs font-bold text-gray-400">
+                  {salidos.length}/{grupo.alumnos.length} salieron
+                </span>
+              </div>
+              <div className="space-y-2">
+                {pendientes.map(a => <TarjetaAlumno key={a.id} alumno={a} onTap={setAlumnoSeleccionado} />)}
+                {salidos.map(a => <TarjetaAlumno key={a.id} alumno={a} onTap={() => {}} />)}
+              </div>
+            </section>
+          );
+        })
+      )}
+
+      {alumnoSeleccionado && (
+        <ModalSalida
+          alumno={alumnoSeleccionado}
+          horaSalidaNormal={horaSalidaNormal}
+          onClose={() => setAlumnoSeleccionado(null)}
+          onSuccess={() => setAlumnoSeleccionado(null)}
+        />
+      )}
+    </div>
+  );
+}

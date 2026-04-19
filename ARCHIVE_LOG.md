@@ -28,6 +28,15 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 18 — Completada (2026-04-19)
+- [x] **Endpoint GET/PUT `/api/config/horarios`:** Lee y actualiza claves de `configuracion_general` (hora_inicio_filtro, hora_fin_filtro, hora_salida_normal, hora_salida_extension, costo_extension_hora, max_retardos_mes, dia_inicio_pago, dia_fin_pago, alerta_minutos_sin_recoger). GET disponible a todos los roles, PUT solo directora.
+- [x] **Página Configuración directora (`/directora/configuracion`):** UI con 4 secciones (Entrada, Horario/Salida, Reglas de negocio, Período de pagos). Campos `input type="time"` y `number`. Botón guardar con feedback visual. Era placeholder `🚧`.
+- [x] **Monitor puntualidad en Dashboard Miss:** Banner dinámico verde (filtro abierto) / gris (filtro cerrado) con hora límite tomada de `configuracion_general`. Muestra contador de retardos integrado. Reloj se actualiza cada 30s.
+- [x] **Fix timezone retardo en backend:** `asistencia.js` línea 28 — `toTimeString().slice(0,5)` (hora del servidor/UTC) reemplazado por `toLocaleTimeString('en-CA', { timeZone: 'America/Mexico_City', ... })`. Evita marcar retardos incorrectos después de las 6pm.
+- [x] **Panel horarios en Dashboard directora:** Tarjeta ⚙️ con 4 horarios principales (apertura, límite, salida normal, salida extensión) + 3 valores de negocio (costo extensión, máx. retardos, período pago). Enlace directo a Configuración.
+- [x] **Reorden Dashboard directora:** Asistencia por grupo movida arriba de Documentación incompleta y Retardos del mes.
+- [x] **Exposición bitácora en dashboard padre marcada como completada** (fue implementada en sesión 17 pero no registrada).
+
 ## ✅ SESIÓN 17 — Completada (2026-04-19)
 - [x] **Migración 009 — Constraint único titular por grupo:** `UNIQUE INDEX` parcial en `asignaciones_grupo (grupo_id, ciclo_id) WHERE es_titular = true`. Corrige duplicados previos conservando el registro más antiguo. Verificado: rechaza inserto de segundo titular con error de unicidad.
 - [x] **Migración 010 — Rol `maestra_auxiliar`:** `ALTER TYPE rol_principal_tipo ADD VALUE 'maestra_auxiliar'`. Karla Espinoza Luna y Mónica Vargas Castillo actualizadas de `maestra_titular` → `maestra_auxiliar`. Frontend actualizado: nuevo valor en `ROLES`, badge color teal, label "Auxiliar".

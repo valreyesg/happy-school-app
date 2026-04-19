@@ -1,10 +1,12 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 17 cerrada)
+## Última actualización: 2026-04-19 (sesión 18 cerrada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
+- [ ] UI de registro de salida (endpoint ya existe en backend)
+- [ ] Alerta de salida anticipada vs `hora_salida_normal` de `configuracion_general`
 
 ---
 
@@ -25,9 +27,9 @@
 ---
 
 ## 📋 PRÓXIMAS PRIORIDADES (post sesión 17)
-- [ ] Tabla `settings` para rangos horarios dinámicos (entrada, académico, salida/QR)
-- [ ] Monitor puntualidad — retardos vs hora límite de `settings`
-- [ ] Exposición bitácora directa en dashboard del padre (sin clic extra)
+- [x] Tabla `settings` para rangos horarios dinámicos — usa `configuracion_general` existente, endpoint GET/PUT `/api/config/horarios`, UI en Configuración directora ✅ sesión 18
+- [x] Monitor puntualidad — banner en dashboard Miss con estado filtro (abierto/cerrado) y contador retardos vs `hora_fin_filtro` ✅ sesión 18
+- [x] Exposición bitácora directa en dashboard del padre (sin clic extra) ✅ sesión 17
 
 ---
 
@@ -120,8 +122,8 @@
 - [x] **Unificación de Etnia:** ✅ sesión 8 — tono de piel claro 🏻 aplicado en 16 archivos (👧🏻👦🏻👶🏻👩🏻‍🏫)
 - [x] **Localización de Lenguaje (Miss/Teacher):** ✅ sesión 8 — etiquetas "Maestra"→"Miss"/"Teacher" + saludos dinámicos por `genero` (personal) y `parentesco` (padres) en web y mobile
 - [~] **Dashboard Dinámico y Configurable:**
-    - [ ] Implementar tabla `settings` para rangos horarios: **Entrada**, **Académico** y **Salida/QR**.
-    - [ ] El Dashboard cambia automáticamente según la hora y configuración de `settings`.
+    - [x] Implementar tabla `settings` para rangos horarios: **Entrada**, **Académico** y **Salida/QR**. ✅ sesión 18
+    - [x] El Dashboard cambia automáticamente según la hora y configuración de `settings`. ✅ sesión 18
     - [x] Alerta especial: "¡Hoy es el cumple de [Nombre]! 🎈" durante el filtro de entrada. ✅ sesión 13
 
 ## 4. GESTIÓN DE ALUMNOS Y SEGURIDAD FAMILIAR
@@ -198,9 +200,9 @@
 
 ##  11.MÉTRICAS DE CONTROL EN DASHBOARD (VISTA MISS/TEACHER).
 - [x] **Contador de Asistencia en Tiempo Real:** ✅ sesión 14 — 4 StatCards: En escuela hoy, Retardos, Ausentes, Bitácoras guardadas
-- [ ] **Monitor de Puntualidad y Estatus:**
-    - **Retardos:** Contador de niños que ingresaron después de la hora límite de `settings`.
-    - **Salidas Anticipadas:** Alerta visual si un niño ha sido retirado antes del horario académico.
+- [~] **Monitor de Puntualidad y Estatus:**
+    - [x] **Retardos:** Banner en dashboard Miss con estado filtro y contador vs `hora_fin_filtro`. ✅ sesión 18
+    - [ ] **Salidas Anticipadas:** Alerta visual si un niño ha sido retirado antes del horario académico.
 - [ ] **Indicador de Comedor:**
     - Basado en la confirmación del domingo, mostrar cuántos niños del grupo requieren servicio de comida ese día para validación con cocina.
 - [ ] **Pendientes de Tarea:**
@@ -209,7 +211,7 @@
 ## 12. PORTAL DEL PAPÁ (EXPERIENCIA DE USUARIO Y DASHBOARD)
 
 ### 📊 Dashboard Ejecutivo y Predictivo (Cero Clics)
-- [ ] **Exposición Directa de Bitácora:** Mostrar el contenido de la bitácora del día actual directamente en la pantalla principal del Dashboard.
+- [x] **Exposición Directa de Bitácora:** Mostrar el contenido de la bitácora del día actual directamente en la pantalla principal del Dashboard. ✅ sesión 17
 - [ ] **Lógica de Avance y Cierre:** - Mientras la Miss captura durante la jornada, la bitácora muestra los datos parciales con un indicador de **"En curso"**.
     - Al momento de la entrega/salida, el sistema marca la bitácora como **"Finalizada"**.
     - El mensaje "Aún no está lista" solo aparece si no hay datos capturados (0% de avance).

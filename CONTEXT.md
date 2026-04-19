@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 17 cerrada)
-### Sesión: (1) Constraint único titular por grupo — migración 009. (2) Bitácora histórica Miss — selector ◄ ► con salto fines de semana, solo lectura días anteriores, default último día hábil. (3) Bitácora histórica Directora — pestaña "Bitácora" en AlumnoPerfil con navegación y vista solo-lectura completa. Fixes: ocultar sección Baño para niños con pañal, timezone fix en consulta registro_panial, guard hard en guardar().
-### Próxima sesión: (1) tabla `settings` para rangos horarios dinámicos, (2) monitor puntualidad (retardos vs `settings`), (3) exposición bitácora directa en dashboard padre
+### Última actualización: 2026-04-19 (sesión 18 cerrada)
+### Sesión: (1) Endpoint GET/PUT `/api/config/horarios` sobre `configuracion_general`. (2) Página Configuración directora con UI editable de horarios y reglas de negocio. (3) Monitor puntualidad en Dashboard Miss — banner dinámico con hora límite desde DB. (4) Fix timezone retardo (`toLocaleTimeString` con `America/Mexico_City`). (5) Panel horarios en Dashboard directora con enlace a Configuración. (6) Reorden Dashboard directora: Asistencia por grupo sube sobre Documentación/Retardos.
+### Próxima sesión: (1) UI de registro de salida + alerta de salida anticipada vs `hora_salida_normal`, (2) salidas anticipadas en monitor dashboard Miss
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

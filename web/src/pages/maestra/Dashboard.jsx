@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { CheckSquare, BookOpen, Users, Clock, UserX, Image } from 'lucide-react';
@@ -75,6 +75,20 @@ export default function MaestraDashboard() {
     refetchInterval: 60000,
   });
 
+  const { data: configHorario } = useQuery({
+    queryKey: ['config-horarios'],
+    queryFn: () => api.get('/config/horarios').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const [horaActual, setHoraActual] = useState(new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }));
+  useEffect(() => {
+    const t = setInterval(() => {
+      setHoraActual(new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }));
+    }, 30000);
+    return () => clearInterval(t);
+  }, []);
+
   const alumnos = grupo?.alumnos || [];
   const totalAlumnos = alumnos.length;
   const cumpleanosHoy = alumnos.filter(a => esCumpleanos(a.fecha_nacimiento));
@@ -82,6 +96,11 @@ export default function MaestraDashboard() {
   const retardos = alumnos.filter(a => a.estado_asistencia === 'retardo').length;
   const ausentes = alumnos.filter(a => !a.estado_asistencia || a.estado_asistencia === 'ausente').length;
   const bitacorasGuardadas = alumnos.filter(a => a.estado_animo !== null).length;
+
+  const horaFinFiltro = configHorario?.horarios?.hora_fin_filtro || '08:30';
+  const horaInicioFiltro = configHorario?.horarios?.hora_inicio_filtro || '07:00';
+  const filtroAbierto = horaActual >= horaInicioFiltro && horaActual <= horaFinFiltro;
+  const filtroCerrado = horaActual > horaFinFiltro;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -127,6 +146,37 @@ export default function MaestraDashboard() {
             </p>
             <p className="text-xs text-yellow-600 font-semibold">No olvides felicitarl{cumpleanosHoy.length > 1 ? 'os' : 'o/a'} 🎈</p>
           </div>
+        </div>
+      )}
+
+      {/* Monitor puntualidad */}
+      {(filtroAbierto || filtroCerrado) && (
+        <div className={`rounded-2xl border-2 p-4 flex items-center gap-3 ${
+          filtroAbierto
+            ? 'bg-green-50 border-green-300'
+            : 'bg-gray-50 border-gray-200'
+        }`}>
+          <span className="text-2xl">{filtroAbierto ? '🚦' : '🔒'}</span>
+          <div className="flex-1">
+            {filtroAbierto ? (
+              <>
+                <p className="font-black text-green-800 text-sm">Filtro abierto — cierra a las {horaFinFiltro}</p>
+                <p className="text-xs text-green-600 font-semibold">
+                  {retardos > 0 ? `${retardos} retardo${retardos > 1 ? 's' : ''} registrado${retardos > 1 ? 's' : ''}` : 'Sin retardos hasta ahora ✅'}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-black text-gray-700 text-sm">Filtro de entrada cerrado desde las {horaFinFiltro}</p>
+                <p className="text-xs text-gray-500 font-semibold">
+                  {retardos > 0 ? `${retardos} retardo${retardos > 1 ? 's' : ''} al cierre` : 'Sin retardos hoy ✅'}
+                </p>
+              </>
+            )}
+          </div>
+          {retardos > 0 && (
+            <span className="text-2xl font-black text-yellow-600">⏰ {retardos}</span>
+          )}
         </div>
       )}
 

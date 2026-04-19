@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck, Settings } from 'lucide-react';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
@@ -32,6 +33,14 @@ export default function DirectoraDashboard() {
     queryFn: () => api.get('/reportes/dashboard').then(r => r.data),
     refetchInterval: 60000,
   });
+
+  const { data: configHorario } = useQuery({
+    queryKey: ['config-horarios'],
+    queryFn: () => api.get('/config/horarios').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const cfg = configHorario?.horarios || {};
 
   const { data: cumpleanosHoy = [] } = useQuery({
     queryKey: ['cumpleanos-hoy'],
@@ -105,6 +114,31 @@ export default function DirectoraDashboard() {
         )}
       </div>
 
+      {/* Asistencia por grupo hoy */}
+      <div className="card-hs">
+        <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
+          📊 Asistencia por grupo — hoy
+        </h2>
+        {isLoading ? (
+          <div className="skeleton h-24 rounded-2xl" />
+        ) : (
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            {(resumen?.asistenciaPorGrupo || []).map(g => (
+              <div key={g.grupo_id} className="text-center p-4 rounded-2xl border-2"
+                style={{ borderColor: g.color_hex + '60', background: g.color_hex + '10' }}>
+                <div className="text-2xl font-black" style={{ color: g.color_hex }}>
+                  {g.presentes}/{g.total}
+                </div>
+                <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
+                <div className="mt-2 text-lg">
+                  {g.presentes === g.total ? '🎉' : g.presentes >= g.total * 0.8 ? '✅' : '⚠️'}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* Fila inferior */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Alumnos sin documentación */}
@@ -173,29 +207,45 @@ export default function DirectoraDashboard() {
         </div>
       </div>
 
-      {/* Asistencia por grupo hoy */}
+      {/* Horarios configurados */}
       <div className="card-hs">
-        <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
-          📊 Asistencia por grupo — hoy
-        </h2>
-        {isLoading ? (
-          <div className="skeleton h-24 rounded-2xl" />
-        ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            {(resumen?.asistenciaPorGrupo || []).map(g => (
-              <div key={g.grupo_id} className="text-center p-4 rounded-2xl border-2"
-                style={{ borderColor: g.color_hex + '60', background: g.color_hex + '10' }}>
-                <div className="text-2xl font-black" style={{ color: g.color_hex }}>
-                  {g.presentes}/{g.total}
-                </div>
-                <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
-                <div className="mt-2 text-lg">
-                  {g.presentes === g.total ? '🎉' : g.presentes >= g.total * 0.8 ? '✅' : '⚠️'}
-                </div>
-              </div>
-            ))}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black text-gray-800 flex items-center gap-2">
+            ⚙️ Horarios configurados
+          </h2>
+          <Link to="/directora/configuracion"
+            className="flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:text-purple-800 transition-colors">
+            <Settings size={13} /> Editar
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { emoji: '🚪', label: 'Apertura puerta',    valor: cfg.hora_inicio_filtro || '—' },
+            { emoji: '⏰', label: 'Límite sin retardo',  valor: cfg.hora_fin_filtro    || '—' },
+            { emoji: '🏫', label: 'Salida normal',       valor: cfg.hora_salida_normal || '—' },
+            { emoji: '🌙', label: 'Salida extensión',    valor: cfg.hora_salida_extension || '—' },
+          ].map(({ emoji, label, valor }) => (
+            <div key={label} className="bg-purple-50 border border-purple-100 rounded-2xl p-4 text-center">
+              <div className="text-2xl mb-1">{emoji}</div>
+              <div className="text-xl font-black text-purple-700">{valor}</div>
+              <div className="text-xs font-semibold text-gray-500 mt-1">{label}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+          <div className="bg-gray-50 rounded-xl p-3">
+            <div className="text-base font-black text-gray-700">${cfg.costo_extension_hora || '—'}/hr</div>
+            <div className="text-xs text-gray-400 font-semibold">Costo extensión</div>
           </div>
-        )}
+          <div className="bg-gray-50 rounded-xl p-3">
+            <div className="text-base font-black text-gray-700">{cfg.max_retardos_mes || '—'} máx.</div>
+            <div className="text-xs text-gray-400 font-semibold">Retardos/mes</div>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-3">
+            <div className="text-base font-black text-gray-700">Días {cfg.dia_inicio_pago}–{cfg.dia_fin_pago}</div>
+            <div className="text-xs text-gray-400 font-semibold">Período de pago</div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ router.post('/entrada', async (req, res, next) => {
     const maxRetardos = parseInt(cfgMap['max_retardos_mes'] || '3');
 
     const ahora = new Date();
-    const horaActual = ahora.toTimeString().slice(0, 5);
+    const horaActual = ahora.toLocaleTimeString('en-CA', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hour12: false });
     const esRetardo = horaActual > horaFin;
 
     // Contar retardos del mes

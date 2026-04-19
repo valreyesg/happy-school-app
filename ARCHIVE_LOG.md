@@ -28,6 +28,19 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 15 — Completada (2026-04-18)
+- [x] **Seed datos reales (25 alumnos):** `seed_datos_reales.js` — 5 alumnos por grupo con nombres reales, CURP de referencia, edades correctas por nivel. Idempotente: busca por CURP antes de insertar.
+- [x] **Edades corregidas por grupo:** `fix_fechas_alumnos.js` — Maternal 6-18 meses (2024-10 a 2025-08), Prekinder 18-24 meses (2024-05 a 2024-09), Kinder 1 3-4 años, Kinder 2 4-5 años, Kinder 3 5-6 años.
+- [x] **Pañal:** Maternal todos (5/5), Prekinder mayoría (4/5 — Lucía ya sin pañal), Kinder 1 solo María Fernanda Castillo (1/5).
+- [x] **50 padres/madres con login:** `seed_datos_reales.js` — mamá y papá por alumno, emails `mama.X@happyschool.edu.mx` / `papa.X@happyschool.edu.mx`, contraseña `HappySchool2026!`, vinculados en `alumno_padre`.
+- [x] **25 personas autorizadas:** 1 por alumno (abuela/tía/tío), con foto e INE placeholder. Creación idempotente por `SELECT` previo (sin constraint UNIQUE en tabla).
+- [x] **Personal con nombres reales:** `seed_personal_real.js` — directora: Carmen Rodríguez Mendoza, admin: Ana María Pérez Torres, titulares: Gabriela Soto Ramírez (Maternal), Sofía Martínez Reyes (Prekinder), Diana Cruz Herrera (K1), Paola Gutiérrez Vega (K2), Andrea Morales Jiménez (K3). Personal registrado también en directora y admin (antes sin registro en tabla `personal`).
+- [x] **2 maestras auxiliares:** Karla Espinoza Luna (Maternal) y Mónica Vargas Castillo (Prekinder) — `asignaciones_grupo` con `es_titular = false`.
+- [x] **Bug fix GET /personal:** `WHERE p.deleted_at IS NULL` reventaba la query porque `personal` no tiene columna `deleted_at` → corregido a `WHERE 1=1`. La página Personal del portal directora ahora muestra los 9 registros.
+- [x] **Bug fix GET /grupos:** endpoint no devolvía `maestra_nombre` → agregado JOIN con `asignaciones_grupo` + `personal` filtrando titular; las tarjetas de grupo ahora muestran la Miss asignada.
+- [x] **Bug fix Grupos.jsx:** `r.data.personal || []` → `r.data || []` (el backend retorna array directo, no objeto). Dropdown de maestras en modal de grupo ahora se pobla correctamente.
+- [x] **Bug fix Grupos.jsx:** `grupo.capacidad_maxima` → `grupo.cupo_maximo` — la barra de ocupación ahora calcula el porcentaje con el campo real del schema.
+
 ## ✅ SESIÓN 14 — Completada (2026-04-18)
 - [x] **Contador Ausentes en dashboard Miss:** 4ª StatCard `UserX` roja — calcula alumnos sin estado o con `ausente`; grid cambiado de 3 a 4 columnas.
 - [x] **Sistema Turno de Puerta rotativo:**

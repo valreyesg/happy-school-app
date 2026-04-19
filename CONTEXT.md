@@ -1,8 +1,8 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-18 (sesión 14 cerrada)
-### Sesión: Turno de Puerta rotativo — tabla turno_puerta (migración 008), 4 endpoints REST, lógica en filtro-entrada para mostrar todos si tiene turno hoy, página directora /directora/turno-puerta, banner en dashboard maestra. También: contador Ausentes en dashboard Miss.
+### Última actualización: 2026-04-18 (sesión 15 cerrada)
+### Sesión: Datos reales — 25 alumnos con edades correctas por grupo, 50 padres/madres con login, 25 personas autorizadas, 9 personal con nombres reales (directora, admin, 5 titulares, 2 auxiliares Maternal/Prekinder). Bugs corregidos: GET /personal fallaba por `deleted_at` inexistente; GET /grupos ahora devuelve `maestra_nombre`; Grupos.jsx corregido (`r.data.personal` → `r.data`, `capacidad_maxima` → `cupo_maximo`).
 ### Próxima sesión: (1) tabla settings para rangos horarios dinámicos, (2) monitor puntualidad (retardos vs settings), (3) exposición bitácora directa en dashboard padre
 
 > [!IMPORTANT]

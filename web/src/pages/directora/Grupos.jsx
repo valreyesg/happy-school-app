@@ -170,7 +170,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
 function TarjetaGrupo({ grupo, maestras, onEdit }) {
   const col = colorNivel(grupo.nivel);
   const ocupacion = grupo.total_alumnos || 0;
-  const capacidad = grupo.capacidad_maxima || 1;
+  const capacidad = grupo.cupo_maximo || 1;
   const pct = Math.min(100, Math.round((ocupacion / capacidad) * 100));
   const barColor = pct >= 90 ? 'bg-red-400' : pct >= 70 ? 'bg-yellow-400' : 'bg-green-400';
 
@@ -238,7 +238,7 @@ export default function DirectoraGrupos() {
 
   const { data: maestras = [] } = useQuery({
     queryKey: ['maestras-lista'],
-    queryFn: () => api.get('/personal', { params: { rol: 'maestra_titular', activo: true } }).then(r => r.data.personal || []),
+    queryFn: () => api.get('/personal', { params: { rol: 'maestra_titular', activo: true } }).then(r => r.data || []),
   });
 
   const crearMutation = useMutation({

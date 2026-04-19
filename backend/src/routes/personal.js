@@ -33,7 +33,7 @@ router.get('/', authorize('directora', 'administrativo'), async (req, res, next)
       LEFT JOIN usuarios u ON p.usuario_id = u.id
       LEFT JOIN asignaciones_grupo ag ON ag.personal_id = p.id AND ag.activo = true
       LEFT JOIN grupos g ON ag.grupo_id = g.id
-      WHERE p.deleted_at IS NULL
+      WHERE 1=1
     `;
 
     const params = [];

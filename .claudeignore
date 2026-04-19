@@ -1,0 +1,28 @@
+# Dependencias (Pesadísimas en tokens)
+node_modules/
+.expo/
+.next/
+dist/
+build/
+
+# Archivos de Sistema y Logs
+.git/
+.DS_Store
+*.log
+npm-debug.log*
+
+# Multimedia (Claude no puede "leer" una imagen, no gastes tokens)
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.pdf
+assets/
+
+# Archivos de caché
+.cache/
+.eslintcache
+
+# Archivos que ya movimos a la "historia"
+ARCHIVE_LOG.md

@@ -11,15 +11,32 @@ router.get('/', async (req, res, next) => {
     const { ciclo_id, activo = 'true' } = req.query;
     const result = await query(`
       SELECT g.*, c.nombre AS ciclo_nombre,
-        COUNT(a.id) AS total_alumnos
+        COUNT(DISTINCT a.id) AS total_alumnos,
+        p_tit.nombre_completo AS maestra_nombre,
+        p_tit.id AS maestra_personal_id,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'personal_id', p_aux.id,
+              'nombre', p_aux.nombre_completo,
+              'es_titular', ag_aux.es_titular
+            )
+          ) FILTER (WHERE ag_aux.id IS NOT NULL),
+          '[]'
+        ) AS maestras
       FROM grupos g
       LEFT JOIN ciclos_escolares c ON g.ciclo_id = c.id
       LEFT JOIN alumnos a ON a.grupo_id = g.id AND a.deleted_at IS NULL
         AND a.estado IN ('inscrito', 'reinscrito')
+      LEFT JOIN asignaciones_grupo ag_tit ON ag_tit.grupo_id = g.id
+        AND ag_tit.es_titular = true AND ag_tit.activo = true
+      LEFT JOIN personal p_tit ON p_tit.id = ag_tit.personal_id
+      LEFT JOIN asignaciones_grupo ag_aux ON ag_aux.grupo_id = g.id AND ag_aux.activo = true
+      LEFT JOIN personal p_aux ON p_aux.id = ag_aux.personal_id
       WHERE g.deleted_at IS NULL
         ${activo !== 'todos' ? `AND g.activo = ${activo === 'true'}` : ''}
         ${ciclo_id ? `AND g.ciclo_id = '${ciclo_id}'` : ''}
-      GROUP BY g.id, c.nombre
+      GROUP BY g.id, c.nombre, p_tit.nombre_completo, p_tit.id
       ORDER BY g.nivel, g.nombre
     `);
     res.json(result.rows);

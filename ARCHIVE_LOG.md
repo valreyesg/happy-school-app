@@ -28,6 +28,15 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 16 — Completada (2026-04-18)
+- [x] **Seed semana 13-17 abril 2026:** `seed_semana_13_17_abril.js` — datos de prueba para las 5 tablas de bitácora/asistencia.
+  - `registro_entrada`: 121 registros con hora real (7:15–8:55am), flag `es_retardo`.
+  - `registro_salida`: 121 registros (~3:00pm), recogido por padre.
+  - `asistencia`: 125 registros (25 alumnos × 5 días) con distribución realista.
+  - `bitacora_diaria`: 121 registros con `estado_animo`, `comportamiento`, `notas`.
+  - `registro_comida` y `registro_banio`: 121 registros cada uno con valores variados.
+  - Distribución: lun(2 ausentes), mar(1 retardo), mié(1 retardo+1 ausente), jue(0), vie(2 retardos+1 ausente).
+
 ## ✅ SESIÓN 15 — Completada (2026-04-18)
 - [x] **Seed datos reales (25 alumnos):** `seed_datos_reales.js` — 5 alumnos por grupo con nombres reales, CURP de referencia, edades correctas por nivel. Idempotente: busca por CURP antes de insertar.
 - [x] **Edades corregidas por grupo:** `fix_fechas_alumnos.js` — Maternal 6-18 meses (2024-10 a 2025-08), Prekinder 18-24 meses (2024-05 a 2024-09), Kinder 1 3-4 años, Kinder 2 4-5 años, Kinder 3 5-6 años.

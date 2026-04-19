@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
@@ -162,12 +162,7 @@ export default function PadreBitacora() {
       )}
 
       {!alumnoId && hijos.length === 1 && (
-        <Link
-          to={`/padre/bitacora?alumnoId=${hijos[0].id}&nombre=${encodeURIComponent(hijos[0].nombre_completo)}`}
-          className="block card-hs p-4 text-center text-red-500 font-bold hover:bg-red-50 transition-colors"
-        >
-          Ver bitácora de {hijos[0].nombre_completo} →
-        </Link>
+        <Navigate replace to={`/padre/bitacora?alumnoId=${hijos[0].id}&nombre=${encodeURIComponent(hijos[0].nombre_completo)}`} />
       )}
 
       {alumnoId && (

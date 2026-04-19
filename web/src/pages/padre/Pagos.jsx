@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../../services/api';
 
 const SEMAFORO = {
@@ -23,9 +22,33 @@ function fmt$(n) {
   return Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 }
 
+function FilaPagos({ pagos }) {
+  return (
+    <div className="space-y-2">
+      {pagos.map(p => {
+        const est = ESTADO_PAGO[p.estado] || ESTADO_PAGO.pendiente;
+        return (
+          <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-gray-800 truncate">{p.concepto_nombre}</p>
+              <p className="text-xs text-gray-400 font-semibold">
+                {p.mes_correspondiente ? `${MESES[p.mes_correspondiente - 1]} ${p.anio_correspondiente}` : '—'}
+                {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago.substring(0, 10)).toLocaleDateString('es-MX')}` : ''}
+              </p>
+            </div>
+            <div className="flex items-center gap-3 ml-4">
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${est.bg} ${est.text}`}>{est.label}</span>
+              <span className="text-sm font-black text-gray-800 whitespace-nowrap">{fmt$(p.monto_total)}</span>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function PanelHijo({ alumnoId }) {
-  const [mesFiltro, setMesFiltro] = useState(null);
-  const [expandido, setExpandido] = useState(true);
+  const [verTodos, setVerTodos] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['estado-alumno', alumnoId],
@@ -41,13 +64,15 @@ function PanelHijo({ alumnoId }) {
   if (!data) return null;
 
   const { alumno, semaforo, saldo_pendiente, pagos = [], comida_semanal = [] } = data;
-  const cfg = SEMAFORO[semaforo] || SEMAFORO.verde;
+  const semaforoEfectivo = semaforo === 'verde' && saldo_pendiente > 0 ? 'amarillo' : semaforo;
+  const cfg = SEMAFORO[semaforoEfectivo] || SEMAFORO.verde;
 
-  const pagosFiltrados = mesFiltro
-    ? pagos.filter(p => p.mes_correspondiente === mesFiltro)
-    : pagos;
+  const hoy = new Date();
+  const mesActual = hoy.getMonth() + 1;
+  const anioActual = hoy.getFullYear();
 
-  const mesesDisponibles = [...new Set(pagos.map(p => p.mes_correspondiente))].sort((a, b) => b - a);
+  const pagosActuales = pagos.filter(p => p.mes_correspondiente === mesActual && p.anio_correspondiente === anioActual);
+  const pagosAnteriores = pagos.filter(p => !(p.mes_correspondiente === mesActual && p.anio_correspondiente === anioActual));
 
   return (
     <div className="card-hs overflow-hidden">
@@ -86,65 +111,30 @@ function PanelHijo({ alumnoId }) {
 
       {/* Historial de pagos */}
       <div className="p-5">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-black text-gray-400 uppercase tracking-wide">Historial de pagos</p>
+        <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-3">
+          💳 {MESES[mesActual - 1]} {anioActual}
+        </p>
+
+        {pagosActuales.length === 0 ? (
+          <p className="text-center text-sm text-gray-400 font-semibold py-2">Sin movimientos este mes</p>
+        ) : (
+          <FilaPagos pagos={pagosActuales} />
+        )}
+
+        {verTodos && pagosAnteriores.length > 0 && (
+          <div className="mt-4">
+            <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-3">Meses anteriores</p>
+            <FilaPagos pagos={pagosAnteriores} />
+          </div>
+        )}
+
+        {pagosAnteriores.length > 0 && (
           <button
-            onClick={() => setExpandido(!expandido)}
-            className="flex items-center gap-1 text-xs font-bold text-gray-500 hover:text-gray-700"
+            onClick={() => setVerTodos(v => !v)}
+            className="mt-4 w-full text-center text-xs font-bold text-gray-500 hover:text-gray-700 py-2 border border-dashed border-gray-200 rounded-xl transition-colors"
           >
-            {expandido ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
-            {expandido ? 'Ocultar' : 'Mostrar'}
+            {verTodos ? '▲ Ocultar anteriores' : `Ver todos los pagos (${pagos.length})`}
           </button>
-        </div>
-
-        {expandido && (
-          <>
-            {/* Filtro por mes */}
-            {mesesDisponibles.length > 1 && (
-              <div className="flex gap-2 flex-wrap mb-3">
-                <button
-                  onClick={() => setMesFiltro(null)}
-                  className={`px-3 py-1 rounded-xl text-xs font-bold transition-colors ${!mesFiltro ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                >
-                  Todos
-                </button>
-                {mesesDisponibles.map(mes => (
-                  <button
-                    key={mes}
-                    onClick={() => setMesFiltro(mes)}
-                    className={`px-3 py-1 rounded-xl text-xs font-bold transition-colors ${mesFiltro === mes ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                  >
-                    {MESES[mes - 1]}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {pagosFiltrados.length === 0 ? (
-              <p className="text-center text-sm text-gray-400 font-semibold py-4">Sin pagos registrados</p>
-            ) : (
-              <div className="space-y-2">
-                {pagosFiltrados.map(p => {
-                  const est = ESTADO_PAGO[p.estado] || ESTADO_PAGO.pendiente;
-                  return (
-                    <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-gray-800 truncate">{p.concepto_nombre}</p>
-                        <p className="text-xs text-gray-400 font-semibold">
-                          {p.mes_correspondiente ? `${MESES[p.mes_correspondiente - 1]} ${p.anio_correspondiente}` : '—'}
-                          {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago).toLocaleDateString('es-MX')}` : ''}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 ml-4">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${est.bg} ${est.text}`}>{est.label}</span>
-                        <span className="text-sm font-black text-gray-800 whitespace-nowrap">{fmt$(p.monto_total)}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>

@@ -1,11 +1,8 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-17 (sesión 11 cerrada)
+## Última actualización: 2026-04-18 (sesión 12 cerrada)
 
 ---
-
-## 🔧 Deuda Técnica (Prioritaria)
-- [ ] ⚠️ **SESIÓN 12:** Botón "Ver bitácora completa →" sigue apareciendo en la vista Bitácora del portal padre (web) al navegar desde el dashboard o desde el menú lateral — rastrear todos los consumidores y eliminar.
 
 ---
 

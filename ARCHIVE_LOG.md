@@ -28,6 +28,11 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 12 — Completada (2026-04-18)
+- [x] **Botón "Ver bitácora completa →" eliminado:** reemplazado con `<Navigate replace>` en `web/pages/padre/Bitacora.jsx` — cuando el padre tiene un solo hijo y navega sin `alumnoId`, redirige automáticamente sin paso intermedio
+- [x] **Validación semáforo "Al Corriente":** en `web/pages/padre/Pagos.jsx` — si `saldo_pendiente > 0` y el backend devuelve `semaforo: 'verde'` (pago pendiente aún no vencido), se fuerza `amarillo` en el cliente
+- [x] **Orden jerárquico de recibos en portal padre:** mes actual siempre visible al abrir Pagos; meses anteriores ocultos detrás de botón "Ver todos los pagos (N)" — refactor completo de `PanelHijo` con nuevo helper `FilaPagos`
+
 ## ✅ SESIÓN 11 — Completada (2026-04-17)
 - [x] **Bug `esCumpleanos` — fecha ISO vs YYYY-MM-DD:** el API devuelve `fecha_nacimiento` como ISO completo (`"2022-04-17T05:00:00.000Z"`); la función concatenaba `+ 'T12:00:00'` produciendo fecha inválida → `esCumpleanos` siempre devolvía `false`. Fix: `.substring(0, 10)` en los 4 archivos afectados: `web/maestra/Dashboard.jsx`, `web/directora/Dashboard.jsx`, `web/maestra/Asistencia.jsx`, `mobile/(maestra)/qr-scanner.jsx`
 - [x] Regla documentada en `SCHEMA_SHORTCUT.md` y `CONTEXT.md` — nunca concatenar fechas del API sin extraer `substring(0,10)` primero

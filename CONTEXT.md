@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-17 (sesión 11 cerrada)
-### Sesión: Fix bug `esCumpleanos` (fecha ISO vs YYYY-MM-DD) en 4 archivos — banners cumpleaños ahora funcionan
-### Próxima sesión: Botón "Ver bitácora completa →" sigue visible en vista Bitácora del padre (web) al navegar desde dashboard o menú lateral — investigar y eliminar
+### Última actualización: 2026-04-18 (sesión 12 cerrada)
+### Sesión: UX portal padre — redirección automática Bitácora hijo único, validación semáforo pagos, orden jerárquico recibos (mes actual visible, anteriores detrás de "Ver Todos")
+### Próxima sesión: 3 pendientes rápidos identificados — (1) alerta cumpleaños en filtro entrada, (2) contador asistencia en tiempo real en dashboard Miss, (3) bitácora del día directa en dashboard padre
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

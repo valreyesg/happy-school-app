@@ -15,6 +15,7 @@ const chatRoutes = require('./chat');
 const notificacionesRoutes = require('./notificaciones');
 const configRoutes = require('./config');
 const reportesRoutes = require('./reportes');
+const turnosPuertaRoutes = require('./turnos-puerta');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -30,5 +31,6 @@ router.use('/chat', chatRoutes);
 router.use('/notificaciones', notificacionesRoutes);
 router.use('/config', configRoutes);
 router.use('/reportes', reportesRoutes);
+router.use('/turnos-puerta', turnosPuertaRoutes);
 
 module.exports = router;

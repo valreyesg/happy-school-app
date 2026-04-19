@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CheckSquare, BookOpen, Users, Clock, XCircle, HelpCircle, Image } from 'lucide-react';
+import { CheckSquare, BookOpen, Users, Clock, UserX, Image } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
@@ -69,11 +69,18 @@ export default function MaestraDashboard() {
     refetchInterval: 30000,
   });
 
+  const { data: turnoHoy } = useQuery({
+    queryKey: ['turno-hoy'],
+    queryFn: () => api.get('/turnos-puerta/hoy').then(r => r.data),
+    refetchInterval: 60000,
+  });
+
   const alumnos = grupo?.alumnos || [];
   const totalAlumnos = alumnos.length;
   const cumpleanosHoy = alumnos.filter(a => esCumpleanos(a.fecha_nacimiento));
   const enEscuela = alumnos.filter(a => ['presente', 'retardo'].includes(a.estado_asistencia)).length;
   const retardos = alumnos.filter(a => a.estado_asistencia === 'retardo').length;
+  const ausentes = alumnos.filter(a => !a.estado_asistencia || a.estado_asistencia === 'ausente').length;
   const bitacorasGuardadas = alumnos.filter(a => a.estado_animo !== null).length;
 
   return (
@@ -96,6 +103,20 @@ export default function MaestraDashboard() {
         )}
       </div>
 
+      {/* Banner turno de puerta */}
+      {turnoHoy?.tiene_turno && (
+        <Link
+          to="/maestra/filtro-entrada"
+          className="block bg-purple-50 border-2 border-purple-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-purple-100 transition-colors"
+        >
+          <span className="text-2xl">🚪</span>
+          <div className="flex-1">
+            <p className="font-black text-purple-800 text-sm">¡Hoy tienes turno de puerta!</p>
+            <p className="text-xs text-purple-600 font-semibold">Toca para abrir el Filtro de Entrada de todos los grupos →</p>
+          </div>
+        </Link>
+      )}
+
       {/* Banner cumpleaños */}
       {cumpleanosHoy.length > 0 && (
         <div className="bg-yellow-50 border-2 border-yellow-300 rounded-2xl p-4 flex flex-wrap gap-2 items-center">
@@ -110,9 +131,10 @@ export default function MaestraDashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-        <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy" color="bg-green-500" />
-        <StatCard icon={Clock}      value={retardos}                       label="Retardos"        color="bg-yellow-500" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy"      color="bg-green-500" />
+        <StatCard icon={Clock}      value={retardos}                       label="Retardos"             color="bg-yellow-500" />
+        <StatCard icon={UserX}      value={ausentes}                       label="Ausentes"             color="bg-red-400" />
         <StatCard icon={BookOpen}   value={`${bitacorasGuardadas}/${totalAlumnos}`} label="Bitácoras guardadas" color="bg-purple-500" />
       </div>
 

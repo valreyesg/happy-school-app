@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-18 (sesión 13 cerrada)
-### Sesión: Portal Filtro de Entrada web — ruta /maestra/filtro-entrada, endpoint GET /asistencia/filtro-entrada, QR scanner con html5-qrcode, nav MaestraLayout, alerta cumpleaños integrada
-### Próxima sesión: (1) contador asistencia en tiempo real en dashboard Miss, (2) bitácora del día directa en dashboard padre, (3) tabla settings para rangos horarios dinámicos
+### Última actualización: 2026-04-18 (sesión 14 cerrada)
+### Sesión: Turno de Puerta rotativo — tabla turno_puerta (migración 008), 4 endpoints REST, lógica en filtro-entrada para mostrar todos si tiene turno hoy, página directora /directora/turno-puerta, banner en dashboard maestra. También: contador Ausentes en dashboard Miss.
+### Próxima sesión: (1) tabla settings para rangos horarios dinámicos, (2) monitor puntualidad (retardos vs settings), (3) exposición bitácora directa en dashboard padre
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

@@ -188,11 +188,7 @@
     - Panel resumen que muestre: "12/15 alumnos entregaron la tarea de hoy".
 
 ##  11.MÉTRICAS DE CONTROL EN DASHBOARD (VISTA MISS/TEACHER).
-- [ ] **Contador de Asistencia en Tiempo Real:**
-    - Mostrar en la parte superior un resumen dinámico del grupo:
-        - **Total de Alumnos:** (Inscritos en el grupo).
-        - **Presentes:** (Niños con Check-in realizado).
-        - **Inasistencias:** (Niños que no han llegado o tienen falta justificada).
+- [x] **Contador de Asistencia en Tiempo Real:** ✅ sesión 14 — 4 StatCards: En escuela hoy, Retardos, Ausentes, Bitácoras guardadas
 - [ ] **Monitor de Puntualidad y Estatus:**
     - **Retardos:** Contador de niños que ingresaron después de la hora límite de `settings`.
     - **Salidas Anticipadas:** Alerta visual si un niño ha sido retirado antes del horario académico.

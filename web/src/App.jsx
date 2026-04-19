@@ -22,6 +22,7 @@ import DirectoraEvaluaciones from '@/pages/directora/Evaluaciones';
 import DirectoraConfig from '@/pages/directora/Configuracion';
 import DirectoraAlumnoPerfil from '@/pages/directora/AlumnoPerfil';
 import DirectoraAsistencia from '@/pages/directora/Asistencia';
+import DirectoraTurnoPuerta from '@/pages/directora/TurnoPuerta';
 
 // Páginas de administrativo
 import AdminDashboard from '@/pages/administrativo/Dashboard';
@@ -92,6 +93,7 @@ export default function App() {
         <Route path="calendario" element={<DirectoraCalendario />} />
         <Route path="evaluaciones" element={<DirectoraEvaluaciones />} />
         <Route path="config" element={<DirectoraConfig />} />
+        <Route path="turno-puerta" element={<DirectoraTurnoPuerta />} />
       </Route>
 
       {/* Administrativo */}

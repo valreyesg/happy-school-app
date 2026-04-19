@@ -217,22 +217,29 @@ router.post('/salida', async (req, res, next) => {
 });
 
 // Filtro de entrada — todos los alumnos activos agrupados por grupo
-// Para maestra_puerta (sin grupo asignado) devuelve TODOS; para titular devuelve su grupo
+// Devuelve TODOS si: no tiene grupo asignado (maestra_puerta permanente) O tiene turno_puerta hoy
 router.get('/filtro-entrada', async (req, res, next) => {
   try {
-    // Verificar si tiene grupo asignado (titular/especial)
-    const grupoAsig = await query(`
-      SELECT g.id, g.nombre, g.color_hex
-      FROM asignaciones_grupo ag
-      JOIN grupos g ON ag.grupo_id = g.id
-      JOIN personal p ON ag.personal_id = p.id
-      JOIN ciclos_escolares c ON ag.ciclo_id = c.id
-      WHERE p.usuario_id = $1 AND ag.activo = true AND c.activo = true
-      ORDER BY ag.es_titular DESC
-      LIMIT 1
-    `, [req.user.id]);
+    const [grupoAsig, turnoHoy] = await Promise.all([
+      query(`
+        SELECT g.id, g.nombre, g.color_hex
+        FROM asignaciones_grupo ag
+        JOIN grupos g ON ag.grupo_id = g.id
+        JOIN personal p ON ag.personal_id = p.id
+        JOIN ciclos_escolares c ON ag.ciclo_id = c.id
+        WHERE p.usuario_id = $1 AND ag.activo = true AND c.activo = true
+        ORDER BY ag.es_titular DESC
+        LIMIT 1
+      `, [req.user.id]),
+      query(`
+        SELECT 1 FROM turno_puerta tp
+        JOIN personal p ON tp.personal_id = p.id
+        WHERE tp.fecha = CURRENT_DATE AND p.usuario_id = $1
+      `, [req.user.id]),
+    ]);
 
-    const whereGrupo = grupoAsig.rows.length > 0
+    const tieneTurno = turnoHoy.rows.length > 0;
+    const whereGrupo = (grupoAsig.rows.length > 0 && !tieneTurno)
       ? `AND a.grupo_id = '${grupoAsig.rows[0].id}'`
       : '';
 

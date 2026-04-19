@@ -28,6 +28,18 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 14 — Completada (2026-04-18)
+- [x] **Contador Ausentes en dashboard Miss:** 4ª StatCard `UserX` roja — calcula alumnos sin estado o con `ausente`; grid cambiado de 3 a 4 columnas.
+- [x] **Sistema Turno de Puerta rotativo:**
+  - Migración `008_turno_puerta.sql` — tabla `turno_puerta (id, fecha, personal_id, asignado_por)` con UNIQUE(fecha, personal_id).
+  - `backend/src/routes/turnos-puerta.js` — 4 endpoints: `GET /hoy` (maestra verifica su turno), `GET /` (directora lista por fecha), `GET /personal` (lista maestras asignables), `POST /` (asignar), `DELETE /:id` (eliminar).
+  - `GET /asistencia/filtro-entrada` — ahora hace `Promise.all` con consulta a `turno_puerta`; si la maestra tiene turno hoy, `whereGrupo = ''` (ve todos los grupos).
+  - `web/pages/directora/TurnoPuerta.jsx` — página con date picker, lista de asignadas (con botón quitar), lista de disponibles (con botón asignar).
+  - `DirectoraLayout.jsx` — ítem "Turno Puerta" con `DoorOpen` en nav.
+  - `App.jsx` — ruta `/directora/turno-puerta` registrada.
+  - `web/pages/maestra/Dashboard.jsx` — query a `/turnos-puerta/hoy`; banner morado "¡Hoy tienes turno de puerta! 🚪" con link a `/maestra/filtro-entrada`.
+- [x] **Fix schema:** columna `rol_principal` está en `usuarios`, no en `personal`; `personal` usa `activo` no `deleted_at` — corregido en queries de `turnos-puerta.js`.
+
 ## ✅ SESIÓN 13 — Completada (2026-04-18)
 - [x] **Endpoint `GET /asistencia/filtro-entrada`:** devuelve todos los grupos activos con alumnos y estado de entrada del día. Si el usuario tiene grupo asignado (titular/especial) filtra solo ese grupo; si no (maestra_puerta/directora), devuelve todos.
 - [x] **Página `FiltroEntrada.jsx`** en `/maestra/filtro-entrada`: reloj en tiempo real, banner cumpleaños, stats Registrados/Pendientes/Total, búsqueda por nombre, alumnos agrupados por grupo (pendientes primero), modal checklist de entrada (salud, higiene, materiales).

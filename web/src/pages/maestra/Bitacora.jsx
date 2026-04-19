@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
@@ -29,7 +29,13 @@ const COMPORTAMIENTO = [
   { key: 'necesita_mejorar', emoji: '⚠️', label: 'A mejorar' },
 ];
 
-const PANIAL_CONDICIONES = ['limpio', 'orina', 'heces', 'mixto'];
+const PANIAL_CONDICIONES = [
+  { key: 'limpio', label: '✅ Limpio'  },
+  { key: 'orina',  label: '💧 Pipí'   },
+  { key: 'heces',  label: '💩 Popó'   },
+  { key: 'mixto',  label: '🔄 Mixto'  },
+];
+const PANIAL_LABEL = Object.fromEntries(PANIAL_CONDICIONES.map(c => [c.key, c.label]));
 
 // ── Helpers de UI ─────────────────────────────────────────────────────────────
 
@@ -114,9 +120,8 @@ function ListaAlumnos({ alumnos, seleccionado, onSeleccionar }) {
 
 // ── Formulario ────────────────────────────────────────────────────────────────
 
-function FormBitacora({ alumno, onGuardado }) {
+function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
   const queryClient = useQueryClient();
-  const fecha = new Date().toLocaleDateString('en-CA');
 
   const grupoNivel = (alumno.nivel_codigo || '').toLowerCase();
   const mostrarEsfinteres = !alumno.usa_panial && (
@@ -190,7 +195,7 @@ function FormBitacora({ alumno, onGuardado }) {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       toast.success('Cambio de pañal registrado');
     },
-    onError: () => toast.error('Error al registrar cambio'),
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
   });
 
   // Guardar
@@ -206,6 +211,7 @@ function FormBitacora({ alumno, onGuardado }) {
   });
 
   const guardar = () => {
+    if (soloLectura) return;
     if (!animo) { toast.error('Selecciona el estado de ánimo'); return; }
     guardarMutation.mutate({
       alumno_id: alumno.id,
@@ -245,21 +251,28 @@ function FormBitacora({ alumno, onGuardado }) {
   }
 
   return (
-    <div className="space-y-4 pb-24">
+    <div className={`space-y-4 pb-24 ${soloLectura ? 'pointer-events-none select-none opacity-90' : ''}`}>
       {/* Header alumno */}
       <div className="card-hs flex items-center gap-4">
         <AvatarAlumno alumno={alumno} size="md" />
         <div>
           <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
           <p className="text-xs text-gray-400 font-semibold capitalize">
-            {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+            {new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
           </p>
         </div>
-        {data?.bitacora && (
-          <span className="ml-auto text-xs font-black bg-green-100 text-green-700 px-3 py-1 rounded-xl">
-            ✅ Guardada
-          </span>
-        )}
+        <div className="ml-auto flex flex-col items-end gap-1">
+          {soloLectura && (
+            <span className="text-xs font-black bg-amber-100 text-amber-700 px-3 py-1 rounded-xl">
+              📖 Solo lectura
+            </span>
+          )}
+          {data?.bitacora && (
+            <span className="text-xs font-black bg-green-100 text-green-700 px-3 py-1 rounded-xl">
+              ✅ Guardada
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Estado de ánimo */}
@@ -281,11 +294,13 @@ function FormBitacora({ alumno, onGuardado }) {
         </div>
       </Seccion>
 
-      {/* Baño */}
-      <Seccion titulo="🚿 Baño">
-        <Contador label="Pipí 🚿" value={pipiCount} onChange={setPipiCount} />
-        <Contador label="Popó 💩" value={popoCount} onChange={setPopoCount} />
-      </Seccion>
+      {/* Baño — solo para niños que van solos al baño */}
+      {!alumno.usa_panial && (
+        <Seccion titulo="🚿 Baño">
+          <Contador label="Pipí 🚿" value={pipiCount} onChange={v => !soloLectura && setPipiCount(v)} />
+          <Contador label="Popó 💩" value={popoCount} onChange={v => !soloLectura && setPopoCount(v)} />
+        </Seccion>
+      )}
 
       {/* Pañal (solo si usa_panial) */}
       {alumno.usa_panial && (
@@ -298,7 +313,7 @@ function FormBitacora({ alumno, onGuardado }) {
                   <span className="font-bold text-purple-700">
                     {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <span className="text-gray-600 capitalize">{p.condicion}</span>
+                  <span className="text-gray-700 font-semibold">{PANIAL_LABEL[p.condicion] ?? p.condicion}</span>
                   {p.tiene_irritacion && <span className="text-orange-500 font-bold">⚠️ irritación</span>}
                 </div>
               ))}
@@ -308,12 +323,12 @@ function FormBitacora({ alumno, onGuardado }) {
           <div className="flex flex-wrap gap-2">
             {PANIAL_CONDICIONES.map(c => (
               <button
-                key={c}
-                onClick={() => panialMutation.mutate({ alumno_id: alumno.id, condicion: c, tiene_irritacion: false, notas: '' })}
-                disabled={panialMutation.isPending}
-                className="px-4 py-2 bg-hs-purple text-white rounded-xl font-bold text-sm capitalize hover:bg-purple-700 disabled:opacity-50"
+                key={c.key}
+                onClick={() => panialMutation.mutate({ alumno_id: alumno.id, condicion: c.key, tiene_irritacion: false, notas: '' })}
+                disabled={panialMutation.isPending || soloLectura}
+                className="px-4 py-2 bg-hs-purple text-white rounded-xl font-bold text-sm hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {c}
+                {c.label}
               </button>
             ))}
           </div>
@@ -437,17 +452,19 @@ function FormBitacora({ alumno, onGuardado }) {
           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
       </Seccion>
 
-      {/* Botón guardar fijo */}
-      <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 bg-white border-t border-gray-100 z-10">
-        <button
-          onClick={guardar}
-          disabled={guardarMutation.isPending}
-          className="w-full max-w-2xl mx-auto block py-4 rounded-2xl font-black text-white text-lg
-            bg-hs-green hover:bg-green-600 disabled:opacity-50 transition-all"
-        >
-          {guardarMutation.isPending ? 'Guardando…' : '💾 Guardar bitácora'}
-        </button>
-      </div>
+      {/* Botón guardar fijo (oculto en solo lectura) */}
+      {!soloLectura && (
+        <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 bg-white border-t border-gray-100 z-10">
+          <button
+            onClick={guardar}
+            disabled={guardarMutation.isPending}
+            className="w-full max-w-2xl mx-auto block py-4 rounded-2xl font-black text-white text-lg
+              bg-hs-green hover:bg-green-600 disabled:opacity-50 transition-all"
+          >
+            {guardarMutation.isPending ? 'Guardando…' : '💾 Guardar bitácora'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -455,16 +472,39 @@ function FormBitacora({ alumno, onGuardado }) {
 // ── Vista principal ────────────────────────────────────────────────────────────
 
 export default function MaestraBitacora() {
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const ultimoDiaHabil = () => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  };
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
 
+  const soloLectura = fecha < hoy;
+
+  const irDia = (delta) => {
+    const d = new Date(fecha + 'T12:00:00');
+    do { d.setDate(d.getDate() + delta); } while (d.getDay() === 0 || d.getDay() === 6);
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) {
+      setFecha(nueva);
+      setAlumnoSeleccionado(null);
+    }
+  };
+
   const { data: grupo, isLoading } = useQuery({
-    queryKey: ['mi-grupo'],
-    queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+    queryKey: ['mi-grupo', fecha],
+    queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
   });
 
   const alumnos = grupo?.alumnos || [];
   const pendientes = alumnos.filter(a => !a.estado_animo);
   const guardadas  = alumnos.filter(a =>  a.estado_animo);
+
+  const labelFecha = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  });
 
   return (
     <div className="animate-fade-in">
@@ -475,9 +515,21 @@ export default function MaestraBitacora() {
         <div className={`${alumnoSeleccionado ? 'hidden lg:block' : 'block'} lg:w-72 shrink-0`}>
           <div className="mb-4">
             <h1 className="text-2xl font-black text-gray-800">Bitácora 📋</h1>
-            <p className="text-sm text-gray-500 font-semibold capitalize mt-1">
-              {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
-            </p>
+            {/* Selector de fecha */}
+            <div className="flex items-center gap-2 mt-2">
+              <button onClick={() => irDia(-1)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-hs-purple/10 hover:bg-hs-purple/20 text-hs-purple transition-all">
+                <ChevronLeft size={16} />
+              </button>
+              <p className="flex-1 text-sm text-gray-600 font-bold capitalize text-center">{labelFecha}</p>
+              <button onClick={() => irDia(1)} disabled={fecha >= hoy}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-hs-purple/10 hover:bg-hs-purple/20 text-hs-purple transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                <ChevronRight size={16} />
+              </button>
+            </div>
+            {soloLectura && (
+              <p className="text-xs text-amber-600 font-bold mt-1 text-center">📖 Consultando día anterior</p>
+            )}
           </div>
 
           {isLoading ? (
@@ -498,7 +550,7 @@ export default function MaestraBitacora() {
               {guardadas.length > 0 && (
                 <div>
                   <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">
-                    Guardadas ({guardadas.length})
+                    {soloLectura ? `Registradas (${guardadas.length})` : `Guardadas (${guardadas.length})`}
                   </p>
                   <ListaAlumnos alumnos={guardadas} seleccionado={alumnoSeleccionado}
                   onSeleccionar={a => setAlumnoSeleccionado({ ...a, nivel_codigo: grupo.nivel_codigo })} />
@@ -526,6 +578,8 @@ export default function MaestraBitacora() {
               </button>
               <FormBitacora
                 alumno={alumnoSeleccionado}
+                fecha={fecha}
+                soloLectura={soloLectura}
                 onGuardado={() => setAlumnoSeleccionado(null)}
               />
             </div>

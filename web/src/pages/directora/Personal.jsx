@@ -4,27 +4,30 @@ import api from '../../services/api';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
 const ROLES = [
-  { value: 'directora',        label: 'Directora' },
-  { value: 'administrativo',   label: 'Administrativo' },
-  { value: 'maestra_titular',  label: 'Miss titular' },
-  { value: 'maestra_especial', label: 'Miss especial' },
-  { value: 'maestra_puerta',   label: 'Miss de puerta' },
+  { value: 'directora',         label: 'Directora' },
+  { value: 'administrativo',    label: 'Administrativo' },
+  { value: 'maestra_titular',   label: 'Miss titular' },
+  { value: 'maestra_auxiliar',  label: 'Miss auxiliar' },
+  { value: 'maestra_especial',  label: 'Miss especial' },
+  { value: 'maestra_puerta',    label: 'Miss de puerta' },
 ];
 
 const ROL_COLOR = {
-  directora:        'bg-purple-100 text-purple-700',
-  administrativo:   'bg-blue-100 text-blue-700',
-  maestra_titular:  'bg-green-100 text-green-700',
-  maestra_especial: 'bg-yellow-100 text-yellow-700',
-  maestra_puerta:   'bg-orange-100 text-orange-700',
+  directora:         'bg-purple-100 text-purple-700',
+  administrativo:    'bg-blue-100 text-blue-700',
+  maestra_titular:   'bg-green-100 text-green-700',
+  maestra_auxiliar:  'bg-teal-100 text-teal-700',
+  maestra_especial:  'bg-yellow-100 text-yellow-700',
+  maestra_puerta:    'bg-orange-100 text-orange-700',
 };
 
 const ROL_LABEL = {
-  directora:        'Directora',
-  administrativo:   'Administrativo',
-  maestra_titular:  'Titular',
-  maestra_especial: 'Especial',
-  maestra_puerta:   'Puerta',
+  directora:         'Directora',
+  administrativo:    'Administrativo',
+  maestra_titular:   'Titular',
+  maestra_auxiliar:  'Auxiliar',
+  maestra_especial:  'Especial',
+  maestra_puerta:    'Puerta',
 };
 
 // ─── Modal crear / editar ─────────────────────────────────────────────────────

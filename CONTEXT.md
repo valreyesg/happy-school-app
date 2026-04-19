@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-18 (sesión 16 cerrada)
-### Sesión: Seed de datos de prueba — semana 13-17 abril 2026. 121 registros de entrada, 121 salidas, 125 asistencias, 121 bitácoras diarias (con comida y baño). Distribución realista: 4 ausencias y 4 retardos repartidos a lo largo de la semana. Script: `backend/src/database/seed_semana_13_17_abril.js`.
-### Próxima sesión: (1) tabla settings para rangos horarios dinámicos, (2) monitor puntualidad (retardos vs settings), (3) exposición bitácora directa en dashboard padre
+### Última actualización: 2026-04-19 (sesión 17 cerrada)
+### Sesión: (1) Constraint único titular por grupo — migración 009. (2) Bitácora histórica Miss — selector ◄ ► con salto fines de semana, solo lectura días anteriores, default último día hábil. (3) Bitácora histórica Directora — pestaña "Bitácora" en AlumnoPerfil con navegación y vista solo-lectura completa. Fixes: ocultar sección Baño para niños con pañal, timezone fix en consulta registro_panial, guard hard en guardar().
+### Próxima sesión: (1) tabla `settings` para rangos horarios dinámicos, (2) monitor puntualidad (retardos vs `settings`), (3) exposición bitácora directa en dashboard padre
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

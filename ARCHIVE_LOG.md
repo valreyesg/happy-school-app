@@ -28,6 +28,15 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 17 — Completada (2026-04-19)
+- [x] **Migración 009 — Constraint único titular por grupo:** `UNIQUE INDEX` parcial en `asignaciones_grupo (grupo_id, ciclo_id) WHERE es_titular = true`. Corrige duplicados previos conservando el registro más antiguo. Verificado: rechaza inserto de segundo titular con error de unicidad.
+- [x] **Migración 010 — Rol `maestra_auxiliar`:** `ALTER TYPE rol_principal_tipo ADD VALUE 'maestra_auxiliar'`. Karla Espinoza Luna y Mónica Vargas Castillo actualizadas de `maestra_titular` → `maestra_auxiliar`. Frontend actualizado: nuevo valor en `ROLES`, badge color teal, label "Auxiliar".
+- [x] **Bitácora histórica — Miss (web):** Selector ◄ ► en `/maestra/bitacora`. Salta sábado/domingo en navegación. Default = último día hábil (no muestra domingo al abrir). Días anteriores = solo lectura total (`pointer-events-none` en el formulario + guard `if (soloLectura) return` en `guardar()`). Badge "📖 Solo lectura" visible. Endpoint `/grupos/mi-grupo` acepta `?fecha=` opcional.
+- [x] **Bitácora histórica — Directora (web):** Nueva pestaña "📋 Bitácora" en `/directora/alumnos/:id`. Navegación ◄ ► con salto de fines de semana. Vista solo-lectura completa: ánimo, alimentación, baño (solo sin pañal) / cambios de pañal (solo con pañal), esfínteres, salud, medicamentos.
+- [x] **Fix Baño vs Pañal — Miss:** Sección "🚿 Baño" oculta para niños con `usa_panial=true` (usan `registro_panial`, no `registro_banio`). Sección pañal deshabilitada en modo solo lectura.
+- [x] **Fix timezone registro_panial:** Consulta cambiada de `DATE(hora)` a `DATE(hora AT TIME ZONE 'America/Mexico_City')` para evitar desfase UTC/local.
+- [x] **Etiquetas pañal:** `PANIAL_CONDICIONES` refactorizado a objetos `{key, label}`. "orina" → "💧 Pipí", "heces" → "💩 Popó", "limpio" → "✅ Limpio", "mixto" → "🔄 Mixto". Aplicado en botones y en lista de registros históricos.
+
 ## ✅ SESIÓN 16 — Completada (2026-04-18)
 - [x] **Seed semana 13-17 abril 2026:** `seed_semana_13_17_abril.js` — datos de prueba para las 5 tablas de bitácora/asistencia.
   - `registro_entrada`: 121 registros con hora real (7:15–8:55am), flag `es_retardo`.

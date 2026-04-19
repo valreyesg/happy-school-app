@@ -1,14 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-18 (sesión 16 cerrada)
+## Última actualización: 2026-04-19 (sesión 17 cerrada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
-
-- [ ] **Bug: Solo una titular por grupo** — `asignaciones_grupo` permite múltiples registros con `es_titular = true` para el mismo grupo. Maternal y Prekinder quedaron con 2 titulares (Gabriela Soto + Karla Espinoza, Mónica Vargas + Sofía Martínez). Corrección: (1) agregar constraint `UNIQUE` parcial en DB para `(grupo_id, ciclo_id)` WHERE `es_titular = true`; (2) corregir los registros existentes dejando solo una titular por grupo y marcando la otra como `es_titular = false`.
-- [ ] **Bitácora histórica — Miss:** La maestra solo puede ver/editar la bitácora del día actual. Agregar selector de fecha (◄ ► o date picker) en la vista de bitácora de la maestra (web y/o mobile) para consultar días anteriores del alumno — útil para seguimiento de salud, conducta o tarea.
-- [ ] **Bitácora histórica — Directora:** La directora no tiene vista de bitácoras individuales. Agregar pantalla donde pueda: (1) seleccionar alumno, (2) elegir fecha, (3) ver bitácora completa del día — para revisión antes de reuniones con padres. Podría vivir en el perfil del alumno (`/directora/alumnos/:id`) como nueva pestaña "Bitácora".
 
 ---
 
@@ -25,6 +21,13 @@
 - [ ] Generación de recibos en PDF
 - [ ] Envío de recibo por WhatsApp al registrar pago
 - [ ] Exportación Excel y PDF por alumno / grupo / mes
+
+---
+
+## 📋 PRÓXIMAS PRIORIDADES (post sesión 17)
+- [ ] Tabla `settings` para rangos horarios dinámicos (entrada, académico, salida/QR)
+- [ ] Monitor puntualidad — retardos vs hora límite de `settings`
+- [ ] Exposición bitácora directa en dashboard del padre (sin clic extra)
 
 ---
 

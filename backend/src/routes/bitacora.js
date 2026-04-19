@@ -35,7 +35,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       ),
 
       query(
-        'SELECT * FROM registro_panial WHERE alumno_id = $1 AND DATE(hora) = COALESCE($2::date, CURRENT_DATE) ORDER BY hora',
+        "SELECT * FROM registro_panial WHERE alumno_id = $1 AND DATE(hora AT TIME ZONE 'America/Mexico_City') = COALESCE($2::date, CURRENT_DATE) ORDER BY hora",
         [alumnoId, fecha]
       ),
 

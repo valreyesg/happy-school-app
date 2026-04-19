@@ -44,7 +44,7 @@ La bitácora de un día es la combinación de VARIAS tablas — no está toda en
 > ⚠️ **Regla:** antes de hacer cualquier JOIN en un SELECT, verificar en qué tabla exacta vive cada columna leyendo `001_schema_inicial.sql`. Nunca asumir.
 
 ## 📋 ENUMS DISPONIBLES
-- `rol_principal_tipo`: `directora | administrativo | maestra_titular | maestra_especial | maestra_puerta | padre`
+- `rol_principal_tipo`: `directora | administrativo | maestra_titular | maestra_auxiliar | maestra_especial | maestra_puerta | padre`
 - `estado_alumno_tipo`: `inscrito | reinscrito | baja | egresado | prospecto`
 - `estado_pago_tipo`: `pendiente | pagado | vencido | cancelado`
 - `estado_asistencia_tipo`: `presente | ausente | retardo | justificado | no_entrada`

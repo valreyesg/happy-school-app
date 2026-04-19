@@ -107,12 +107,15 @@ router.get('/mi-grupo', async (req, res, next) => {
       return res.status(404).json({ error: 'No tienes grupo asignado en el ciclo activo' });
     }
 
-    // Alumnos del grupo con su estado de entrada y bitácora de hoy
+    // Fecha consultada: parámetro opcional, default CURRENT_DATE
+    const fechaParam = req.query.fecha || null;
+
+    // Alumnos del grupo con su estado de entrada y bitácora del día consultado
     const alumnosResult = await query(`
       SELECT
         a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
         a.alergias, a.usa_panial,
-        -- Asistencia hoy
+        -- Asistencia
         COALESCE(ast.estado, 'ausente') AS estado_asistencia,
         re.hora_entrada,
         re.es_retardo,
@@ -131,7 +134,7 @@ router.get('/mi-grupo', async (req, res, next) => {
         re.trae_termo,
         re.agua_suficiente,
         re.qr_escaneado,
-        -- Bitácora hoy (resumen)
+        -- Bitácora (resumen)
         bd.estado_animo,
         bd.tarea_realizada,
         bd.comportamiento,
@@ -139,23 +142,25 @@ router.get('/mi-grupo', async (req, res, next) => {
         rb.pipi_count,
         rb.popo_count
       FROM alumnos a
-      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
-      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
-      LEFT JOIN bitacora_diaria bd ON bd.alumno_id = a.id AND bd.fecha = CURRENT_DATE
-      LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = CURRENT_DATE
-      LEFT JOIN registro_banio rb ON rb.alumno_id = a.id AND rb.fecha = CURRENT_DATE
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN bitacora_diaria bd ON bd.alumno_id = a.id AND bd.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN registro_banio rb ON rb.alumno_id = a.id AND rb.fecha = COALESCE($2::date, CURRENT_DATE)
       WHERE a.grupo_id = $1
         AND a.deleted_at IS NULL
         AND a.estado IN ('inscrito', 'reinscrito')
       ORDER BY a.nombre_completo
-    `, [grupo.id]);
+    `, [grupo.id, fechaParam]);
+
+    const fechaReal = (await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fechaParam])).rows[0].f;
 
     res.json({
       ...grupo,
       alumnos: alumnosResult.rows,
       total_alumnos: alumnosResult.rows.length,
       presentes_hoy: alumnosResult.rows.filter(a => ['presente','retardo'].includes(a.estado_asistencia)).length,
-      fecha: (await query(`SELECT CURRENT_DATE::text AS f`)).rows[0].f,
+      fecha: fechaReal,
     });
   } catch (err) { next(err); }
 });

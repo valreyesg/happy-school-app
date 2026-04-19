@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
@@ -268,11 +269,170 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
   );
 }
 
+// ─── Catálogos bitácora (solo lectura) ───────────────────────────────────────
+const ANIMO_LABEL   = { feliz:'😊 Feliz', activo:'⚡ Activo', cansado:'😴 Cansado', triste:'😢 Triste', irritable:'😤 Irritable' };
+const CUANTO_LABEL  = { todo:'🍽️ Todo', casi_todo:'🥢 Casi todo', poco:'🍱 Poco', no_comio:'🚫 No comió' };
+const COMP_LABEL    = { muy_bien:'⭐ Muy bien', bien:'👍 Bien', necesita_mejorar:'⚠️ A mejorar' };
+const PANIAL_LABEL  = { limpio:'✅ Limpio', orina:'💧 Pipí', heces:'💩 Popó', mixto:'🔄 Mixto' };
+
+function FilaBit({ label, valor }) {
+  if (!valor && valor !== 0 && valor !== false) return null;
+  return (
+    <div className="flex items-start justify-between gap-3 py-2 border-b border-gray-100 last:border-0">
+      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider min-w-24">{label}</span>
+      <span className="text-sm font-semibold text-gray-700 text-right">{String(valor)}</span>
+    </div>
+  );
+}
+
+function BitacoraDirectora({ alumnoId, usaPanial }) {
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const ultimoDiaHabil = () => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  };
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
+
+  const irDia = (delta) => {
+    const d = new Date(fecha + 'T12:00:00');
+    do { d.setDate(d.getDate() + delta); } while (d.getDay() === 0 || d.getDay() === 6);
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) setFecha(nueva);
+  };
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['bitacora-dir', alumnoId, fecha],
+    queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
+    enabled: !!alumnoId,
+  });
+
+  const labelFecha = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  const b   = data?.bitacora;
+  const com = data?.comida;
+  const ban = data?.banio;
+  const esf = data?.esfinteres;
+
+  return (
+    <div className="space-y-4">
+      {/* Selector de fecha */}
+      <div className="card-hs flex items-center gap-3">
+        <button onClick={() => irDia(-1)}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-hs-purple/10 hover:bg-hs-purple/20 text-hs-purple transition-all flex-shrink-0">
+          <ChevronLeft size={18} />
+        </button>
+        <p className="flex-1 text-sm font-bold text-gray-700 capitalize text-center">{labelFecha}</p>
+        <button onClick={() => irDia(1)} disabled={fecha >= hoy}
+          className="w-9 h-9 flex items-center justify-center rounded-full bg-hs-purple/10 hover:bg-hs-purple/20 text-hs-purple transition-all disabled:opacity-30 disabled:cursor-not-allowed flex-shrink-0">
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="card-hs text-center py-10 text-gray-400 font-bold animate-pulse">Cargando…</div>
+      ) : !b ? (
+        <div className="card-hs text-center py-10">
+          <p className="text-4xl mb-3">📋</p>
+          <p className="font-black text-gray-500">Sin bitácora registrada este día</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* Estado general */}
+          <div className="card-hs space-y-1">
+            <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">Estado general</h3>
+            <FilaBit label="Ánimo"         valor={ANIMO_LABEL[b.estado_animo] ?? b.estado_animo} />
+            <FilaBit label="Comportamiento" valor={COMP_LABEL[b.comportamiento] ?? b.comportamiento} />
+            {b.comportamiento_notas && <FilaBit label="Nota conducta" valor={b.comportamiento_notas} />}
+            <FilaBit label="Tarea"         valor={b.tarea_realizada === true ? '✅ Sí realizó' : b.tarea_realizada === false ? '❌ No realizó' : null} />
+          </div>
+
+          {/* Alimentación */}
+          {com && (
+            <div className="card-hs space-y-1">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🍽️ Alimentación</h3>
+              <FilaBit label="¿Cuánto?"   valor={CUANTO_LABEL[com.cuanto_comio] ?? com.cuanto_comio} />
+              <FilaBit label="¿Qué comió?" valor={com.que_comio} />
+              <FilaBit label="Observaciones" valor={com.observaciones} />
+            </div>
+          )}
+
+          {/* Baño / Pañal */}
+          {usaPanial ? (
+            data?.panial?.length > 0 && (
+              <div className="card-hs">
+                <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">👶🏻 Cambios de pañal</h3>
+                <div className="space-y-1">
+                  {data.panial.map((p, i) => (
+                    <div key={i} className="flex items-center gap-3 py-1.5 border-b border-gray-100 last:border-0">
+                      <span className="text-xs font-bold text-purple-600 min-w-14">
+                        {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="text-sm font-semibold text-gray-700">{PANIAL_LABEL[p.condicion] ?? p.condicion}</span>
+                      {p.tiene_irritacion && <span className="text-xs text-orange-500 font-bold">⚠️ irritación</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          ) : ban && (
+            <div className="card-hs space-y-1">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🚿 Baño</h3>
+              <FilaBit label="Pipí" valor={ban.pipi_count ?? 0} />
+              <FilaBit label="Popó" valor={ban.popo_count ?? 0} />
+            </div>
+          )}
+
+          {/* Esfínteres */}
+          {esf && (
+            <div className="card-hs space-y-1">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🚽 Control de esfínteres</h3>
+              <FilaBit label="Fue solo/a"    valor={esf.fue_solo === true ? 'Sí' : esf.fue_solo === false ? 'No' : null} />
+              <FilaBit label="Pidió ir"      valor={esf.pidio_ir === true ? 'Sí' : esf.pidio_ir === false ? 'No' : null} />
+              <FilaBit label="Tuvo accidente" valor={esf.tuvo_accidente === true ? 'Sí' : esf.tuvo_accidente === false ? 'No' : null} />
+              {esf.descripcion_accidente && <FilaBit label="Descripción" valor={esf.descripcion_accidente} />}
+              <FilaBit label="Necesitó ayuda" valor={esf.necesito_ayuda === true ? 'Sí' : esf.necesito_ayuda === false ? 'No' : null} />
+              {esf.notas_progreso && <FilaBit label="Notas progreso" valor={esf.notas_progreso} />}
+            </div>
+          )}
+
+          {/* Salud */}
+          {(b.tuvo_fiebre || b.se_enfermo || b.notas) && (
+            <div className="card-hs space-y-1">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🌡️ Salud y notas</h3>
+              <FilaBit label="Tuvo fiebre"    valor={b.tuvo_fiebre ? `🌡️ Sí${b.temperatura_dia ? ` (${b.temperatura_dia}°C)` : ''}` : null} />
+              <FilaBit label="Se enfermó"     valor={b.se_enfermo ? '⚠️ Sí' : null} />
+              {b.descripcion_enfermedad && <FilaBit label="Descripción" valor={b.descripcion_enfermedad} />}
+              <FilaBit label="Notas"          valor={b.notas} />
+            </div>
+          )}
+
+          {/* Medicamentos */}
+          {data?.medicamentos?.length > 0 && (
+            <div className="card-hs">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">💊 Medicamentos</h3>
+              {data.medicamentos.map((m, i) => (
+                <div key={i} className="py-1.5 border-b border-gray-100 last:border-0 text-sm font-semibold text-gray-700">
+                  {m.nombre} — {m.dosis}
+                  {m.hora_administracion && <span className="text-gray-400 ml-2">{m.hora_administracion}</span>}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Página principal ─────────────────────────────────────────────────────────
 export default function DirectoraAlumnoPerfil() {
   const { id } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [pestaña, setPestaña] = useState('perfil');
 
   const { data: alumno, isLoading } = useQuery({
     queryKey: ['alumno-perfil', id],
@@ -409,6 +569,22 @@ export default function DirectoraAlumnoPerfil() {
         </div>
       </div>
 
+      {/* ── Tabs ── */}
+      <div className="flex gap-2 mb-4">
+        {['perfil', 'bitacora'].map(t => (
+          <button key={t} onClick={() => setPestaña(t)}
+            className={`px-5 py-2 rounded-xl font-black text-sm capitalize transition-all
+              ${pestaña === t ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+            {t === 'perfil' ? '👤 Perfil' : '📋 Bitácora'}
+          </button>
+        ))}
+      </div>
+
+      {pestaña === 'bitacora' && (
+        <BitacoraDirectora alumnoId={id} usaPanial={alumno.usa_panial} />
+      )}
+
+      {pestaña === 'perfil' && (<>
       {/* ── Padres / Tutores ── */}
       <Seccion titulo="Padres / Tutores" badge={alumno.padres?.length || 0}>
         {(!alumno.padres || alumno.padres.length === 0) ? (
@@ -461,9 +637,10 @@ export default function DirectoraAlumnoPerfil() {
       {/* ── Info del ciclo ── */}
       <div className="text-center text-xs text-gray-400 font-semibold mt-2 pb-4">
         Ciclo: {alumno.ciclo_nombre || 'Sin ciclo asignado'}
-        {alumno.fecha_nacimiento && ` · Nacimiento: ${new Date(alumno.fecha_nacimiento + 'T12:00:00').toLocaleDateString('es-MX')}`}
+        {alumno.fecha_nacimiento && ` · Nacimiento: ${new Date(alumno.fecha_nacimiento.substring(0,10) + 'T12:00:00').toLocaleDateString('es-MX')}`}
         {alumno.curp && ` · CURP: ${alumno.curp}`}
       </div>
+      </>)}
     </div>
   );
 }

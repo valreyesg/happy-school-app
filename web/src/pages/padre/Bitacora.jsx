@@ -161,9 +161,7 @@ export default function PadreBitacora() {
   useEffect(() => {
     localStorage.clear();
     sessionStorage.clear();
-    queryClient.removeQueries();
-    queryClient.refetchQueries({ queryKey: ['mis-hijos'] });
-  }, [queryClient]);
+  }, []);
 
   const { data: hijos = [] } = useQuery({
     queryKey: ['mis-hijos'],

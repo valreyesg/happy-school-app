@@ -443,46 +443,48 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       )}
 
       {/* Alimentación — 4 Tiempos */}
-      <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
-        <div className="space-y-4">
-          {Object.entries({
-            desayuno: { emoji: '🥐', label: 'Desayuno' },
-            colacion: { emoji: '🍎', label: 'Colación' },
-            comida: { emoji: '🍽️', label: 'Comida' },
-            comida_extra: { emoji: '🍜', label: 'Comida Extra' },
-          }).map(([tiempo, tiempoInfo]) => (
-            <div key={tiempo} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>
-                <p className="text-xs text-hs-purple font-bold">
-                  {comidas[tiempo].cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempo].cuanto_comio)?.label : '—'}
-                </p>
-              </div>
-              <textarea rows={2} placeholder={`¿Qué comió en ${tiempoInfo.label.toLowerCase()}?`}
-                value={comidas[tiempo].que_comio}
-                onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], que_comio: e.target.value } })}
-                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
-              <div className="space-y-1">
-                <p className="text-xs font-black text-gray-600">¿Cuánto comió?</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {CUANTO.map(c => (
-                    <button key={c.key} onClick={() => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], cuanto_comio: c.key } })}
-                      className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all
-                        ${comidas[tiempo].cuanto_comio === c.key
-                          ? 'border-hs-purple bg-white shadow-md'
-                          : 'border-gray-200 hover:border-hs-purple/40'}`}>
-                      <span className="text-2xl">{c.emoji}</span>
-                      <span className={`text-xs font-bold text-center ${comidas[tiempo].cuanto_comio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
-                        {c.label}
-                      </span>
-                    </button>
-                  ))}
+      {comidas && (
+        <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
+          <div className="space-y-4">
+            {Object.entries({
+              desayuno: { emoji: '🥐', label: 'Desayuno' },
+              colacion: { emoji: '🍎', label: 'Colación' },
+              comida: { emoji: '🍽️', label: 'Comida' },
+              comida_extra: { emoji: '🍜', label: 'Comida Extra' },
+            }).map(([tiempo, tiempoInfo]) => (
+              <div key={tiempo} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>
+                  <p className="text-xs text-hs-purple font-bold">
+                    {comidas[tiempo]?.cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempo].cuanto_comio)?.label : '—'}
+                  </p>
+                </div>
+                <textarea rows={2} placeholder={`¿Qué comió en ${tiempoInfo.label.toLowerCase()}?`}
+                  value={comidas[tiempo]?.que_comio || ''}
+                  onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], que_comio: e.target.value } })}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+                <div className="space-y-1">
+                  <p className="text-xs font-black text-gray-600">¿Cuánto comió?</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {CUANTO.map(c => (
+                      <button key={c.key} onClick={() => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], cuanto_comio: c.key } })}
+                        className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all
+                          ${comidas[tiempo]?.cuanto_comio === c.key
+                            ? 'border-hs-purple bg-white shadow-md'
+                            : 'border-gray-200 hover:border-hs-purple/40'}`}>
+                        <span className="text-2xl">{c.emoji}</span>
+                        <span className={`text-xs font-bold text-center ${comidas[tiempo]?.cuanto_comio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
+                          {c.label}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </Seccion>
+            ))}
+          </div>
+        </Seccion>
+      )}
 
       {/* Actividades */}
       <Seccion titulo="🎨 Actividades">
@@ -725,8 +727,7 @@ export default function MaestraBitacora() {
   useEffect(() => {
     localStorage.clear();
     sessionStorage.clear();
-    queryClient.removeQueries();
-  }, [queryClient]);
+  }, []);
 
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo', fecha],

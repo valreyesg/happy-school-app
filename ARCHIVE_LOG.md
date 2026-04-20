@@ -1,6 +1,18 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 31 — Sincronización Web-Mobile Comida + Cleanup Duplicados (2026-04-20)
+- [x] **Mobile comida refactor:** Pantalla `/app/(padre)/comida.jsx` ya existía funcional. Arreglado: función `cargarDatos()` no se ejecutaba post-confirmación → movida fuera de useEffect para que sea reutilizable. POST `/comida/confirmacion` ahora actualiza estado automáticamente.
+- [x] **Sincronización garantizada:** Web (`ComidaSemanal.jsx`) y Mobile (`comida.jsx`) llaman al mismo backend (`GET /comida/confirmacion/:alumno_id`). Cambios en una plataforma se reflejan en la otra al recargar.
+- [x] **Database cleanup:** 3 registros duplicados de Ana García López (CURP NULL, created_at 2026-04-19 y 2026-04-20) eliminados. Dejado 1 válido con CURP `GALA220315MDFRLNA1`. Verificado: no hay más duplicados en tabla alumnos.
+- [x] **Config migration:** Creada `016_cobro_extension_config.sql` con clave `hora_inicio_cobro_extension = '15:06'` en `configuracion_general`. Expuesta en `backend/src/routes/config.js` array `CLAVES_HORARIO` para que Directora pueda editarla.
+- [ ] **Cobros extensión de horario:** Pausado. Razón: Cambios en `asistencia.js` causaron timezone issues complejos (UTC vs America/Mexico_City en comparaciones). Múltiples intentos rompieron login web. Requiere refactor completo con PostgreSQL AT TIME ZONE + validación exhaustiva. Se revirtió todo a estado limpio.
+
+**Bugs encontrados y solucionados:**
+1. **Mobile comida no se sincroniza:** `cargarDatos()` definida dentro de useEffect → no reutilizable. FIX: extraer fuera, llamar post-confirmación.
+2. **Duplicados Ana García López:** Seed ejecutado 4 veces sin lógica UNIQUE → 3 registros huérfanos. FIX: DELETE manual, verificación de unicidad.
+3. **Cobros extensión timezone:** `new Date()` en Node.js (UTC) vs PostgreSQL `NOW() AT TIME ZONE 'America/Mexico_City'` → comparaciones siempre falsas. FIX: TODO en PostgreSQL, pero requiere refactor grande.
+
 ## ✅ SESIÓN 30 — Dashboard Maestra: Indicador Confirmaciones Servicio Comida (2026-04-20)
 - [x] **Backend refactor:** GET `/comida/confirmaciones` ahora acepta parámetro opcional `grupo_id` para filtrar confirmaciones por grupo (maestras). Middleware personalizado verifica permisos para maestras_titular/puerta/especial/auxiliar.
 - [x] **Backend controller:** Query JOINea `control_comida_semanal` con `alumnos` para filtrar por `grupo_id`. Devuelve solo confirmaciones con `pago_verificado = true`.

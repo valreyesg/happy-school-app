@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 30 completada)
-### Sesión 30: ✅ Dashboard Maestra — Indicador Confirmaciones Servicio Comida. Backend GET `/comida/confirmaciones?grupo_id=` con filtrado por grupo. Web card mostrando: nombre alumno + modalidad (Semana completa / X días). Se muestra toda la semana (no solo lunes). Seed: Ana García López confirmada pagada.
-### Próxima sesión (31): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Sincronización web-mobile comida, Modal comprobante visual.
+### Última actualización: 2026-04-20 (sesión 31 completada)
+### Sesión 31: ✅ Sincronización web-mobile comida (mobile refactor post-confirmación), Eliminación de 3 duplicados Ana García López. Pendiente: Cobros extensión horario (requiere refactor timezone complejo, pausado).
+### Próxima sesión (32): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Modal comprobante visual, Test cron 8:31 AM comida.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

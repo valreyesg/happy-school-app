@@ -219,6 +219,24 @@ export default function PadreBitacora() {
   const hijoActual = hijos.find(h => h.id === alumnoId);
   const usaPanial = hijoActual?.usa_panial || false;
 
+  // Calcular avance bitácora (porcentaje de campos completados)
+  const calcularAvance = () => {
+    if (!bit && comidas.length === 0) return 0;
+    let completados = 0;
+    let total = 8;
+    if (bit?.estado_animo) completados++;
+    if (bit?.actividad_realizada !== null && bit?.actividad_realizada !== undefined) completados++;
+    if (bit?.comportamiento) completados++;
+    if (bit?.tuvo_fiebre) completados++;
+    if (comidas.length > 0) completados++;
+    if (banio) completados++;
+    if (panial.length > 0 || esf) completados++;
+    if (meds.length > 0 || incidentes.length > 0) completados++;
+    return Math.round((completados / total) * 100);
+  };
+  const avanceBitacora = calcularAvance();
+  const bitacoraFinalizada = avanceBitacora === 100;
+
   const TIEMPOS = {
     desayuno: { label: 'Desayuno', emoji: '🥐', color: 'bg-orange-50 border-orange-200 text-orange-700' },
     colacion: { label: 'Colación', emoji: '🍎', color: 'bg-green-50 border-green-200 text-green-700' },
@@ -232,10 +250,21 @@ export default function PadreBitacora() {
   return (
     <div className="space-y-4 animate-fade-in max-w-2xl mx-auto">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-black text-gray-800">Bitácora</h1>
-        {alumnoId && (
-          <p className="text-sm font-bold text-red-500 mt-0.5">{nombreHijo}</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-black text-gray-800">Bitácora</h1>
+          {alumnoId && (
+            <p className="text-sm font-bold text-red-500 mt-0.5">{nombreHijo}</p>
+          )}
+        </div>
+        {alumnoId && !isLoading && !isError && (bit || comidas.length > 0) && (
+          <div className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap ${
+            bitacoraFinalizada
+              ? 'bg-green-100 text-green-700'
+              : 'bg-blue-100 text-blue-700'
+          }`}>
+            {bitacoraFinalizada ? '✅ Finalizada' : `⏳ En curso (${avanceBitacora}%)`}
+          </div>
         )}
       </div>
 

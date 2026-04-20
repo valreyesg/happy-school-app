@@ -81,6 +81,7 @@ export default function MaestraDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
+
   const [horaActual, setHoraActual] = useState(new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }));
   useEffect(() => {
     const t = setInterval(() => {

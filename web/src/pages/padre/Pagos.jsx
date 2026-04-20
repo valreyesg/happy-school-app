@@ -64,7 +64,8 @@ function PanelHijo({ alumnoId }) {
   if (!data) return null;
 
   const { alumno, semaforo, saldo_pendiente, pagos = [], comida_semanal = [] } = data;
-  const semaforoEfectivo = semaforo === 'verde' && saldo_pendiente > 0 ? 'amarillo' : semaforo;
+  // Validación estricta: verde SOLO si saldo_pendiente === 0
+  const semaforoEfectivo = saldo_pendiente > 0 ? (saldo_pendiente > 1000 ? 'rojo' : 'amarillo') : 'verde';
   const cfg = SEMAFORO[semaforoEfectivo] || SEMAFORO.verde;
 
   const hoy = new Date();

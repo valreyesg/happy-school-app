@@ -20,8 +20,14 @@ router.delete('/menu/:id', verifyToken, authorize(['directora', 'administrativo'
   comidaController.eliminarMenu
 );
 
-// GET: Obtener estadísticas de confirmaciones (directora/admin)
-router.get('/confirmaciones', verifyToken, authorize(['directora', 'administrativo']),
+// GET: Obtener estadísticas de confirmaciones (directora/admin/maestras)
+router.get('/confirmaciones', verifyToken, (req, res, next) => {
+  const rolesPermitidos = ['directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_auxiliar', 'maestra_especial'];
+  if (!rolesPermitidos.includes(req.user.rol_principal)) {
+    return res.status(403).json({ error: 'Sin permisos' });
+  }
+  next();
+},
   comidaController.obtenerConfirmaciones
 );
 

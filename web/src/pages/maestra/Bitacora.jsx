@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/services/api';
@@ -187,6 +187,50 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       setNotasProgreso(data.esfinteres.notas_progreso || '');
     }
   }, [data]);
+
+  // Medicamento
+  const [medNombre, setMedNombre] = useState('');
+  const [medDosis,  setMedDosis]  = useState('');
+  const [medNotas,  setMedNotas]  = useState('');
+  const medMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/medicamento', body).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      setMedNombre(''); setMedDosis(''); setMedNotas('');
+      toast.success('💊 Medicamento registrado');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+  const registrarMed = () => {
+    if (!medNombre || !medDosis) { toast.error('Escribe nombre y dosis'); return; }
+    medMutation.mutate({ alumno_id: alumno.id, nombre: medNombre, dosis: medDosis, notas: medNotas });
+  };
+
+  // Incidente
+  const [incDesc,     setIncDesc]     = useState('');
+  const [incAcciones, setIncAcciones] = useState('');
+  const [incFotos,    setIncFotos]    = useState([]);
+  const incFileRef = useRef();
+  const incMutation = useMutation({
+    mutationFn: (formData) => api.post('/bitacora/incidente', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      setIncDesc(''); setIncAcciones(''); setIncFotos([]);
+      toast.success('⚠️ Incidente registrado');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+  const registrarInc = () => {
+    if (!incDesc) { toast.error('Describe el incidente'); return; }
+    const fd = new FormData();
+    fd.append('alumno_id', alumno.id);
+    fd.append('descripcion', incDesc);
+    fd.append('acciones_tomadas', incAcciones);
+    incFotos.forEach(f => fd.append('fotos', f));
+    incMutation.mutate(fd);
+  };
 
   // Pañal
   const panialMutation = useMutation({
@@ -450,6 +494,93 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
         <textarea rows={3} placeholder="Notas adicionales para los papás…"
           value={notas} onChange={e => setNotas(e.target.value)}
           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+      </Seccion>
+
+      {/* Medicamentos */}
+      <Seccion titulo="💊 Medicamentos del día">
+        {data?.medicamentos?.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {data.medicamentos.map((m, i) => (
+              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-blue-50 rounded-xl text-sm">
+                <span className="text-blue-500 text-lg">💊</span>
+                <div>
+                  <p className="font-black text-blue-800">{m.nombre} — {m.dosis}</p>
+                  <p className="text-xs text-blue-600">
+                    {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    {m.notas && ` · ${m.notas}`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!soloLectura && (
+          <div className="space-y-2">
+            <input type="text" placeholder="Nombre del medicamento *"
+              value={medNombre} onChange={e => setMedNombre(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400" />
+            <input type="text" placeholder="Dosis (ej. 5ml, 1 tableta) *"
+              value={medDosis} onChange={e => setMedDosis(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400" />
+            <textarea rows={2} placeholder="Notas (opcional)"
+              value={medNotas} onChange={e => setMedNotas(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none" />
+            <button onClick={registrarMed} disabled={medMutation.isPending}
+              className="w-full py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all">
+              {medMutation.isPending ? 'Registrando…' : '💊 Registrar medicamento'}
+            </button>
+          </div>
+        )}
+      </Seccion>
+
+      {/* Incidentes */}
+      <Seccion titulo="⚠️ Incidentes / Accidentes">
+        {data?.incidentes?.length > 0 && (
+          <div className="space-y-2 mb-3">
+            {data.incidentes.map((inc, i) => (
+              <div key={i} className="px-3 py-2 bg-red-50 rounded-xl text-sm border border-red-200">
+                <p className="font-black text-red-800">{inc.descripcion}</p>
+                {inc.acciones_tomadas && (
+                  <p className="text-xs text-red-600 mt-1">Acciones: {inc.acciones_tomadas}</p>
+                )}
+                {inc.fotos_urls?.length > 0 && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {inc.fotos_urls.map((url, j) => (
+                      <img key={j} src={url} alt="Foto incidente"
+                        className="w-16 h-16 object-cover rounded-lg border border-red-200" />
+                    ))}
+                  </div>
+                )}
+                <p className="text-xs text-red-400 mt-1">
+                  {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                  {inc.reportado_por_nombre && ` · ${inc.reportado_por_nombre}`}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        {!soloLectura && (
+          <div className="space-y-2">
+            <textarea rows={3} placeholder="Describe qué pasó *"
+              value={incDesc} onChange={e => setIncDesc(e.target.value)}
+              className="w-full border-2 border-red-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-400 resize-none" />
+            <textarea rows={2} placeholder="Acciones tomadas (opcional)"
+              value={incAcciones} onChange={e => setIncAcciones(e.target.value)}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-400 resize-none" />
+            <div>
+              <input type="file" accept="image/*" multiple ref={incFileRef} className="hidden"
+                onChange={e => setIncFotos(Array.from(e.target.files))} />
+              <button onClick={() => incFileRef.current?.click()}
+                className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-red-300 text-red-500 hover:bg-red-50 transition-all">
+                {incFotos.length > 0 ? `📷 ${incFotos.length} foto(s) seleccionada(s)` : '📷 Agregar fotos (opcional)'}
+              </button>
+            </div>
+            <button onClick={registrarInc} disabled={incMutation.isPending}
+              className="w-full py-3 rounded-xl font-black text-sm bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-all">
+              {incMutation.isPending ? 'Registrando…' : '⚠️ Registrar incidente'}
+            </button>
+          </div>
+        )}
       </Seccion>
 
       {/* Botón guardar fijo (oculto en solo lectura) */}

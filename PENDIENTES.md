@@ -1,12 +1,14 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 19 cerrada)
+## Última actualización: 2026-04-19 (sesión 20 cerrada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
+- [ ] Datos de prueba para incidentes y medicamentos (validar en browser)
+- [ ] Dashboard Miss — mejoras UX: click en alumno va directo a su bitácora (sin paso extra en lista); quitar tarjeta "Bitácora" y tarjeta "Asistencia" del dashboard (la asistencia ya se registra desde Filtro Entrada)
+- [ ] Firma digital del padre en incidentes (pendiente de sesión 20)
 - [ ] Fotos de actividades en bitácora (galería por día)
-- [ ] Incidentes y accidentes + firma digital del padre
 
 ---
 
@@ -84,9 +86,7 @@
     - Agregar sección en el Filtro de Entrada para registro de medicinas entregadas por el padre.
     - Requerir **Foto de la Receta** y **Foto del Envase** para habilitar la administración.
     - Registro de dosis, horario y recordatorio automático para la maestra.
-- [ ] **Confirmación de Administración:**
-    - Botón de "Administrado" en el dashboard de la maestra con firma digital o timestamp.
-    - Notificación automática inmediata al padre por WhatsApp/Push: "Se administró [Dosis] de [Medicamento] a las [Hora]".
+- [x] **Confirmación de Administración:** ✅ sesión 20 — registro con timestamp desde bitácora Miss + notificación WhatsApp automática al padre.
 - [ ] **Módulo de Justificantes de Inasistencia:**
     - Endpoint para que Directora/Admin marquen faltas como "Justificadas".
     - Lógica de exclusión: Las faltas justificadas no deben sumar al contador de "Suspensión por retardos/faltas".
@@ -205,7 +205,7 @@
 - [ ] **Lógica de Avance y Cierre:** - Mientras la Miss captura durante la jornada, la bitácora muestra los datos parciales con un indicador de **"En curso"**.
     - Al momento de la entrega/salida, el sistema marca la bitácora como **"Finalizada"**.
     - El mensaje "Aún no está lista" solo aparece si no hay datos capturados (0% de avance).
-- [ ] **Eliminación de Pasos Intermedios (Acceso Directo):** - Eliminación del botón "Ver antes" en **Bitácora, Pagos y Calendario**. Entrada directa al contenido final al dar clic.
+- [x] **Eliminación de Pasos Intermedios (Acceso Directo):** - Eliminación del botón "Ver antes" en **Bitácora, Pagos y Calendario**. Entrada directa al contenido final al dar clic. ✅ sesión 19
 - [ ] **Vista de Preparación (Próximos 3 días):** Priorizar **Tareas Pendientes** (mañana) y **Eventos** (próximos 3 días) para anticipar materiales o vestimenta.
 
 ### 🍱 Bitácora de Actividades y Salud

@@ -141,6 +141,12 @@ export default function DirectoraDashboard() {
 
   const cfg = configHorario?.horarios || {};
 
+  const { data: incidentesHoy = [] } = useQuery({
+    queryKey: ['incidentes-hoy'],
+    queryFn: () => api.get('/bitacora/incidentes/hoy').then(r => r.data),
+    refetchInterval: 60000,
+  });
+
   const { data: cumpleanosHoy = [] } = useQuery({
     queryKey: ['cumpleanos-hoy'],
     queryFn: () => api.get('/alumnos').then(r =>
@@ -244,6 +250,46 @@ export default function DirectoraDashboard() {
         asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
         isLoading={isLoading}
       />
+
+      {/* Incidentes del día */}
+      {incidentesHoy.length > 0 && (
+        <div className="card-hs border-2 border-red-300 bg-red-50">
+          <h2 className="text-lg font-black text-red-700 mb-4 flex items-center gap-2">
+            ⚠️ Incidentes hoy ({incidentesHoy.length})
+          </h2>
+          <div className="space-y-3">
+            {incidentesHoy.map(inc => (
+              <div key={inc.id} className="bg-white rounded-2xl p-4 border border-red-200 space-y-1">
+                <div className="flex items-center justify-between">
+                  <p className="font-black text-gray-800 text-sm">
+                    👧🏻 {inc.alumno_nombre}
+                    <span className="ml-2 text-xs font-bold text-gray-400">{inc.grupo_nombre}</span>
+                  </p>
+                  <span className="text-xs font-bold text-red-500">
+                    {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-700">{inc.descripcion}</p>
+                {inc.acciones_tomadas && (
+                  <p className="text-xs text-gray-500">Acciones: {inc.acciones_tomadas}</p>
+                )}
+                {inc.fotos_urls?.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mt-1">
+                    {inc.fotos_urls.map((url, j) => (
+                      <a key={j} href={url} target="_blank" rel="noreferrer">
+                        <img src={url} alt="Foto" className="w-14 h-14 object-cover rounded-lg border border-red-200" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {inc.reportado_por_nombre && (
+                  <p className="text-xs text-gray-400">Reportado por: {inc.reportado_por_nombre}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Fila inferior */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

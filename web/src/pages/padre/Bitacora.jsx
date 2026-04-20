@@ -143,6 +143,7 @@ export default function PadreBitacora() {
   const panial  = data?.panial || [];
   const esf     = data?.esfinteres;
   const meds    = data?.medicamentos || [];
+  const incidentes = data?.incidentes || [];
 
   const nombreHijo = nombreParam ? decodeURIComponent(nombreParam) : hijos.find(h => h.id === alumnoId)?.nombre_completo || 'Mi hijo/a';
 
@@ -325,6 +326,32 @@ export default function PadreBitacora() {
                         Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </p>
                       {m.notas && <p className="text-xs text-gray-500 mt-1">{m.notas}</p>}
+                    </div>
+                  ))}
+                </Seccion>
+              )}
+
+              {/* Incidentes */}
+              {incidentes.length > 0 && (
+                <Seccion titulo="Incidentes del día" emoji="⚠️">
+                  {incidentes.map((inc, i) => (
+                    <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-1">
+                      <p className="text-sm font-black text-red-800">{inc.descripcion}</p>
+                      {inc.acciones_tomadas && (
+                        <p className="text-xs text-red-600">Acciones: {inc.acciones_tomadas}</p>
+                      )}
+                      {inc.fotos_urls?.length > 0 && (
+                        <div className="flex gap-2 flex-wrap mt-2">
+                          {inc.fotos_urls.map((url, j) => (
+                            <a key={j} href={url} target="_blank" rel="noreferrer">
+                              <img src={url} alt="Foto" className="w-16 h-16 object-cover rounded-lg border border-red-200" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-xs text-red-400">
+                        {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                   ))}
                 </Seccion>

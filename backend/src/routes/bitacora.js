@@ -1,10 +1,34 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje } = require('../services/whatsappService');
+const { uploadToCloudinary } = require('../services/cloudinaryService');
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.use(authenticate);
+
+// ── GET /bitacora/incidentes/hoy ─────────────────────────────────────────
+// Todos los incidentes del día — para la directora
+router.get('/incidentes/hoy', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT i.*,
+             a.nombre_completo AS alumno_nombre,
+             g.nombre AS grupo_nombre,
+             p.nombre_completo AS reportado_por_nombre
+      FROM incidentes i
+      JOIN alumnos a ON i.alumno_id = a.id
+      LEFT JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN personal p ON i.reportado_por = p.id
+      WHERE DATE(i.fecha AT TIME ZONE 'America/Mexico_City') = CURRENT_DATE
+      ORDER BY i.fecha DESC
+    `);
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
 
 // ── GET /bitacora/:alumnoId?fecha=YYYY-MM-DD ──────────────────────────────
 // Obtener bitácora completa de un alumno en una fecha (default: hoy)
@@ -13,7 +37,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -48,6 +72,14 @@ router.get('/:alumnoId', async (req, res, next) => {
         'SELECT * FROM medicamentos WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE) ORDER BY hora_administracion',
         [alumnoId, fecha]
       ),
+
+      query(`
+        SELECT i.*, p.nombre_completo AS reportado_por_nombre
+        FROM incidentes i
+        LEFT JOIN personal p ON i.reportado_por = p.id
+        WHERE i.alumno_id = $1 AND DATE(i.fecha AT TIME ZONE 'America/Mexico_City') = COALESCE($2::date, CURRENT_DATE)
+        ORDER BY i.fecha
+      `, [alumnoId, fecha]),
     ]);
 
     res.json({
@@ -59,6 +91,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       panial:      panial.rows        || [],
       esfinteres:  esfinteres.rows[0]  || null,
       medicamentos: medicamentos.rows  || [],
+      incidentes:   incidentes.rows    || [],
     });
   } catch (err) { next(err); }
 });
@@ -231,6 +264,59 @@ router.post('/medicamento', async (req, res, next) => {
           medicamento: nombre,
           dosis,
           hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        },
+        alumnoId: alumno_id,
+      });
+    }
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/incidente ──────────────────────────────────────────────
+// Registrar incidente/accidente (Miss sube descripción + fotos opcionales)
+router.post('/incidente', upload.array('fotos', 5), async (req, res, next) => {
+  try {
+    const { alumno_id, descripcion, acciones_tomadas } = req.body;
+
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
+    );
+    const maestraId = personalResult.rows[0]?.id || null;
+
+    // Subir fotos a Cloudinary si las hay
+    let fotosUrls = [];
+    if (req.files && req.files.length > 0) {
+      const uploads = await Promise.all(
+        req.files.map(f => uploadToCloudinary(f.buffer, { folder: 'happyschool/incidentes' }))
+      );
+      fotosUrls = uploads.map(u => u.url);
+    }
+
+    const result = await query(`
+      INSERT INTO incidentes (alumno_id, descripcion, acciones_tomadas, fotos_urls, reportado_por)
+      VALUES ($1, $2, $3, $4, $5) RETURNING *
+    `, [alumno_id, descripcion, acciones_tomadas, fotosUrls, maestraId]);
+
+    // Notificar al padre
+    const padreResult = await query(`
+      SELECT a.nombre_completo AS alumno_nombre,
+             COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             p.nombre_completo AS padre_nombre
+      FROM alumnos a
+      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN padres p ON ap.padre_id = p.id
+      WHERE a.id = $1 LIMIT 1
+    `, [alumno_id]);
+
+    if (padreResult.rows.length > 0) {
+      const { alumno_nombre, telefono, padre_nombre } = padreResult.rows[0];
+      await enviarMensaje({
+        telefono,
+        clave: 'incidente',
+        variables: {
+          nombre_padre: padre_nombre.split(' ')[0],
+          nombre_alumno: alumno_nombre,
         },
         alumnoId: alumno_id,
       });

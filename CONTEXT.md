@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 19 cerrada)
-### Sesión: (1) Endpoint GET `/api/asistencia/filtro-salida` + página `/maestra/filtro-salida` — lista por grupo de alumnos presentes, modal selector "quién recoge", banner ámbar salida anticipada. (2) JOIN `registro_salida` en `/grupos/mi-grupo`. (3) Dashboard Miss: columnas Entrada/Salida en tabla + banner naranja salidas anticipadas. (4) Dashboard Directora: panel "Salidas por grupo hoy" expandible por grupo con chips resumen (normales / anticipadas / en escuela) y detalle individual con hora coloreada.
-### Próxima sesión: Fotos de actividades en bitácora (galería por día)
+### Última actualización: 2026-04-19 (sesión 20 cerrada)
+### Sesión: Módulo de incidentes y medicamentos. (1) Backend: POST `/bitacora/incidente` (fotos Cloudinary + notificación WhatsApp), GET `/bitacora/incidentes/hoy` (directora), incidentes incluidos en GET `/bitacora/:alumnoId`. (2) Web Miss — Bitácora: secciones 💊 Medicamentos y ⚠️ Incidentes al fondo del formulario. (3) Web Directora — Dashboard: panel rojo incidentes del día con fotos. (4) Web Papá — Bitácora: sección incidentes del día en rojo.
+### Próxima sesión: (1) Datos de prueba incidentes/medicamentos. (2) Dashboard Miss — mejorar UX: click alumno → bitácora directa; quitar tarjetas Bitácora y Asistencia del dashboard. (3) Firma digital del padre en incidentes.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

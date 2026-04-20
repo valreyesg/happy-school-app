@@ -28,6 +28,15 @@
 - [x] Estado de cuenta por alumno — web y mobile padre
 - [x] GET /alumnos/mis-hijos
 
+## ✅ SESIÓN 20 — Completada (2026-04-19)
+- [x] **Backend POST `/bitacora/incidente`:** Registra descripción, acciones tomadas y hasta 5 fotos (Cloudinary, carpeta `happyschool/incidentes`). Obtiene `personal_id` del usuario autenticado. Notifica al padre vía WhatsApp (plantilla `incidente`). Multer en memoria.
+- [x] **Backend GET `/bitacora/incidentes/hoy`:** Devuelve todos los incidentes del día (todos los grupos) con `alumno_nombre`, `grupo_nombre`, `reportado_por_nombre`. Solo accesible para `directora` y `administrativo`. Ruta definida ANTES de `/:alumnoId` para evitar conflicto de parámetro dinámico.
+- [x] **Backend GET `/bitacora/:alumnoId`:** Ahora incluye `incidentes` — JOIN con `personal` para `reportado_por_nombre`, filtrado por `DATE(fecha AT TIME ZONE 'America/Mexico_City')`.
+- [x] **Web Miss — Bitácora:** Dos nuevas secciones al fondo del formulario: **💊 Medicamentos del día** (lista registros existentes + form nombre/dosis/notas + botón registrar, POST a `/bitacora/medicamento`) y **⚠️ Incidentes / Accidentes** (lista con fotos + form descripción/acciones/fotos + botón registrar, POST multipart a `/bitacora/incidente`). Ambas ocultas en modo solo lectura.
+- [x] **Web Directora — Dashboard:** Panel rojo "⚠️ Incidentes hoy (N)" visible solo cuando hay incidentes. Muestra nombre alumno, grupo, hora, descripción, acciones, fotos clicables y quién reportó. Se refresca cada 60s junto con el resto del dashboard.
+- [x] **Web Papá — Bitácora:** Sección "⚠️ Incidentes del día" en rojo con descripción, acciones, fotos y hora. Se nutre del mismo GET `/bitacora/:alumnoId` que ya usaba.
+- [x] **Confirmación de Administración de Medicamento:** Registro desde bitácora Miss con timestamp + notificación WhatsApp inmediata al padre (plantilla `medicamento` — ya existía en DB). Marcado como completado en PENDIENTES.
+
 ## ✅ SESIÓN 19 — Completada (2026-04-19)
 - [x] **Endpoint GET `/api/asistencia/filtro-salida`:** Devuelve alumnos con `estado IN ('presente','retardo')` hoy sin salida registrada, agrupados por grupo. Incluye padres y personas_autorizadas por alumno (para el selector "quién recoge") y `hora_salida_normal` desde `configuracion_general`.
 - [x] **Página `/maestra/filtro-salida`:** Lista por grupo con tarjeta por alumno (estado "En escuela" / hora de salida). Modal con selector radio de quién recoge (padres + personas autorizadas + "otro"). Banner ámbar "⚠️ SALIDA ANTICIPADA" en modal y pantalla global si la hora actual es antes de `hora_salida_normal`. Nav item "Registro Salida" (ícono `DoorClosed`) en `MaestraLayout` entre Filtro Entrada y Asistencia.

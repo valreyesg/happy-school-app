@@ -81,6 +81,29 @@ export default function MaestraDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Obtener lunes de la semana actual (semana_inicio para comida)
+  // El banner se muestra toda la semana (lunes a domingo)
+  const getLunesActual = () => {
+    const hoy = new Date();
+    const dia = hoy.getDay();
+    const diff = hoy.getDate() - dia + (dia === 0 ? -6 : 1);
+    const lunes = new Date(hoy.setDate(diff));
+    // Formato YYYY-MM-DD sin zona horaria
+    const year = lunes.getFullYear();
+    const month = String(lunes.getMonth() + 1).padStart(2, '0');
+    const date = String(lunes.getDate()).padStart(2, '0');
+    return `${year}-${month}-${date}`;
+  };
+
+  const { data: confirmacionesComida } = useQuery({
+    queryKey: ['confirmaciones-comida', grupo?.id],
+    queryFn: () => grupo?.id ? api.get('/comida/confirmaciones', {
+      params: { semana: getLunesActual(), grupo_id: grupo.id }
+    }).then(r => r.data) : null,
+    enabled: !!grupo?.id,
+    refetchInterval: 60000, // Cada minuto para detectar cambios en tiempo real
+    staleTime: 30000,
+  });
 
   const [horaActual, setHoraActual] = useState(new Date().toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false }));
   useEffect(() => {
@@ -214,6 +237,49 @@ export default function MaestraDashboard() {
         <StatCard icon={UserX}      value={ausentes}                       label="Ausentes"             color="bg-red-400" />
         <StatCard icon={BookOpen}   value={`${bitacorasGuardadas}/${totalAlumnos}`} label="Bitácoras guardadas" color="bg-purple-500" />
       </div>
+
+      {/* Comida — Lista detallada */}
+      {confirmacionesComida && (
+        <div className="card-hs overflow-hidden">
+          <div className={`px-4 py-3 border-b ${
+            confirmacionesComida.confirmaciones.filter(c => c.pago_verificado).length > 0
+              ? 'bg-green-50 border-green-100'
+              : 'bg-gray-50 border-gray-100'
+          }`}>
+            <h2 className="font-black text-sm flex items-center gap-2 mb-2">
+              🍱 Confirmaciones de servicio de comida
+            </h2>
+            {confirmacionesComida.confirmaciones.filter(c => c.pago_verificado).length > 0 ? (
+              <div className="space-y-2">
+                {confirmacionesComida.confirmaciones
+                  .filter(c => c.pago_verificado)
+                  .map(confirmacion => {
+                    const alumno = alumnos.find(a => a.id === confirmacion.alumno_id);
+                    const diasNombres = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'];
+                    const modalidadLabel = confirmacion.modalidad === 'semana_completa'
+                      ? 'Semana completa'
+                      : confirmacion.dias_seleccionados && confirmacion.dias_seleccionados.length > 0
+                      ? confirmacion.dias_seleccionados.map(d => diasNombres[d]).join(', ')
+                      : 'Días específicos';
+                    return (
+                      <div
+                        key={confirmacion.id}
+                        className="px-3 py-2 rounded-lg bg-green-100 text-green-800 text-xs font-bold"
+                      >
+                        ✓ {alumno?.nombre_completo} - {modalidadLabel}
+                      </div>
+                    );
+                  })}
+              </div>
+            ) : (
+              <p className="text-xs font-semibold text-gray-500">
+                Sin confirmaciones de servicio aún
+              </p>
+            )}
+          </div>
+
+        </div>
+      )}
 
       {/* Acciones rápidas */}
       <div>

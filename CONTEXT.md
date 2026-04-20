@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 29 completada)
-### Sesión 29: ✅ Validación job cron lunes 8:31 AM (código verificado, pending test real). Mejora BannerComidaHoy: stats agrupadas (Pagados + Sin Verificar con breakdown por método). Backend endpoint `/comida/confirmaciones` refactorizado con estructura jerárquica. Seed demo data para testing.
-### Próxima sesión (30): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Sincronización web-mobile comida, Modal comprobante visual.
+### Última actualización: 2026-04-20 (sesión 30 completada)
+### Sesión 30: ✅ Dashboard Maestra — Indicador Confirmaciones Servicio Comida. Backend GET `/comida/confirmaciones?grupo_id=` con filtrado por grupo. Web card mostrando: nombre alumno + modalidad (Semana completa / X días). Se muestra toda la semana (no solo lunes). Seed: Ana García López confirmada pagada.
+### Próxima sesión (31): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Sincronización web-mobile comida, Modal comprobante visual.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

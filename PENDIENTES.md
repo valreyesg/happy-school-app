@@ -1,10 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-20 (sesión 29 COMPLETADA)
+## Última actualización: 2026-04-20 (sesión 30 COMPLETADA)
 
 ---
 
-## 🔜 SESIÓN 30 — Próxima sesión
+## 🔜 SESIÓN 31 — Próxima sesión
 
 ### Testing y Validación
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia

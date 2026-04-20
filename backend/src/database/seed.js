@@ -201,6 +201,28 @@ async function seed() {
   }
   console.log('✅ Conceptos de pago de prueba creados');
 
+  // ── Confirmación de comida de prueba (Ana García, pagada) ───────────────────
+  if (alumnoId) {
+    const lunesActual = new Date();
+    lunesActual.setDate(lunesActual.getDate() - lunesActual.getDay() + (lunesActual.getDay() === 0 ? -6 : 1));
+    const semanaInicio = lunesActual.toISOString().split('T')[0];
+
+    await query(`
+      INSERT INTO control_comida_semanal
+        (alumno_id, semana_inicio, confirmado, modalidad, monto, metodo_pago, pago_verificado, estado)
+      VALUES ($1, $2, true, 'semana_completa', 600, 'efectivo', true, 'pagado')
+      ON CONFLICT (alumno_id, semana_inicio) DO UPDATE SET
+        confirmado = true,
+        modalidad = 'semana_completa',
+        monto = 600,
+        metodo_pago = 'efectivo',
+        pago_verificado = true,
+        estado = 'pagado',
+        updated_at = NOW()
+    `, [alumnoId, semanaInicio]);
+  }
+  console.log('✅ Confirmación de comida de prueba creada');
+
   // ── Resumen ────────────────────────────────────────────────────────────────
   console.log('\n🏫 Seed completado exitosamente');
   console.log('\n📋 Credenciales de acceso (contraseña igual para todos: HappySchool2026!)');

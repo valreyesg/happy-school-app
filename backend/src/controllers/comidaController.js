@@ -86,45 +86,55 @@ exports.eliminarMenu = async (req, res) => {
   }
 };
 
-// Obtener estadísticas de confirmaciones (directora/admin)
+// Obtener estadísticas de confirmaciones (directora/admin/maestras)
 exports.obtenerConfirmaciones = async (req, res) => {
   try {
-    const { semana } = req.query; // YYYY-MM-DD (lunes)
+    const { semana, grupo_id } = req.query;
     if (!semana) return res.status(400).json({ error: 'semana requerida' });
 
-    // Obtener estadísticas con breakdown por pago y método
+    // Si es maestra, filtrar por su grupo
+    let whereGrupo = '';
+    let params = [semana];
+    if (grupo_id) {
+      whereGrupo = ` AND a.grupo_id = $2`;
+      params.push(grupo_id);
+    }
+
+    // Estadísticas con breakdown por pago y método
     const statsResult = await query(
       `SELECT
-        COUNT(*) FILTER (WHERE confirmado = true) as total_confirmados,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true) as pagado_total,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true AND metodo_pago = 'transferencia') as pagado_transferencia,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true AND metodo_pago = 'efectivo') as pagado_efectivo,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false) as sin_verificar_total,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false AND metodo_pago = 'transferencia') as sin_verificar_transferencia,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false AND metodo_pago = 'efectivo') as sin_verificar_efectivo
-       FROM control_comida_semanal
-       WHERE semana_inicio = $1`,
-      [semana]
+        COUNT(*) FILTER (WHERE ccs.confirmado = true) as total_confirmados,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = true) as pagado_total,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = true AND ccs.metodo_pago = 'transferencia') as pagado_transferencia,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = true AND ccs.metodo_pago = 'efectivo') as pagado_efectivo,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = false) as sin_verificar_total,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = false AND ccs.metodo_pago = 'transferencia') as sin_verificar_transferencia,
+        COUNT(*) FILTER (WHERE ccs.confirmado = true AND ccs.pago_verificado = false AND ccs.metodo_pago = 'efectivo') as sin_verificar_efectivo
+       FROM control_comida_semanal ccs
+       JOIN alumnos a ON a.id = ccs.alumno_id
+       WHERE ccs.semana_inicio = $1${whereGrupo}`,
+      params
     );
 
-    // Obtener confirmaciones con todos los campos explícitos
+    // Confirmaciones con todos los campos explícitos
     const confirmacionesResult = await query(
       `SELECT
-        id,
-        alumno_id,
-        (SELECT nombre_completo FROM alumnos WHERE id = control_comida_semanal.alumno_id) as nombre_alumno,
-        modalidad,
-        dias_seleccionados,
-        monto,
-        metodo_pago,
-        comprobante_pago_url,
-        comprobante_pago_public_id,
-        pago_verificado,
-        estado
-       FROM control_comida_semanal
-       WHERE semana_inicio = $1 AND confirmado = true
-       ORDER BY nombre_alumno`,
-      [semana]
+        ccs.id,
+        ccs.alumno_id,
+        a.nombre_completo,
+        ccs.modalidad,
+        ccs.dias_seleccionados,
+        ccs.monto,
+        ccs.metodo_pago,
+        ccs.comprobante_pago_url,
+        ccs.comprobante_pago_public_id,
+        ccs.pago_verificado,
+        ccs.estado
+       FROM control_comida_semanal ccs
+       JOIN alumnos a ON a.id = ccs.alumno_id
+       WHERE ccs.semana_inicio = $1 AND ccs.confirmado = true${whereGrupo}
+       ORDER BY a.nombre_completo`,
+      params
     );
 
     const stats = statsResult.rows[0];

@@ -1,6 +1,30 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 30 — Dashboard Maestra: Indicador Confirmaciones Servicio Comida (2026-04-20)
+- [x] **Backend refactor:** GET `/comida/confirmaciones` ahora acepta parámetro opcional `grupo_id` para filtrar confirmaciones por grupo (maestras). Middleware personalizado verifica permisos para maestras_titular/puerta/especial/auxiliar.
+- [x] **Backend controller:** Query JOINea `control_comida_semanal` con `alumnos` para filtrar por `grupo_id`. Devuelve solo confirmaciones con `pago_verificado = true`.
+- [x] **Web Maestra Dashboard:** Nuevo componente de comida en MaestraDashboard.jsx:
+  - Header: "🍱 Confirmaciones de servicio de comida" con nombre(s) de alumno(s) + modalidad
+  - Ejemplo: "✓ Ana García López - Semana completa" o "✓ Ana García López - Lun, Mié, Jue"
+  - Se muestra durante toda la semana (lunes a domingo) sin corte de tiempo
+  - Refetch cada minuto para detectar cambios en tiempo real
+- [x] **Frontend utility:** Función `getLunesActual()` calcula correctamente el lunes de la semana actual sin problemas de zona horaria. Formato YYYY-MM-DD sin ISO.
+- [x] **Seed demo:** Ana García López (Maternal) tiene confirmación comida pagada: semana completa, $600, efectivo, pago_verificado = true.
+- [x] **UI/UX:** Tabla eliminada (redundante). Solo badge/cards mostrando: nombre alumno + modalidad (Semana completa / Lun, Mié, Jue, etc.).
+- [x] **Testing:** Validado en navegador. Maestra Maternal ve banner con Ana García López - Semana completa durante toda la semana.
+
+**Bugs encontrados y solucionados:**
+1. **Zona horaria en getLunesActual():** `toLocaleDateString('en-CA')` inconsistente según máquina → FIX: cálculo manual YYYY-MM-DD con getFullYear/getMonth/getDate.
+2. **Endpoint retornaba vacío:** Parametro grupo_id no se pasaba correctamente → FIX: actualizar query en frontend y backend para JOIN explícito.
+
+**Pendientes para sesión 31:**
+- [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia
+- [ ] UI responsividad browser (mobile, tablet, desktop)
+- [ ] Sincronización web-mobile: confirmación comida
+- [ ] Modal comprobante: mostrar imagen/PDF cuando papá sube transferencia
+- [ ] Test manual lunes próximo: cron 8:31 AM auto-cancelación
+
 ## ✅ SESIÓN 29 — Mejora Dashboard Directora + Validación Job Cron (2026-04-20)
 - [x] **Validación job cron lunes 8:31 AM:** Código verificado en `backend/src/jobs/comidaJobs.js`. Implementación correcta: cron `31 8 * * 1` con zona horaria México, query busca confirmaciones sin pago, actualiza estado a cancelado, envía WhatsApp. Pendiente: test real en lunes próximo con datos en producción.
 - [x] **Backend refactor:** Endpoint `GET /comida/confirmaciones` devuelve nueva estructura jerárquica:

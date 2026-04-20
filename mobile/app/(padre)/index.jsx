@@ -122,9 +122,9 @@ function HijoCard({ hijo }) {
           </View>
           <View style={styles.bitacoraItem}>
             <Text style={styles.bitacoraEmoji}>
-              {hijo.bitacora_hoy.tarea_realizada ? '📚' : '📖'}
+              {hijo.bitacora_hoy.actividad_realizada ? '🎨' : '❌'}
             </Text>
-            <Text style={styles.bitacoraLabel}>Tarea</Text>
+            <Text style={styles.bitacoraLabel}>Actividades</Text>
           </View>
           <View style={styles.bitacoraItem}>
             <Text style={styles.bitacoraEmoji}>

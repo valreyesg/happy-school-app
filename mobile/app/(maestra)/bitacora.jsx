@@ -163,7 +163,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
     const data = bitacoraExistente;
     if (data.bitacora) {
       setAnimo(data.bitacora.estado_animo || null);
-      setTareaRealizada(data.bitacora.tarea_realizada ?? null);
+      setTareaRealizada(data.bitacora.actividad_realizada ?? null);
       setComportamiento(data.bitacora.comportamiento || null);
       setComportamientoNotas(data.bitacora.comportamiento_notas || '');
       setTuvoFiebre(data.bitacora.tuvo_fiebre || false);
@@ -225,7 +225,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
       alumno_id: alumnoId,
       fecha,
       estado_animo: animo,
-      tarea_realizada: tareaRealizada,
+      actividad_realizada: tareaRealizada,
       comportamiento,
       comportamiento_notas: comportamientoNotas,
       tuvo_fiebre: tuvoFiebre,

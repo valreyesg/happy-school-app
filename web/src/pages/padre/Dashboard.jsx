@@ -48,8 +48,8 @@ function HijoCard({ hijo }) {
               <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
             </div>
             <div>
-              <div className="text-3xl">{bit.tarea_realizada ? '📚' : '📖'}</div>
-              <p className="text-xs font-semibold text-gray-400 mt-1">Tarea</p>
+              <div className="text-3xl">{bit.actividad_realizada ? '🎨' : '❌'}</div>
+              <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
             </div>
             <div>
               <div className="text-3xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>

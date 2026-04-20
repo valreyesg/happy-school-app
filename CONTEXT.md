@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 22 cerrada)
-### Sesión 22: Dashboard Miss UX improvements. ✅ Click en alumno abre su bitácora directamente sin pasos extras (auto-select con query params). ✅ Tarjetas "Asistencia" y "Bitácora" quitadas de acciones rápidas (solo queda Galería). Fix: Ruta `mi-grupo` movida antes de `/:id` en grupos.js para evitar conflicto Express.
-### Próxima sesión: (1) Firma digital del padre en incidentes. (2) Fotos de actividades en bitácora (galería por día).
+### Última actualización: 2026-04-19 (sesión 23 completada)
+### Sesión 23: Renombrado "Tarea" → "Actividades" con soporte N fotos. ✅ Migración 011 (renombro columna + descripción). ✅ Endpoints nuevos POST/GET fotos. ✅ Miss: sección actividades con upload. ✅ Papá: galería + descripción. ✅ Mobile actualizado. 🐛 BUG CRITICAL: Renaming sin audit completo → 500 errors en `/grupos/mi-grupo` y `/alumnos/mis-hijos`. RESUELTO: audit+refactor backend. Documentado en memory para no repetir.
+### Próxima sesión: (1) Visualización fotos en galería padre (fetch/display pendiente). (2) Firma digital del padre en incidentes.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

@@ -144,6 +144,7 @@ export default function PadreBitacora() {
   const esf     = data?.esfinteres;
   const meds    = data?.medicamentos || [];
   const incidentes = data?.incidentes || [];
+  const actividades = data?.actividades || [];
 
   const nombreHijo = nombreParam ? decodeURIComponent(nombreParam) : hijos.find(h => h.id === alumnoId)?.nombre_completo || 'Mi hijo/a';
 
@@ -211,8 +212,8 @@ export default function PadreBitacora() {
                   <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
                 </div>
                 <div>
-                  <div className="text-2xl">{bit.tarea_realizada === true ? '📚' : bit.tarea_realizada === false ? '📖' : '—'}</div>
-                  <p className="text-xs font-semibold text-gray-400 mt-1">Tarea</p>
+                  <div className="text-2xl">{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</div>
+                  <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
                 </div>
                 <div>
                   <div className="text-2xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>
@@ -233,11 +234,16 @@ export default function PadreBitacora() {
                 </Seccion>
               )}
 
-              {/* Tarea y conducta */}
-              <Seccion titulo="Tarea y conducta" emoji="📚">
+              {/* Actividades y conducta */}
+              <Seccion titulo="Actividades y conducta" emoji="🎨">
+                {bit.actividad_descripcion && (
+                  <div className="bg-purple-50 rounded-xl p-3 mb-3">
+                    <p className="text-sm font-semibold text-purple-700">📝 {bit.actividad_descripcion}</p>
+                  </div>
+                )}
                 <FilaInfo
-                  label="Tarea"
-                  valor={bit.tarea_realizada === true ? 'Sí realizó la tarea ✓' : bit.tarea_realizada === false ? 'No realizó la tarea ✗' : null}
+                  label="Participación"
+                  valor={bit.actividad_realizada === true ? 'Sí participó ✓' : bit.actividad_realizada === false ? 'No participó ✗' : null}
                 />
                 {bit.comportamiento && (
                   <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${COMPORTAMIENTO[bit.comportamiento]?.color}`}>
@@ -328,6 +334,26 @@ export default function PadreBitacora() {
                       {m.notas && <p className="text-xs text-gray-500 mt-1">{m.notas}</p>}
                     </div>
                   ))}
+                </Seccion>
+              )}
+
+              {/* Galería de actividades */}
+              {actividades.length > 0 && (
+                <Seccion titulo="Galería de actividades" emoji="📷">
+                  <div className="grid grid-cols-3 gap-3">
+                    {actividades.map((a, i) => (
+                      <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
+                        <img
+                          src={a.foto_url}
+                          alt="Actividad"
+                          className="w-full aspect-square object-cover rounded-xl border-2 border-purple-100 group-hover:border-purple-400 transition-all"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                  {actividades[0]?.descripcion && (
+                    <p className="text-xs text-gray-500 mt-3 italic">{actividades[0].descripcion}</p>
+                  )}
                 </Seccion>
               )}
 

@@ -136,7 +136,10 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
   const [queComio,            setQueComio]            = useState('');
   const [cuantoComio,         setCuantoComio]         = useState(null);
   const [observacionesComida, setObservacionesComida] = useState('');
-  const [tareaRealizada,      setTareaRealizada]      = useState(null);
+  const [actividadRealizada,  setActividadRealizada]  = useState(null);
+  const [actividadDesc,       setActividadDesc]       = useState('');
+  const [actividadFotos,      setActividadFotos]      = useState([]);
+  const actFileRef = useRef();
   const [comportamiento,      setComportamiento]      = useState(null);
   const [comportamientoNotas, setComportamientoNotas] = useState('');
   const [tuvoFiebre,          setTuvoFiebre]          = useState(false);
@@ -161,7 +164,8 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
     if (!data) return;
     if (data.bitacora) {
       setAnimo(data.bitacora.estado_animo || null);
-      setTareaRealizada(data.bitacora.tarea_realizada ?? null);
+      setActividadRealizada(data.bitacora.actividad_realizada ?? null);
+      setActividadDesc(data.bitacora.actividad_descripcion || '');
       setComportamiento(data.bitacora.comportamiento || null);
       setComportamientoNotas(data.bitacora.comportamiento_notas || '');
       setTuvoFiebre(data.bitacora.tuvo_fiebre || false);
@@ -233,6 +237,30 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
     incMutation.mutate(fd);
   };
 
+  // Actividades fotos
+  const actFotosMutation = useMutation({
+    mutationFn: (formData) => api.post('/bitacora/actividades/fotos', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      setActividadFotos([]);
+      toast.success('📷 Fotos de actividades subidas');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+  const subirFotosActividad = () => {
+    if (actividadFotos.length === 0) return;
+    const fd = new FormData();
+    fd.append('grupo_id', alumno.grupo_id);
+    fd.append('alumno_id', alumno.id);
+    fd.append('fecha', fecha);
+    fd.append('descripcion', actividadDesc || null);
+    fd.append('es_grupal', 'false');
+    actividadFotos.forEach(f => fd.append('fotos', f));
+    actFotosMutation.mutate(fd);
+  };
+
   // Pañal
   const panialMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/panial', body).then(r => r.data),
@@ -262,7 +290,8 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       alumno_id: alumno.id,
       fecha,
       estado_animo: animo,
-      tarea_realizada: tareaRealizada,
+      actividad_realizada: actividadRealizada,
+      actividad_descripcion: actividadDesc,
       comportamiento,
       comportamiento_notas: comportamientoNotas,
       tuvo_fiebre: tuvoFiebre,
@@ -423,17 +452,34 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
       </Seccion>
 
-      {/* Tarea */}
-      <Seccion titulo="📚 Tarea">
+      {/* Actividades */}
+      <Seccion titulo="🎨 Actividades">
+        <textarea rows={2} placeholder="Describe la actividad realizada (ej: pintura, juego libre, música)…"
+          value={actividadDesc} onChange={e => setActividadDesc(e.target.value)}
+          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+        <div>
+          <input type="file" accept="image/*" multiple ref={actFileRef} className="hidden"
+            onChange={e => setActividadFotos(Array.from(e.target.files))} />
+          <button onClick={() => actFileRef.current?.click()}
+            className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-purple-300 text-purple-500 hover:bg-purple-50 transition-all">
+            {actividadFotos.length > 0 ? `📷 ${actividadFotos.length} foto(s) de actividad` : '📷 Agregar fotos de actividad (opcional)'}
+          </button>
+          {actividadFotos.length > 0 && (
+            <button onClick={subirFotosActividad} disabled={actFotosMutation.isPending}
+              className="w-full mt-2 py-2 rounded-xl font-bold text-sm bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-50 transition-all">
+              {actFotosMutation.isPending ? 'Subiendo…' : '⬆️ Subir fotos'}
+            </button>
+          )}
+        </div>
         <div className="flex gap-3">
-          <button onClick={() => setTareaRealizada(tareaRealizada === true ? null : true)}
-            className={`flex-1 py-4 rounded-2xl font-black text-sm transition-all
-              ${tareaRealizada === true ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          <button onClick={() => setActividadRealizada(actividadRealizada === true ? null : true)}
+            className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all
+              ${actividadRealizada === true ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
             ✓ Sí realizó
           </button>
-          <button onClick={() => setTareaRealizada(tareaRealizada === false ? null : false)}
-            className={`flex-1 py-4 rounded-2xl font-black text-sm transition-all
-              ${tareaRealizada === false ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+          <button onClick={() => setActividadRealizada(actividadRealizada === false ? null : false)}
+            className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all
+              ${actividadRealizada === false ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
             ✗ No realizó
           </button>
         </div>

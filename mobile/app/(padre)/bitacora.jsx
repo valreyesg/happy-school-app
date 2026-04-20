@@ -174,8 +174,8 @@ export default function BitacoraPadreScreen() {
             </View>
             <View style={s.resumenDiv} />
             <View style={s.resumenItem}>
-              <Text style={s.resumenEmoji}>{bit.tarea_realizada === true ? '📚' : bit.tarea_realizada === false ? '📖' : '—'}</Text>
-              <Text style={s.resumenLabel}>Tarea</Text>
+              <Text style={s.resumenEmoji}>{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</Text>
+              <Text style={s.resumenLabel}>Actividades</Text>
             </View>
             <View style={s.resumenDiv} />
             <View style={s.resumenItem}>
@@ -198,11 +198,11 @@ export default function BitacoraPadreScreen() {
             </Seccion>
           )}
 
-          {/* ─ Tarea y comportamiento ─ */}
-          <Seccion titulo="Tarea y conducta" emoji="📚">
+          {/* ─ Actividades y comportamiento ─ */}
+          <Seccion titulo="Actividades y conducta" emoji="🎨">
             <FilaInfo
-              label="Tarea"
-              valor={bit.tarea_realizada === true ? 'Sí realizó la tarea ✓' : bit.tarea_realizada === false ? 'No realizó la tarea ✗' : null}
+              label="Participación"
+              valor={bit.actividad_realizada === true ? 'Sí participó ✓' : bit.actividad_realizada === false ? 'No participó ✗' : null}
               negrita
             />
             {bit.comportamiento && (

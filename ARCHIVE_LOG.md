@@ -48,6 +48,80 @@
 - [x] **Dashboard Miss — Navegación rápida a bitácora:** Click directo en alumno de tabla → abre su bitácora SIN pasos extras. Cambio en `/maestra/Bitacora.jsx`: importa `useSearchParams()`, captura `alumnoId` de query params, auto-selecciona alumno si viene en URL. Ruta `mi-grupo` movida ANTES de `/:id` en `grupos.js` para evitar conflicto con Express.
 - [x] **Dashboard Miss — Simplificación de acciones rápidas:** Quitar tarjetas "Asistencia" y "Bitácora" de la sección de acciones. Solo queda "Galería". Motivo: acceso directo ya integrado en la tabla (elimina pasos intermedios). Quitados imports `CheckSquare` y `BookOpen` de Dashboard.
 
+## ✅ SESIÓN 23 — Completada (2026-04-19 sesión noche)
+### Cambio semántico: "Tarea" → "Actividades" + soporte N fotos
+- [x] **Migración 011 (`011_actividad_descripcion.sql`):**
+  - RENAME columna `tarea_realizada` → `actividad_realizada` en `bitacora_diaria`
+  - ADD columna `actividad_descripcion TEXT` para descripción de actividad (ej: pintura, juego libre)
+  - Aplicada manualmente con Node script (problema: DATABASE_URL no se carga en psql bash, resuelto con `node -e` + require('pg'))
+
+- [x] **Backend — Nuevos endpoints bitácora:**
+  - POST `/bitacora/actividades/fotos`: Multipart upload de N fotos a tabla `actividades_fotos`. Fields: `alumno_id`, `grupo_id`, `fecha`, `descripcion`, `es_grupal`. Limita a 10 archivos. Devuelve array de registros insertados.
+  - GET `/bitacora/:alumnoId/actividades`: Retorna fotos del alumno (individuales O grupales) para esa fecha, ordenadas por `created_at`.
+  - GET `/bitacora/:alumnoId`: Ahora incluye `actividades` (array de fotos) en respuesta JSON junto con bitácora, banio, comida, etc.
+
+- [x] **Backend — Cambios en rutas existentes (refactor por renombre):**
+  - `/grupos/mi-grupo`: Cambió `bd.tarea_realizada` → `bd.actividad_realizada` en SELECT de alumnos del grupo (línea 133)
+  - `/alumnos/mis-hijos`: Cambió `b.tarea_realizada` → `b.actividad_realizada` + actualizado destructuring del mapeo (línea 22, 35)
+  - POST `/bitacora/guardar`: Cambió parámetro `tarea_realizada` → `actividad_realizada` (línea 106) + descriptor renombrado (línea 228)
+
+- [x] **Frontend Web Miss — Sección "Actividades":**
+  - Renombrada sección de "📚 Tarea" → "🎨 Actividades"
+  - Agregado textarea para `actividad_descripcion` (ej: "Pintura con acuarelas")
+  - Input file múltiple para subir N fotos de actividad (max 10)
+  - Botón "⬆️ Subir fotos" aparece solo si hay archivos seleccionados (mutation `actFotosMutation` POST a `/bitacora/actividades/fotos`)
+  - Mantiene botones "✓ Sí realizó / ✗ No realizó" para `actividad_realizada` (booleano)
+
+- [x] **Frontend Web Papá — Bitácora:**
+  - Resumen rápido: Cambió ícono de "📚 Tarea" → "🎨 Actividades"
+  - Sección renombrada "Tarea y conducta" → "Actividades y conducta"
+  - Muestra `actividad_descripcion` si existe
+  - Reemplazó "Sí realizó la tarea" → "Sí participó" (más semánticamente correcto)
+  - **NUEVA sección Galería 📷:** Grid de 3 columnas con fotos de `actividades`. Fotos clicables (abre fullscreen). Muestra descripción de primera foto si existe.
+
+- [x] **Frontend Mobile Expo Miss — Bitácora:**
+  - Cambió lectura de `tarea_realizada` → `actividad_realizada` en useEffect
+  - Cambió envío de `tarea_realizada` → `actividad_realizada` en guardarMutation (línea 228)
+
+- [x] **Frontend Mobile Expo Papá — Bitácora:**
+  - Resumen: Cambió "📚 Tarea" → "🎨 Actividades"
+  - Sección: Renombrada "Tarea y conducta" → "Actividades y conducta"
+  - Cambió "Sí realizó la tarea" → "Sí participó"
+
+- [x] **Frontend Mobile Expo Papá — Dashboard:**
+  - Cambió emisión en dashboard "📚 Tarea" → "🎨 Actividades"
+
+- [x] **Frontend Web Directora — AlumnoPerfil:**
+  - Cambió display de `tarea_realizada` → `actividad_realizada`
+  - Agregó fila adicional `actividad_descripcion` cuando existe
+
+### 🐛 BUGS ENCONTRADOS Y RESUELTOS
+**CRÍTICO: Renaming de columna sin audit completo causó 500 errors en 2 endpoints**
+1. **Error 1:** `/alumnos/mis-hijos` devolvía 500 porque SELECT usaba `tarea_realizada` (no existía)
+   - **Root cause:** Faltó actualizar `/alumnos.js` línea 22
+   - **Fix:** Cambió a `actividad_realizada` + destructuring mapeo
+
+2. **Error 2:** `/grupos/mi-grupo` devolvía 500 por la misma razón
+   - **Root cause:** Faltó actualizar `/grupos.js` línea 133
+   - **Fix:** Cambió a `actividad_realizada`
+
+3. **Problema operacional:** Dev server (Vite) no estaba corriendo → localStorage inaccesible → navegador devolvía `chrome-error://`
+   - **Root cause:** Bash no mantuvo proceso en background, solo backend estaba activo
+   - **Fix:** Reinició `npm run dev` en web/
+
+**LECCIÓN APRENDIDA (Documentada en memory):**
+- Al cambiar nombre de columna en schema, SIEMPRE ejecutar grep PRIMERO en TODO el código:
+  ```bash
+  grep -r "tarea_realizada" --include="*.js" --include="*.jsx" . 2>/dev/null | grep -v node_modules
+  ```
+- Actualizar en este orden: backend routes → web pages → mobile → seeds (historicos)
+- Backend endpoints a auditar: cualquiera que tenga `SELECT ... FROM bitacora_diaria`
+- Test endpoints con curl ANTES de UI testing
+- Reiniciar backend + rebuild web + hard refresh navegador (Ctrl+Shift+R)
+
+### 📝 Notas
+- Fotos de actividades: Actualmente sin visualización en browser (tabla `actividades_fotos` está cargada pero padre ve "No hay fotos"). **PENDIENTE sesión 24:** validar upload y fetch de fotos Cloudinary.
+
 ## ✅ SESIÓN 18 — Completada (2026-04-19)
 - [x] **Endpoint GET/PUT `/api/config/horarios`:** Lee y actualiza claves de `configuracion_general` (hora_inicio_filtro, hora_fin_filtro, hora_salida_normal, hora_salida_extension, costo_extension_hora, max_retardos_mes, dia_inicio_pago, dia_fin_pago, alerta_minutos_sin_recoger). GET disponible a todos los roles, PUT solo directora.
 - [x] **Página Configuración directora (`/directora/configuracion`):** UI con 4 secciones (Entrada, Horario/Salida, Reglas de negocio, Período de pagos). Campos `input type="time"` y `number`. Botón guardar con feedback visual. Era placeholder `🚧`.

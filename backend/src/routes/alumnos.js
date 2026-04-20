@@ -19,7 +19,7 @@ router.get('/mis-hijos', async (req, res, next) => {
     const result = await query(`
       SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
              g.nombre AS grupo_nombre, g.color_hex,
-             b.estado_animo, b.tarea_realizada, b.comportamiento, b.notas,
+             b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
              rc.cuanto_comio
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
@@ -32,8 +32,8 @@ router.get('/mis-hijos', async (req, res, next) => {
     `, [req.user.id]);
 
     const rows = result.rows.map(r => {
-      const { estado_animo, cuanto_comio, tarea_realizada, comportamiento, notas, ...alumno } = r;
-      const bitacora_hoy = estado_animo !== null ? { estado_animo, cuanto_comio, tarea_realizada, comportamiento, notas } : null;
+      const { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas, ...alumno } = r;
+      const bitacora_hoy = estado_animo !== null ? { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas } : null;
       return { ...alumno, bitacora_hoy };
     });
 

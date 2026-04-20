@@ -130,7 +130,7 @@ router.get('/mi-grupo', async (req, res, next) => {
         rs.autorizado AS salida_autorizada,
         -- Bitácora (resumen)
         bd.estado_animo,
-        bd.tarea_realizada,
+        bd.actividad_realizada,
         bd.comportamiento,
         rc.cuanto_comio,
         rb.pipi_count,

@@ -37,7 +37,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -80,6 +80,13 @@ router.get('/:alumnoId', async (req, res, next) => {
         WHERE i.alumno_id = $1 AND DATE(i.fecha AT TIME ZONE 'America/Mexico_City') = COALESCE($2::date, CURRENT_DATE)
         ORDER BY i.fecha
       `, [alumnoId, fecha]),
+
+      query(`
+        SELECT * FROM actividades_fotos
+        WHERE (alumno_id = $1 OR es_grupal = true)
+          AND fecha = COALESCE($2::date, CURRENT_DATE)
+        ORDER BY created_at ASC
+      `, [alumnoId, fecha]),
     ]);
 
     res.json({
@@ -92,6 +99,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       esfinteres:  esfinteres.rows[0]  || null,
       medicamentos: medicamentos.rows  || [],
       incidentes:   incidentes.rows    || [],
+      actividades:  actividades.rows   || [],
     });
   } catch (err) { next(err); }
 });
@@ -103,7 +111,7 @@ router.post('/guardar', async (req, res, next) => {
     const {
       alumno_id, fecha,
       // Bitácora general
-      estado_animo, tarea_realizada, comportamiento, comportamiento_notas,
+      estado_animo, actividad_realizada, actividad_descripcion, comportamiento, comportamiento_notas,
       tuvo_fiebre, temperatura_dia, se_enfermo, descripcion_enfermedad, notas,
       // Baño
       pipi_count, popo_count,
@@ -126,20 +134,20 @@ router.post('/guardar', async (req, res, next) => {
     const bitacoraResult = await query(`
       INSERT INTO bitacora_diaria (
         alumno_id, fecha, maestra_id,
-        estado_animo, tarea_realizada, comportamiento, comportamiento_notas,
+        estado_animo, actividad_realizada, actividad_descripcion, comportamiento, comportamiento_notas,
         tuvo_fiebre, temperatura_dia, se_enfermo, descripcion_enfermedad, notas
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       ON CONFLICT (alumno_id, fecha) DO UPDATE SET
         maestra_id = $3,
-        estado_animo = $4, tarea_realizada = $5,
-        comportamiento = $6, comportamiento_notas = $7,
-        tuvo_fiebre = $8, temperatura_dia = $9,
-        se_enfermo = $10, descripcion_enfermedad = $11,
-        notas = $12, updated_at = NOW()
+        estado_animo = $4, actividad_realizada = $5, actividad_descripcion = $6,
+        comportamiento = $7, comportamiento_notas = $8,
+        tuvo_fiebre = $9, temperatura_dia = $10,
+        se_enfermo = $11, descripcion_enfermedad = $12,
+        notas = $13, updated_at = NOW()
       RETURNING id
     `, [
       alumno_id, fechaFinal, maestraId,
-      estado_animo, tarea_realizada, comportamiento, comportamiento_notas,
+      estado_animo, actividad_realizada, actividad_descripcion, comportamiento, comportamiento_notas,
       tuvo_fiebre || false, temperatura_dia, se_enfermo || false, descripcion_enfermedad, notas,
     ]);
 
@@ -323,6 +331,66 @@ router.post('/incidente', upload.array('fotos', 5), async (req, res, next) => {
     }
 
     res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/actividades/fotos ──────────────────────────────────────
+// Subir fotos de actividades del día (grupal o individual)
+router.post('/actividades/fotos', upload.array('fotos', 10), async (req, res, next) => {
+  try {
+    const { alumno_id, grupo_id, fecha, descripcion, es_grupal } = req.body;
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+
+    // Subir fotos a Cloudinary
+    const uploads = await Promise.all(
+      req.files.map(f => uploadToCloudinary(f.buffer, { folder: 'happyschool/actividades' }))
+    );
+
+    // Insertar registros en DB
+    const fotosInsertadas = await Promise.all(
+      uploads.map(upload =>
+        query(`
+          INSERT INTO actividades_fotos (alumno_id, grupo_id, fecha, foto_url, public_id, descripcion, es_grupal, subido_por)
+          VALUES ($1, $2, COALESCE($3::date, CURRENT_DATE), $4, $5, $6, $7, $8)
+          RETURNING *
+        `, [
+          alumno_id || null,
+          grupo_id,
+          fecha,
+          upload.url,
+          upload.public_id,
+          descripcion || null,
+          es_grupal === 'true' || false,
+          req.user.id,
+        ])
+      )
+    );
+
+    res.status(201).json({
+      ok: true,
+      fotos: fotosInsertadas.map(r => r.rows[0]),
+    });
+  } catch (err) { next(err); }
+});
+
+// ── GET /bitacora/:alumnoId/actividades?fecha=YYYY-MM-DD ─────────────────
+// Obtener fotos de actividades de un alumno en una fecha
+router.get('/:alumnoId/actividades', async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+    const { fecha } = req.query;
+
+    const result = await query(`
+      SELECT * FROM actividades_fotos
+      WHERE (alumno_id = $1 OR es_grupal = true)
+        AND fecha = COALESCE($2::date, CURRENT_DATE)
+      ORDER BY created_at ASC
+    `, [alumnoId, fecha]);
+
+    res.json(result.rows || []);
   } catch (err) { next(err); }
 });
 

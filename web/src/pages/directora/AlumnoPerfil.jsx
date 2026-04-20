@@ -346,7 +346,8 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
             <FilaBit label="Ánimo"         valor={ANIMO_LABEL[b.estado_animo] ?? b.estado_animo} />
             <FilaBit label="Comportamiento" valor={COMP_LABEL[b.comportamiento] ?? b.comportamiento} />
             {b.comportamiento_notas && <FilaBit label="Nota conducta" valor={b.comportamiento_notas} />}
-            <FilaBit label="Tarea"         valor={b.tarea_realizada === true ? '✅ Sí realizó' : b.tarea_realizada === false ? '❌ No realizó' : null} />
+            <FilaBit label="Actividad"    valor={b.actividad_realizada === true ? '✅ Participó' : b.actividad_realizada === false ? '❌ No participó' : null} />
+            {b.actividad_descripcion && <FilaBit label="Descripción"   valor={b.actividad_descripcion} />}
           </div>
 
           {/* Alimentación */}

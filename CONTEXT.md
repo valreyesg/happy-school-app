@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 31 completada)
-### Sesión 31: ✅ Sincronización web-mobile comida (mobile refactor post-confirmación), Eliminación de 3 duplicados Ana García López. Pendiente: Cobros extensión horario (requiere refactor timezone complejo, pausado).
-### Próxima sesión (32): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Modal comprobante visual, Test cron 8:31 AM comida.
+### Última actualización: 2026-04-20 (sesión 32 completada)
+### Sesión 32: ✅ Módulo Ciclos Escolares COMPLETO — Backend CRUD + transacción promoción, Web pantalla con flujo 3-pasos, integración rutas/sidebar. Promoción automática: Maternal→Prekinder→K1→K2→K3→Egresado.
+### Próxima sesión (33): Validar UI Ciclos en navegador (test E2E), Panel historial egresados, Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

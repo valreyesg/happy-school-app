@@ -17,6 +17,7 @@ const configRoutes = require('./config');
 const reportesRoutes = require('./reportes');
 const turnosPuertaRoutes = require('./turnos-puerta');
 const comidaRoutes = require('./comida');
+const ciclosRoutes = require('./ciclos');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -34,5 +35,6 @@ router.use('/config', configRoutes);
 router.use('/reportes', reportesRoutes);
 router.use('/turnos-puerta', turnosPuertaRoutes);
 router.use('/comida', comidaRoutes);
+router.use('/ciclos', ciclosRoutes);
 
 module.exports = router;

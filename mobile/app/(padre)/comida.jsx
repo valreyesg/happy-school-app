@@ -27,33 +27,33 @@ const ComidaSemanal = () => {
 
   const semanaActual = getSemanActual();
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        setLoading(true);
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
 
-        // Obtener menú
-        const menuRes = await api.get(`/comida/menu?semana=${semanaActual}`);
-        setMenu(menuRes.data);
+      // Obtener menú
+      const menuRes = await api.get(`/comida/menu?semana=${semanaActual}`);
+      setMenu(menuRes.data);
 
-        // Obtener confirmación
-        if (alumno?.id) {
-          const confRes = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaActual}`);
-          if (confRes.data) {
-            setConfirmacion(confRes.data);
-            setDeseoServicio(confRes.data.confirmado);
-            setModalidad(confRes.data.modalidad);
-            setDiasSeleccionados(confRes.data.dias_seleccionados || []);
-            setMetodoPago(confRes.data.metodo_pago);
-          }
+      // Obtener confirmación
+      if (alumno?.id) {
+        const confRes = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaActual}`);
+        if (confRes.data) {
+          setConfirmacion(confRes.data);
+          setDeseoServicio(confRes.data.confirmado);
+          setModalidad(confRes.data.modalidad);
+          setDiasSeleccionados(confRes.data.dias_seleccionados || []);
+          setMetodoPago(confRes.data.metodo_pago);
         }
-      } catch (e) {
-        console.error('Error:', e);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (e) {
+      console.error('Error:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     cargarDatos();
   }, [alumno?.id, semanaActual]);
 
@@ -118,14 +118,10 @@ const ComidaSemanal = () => {
       });
 
       Alert.alert('Éxito', 'Confirmación guardada');
-      // Recargar
-      setTimeout(() => {
-        setLoading(false);
-        // Recargar datos
-      }, 1000);
+      setComprobante(null);
+      await cargarDatos();
     } catch (e) {
       Alert.alert('Error', e.response?.data?.error || e.message);
-    } finally {
       setLoading(false);
     }
   };

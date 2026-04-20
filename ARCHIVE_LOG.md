@@ -1,6 +1,42 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 32 — Ciclos Escolares: Crear, Cierre y Promoción de Alumnos (2026-04-20)
+- [x] **Backend CRUD completo:** 4 endpoints en `backend/src/routes/ciclos.js`:
+  - `GET /ciclos` — lista todos los ciclos con conteo de alumnos activos
+  - `POST /ciclos` — crear nuevo ciclo (nombre, fecha_inicio, fecha_fin)
+  - `GET /ciclos/:id/preview-promocion` — vista previa sin ejecutar (solo lectura, devuelve alumnos + grupos destino sugeridos)
+  - `POST /ciclos/:id/ejecutar-promocion` — transacción: UPDATE alumnos, INSERT inscripciones, cambiar ciclo activo
+- [x] **Lógica de promoción:** Automática por nivel_codigo: Maternal→Prekinder→K1→K2→K3→Egresado. Alumnos K3 se convierten en estado `egresado` sin grupo destino (archivo histórico).
+- [x] **Web pantalla:** `web/src/pages/directora/CiclosEscolares.jsx` con 3 secciones:
+  1. Tabla de ciclos: nombre, período, estado (chip ACTIVO/Cerrado), conteo alumnos
+  2. Modal "+ Nuevo Ciclo" con form (nombre, fecha_inicio, fecha_fin)
+  3. Flujo promoción 3-pasos: seleccionar ciclo destino → tabla editable con ajustes posibles → confirmar con resumen
+- [x] **Integración web:** Ruta agregada en `App.jsx`, enlace en sidebar Directora con ícono Clock
+- [x] **UI/UX:** Diseño infantil/colorido, modales con transiciones, tabla responsive, botones CTA claros
+- [x] **Validación backend:** Todos los endpoints probados con curl. Transacción verifica ciclo activo, actualiza alumnos en batch, registra inscripciones para historial.
+- [x] **Casos edge:** K3 (egresados) sin grupo destino → INSERT inscripción skipped. Maternal sin grupo destino → similar. Alumnos en estado `baja` o `egresado` excluidos de preview.
+
+**Bugs encontrados y solucionados:**
+1. **Import incorrecto:** Inicial `pool` → cambiar a `{ query, getClient }` de config/database
+2. **getPool() no existe:** Usar `getClient()` para obtener cliente con transacción
+3. **Parámetro alumno_id vs id:** Preview devuelve `id`, endpoint espera `alumno_id` → fix: aceptar ambos con `alumno_id || id`
+4. **Grupos faltantes:** Nueva ciclo sin grupos destino → preview devolvía NULL → crear grupos antes de ejecutar promoción
+5. **Sincronización código:** Necesitó 3 restarts de backend para que cambios en ciclos.js tomaran efecto
+
+**Validaciones completadas:**
+- ✅ POST crear ciclo retorna 201 con estructura correcta
+- ✅ GET preview devuelve 26 alumnos con destinos mapeados (K1→K2, K2→K3, Prekinder→K1, Maternal→Maternal, K3→egresado)
+- ✅ POST ejecutar-promocion ejecuta transacción, cambia ciclo activo, registra inscripciones
+- ✅ Ciclos ordenados por fecha_inicio DESC
+- ✅ Validación SQL: no permite ciclos duplicados por nombre (UNIQUE constraint)
+
+**Pendientes para sesión 33:**
+- [ ] Validar UI en navegador (tabla, modales, flujo 3-pasos)
+- [ ] Test completo: crear ciclo → crear grupos → ejecutar promoción → verificar alumnos en nuevo ciclo
+- [ ] Mejorar UI de modal promoción si faltan grupos destino (alerta de validación)
+- [ ] Crear endpoint GET alumnos egresados del ciclo anterior (para panel "Historial egresados")
+
 ## ✅ SESIÓN 31 — Sincronización Web-Mobile Comida + Cleanup Duplicados (2026-04-20)
 - [x] **Mobile comida refactor:** Pantalla `/app/(padre)/comida.jsx` ya existía funcional. Arreglado: función `cargarDatos()` no se ejecutaba post-confirmación → movida fuera de useEffect para que sea reutilizable. POST `/comida/confirmacion` ahora actualiza estado automáticamente.
 - [x] **Sincronización garantizada:** Web (`ComidaSemanal.jsx`) y Mobile (`comida.jsx`) llaman al mismo backend (`GET /comida/confirmacion/:alumno_id`). Cambios en una plataforma se reflejan en la otra al recargar.

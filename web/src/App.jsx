@@ -25,6 +25,7 @@ import DirectoraAsistencia from '@/pages/directora/Asistencia';
 import DirectoraTurnoPuerta from '@/pages/directora/TurnoPuerta';
 import DirectoraComidaMenu from '@/pages/directora/ComidaMenu';
 import DirectoraComidaPagos from '@/pages/directora/ComidaPagos';
+import DirectoraCiclos from '@/pages/directora/CiclosEscolares';
 
 // Páginas de administrativo
 import AdminDashboard from '@/pages/administrativo/Dashboard';
@@ -100,6 +101,7 @@ export default function App() {
         <Route path="turno-puerta" element={<DirectoraTurnoPuerta />} />
         <Route path="comida-menu" element={<DirectoraComidaMenu />} />
         <Route path="comida-pagos" element={<DirectoraComidaPagos />} />
+        <Route path="ciclos" element={<DirectoraCiclos />} />
       </Route>
 
       {/* Administrativo */}

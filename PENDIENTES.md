@@ -1,16 +1,21 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-20 (sesión 30 COMPLETADA)
+## Última actualización: 2026-04-20 (sesión 32 COMPLETADA)
 
 ---
 
-## 🔜 SESIÓN 31 — Próxima sesión
+## 🔜 SESIÓN 33 — Próxima sesión
 
-### Testing y Validación
+### Ciclos Escolares (continuación)
+- [ ] Validar UI en navegador: tabla ciclos, modales, flujo 3-pasos
+- [ ] Test E2E: crear ciclo → crear grupos → ejecutar promoción → verificar alumnos
+- [ ] Panel "Historial egresados": endpoint GET alumnos egresados del ciclo anterior
+- [ ] Mejora: alerta/validación cuando faltan grupos destino para promoción
+
+### Testing y Validación (continúa de sesión anterior)
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia
 - [ ] UI responsividad browser (mobile, tablet, desktop)
-- [ ] Sincronización web-mobile: confirmación comida
-- [ ] Agregar modal comprobante: mostrar imagen/PDF cuando papá sube transferencia
+- [ ] Modal comprobante: mostrar imagen/PDF cuando papá sube transferencia
 - [ ] ⏰ Test manual lunes próximo: Verificar que cron 8:31 AM envía WhatsApp auto-cancelación
 
 ---
@@ -33,7 +38,7 @@
 - [ ] Proceso de reinscripción para alumnos existentes
 - [ ] Bajas y egresos con historial conservado
 - [ ] Panel de configuración directora (grupos, personal, horarios, catálogos)
-- [ ] Ciclos escolares: crear, archivar, historial
+- [x] Ciclos escolares: crear, cierre y promoción automática de alumnos ✅ SESIÓN 32
 
 ---
 

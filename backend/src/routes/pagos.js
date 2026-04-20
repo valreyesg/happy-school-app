@@ -141,7 +141,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           COUNT(p.id) FILTER (WHERE p.estado = 'pendiente') AS pendientes,
           COUNT(p.id) FILTER (WHERE p.estado = 'vencido')  AS vencidos
         FROM grupos g
-        LEFT JOIN alumnos a ON a.grupo_id = g.id AND a.activo = true
+        LEFT JOIN alumnos a ON a.grupo_id = g.id AND a.deleted_at IS NULL
         LEFT JOIN pagos p ON p.alumno_id = a.id
           AND p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
         GROUP BY g.id, g.nombre, g.color_hex
@@ -157,11 +157,12 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         FROM alumnos a
         JOIN grupos g ON a.grupo_id = g.id
         JOIN pagos p ON p.alumno_id = a.id AND p.estado = 'vencido'
-        WHERE a.activo = true
+          AND p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
+        WHERE a.deleted_at IS NULL
         GROUP BY a.id, a.nombre_completo, a.foto_url, g.nombre, g.color_hex
         ORDER BY max_dias_atraso DESC
         LIMIT 10
-      `),
+      `, [m, a]),
     ]);
 
     res.json({

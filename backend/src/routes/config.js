@@ -10,6 +10,7 @@ const CLAVES_HORARIO = [
   'hora_fin_filtro',
   'hora_salida_normal',
   'hora_salida_extension',
+  'hora_inicio_cobro_extension',
   'costo_extension_hora',
   'max_retardos_mes',
   'dia_inicio_pago',

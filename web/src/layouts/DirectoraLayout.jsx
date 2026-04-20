@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
   LayoutDashboard, Users, UserCheck, CreditCard, ClipboardList,
-  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed,
+  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed, Clock,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
@@ -19,6 +19,7 @@ const NAV_ITEMS = [
   { to: '/directora/personal',    icon: UserCheck,       label: 'Personal' },
   { to: '/directora/pagos',       icon: CreditCard,      label: 'Pagos' },
   { to: '/directora/calendario',  icon: Calendar,        label: 'Calendario' },
+  { to: '/directora/ciclos',      icon: Clock,           label: 'Ciclos' },
   { to: '/directora/evaluaciones',icon: Star,            label: 'Evaluaciones' },
   { to: '/directora/config',      icon: Settings,        label: 'Configuración' },
 ];

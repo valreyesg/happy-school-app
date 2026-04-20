@@ -722,6 +722,13 @@ export default function MaestraBitacora() {
     }
   };
 
+  // Limpiar cache al iniciar componente
+  useEffect(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+    queryClient.removeQueries();
+  }, [queryClient]);
+
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo', fecha],
     queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),

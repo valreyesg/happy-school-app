@@ -124,7 +124,10 @@
       "Bash(node src/database/seed_comida_4tiempos.js)",
       "Bash(psql -U postgres -h localhost -d happy_school -c ' *)",
       "Bash(curl -s -H \"Authorization: Bearer $\\(echo 'test'\\)\" \"http://localhost:3000/bitacora/56fc4561-6b30-4031-8228-33c3d8e4372e?fecha=2026-04-19\")",
-      "Bash(curl -s \"http://localhost:3000/bitacora/56fc4561-6b30-4031-8228-33c3d8e4372e?fecha=2026-04-19\")"
+      "Bash(curl -s \"http://localhost:3000/bitacora/56fc4561-6b30-4031-8228-33c3d8e4372e?fecha=2026-04-19\")",
+      "Bash(kill -9 4618 4616 4614 15076)",
+      "Read(//c/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/src/routes/**)",
+      "Bash(node /tmp/test_api.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

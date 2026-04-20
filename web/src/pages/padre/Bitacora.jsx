@@ -157,10 +157,11 @@ export default function PadreBitacora() {
   const [incidenteFirmando, setIncidenteFirmando] = useState(null);
   const queryClient = useQueryClient();
 
-  // Forzar refetch limpiando cache localStorage
+  // Forzar refetch limpiando cache
   useEffect(() => {
     localStorage.clear();
-    queryClient.clear();
+    sessionStorage.clear();
+    queryClient.removeQueries();
     queryClient.refetchQueries({ queryKey: ['mis-hijos'] });
   }, [queryClient]);
 

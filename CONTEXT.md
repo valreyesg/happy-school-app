@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 28 completada)
-### Sesión 28: ✅ FASE 6.9 Control de Pagos — Panel directora/admin para verificar pagos comida semanal. Maestras ahora pueden marcar pago en filtro entrada. ComidaPagos.jsx con navegación semanas, stats (confirmados/pagados/sin verificar), toggle pago. HTTP cache fix (304 Not Modified). Bug nav semanas corregido.
-### Próxima sesión (29): Testing job cron lunes 8:30 AM auto-cancelación, Cloudinary uploads (PDF menú, comprobantes), responsividad browser, sincronización web-mobile, agregar vista comprobante en modal.
+### Última actualización: 2026-04-20 (sesión 29 completada)
+### Sesión 29: ✅ Validación job cron lunes 8:31 AM (código verificado, pending test real). Mejora BannerComidaHoy: stats agrupadas (Pagados + Sin Verificar con breakdown por método). Backend endpoint `/comida/confirmaciones` refactorizado con estructura jerárquica. Seed demo data para testing.
+### Próxima sesión (30): Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser (mobile/tablet/desktop), Sincronización web-mobile comida, Modal comprobante visual.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

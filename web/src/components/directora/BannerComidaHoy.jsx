@@ -26,6 +26,7 @@ const BannerComidaHoy = () => {
         setStats(res.data);
       } catch (e) {
         console.error('Error cargando estadísticas de comida:', e);
+        setStats(null);
       } finally {
         setLoading(false);
       }
@@ -34,31 +35,34 @@ const BannerComidaHoy = () => {
     cargarEstadisticas();
   }, []);
 
-  if (loading || !stats || stats.total_confirmados === 0) return null;
+  if (loading || !stats || !stats.pagados || !stats.sin_verificar || stats.total_confirmados === 0) return null;
 
   return (
     <div className="card-hs bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-xl font-black text-orange-700 mb-3">🍽️ Comida de Hoy</h3>
-          <div className="grid grid-cols-3 gap-4">
+        <div className="flex items-center gap-6">
+          <div>
+            <h3 className="text-lg font-black text-orange-700">🍽️ Comida de Hoy</h3>
+            <div className="text-2xl font-black text-orange-600 mt-1">{stats.total_confirmados} confirmados</div>
+          </div>
+
+          <div className="flex gap-4 text-sm">
             <div className="text-center">
-              <div className="text-2xl font-black text-orange-600">{stats.total_confirmados}</div>
-              <div className="text-xs font-bold text-gray-600 mt-1">Confirmados</div>
+              <div className="font-black text-green-600">✅ {stats.pagados.total}</div>
+              <div className="text-xs text-gray-600">Pagados</div>
+              <div className="text-xs text-gray-500">📲 {stats.pagados.transferencia} | 💵 {stats.pagados.efectivo}</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-black text-blue-600">📲 {stats.transferencia_count}</div>
-              <div className="text-xs font-bold text-gray-600 mt-1">Transferencia</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-black text-green-600">💵 {stats.efectivo_count}</div>
-              <div className="text-xs font-bold text-gray-600 mt-1">Efectivo</div>
+            <div className="text-center border-l-2 border-gray-300 pl-4">
+              <div className="font-black text-yellow-600">⏳ {stats.sin_verificar.total}</div>
+              <div className="text-xs text-gray-600">Sin Verificar</div>
+              <div className="text-xs text-gray-500">📲 {stats.sin_verificar.transferencia} | 💵 {stats.sin_verificar.efectivo}</div>
             </div>
           </div>
         </div>
+
         <Link
           to="/directora/comida-menu"
-          className="px-4 py-2 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition text-sm whitespace-nowrap ml-4"
+          className="px-3 py-2 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition text-xs"
         >
           Gestionar Menú
         </Link>

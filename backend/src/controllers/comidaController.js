@@ -92,20 +92,22 @@ exports.obtenerConfirmaciones = async (req, res) => {
     const { semana } = req.query; // YYYY-MM-DD (lunes)
     if (!semana) return res.status(400).json({ error: 'semana requerida' });
 
-    // Primero obtener estadísticas
+    // Obtener estadísticas con breakdown por pago y método
     const statsResult = await query(
       `SELECT
         COUNT(*) FILTER (WHERE confirmado = true) as total_confirmados,
-        COUNT(*) FILTER (WHERE confirmado = true AND metodo_pago = 'transferencia') as transferencia_count,
-        COUNT(*) FILTER (WHERE confirmado = true AND metodo_pago = 'efectivo') as efectivo_count,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true) as pagado_count,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false) as sin_verificar_count
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true) as pagado_total,
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true AND metodo_pago = 'transferencia') as pagado_transferencia,
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true AND metodo_pago = 'efectivo') as pagado_efectivo,
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false) as sin_verificar_total,
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false AND metodo_pago = 'transferencia') as sin_verificar_transferencia,
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false AND metodo_pago = 'efectivo') as sin_verificar_efectivo
        FROM control_comida_semanal
        WHERE semana_inicio = $1`,
       [semana]
     );
 
-    // Luego obtener confirmaciones con todos los campos explícitos
+    // Obtener confirmaciones con todos los campos explícitos
     const confirmacionesResult = await query(
       `SELECT
         id,
@@ -125,13 +127,20 @@ exports.obtenerConfirmaciones = async (req, res) => {
       [semana]
     );
 
+    const stats = statsResult.rows[0];
     res.json({
       semana,
-      total_confirmados: parseInt(statsResult.rows[0].total_confirmados) || 0,
-      transferencia_count: parseInt(statsResult.rows[0].transferencia_count) || 0,
-      efectivo_count: parseInt(statsResult.rows[0].efectivo_count) || 0,
-      pagado_count: parseInt(statsResult.rows[0].pagado_count) || 0,
-      sin_verificar_count: parseInt(statsResult.rows[0].sin_verificar_count) || 0,
+      total_confirmados: parseInt(stats.total_confirmados) || 0,
+      pagados: {
+        total: parseInt(stats.pagado_total) || 0,
+        transferencia: parseInt(stats.pagado_transferencia) || 0,
+        efectivo: parseInt(stats.pagado_efectivo) || 0
+      },
+      sin_verificar: {
+        total: parseInt(stats.sin_verificar_total) || 0,
+        transferencia: parseInt(stats.sin_verificar_transferencia) || 0,
+        efectivo: parseInt(stats.sin_verificar_efectivo) || 0
+      },
       confirmaciones: confirmacionesResult.rows || []
     });
   } catch (e) {

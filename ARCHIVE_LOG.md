@@ -1,6 +1,30 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 29 — Mejora Dashboard Directora + Validación Job Cron (2026-04-20)
+- [x] **Validación job cron lunes 8:31 AM:** Código verificado en `backend/src/jobs/comidaJobs.js`. Implementación correcta: cron `31 8 * * 1` con zona horaria México, query busca confirmaciones sin pago, actualiza estado a cancelado, envía WhatsApp. Pendiente: test real en lunes próximo con datos en producción.
+- [x] **Backend refactor:** Endpoint `GET /comida/confirmaciones` devuelve nueva estructura jerárquica:
+  ```json
+  {
+    "pagados": {"total": 2, "transferencia": 1, "efectivo": 1},
+    "sin_verificar": {"total": 1, "transferencia": 1, "efectivo": 0}
+  }
+  ```
+- [x] **BannerComidaHoy.jsx mejora:** Rediseño compacto horizontal. Stats agrupadas lógicamente: Total Confirmados → Pagados (con breakdown) → Sin Verificar (con breakdown). Ocupaba 3 secciones, ahora en 1 línea con mejor UX.
+- [x] **Seed demo data:** Script `seed_comida_pagos_demo.js` crea 3 registros para semana actual: 2 pagados (1 transferencia, 1 efectivo), 1 sin verificar (transferencia). Facilita testing de stats.
+- [x] **Validación defensiva:** Componente ahora valida `stats.pagados` y `stats.sin_verificar` antes de renderizar para evitar crashes por estructura undefined.
+
+**Bugs encontrados y solucionados en esta sesión:**
+1. **Backend respuesta vieja:** Procesos node viejos en memoria devolvían endpoint antiguo sin estructura jerárquica → FIX: matar todos los procesos (kill -9) y reiniciar único backend.
+2. **BannerComidaHoy ineficiente:** Ocupaba mucho espacio vertical con múltiples secciones anidadas → FIX: rediseño horizontal compacto sin perder información.
+
+**Pendientes para sesión 30:**
+- [ ] Test manual lunes próximo: confirmar que cron 8:31 AM ejecuta y envía WhatsApp
+- [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia
+- [ ] UI responsividad en browser (mobile, tablet, desktop)
+- [ ] Sincronización web-mobile: confirmación comida
+- [ ] Modal comprobante: mostrar imagen/PDF cuando papá sube transferencia
+
 ## ✅ SESIÓN 28 — FASE 6.9 Control de Pagos Comida (2026-04-20)
 - [x] **Backend permisos:** Maestras (titular, puerta, especial) + Admin + Directora pueden marcar pago verificado en filtro entrada (`/comida/confirmacion/:id/verificar-pago` y `/cancelar`).
 - [x] **Backend endpoint actualizado:** `GET /comida/confirmaciones?semana=` ahora devuelve lista explícita con todos los campos (modalidad, monto, metodo_pago, pago_verificado, estado) sin usar json_agg.
@@ -12,6 +36,7 @@
 - [x] **Fixes:** Corrección fecha ISO (`toISOString()` → `toLocaleDateString('en-CA')`) en FiltroEntrada para consistencia con hora local.
 - [x] **Demo data:** Script `setup_comida_pagos_demo.js` crea 3 registros: 1 con transferencia (sin pagar), 1 con efectivo (sin pagar), 1 pagado. Validación de estructura en DB.
 - [x] **HTTP Cache fix:** Middleware en backend desactiva ETags/Cache-Control para endpoints `/api/` (no-store, no-cache, must-revalidate).
+- [x] **Job cron lunes 8:31 AM validado:** Implementación correcta en `backend/src/jobs/comidaJobs.js`. Cron programado con zona horaria México. Lógica busca confirmaciones sin pago, marca como cancelado, envía WhatsApp. ✅ Código verificado sesión 29, pending test en lunes próximo con datos reales.
 
 **Bugs encontrados y solucionados en esta sesión:**
 1. **HTTP 304 Not Modified:** Navegador y Express cacheaban respuestas de GET `/comida/confirmaciones` → FIX: agregar middleware desactiva cache con headers (no-store, no-cache, must-revalidate).

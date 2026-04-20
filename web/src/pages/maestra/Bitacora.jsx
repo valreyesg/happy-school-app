@@ -480,6 +480,10 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
                     ))}
                   </div>
                 </div>
+                <textarea rows={1} placeholder="Notas (ej: rechazó verduras, pidió más, etc.)"
+                  value={comidas[tiempo]?.observaciones || ''}
+                  onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], observaciones: e.target.value } })}
+                  className="w-full border-2 border-gray-200 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:border-hs-purple resize-none" />
               </div>
             ))}
           </div>

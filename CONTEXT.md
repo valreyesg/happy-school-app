@@ -2,8 +2,8 @@
 ## Estado del Proyecto
 
 ### Última actualización: 2026-04-19 (sesión 25 completada)
-### Sesión 25: ✅ Automatización de Cumpleaños — Ícono 🎂 en Filtro de Entrada (ya estaba implementado, solo validado). ✅ Test con Ana García López (fecha actualizada a 2026-04-19). ✅ Próxima: Bitácora 4 tiempos (FASE 6.8) + Envío recibo WhatsApp (FASE 4).
-### Próxima sesión: FASE 3.1 Reporte Excel/PDF asistencia + FASE 4 Envío recibos WhatsApp + FASE 6.8 Bitácora 4 tiempos.
+### Sesión 25: ✅ Automatización de Cumpleaños — Ícono 🎂 en Filtro de Entrada (ya estaba implementado, solo validado). ✅ Test con Ana García López (fecha actualizada a 2026-04-19).
+### Próxima sesión (26): PRIORIDAD — FASE 6.8 Bitácora 4 tiempos + Indicador Comedor Dashboard Miss + Control semanal comida (confirmación papá domingo, validación pago lunes, cancelación automática sin pago).
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

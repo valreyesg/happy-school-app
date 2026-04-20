@@ -6,6 +6,18 @@
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
 
+### ⚡ FASE 6.8 — Bitácora 4 tiempos (1.5 horas)
+- [ ] Separar visualmente en bitácora del padre: Desayuno, Colación, Comida, Comida Extra
+- [ ] Datos ya existen en `registro_comida` — solo falta UI + lógica de agrupación por tiempo
+
+### ⚡ Pequeño fix — Indicador de Comedor en Dashboard Miss (30 min)
+- [ ] Portal papá: módulo de confirmación semanal de servicio comida (domingo antes de dormir)
+  - Selector: "Confirmo servicio de comida para la próxima semana"
+  - Selector método de pago: "Transferencia (confirmar a más tardar lunes)" | "Efectivo el lunes"
+  - Guardado en tabla `control_comida` o similar con `estado` (pendiente/confirmado/pagado/cancelado)
+- [ ] Si no hay pago recibido el lunes 8:00 AM → estado = `cancelado` + notificación papá vía WhatsApp
+- [ ] Dashboard Miss: Banner con contador "🍽️ X niños confirmaron comida hoy" (basado en domingo anterior)
+
 ---
 
 ## 📋 FASE 3 — Pendientes

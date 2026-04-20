@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\PostgreSQL\\\\16\\\\bin\\\\psql.exe' -U postgres -c \\\\\"CREATE DATABASE happy_school;\\\\\" 2>&1\")",
+      "Bash(powershell.exe -Command ' *)",
+      "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\PostgreSQL\\\\16\\\\bin\\\\psql.exe' -U postgres -d happy_school -c 'SELECT current_database\\(\\);' 2>&1\")",
+      "Bash(powershell.exe -Command \"Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm install 2>&1 | tail -5\")",
+      "Bash(powershell.exe -Command \"Test-Path 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\node_modules\\\\express'\")",
+      "Bash(powershell.exe -Command \"Test-Path 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\node_modules\\\\express'\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\start_backend.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\start_web.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\install_web.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\start_web2.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER'; git status --short 2>&1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER'; git log --oneline -3 2>&1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command ' *)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER'; git push origin main 2>&1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Get-Content 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\src\\\\routes\\\\calendario.js' 2>&1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Get-Content 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\web\\\\src\\\\pages\\\\directora\\\\Calendario.jsx' 2>&1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -Command \"Get-Content 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\src\\\\database\\\\seed.js' | Measure-Object -Line\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\run_seed.ps1\")",
+      "Bash(node src/index.js)",
+      "Bash(curl -s http://localhost:3000/health)",
+      "Bash(curl -s \"http://localhost:3000/api/calendario/categorias\" -H \"Authorization: Bearer test\")",
+      "Read(//c/Users/vreyesg/.claude/projects/c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER/memory/**)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\vreyesg\\AppData\\Local\\Temp"
+    ]
+  }
+}

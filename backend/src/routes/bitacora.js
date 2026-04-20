@@ -23,7 +23,7 @@ router.get('/incidentes/hoy', authorize('directora', 'administrativo'), async (r
       JOIN alumnos a ON i.alumno_id = a.id
       LEFT JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN personal p ON i.reportado_por = p.id
-      WHERE DATE(i.fecha AT TIME ZONE 'America/Mexico_City') = CURRENT_DATE
+      WHERE DATE(i.fecha AT TIME ZONE 'America/Mexico_City') = (NOW() AT TIME ZONE 'America/Mexico_City')::DATE
       ORDER BY i.fecha DESC
     `);
     res.json(result.rows);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
@@ -604,6 +605,7 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
 
 export default function MaestraBitacora() {
   const hoy = new Date().toLocaleDateString('en-CA');
+  const [searchParams] = useSearchParams();
   const ultimoDiaHabil = () => {
     const d = new Date();
     while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
@@ -611,6 +613,7 @@ export default function MaestraBitacora() {
   };
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
+  const [alumnoIdAutoselect, setAlumnoIdAutoselect] = useState(searchParams.get('alumnoId'));
 
   const soloLectura = fecha < hoy;
 
@@ -632,6 +635,16 @@ export default function MaestraBitacora() {
   const alumnos = grupo?.alumnos || [];
   const pendientes = alumnos.filter(a => !a.estado_animo);
   const guardadas  = alumnos.filter(a =>  a.estado_animo);
+
+  useEffect(() => {
+    if (alumnoIdAutoselect && !alumnoSeleccionado && grupo?.alumnos) {
+      const alumno = grupo.alumnos.find(a => a.id === alumnoIdAutoselect);
+      if (alumno) {
+        setAlumnoSeleccionado({ ...alumno, nivel_codigo: grupo.nivel_codigo });
+        setAlumnoIdAutoselect(null);
+      }
+    }
+  }, [alumnoIdAutoselect, alumnoSeleccionado, grupo]);
 
   const labelFecha = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {
     weekday: 'long', day: 'numeric', month: 'long',

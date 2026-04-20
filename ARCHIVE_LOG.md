@@ -44,6 +44,10 @@
 - [x] **Dashboard Miss — columnas Entrada/Salida:** Tabla divide "Asistencia" en dos columnas: "Entrada" (badge estado + hora de llegada) y "Salida" (hora en azul=normal / naranja=anticipada, "En escuela" si no ha salido). Banner naranja enlazado a `/maestra/filtro-salida` cuando hay salidas anticipadas, con nombres.
 - [x] **Dashboard Directora — panel Salidas por grupo hoy:** Reemplaza lista plana por acordeón por grupo. Cabecera siempre visible con chips: `X/Y salieron · X en escuela · ⚠️ X anticipadas · 🚨 X no autorizadas`. Al expandir muestra lista con hora verde (normal), naranja (anticipada) o roja (no autorizada) y quién recogió. Query en `/reportes/dashboard` devuelve `salidasHoy` (todas) y `salidasAnticipadas` (filtradas por `hora_salida_normal`).
 
+## ✅ SESIÓN 22 — Completada (2026-04-20)
+- [x] **Dashboard Miss — Navegación rápida a bitácora:** Click directo en alumno de tabla → abre su bitácora SIN pasos extras. Cambio en `/maestra/Bitacora.jsx`: importa `useSearchParams()`, captura `alumnoId` de query params, auto-selecciona alumno si viene en URL. Ruta `mi-grupo` movida ANTES de `/:id` en `grupos.js` para evitar conflicto con Express.
+- [x] **Dashboard Miss — Simplificación de acciones rápidas:** Quitar tarjetas "Asistencia" y "Bitácora" de la sección de acciones. Solo queda "Galería". Motivo: acceso directo ya integrado en la tabla (elimina pasos intermedios). Quitados imports `CheckSquare` y `BookOpen` de Dashboard.
+
 ## ✅ SESIÓN 18 — Completada (2026-04-19)
 - [x] **Endpoint GET/PUT `/api/config/horarios`:** Lee y actualiza claves de `configuracion_general` (hora_inicio_filtro, hora_fin_filtro, hora_salida_normal, hora_salida_extension, costo_extension_hora, max_retardos_mes, dia_inicio_pago, dia_fin_pago, alerta_minutos_sin_recoger). GET disponible a todos los roles, PUT solo directora.
 - [x] **Página Configuración directora (`/directora/configuracion`):** UI con 4 secciones (Entrada, Horario/Salida, Reglas de negocio, Período de pagos). Campos `input type="time"` y `number`. Botón guardar con feedback visual. Era placeholder `🚧`.

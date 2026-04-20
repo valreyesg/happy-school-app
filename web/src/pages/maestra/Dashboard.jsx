@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { CheckSquare, BookOpen, Users, Clock, UserX, Image, LogOut, AlertTriangle } from 'lucide-react';
+import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
@@ -218,21 +218,7 @@ export default function MaestraDashboard() {
       <div>
         <h2 className="text-base font-black text-gray-700 mb-3">Acciones rápidas</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Link to="/maestra/asistencia" className="card-hs p-5 flex flex-col items-center gap-2 hover:shadow-md transition-shadow group">
-            <div className="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
-              <CheckSquare size={28} className="text-green-600" />
-            </div>
-            <span className="font-bold text-sm text-gray-700">Asistencia</span>
-          </Link>
-
-          <Link to="/maestra/bitacora" className="card-hs p-5 flex flex-col items-center gap-2 hover:shadow-md transition-shadow group">
-            <div className="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-              <BookOpen size={28} className="text-purple-600" />
-            </div>
-            <span className="font-bold text-sm text-gray-700">Bitácora</span>
-          </Link>
-
-          <Link to="/maestra/galeria" className="card-hs p-5 flex flex-col items-center gap-2 hover:shadow-md transition-shadow group col-span-2 md:col-span-1">
+          <Link to="/maestra/galeria" className="card-hs p-5 flex flex-col items-center gap-2 hover:shadow-md transition-shadow group">
             <div className="w-14 h-14 rounded-2xl bg-yellow-100 flex items-center justify-center group-hover:bg-yellow-200 transition-colors">
               <Image size={28} className="text-yellow-600" />
             </div>

@@ -1,12 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 20 cerrada)
+## Última actualización: 2026-04-20 (sesión 22 cerrada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
-- [ ] Datos de prueba para incidentes y medicamentos (validar en browser)
-- [ ] Dashboard Miss — mejoras UX: click en alumno va directo a su bitácora (sin paso extra en lista); quitar tarjeta "Bitácora" y tarjeta "Asistencia" del dashboard (la asistencia ya se registra desde Filtro Entrada)
 - [ ] Firma digital del padre en incidentes (pendiente de sesión 20)
 - [ ] Fotos de actividades en bitácora (galería por día)
 

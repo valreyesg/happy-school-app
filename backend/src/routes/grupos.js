@@ -55,18 +55,6 @@ router.post('/', authorize('directora'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Actualizar grupo
-router.put('/:id', authorize('directora'), async (req, res, next) => {
-  try {
-    const { nombre, cupo_maximo, color_hex, activo } = req.body;
-    const result = await query(`
-      UPDATE grupos SET nombre=$1, cupo_maximo=$2, color_hex=$3, activo=$4, updated_at=NOW()
-      WHERE id=$5 RETURNING *
-    `, [nombre, cupo_maximo, color_hex, activo, req.params.id]);
-    res.json(result.rows[0]);
-  } catch (err) { next(err); }
-});
-
 // Grupo de la maestra autenticada + alumnos con estado del día
 // Usado por el dashboard mobile de la maestra
 router.get('/mi-grupo', async (req, res, next) => {
@@ -169,6 +157,18 @@ router.get('/mi-grupo', async (req, res, next) => {
       presentes_hoy: alumnosResult.rows.filter(a => ['presente','retardo'].includes(a.estado_asistencia)).length,
       fecha: fechaReal,
     });
+  } catch (err) { next(err); }
+});
+
+// Actualizar grupo
+router.put('/:id', authorize('directora'), async (req, res, next) => {
+  try {
+    const { nombre, cupo_maximo, color_hex, activo } = req.body;
+    const result = await query(`
+      UPDATE grupos SET nombre=$1, cupo_maximo=$2, color_hex=$3, activo=$4, updated_at=NOW()
+      WHERE id=$5 RETURNING *
+    `, [nombre, cupo_maximo, color_hex, activo, req.params.id]);
+    res.json(result.rows[0]);
   } catch (err) { next(err); }
 });
 

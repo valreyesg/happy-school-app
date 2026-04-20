@@ -206,7 +206,15 @@
       "Bash(curl -s http://localhost:3000/api/ciclos -H \"Authorization: Bearer dummy\")",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"directora@happyschool.edu.mx\",\"password\":\"HappySchool2026!\"}')",
       "Bash(xargs -I {} kill -9 {})",
-      "Bash(kill -9 7376 7485)"
+      "Bash(kill -9 7376 7485)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\\\\\"email\\\\\":\\\\\"directora@happyschool.mx\\\\\",\\\\\"password\\\\\":\\\\\"123456\\\\\"}')",
+      "Bash(curl -s -H \"Authorization: Bearer $\\(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\\\\\"email\\\\\":\\\\\"directora@happyschool.mx\\\\\",\\\\\"password\\\\\":\\\\\"123456\\\\\"}')",
+      "Bash(node -c src/routes/ciclos.js)",
+      "Bash(pkill -9 node npm)",
+      "Bash(curl -s -X POST http://localhost:3000/api/ciclos/test/copiar-grupos-del-anterior -H \"Authorization: Bearer test\" -H \"Content-Type: application/json\")",
+      "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(\"V Procesos Node detenidos\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\")"
     ],
     "additionalDirectories": [
       "\\tmp",

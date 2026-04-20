@@ -90,18 +90,15 @@ function ModalNuevoCiclo({ onClose, onSave }) {
 }
 
 // ─── Modal Vista previa de promoción ──────────────────────────────────────────
-function ModalPromocion({ cicloNuevo, alumnos, onClose, onConfirm }) {
-  const [ajustes, setAjustes] = useState(alumnos);
+function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose, onConfirm, onExport }) {
+  const [cicloDestino, setCicloDestino] = useState(null);
+  const [ajustes, setAjustes] = useState([]);
   const [step, setStep] = useState(1);
   const [confirming, setConfirming] = useState(false);
-
-  const cambiarGrupo = (idx, nuevoGrupoId) => {
-    setAjustes(a => {
-      const copia = [...a];
-      copia[idx].grupo_destino_id = nuevoGrupoId;
-      return copia;
-    });
-  };
+  const [exporting, setExporting] = useState(false);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+  const [copyingGroups, setCopyingGroups] = useState(false);
+  const [mensajeValidacion, setMensajeValidacion] = useState('');
 
   const cambiarEstado = (idx, nuevoEstado) => {
     setAjustes(a => {
@@ -111,13 +108,68 @@ function ModalPromocion({ cicloNuevo, alumnos, onClose, onConfirm }) {
     });
   };
 
+  const handleSeleccionarDestino = async (destino) => {
+    setCicloDestino(destino);
+    setMensajeValidacion('');
+
+    if (!destino.grupos_creados || destino.grupos_creados === 0) {
+      setMensajeValidacion('⚠️ Este ciclo no tiene grupos creados. Crea los grupos antes de promocionar.');
+      return;
+    }
+
+    // Hacer nuevo preview con ciclo_destino_id
+    setLoadingPreview(true);
+    try {
+      const res = await api.get(`/ciclos/${cicloActual.id}/preview-promocion?ciclo_destino_id=${destino.id}`);
+      setAjustes(res.data);
+      setStep(2);
+    } catch (err) {
+      setMensajeValidacion('❌ Error al cargar preview: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setLoadingPreview(false);
+    }
+  };
+
   const submit = async () => {
     setConfirming(true);
     try {
-      await onConfirm(ajustes);
+      await onConfirm(cicloDestino.id, ajustes);
       onClose();
     } finally {
       setConfirming(false);
+    }
+  };
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await onExport(cicloActual.id);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleCopiarGrupos = async () => {
+    if (!cicloDestino) return;
+    setCopyingGroups(true);
+    try {
+      const res = await api.post(`/ciclos/${cicloDestino.id}/copiar-grupos-del-anterior`);
+      setMensajeValidacion(`✓ ${res.data.grupos_copiados} grupos + ${res.data.asignaciones_copiadas} maestras copiados correctamente`);
+
+      // Actualizar cicloDestino con nuevo count de grupos
+      setCicloDestino(prev => ({
+        ...prev,
+        grupos_creados: res.data.grupos_copiados
+      }));
+
+      // Intentar avanzar al siguiente paso
+      setTimeout(() => {
+        handleSeleccionarDestino(cicloDestino);
+      }, 1000);
+    } catch (err) {
+      setMensajeValidacion('❌ Error al copiar grupos: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setCopyingGroups(false);
     }
   };
 
@@ -125,16 +177,30 @@ function ModalPromocion({ cicloNuevo, alumnos, onClose, onConfirm }) {
   const conteoEgresados = ajustes.filter(a => a.nuevo_estado === 'egresado').length;
   const conteoPromovidos = conteoAlumnos - conteoEgresados;
 
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const ciclosDisponibles = ciclos.filter(c => {
+    if (c.activo || c.id === cicloActual.id) return false;
+    const fechaFin = new Date(c.fecha_fin);
+    fechaFin.setHours(0, 0, 0, 0);
+    return fechaFin > hoy;
+  });
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
             <h2 className="text-xl font-black text-gray-800">
-              {step === 1 ? 'Seleccionar ciclo destino' : 'Vista previa de promoción'}
+              {step === 1 && 'Paso 1: Seleccionar ciclo destino'}
+              {step === 2 && 'Paso 2: Revisar promoción'}
+              {step === 3 && 'Paso 3: Confirmar cierre'}
             </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Cerrando ciclo: <strong>{cicloActual.nombre}</strong> ({new Date(cicloActual.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloActual.fecha_fin).toLocaleDateString('es-MX')})
+            </p>
             {step === 2 && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 Total: {conteoAlumnos} alumnos | ✓ {conteoPromovidos} promovidos | 🎓 {conteoEgresados} egresados
               </p>
             )}
@@ -143,89 +209,191 @@ function ModalPromocion({ cicloNuevo, alumnos, onClose, onConfirm }) {
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          {step === 1 ? (
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <p className="text-gray-700 mb-3">
-                Se crearán reinscripciones en el ciclo <strong>{cicloNuevo.nombre}</strong>
-              </p>
-              <p className="text-sm text-gray-600">
-                Período: {new Date(cicloNuevo.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloNuevo.fecha_fin).toLocaleDateString('es-MX')}
-              </p>
+          {step === 1 && (
+            <div className="space-y-4">
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <p className="text-sm font-semibold text-amber-900">📋 Instrucción:</p>
+                <p className="text-sm text-amber-800 mt-1">
+                  Selecciona el ciclo DESTINO donde se promocionarán los alumnos. El ciclo debe tener todos los grupos ya creados.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-bold text-gray-700">Ciclos disponibles:</label>
+                {ciclosDisponibles.length === 0 ? (
+                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
+                    <p className="text-sm text-red-700">❌ No hay ciclos creados. Crea un nuevo ciclo antes de cerrar.</p>
+                  </div>
+                ) : (
+                  <div className="grid gap-2">
+                    {ciclosDisponibles.map(ciclo => (
+                      <button
+                        key={ciclo.id}
+                        onClick={() => handleSeleccionarDestino(ciclo)}
+                        disabled={loadingPreview}
+                        className={`p-4 rounded-lg border-2 text-left transition disabled:opacity-50 disabled:cursor-not-allowed ${
+                          cicloDestino?.id === ciclo.id
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-gray-200 bg-white hover:border-green-300'
+                        }`}
+                      >
+                        <div className="font-bold text-gray-800">{ciclo.nombre}</div>
+                        <div className="text-sm text-gray-600">
+                          {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX')}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          📚 {ciclo.grupos_creados || 0} grupos creados
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {mensajeValidacion && (
+                <div className={`p-3 rounded-lg border ${
+                  mensajeValidacion.includes('✓')
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-red-50 border-red-200'
+                }`}>
+                  <p className={`text-sm ${
+                    mensajeValidacion.includes('✓')
+                      ? 'text-green-700'
+                      : 'text-red-700'
+                  }`}>{mensajeValidacion}</p>
+                </div>
+              )}
+
+              {cicloDestino && !cicloDestino.grupos_creados && (
+                <button
+                  onClick={handleCopiarGrupos}
+                  disabled={copyingGroups}
+                  className="w-full py-2 px-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 transition"
+                >
+                  {copyingGroups ? '⏳ Copiando grupos...' : '📋 Copiar grupos del ciclo anterior'}
+                </button>
+              )}
+
               <button
-                onClick={() => setStep(2)}
-                className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                onClick={handleExport}
+                disabled={exporting}
+                className="w-full py-2 px-4 mt-4 rounded-lg border-2 border-blue-500 text-blue-600 font-semibold hover:bg-blue-50 disabled:opacity-50 transition"
               >
-                Continuar con vista previa →
+                {exporting ? '⬇️ Exportando...' : '⬇️ Exportar reporte ciclo actual (Excel)'}
               </button>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-300">
-                    <th className="text-left py-2 px-3">Alumno</th>
-                    <th className="text-left py-2 px-3">Grupo actual</th>
-                    <th className="text-center py-2 px-3">→</th>
-                    <th className="text-left py-2 px-3">Grupo destino</th>
-                    <th className="text-left py-2 px-3">Nuevo estado</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {ajustes.map((a, idx) => (
-                    <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
-                      <td className="py-2 px-3 font-semibold text-gray-700">{a.nombre_completo}</td>
-                      <td className="py-2 px-3 text-gray-600">{a.grupo_actual}</td>
-                      <td className="text-center text-purple-600">↑</td>
-                      <td className="py-2 px-3">
-                        {a.nuevo_estado === 'egresado' ? (
-                          <span className="text-gray-400 italic">—</span>
-                        ) : (
-                          <span className="text-green-700 font-semibold">{a.grupo_destino_nombre}</span>
-                        )}
-                      </td>
-                      <td className="py-2 px-3">
-                        <select
-                          value={a.nuevo_estado}
-                          onChange={e => cambiarEstado(idx, e.target.value)}
-                          className="input-hs text-xs py-1 px-2"
-                        >
-                          <option value="reinscrito">Reinscrito</option>
-                          <option value="egresado">Egresado</option>
-                        </select>
-                      </td>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <p className="text-sm font-semibold text-blue-900">✓ Ciclo destino seleccionado:</p>
+                <p className="text-sm text-blue-800 mt-1">
+                  <strong>{cicloDestino?.nombre}</strong> ({new Date(cicloDestino?.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloDestino?.fecha_fin).toLocaleDateString('es-MX')})
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-300 bg-gray-50">
+                      <th className="text-left py-2 px-3 font-bold">Alumno</th>
+                      <th className="text-left py-2 px-3 font-bold">Grupo actual</th>
+                      <th className="text-center py-2 px-3 font-bold">→</th>
+                      <th className="text-left py-2 px-3 font-bold">Grupo destino</th>
+                      <th className="text-left py-2 px-3 font-bold">Nuevo estado</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {ajustes.map((a, idx) => (
+                      <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
+                        <td className="py-2 px-3 font-semibold text-gray-700">{a.nombre_completo}</td>
+                        <td className="py-2 px-3 text-gray-600">{a.grupo_actual}</td>
+                        <td className="text-center text-purple-600">↑</td>
+                        <td className="py-2 px-3">
+                          {a.nuevo_estado === 'egresado' ? (
+                            <span className="text-gray-400 italic">—</span>
+                          ) : (
+                            <span className="text-green-700 font-semibold">{a.grupo_destino_nombre}</span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3">
+                          <select
+                            value={a.nuevo_estado}
+                            onChange={e => cambiarEstado(idx, e.target.value)}
+                            className="input-hs text-xs py-1 px-2"
+                          >
+                            <option value="reinscrito">Reinscrito</option>
+                            <option value="egresado">Egresado</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <p className="text-lg font-bold text-green-900">✓ Listo para cerrar ciclo</p>
+                <p className="text-sm text-green-800 mt-2">
+                  <strong>{cicloActual.nombre}</strong> se cerrará y <strong>{cicloDestino?.nombre}</strong> se activará.
+                </p>
+                <ul className="text-sm text-green-800 mt-3 space-y-1 ml-4">
+                  <li>✓ {conteoPromovidos} alumnos promocionados a nuevos grupos</li>
+                  <li>🎓 {conteoEgresados} alumnos egresados</li>
+                </ul>
+              </div>
+
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <p className="text-sm font-semibold text-yellow-900">⚠️ Acción irreversible</p>
+                <p className="text-sm text-yellow-800 mt-1">
+                  Asegúrate de haber exportado el reporte del ciclo actual antes de confirmar.
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        {step === 2 && (
-          <div className="flex gap-2 px-6 py-4 border-t border-gray-100">
+        <div className="flex gap-2 px-6 py-4 border-t border-gray-100">
+          {step > 1 && (
             <button
               type="button"
-              onClick={() => setStep(1)}
+              onClick={() => setStep(step - 1)}
               className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 transition"
             >
               ← Atrás
             </button>
+          )}
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 transition"
+          >
+            Cancelar
+          </button>
+          {step < 3 && (
             <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 transition"
+              onClick={() => setStep(step + 1)}
+              disabled={step === 1 && !cicloDestino}
+              className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition"
             >
-              Cancelar
+              Siguiente →
             </button>
+          )}
+          {step === 3 && (
             <button
               onClick={submit}
               disabled={confirming}
               className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 transition"
             >
-              {confirming ? 'Ejecutando...' : '✓ Confirmar promoción'}
+              {confirming ? '⏳ Ejecutando...' : '✓ Confirmar cierre'}
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -272,8 +440,11 @@ export default function CiclosEscolares() {
   });
 
   const confirmarMutation = useMutation({
-    mutationFn: async (ajustes) => {
-      const res = await api.post(`/ciclos/${cicloSeleccionado.id}/ejecutar-promocion`, { ajustes });
+    mutationFn: async ({ cicloDestinoId, ajustes }) => {
+      const res = await api.post(`/ciclos/${cicloSeleccionado.id}/ejecutar-promocion`, {
+        ciclo_destino_id: cicloDestinoId,
+        ajustes,
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -281,6 +452,22 @@ export default function CiclosEscolares() {
       setMostrarModalPromocion(false);
       setCicloSeleccionado(null);
       setPreviewData([]);
+    },
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: async (cicloId) => {
+      const res = await api.get(`/ciclos/${cicloId}/export`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `ciclo-${cicloSeleccionado.nombre}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      return res.data;
     },
   });
 
@@ -374,14 +561,18 @@ export default function CiclosEscolares() {
 
       {mostrarModalPromocion && cicloSeleccionado && (
         <ModalPromocion
-          cicloNuevo={cicloSeleccionado}
+          cicloActual={cicloSeleccionado}
+          ciclos={ciclos}
           alumnos={previewData}
           onClose={() => {
             setMostrarModalPromocion(false);
             setCicloSeleccionado(null);
             setPreviewData([]);
           }}
-          onConfirm={(ajustes) => confirmarMutation.mutate(ajustes)}
+          onConfirm={(cicloDestinoId, ajustes) =>
+            confirmarMutation.mutate({ cicloDestinoId, ajustes })
+          }
+          onExport={(cicloId) => exportMutation.mutate(cicloId)}
         />
       )}
     </div>

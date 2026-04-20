@@ -1,9 +1,10 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-20 (sesión 32 completada)
+### Última actualización: 2026-04-20 (sesión 33 completada)
 ### Sesión 32: ✅ Módulo Ciclos Escolares COMPLETO — Backend CRUD + transacción promoción, Web pantalla con flujo 3-pasos, integración rutas/sidebar. Promoción automática: Maternal→Prekinder→K1→K2→K3→Egresado.
-### Próxima sesión (33): Validar UI Ciclos en navegador (test E2E), Panel historial egresados, Cloudinary uploads (PDF menú, comprobantes), UI responsividad browser.
+### Sesión 33: ✅ AUTOMATIZACIÓN GRUPOS — Modal 3-pasos (seleccionar destino → revisar promoción → confirmar), Endpoint copiar grupos del ciclo anterior con maestras, Filtro ciclos pasados, Validación grupos destino, Export Excel (grupos+maestras+alumnos).
+### Próxima sesión (34): Test E2E flujo completo cierre, Panel historial egresados, Validar grupos destino mostrados correctamente, Pruebas navegador.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

@@ -211,7 +211,7 @@ export default function PadreBitacora() {
 
   const bit     = data?.bitacora;
   const banio   = data?.banio;
-  const comida  = data?.comida;
+  const comidas = data?.comida || [];
   const panial  = data?.panial || [];
   const esf     = data?.esfinteres;
   const meds    = data?.medicamentos || [];
@@ -219,6 +219,13 @@ export default function PadreBitacora() {
   const actividades = data?.actividades || [];
   const hijoActual = hijos.find(h => h.id === alumnoId);
   const usaPanial = hijoActual?.usa_panial || false;
+
+  const TIEMPOS = {
+    desayuno: { label: 'Desayuno', emoji: '🥐', color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    colacion: { label: 'Colación', emoji: '🍎', color: 'bg-green-50 border-green-200 text-green-700' },
+    comida:   { label: 'Comida', emoji: '🍽️', color: 'bg-red-50 border-red-200 text-red-700' },
+    comida_extra: { label: 'Comida Extra', emoji: '🍜', color: 'bg-purple-50 border-purple-200 text-purple-700' },
+  };
 
 
   const nombreHijo = nombreParam ? decodeURIComponent(nombreParam) : hijoActual?.nombre_completo || 'Mi hijo/a';
@@ -259,7 +266,7 @@ export default function PadreBitacora() {
             </div>
           )}
 
-          {!isLoading && !isError && !bit && (
+          {!isLoading && !isError && !bit && comidas.length === 0 && (
             <div className="card-hs p-10 text-center">
               <div className="text-5xl mb-3">📝</div>
               <h3 className="font-black text-gray-700 text-lg mb-1">Bitácora no disponible</h3>
@@ -271,41 +278,58 @@ export default function PadreBitacora() {
             </div>
           )}
 
-          {!isLoading && bit && (
+          {!isLoading && (bit || comidas.length > 0) && (
             <div className="space-y-4">
               {/* Héroe ánimo */}
-              <div className="card-hs p-6 text-center border border-red-100">
-                <div className="text-6xl mb-2">{ANIMO[bit.estado_animo]?.emoji || '🤔'}</div>
-                <p className="text-xl font-black text-gray-800">{ANIMO[bit.estado_animo]?.label || 'Sin registrar'}</p>
-                <p className="text-xs font-semibold text-gray-400 mt-1">Estado de ánimo del día</p>
-              </div>
+              {bit && (
+                <div className="card-hs p-6 text-center border border-red-100">
+                  <div className="text-6xl mb-2">{ANIMO[bit.estado_animo]?.emoji || '🤔'}</div>
+                  <p className="text-xl font-black text-gray-800">{ANIMO[bit.estado_animo]?.label || 'Sin registrar'}</p>
+                  <p className="text-xs font-semibold text-gray-400 mt-1">Estado de ánimo del día</p>
+                </div>
+              )}
 
               {/* Resumen rápido */}
-              <div className="card-hs p-4 grid grid-cols-4 gap-2 text-center">
-                <div>
-                  <div className="text-2xl">{comida ? (CUANTO[comida.cuanto_comio]?.emoji || '🍽️') : '—'}</div>
-                  <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
+              {bit && (
+                <div className="card-hs p-4 grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <div className="text-2xl">{comidas.length > 0 ? (CUANTO[comidas[0].cuanto_comio]?.emoji || '🍽️') : '—'}</div>
+                    <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl">{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</div>
+                    <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>
+                    <p className="text-xs font-semibold text-gray-400 mt-1">Conducta</p>
+                  </div>
+                  <div>
+                    <div className="text-2xl">{bit.tuvo_fiebre ? '🤒' : '😊'}</div>
+                    <p className="text-xs font-semibold text-gray-400 mt-1">Salud</p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-2xl">{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</div>
-                  <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
-                </div>
-                <div>
-                  <div className="text-2xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>
-                  <p className="text-xs font-semibold text-gray-400 mt-1">Conducta</p>
-                </div>
-                <div>
-                  <div className="text-2xl">{bit.tuvo_fiebre ? '🤒' : '😊'}</div>
-                  <p className="text-xs font-semibold text-gray-400 mt-1">Salud</p>
-                </div>
-              </div>
+              )}
 
-              {/* Alimentación */}
-              {comida && (
+              {/* Alimentación — 4 tiempos */}
+              {comidas.length > 0 && (
                 <Seccion titulo="Alimentación" emoji="🍽️">
-                  {comida.que_comio && <p className="text-sm text-gray-600">{comida.que_comio}</p>}
-                  <FilaInfo label="¿Cuánto comió?" valor={CUANTO[comida.cuanto_comio]?.label} />
-                  <FilaInfo label="Observaciones" valor={comida.observaciones} />
+                  <div className="space-y-3">
+                    {comidas.filter(c => {
+                      // Mostrar Comida Extra solo si el alumno tiene extensión
+                      if (c.tiempo === 'comida_extra') {
+                        return hijoActual?.tiene_extension || false;
+                      }
+                      return true;
+                    }).map((c, i) => (
+                      <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
+                        <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>
+                        {c.que_comio && <p className="text-sm font-semibold mb-1">{c.que_comio}</p>}
+                        <FilaInfo label="¿Cuánto?" valor={CUANTO[c.cuanto_comio]?.label} />
+                        {c.observaciones && <p className="text-xs text-gray-600 mt-2 italic">{c.observaciones}</p>}
+                      </div>
+                    ))}
+                  </div>
                 </Seccion>
               )}
 

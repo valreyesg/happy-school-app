@@ -17,23 +17,24 @@ router.get('/por-qr/:qrData', ctrl.buscarPorQR);
 router.get('/mis-hijos', async (req, res, next) => {
   try {
     const result = await query(`
-      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
-             g.nombre AS grupo_nombre, g.color_hex,
-             b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
-             rc.cuanto_comio
+      SELECT DISTINCT ON (a.id)
+        a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
+        g.nombre AS grupo_nombre, g.color_hex,
+        b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
+        COALESCE(cha.tiene_extension, false) AS tiene_extension
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
       JOIN alumnos a ON ap.alumno_id = a.id
       JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN bitacora_diaria b  ON b.alumno_id  = a.id AND b.fecha  = CURRENT_DATE
-      LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = CURRENT_DATE
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       WHERE p.usuario_id = $1 AND a.deleted_at IS NULL
-      ORDER BY a.nombre_completo
+      ORDER BY a.id, a.nombre_completo
     `, [req.user.id]);
 
     const rows = result.rows.map(r => {
-      const { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas } = r;
-      const bitacora_hoy = estado_animo !== null ? { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas } : null;
+      const { estado_animo, actividad_realizada, comportamiento, notas } = r;
+      const bitacora_hoy = estado_animo !== null ? { estado_animo, actividad_realizada, comportamiento, notas } : null;
       return {
         ...r,
         bitacora_hoy,

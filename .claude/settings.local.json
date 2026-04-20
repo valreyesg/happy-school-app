@@ -114,7 +114,17 @@
       "Bash(pkill -f \"psql\")",
       "Bash(psql postgresql://valeria_app:valeria_app@localhost/valeria_app -c \"SELECT id, nombre_completo, fecha_nacimiento FROM alumnos WHERE deleted_at IS NULL LIMIT 3;\")",
       "Bash(psql -U postgres -c \"SELECT id, nombre_completo, fecha_nacimiento FROM alumnos WHERE deleted_at IS NULL LIMIT 3;\")",
-      "Bash(node src/database/setup_cumpleanos_demo.js)"
+      "Bash(node src/database/setup_cumpleanos_demo.js)",
+      "Bash(psql \"postgresql://postgres:postgres@localhost:5432/happy_school\" -f migrations/013_tiempo_comida.sql)",
+      "Bash(PGPASSWORD=\"happy2026\" psql -U postgres -h localhost -d happy_school -f migrations/013_tiempo_comida.sql)",
+      "Bash(pkill -f \"node.*index.js\")",
+      "Bash(lsof -ti:3000)",
+      "Bash(taskkill /PID 15076 /F)",
+      "Bash(cmd /c \"taskkill /PID 15076 /F\")",
+      "Bash(node src/database/seed_comida_4tiempos.js)",
+      "Bash(psql -U postgres -h localhost -d happy_school -c ' *)",
+      "Bash(curl -s -H \"Authorization: Bearer $\\(echo 'test'\\)\" \"http://localhost:3000/bitacora/56fc4561-6b30-4031-8228-33c3d8e4372e?fecha=2026-04-19\")",
+      "Bash(curl -s \"http://localhost:3000/bitacora/56fc4561-6b30-4031-8228-33c3d8e4372e?fecha=2026-04-19\")"
     ],
     "additionalDirectories": [
       "\\tmp",

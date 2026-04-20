@@ -100,7 +100,7 @@ router.get('/mi-grupo', async (req, res, next) => {
 
     // Alumnos del grupo con su estado de entrada y bitácora del día consultado
     const alumnosResult = await query(`
-      SELECT
+      SELECT DISTINCT ON (a.id)
         a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
         a.alergias, a.usa_panial,
         -- Asistencia
@@ -132,20 +132,21 @@ router.get('/mi-grupo', async (req, res, next) => {
         bd.estado_animo,
         bd.actividad_realizada,
         bd.comportamiento,
-        rc.cuanto_comio,
         rb.pipi_count,
-        rb.popo_count
+        rb.popo_count,
+        -- Config horario
+        COALESCE(cha.tiene_extension, false) AS tiene_extension
       FROM alumnos a
       LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN bitacora_diaria bd ON bd.alumno_id = a.id AND bd.fecha = COALESCE($2::date, CURRENT_DATE)
-      LEFT JOIN registro_comida rc ON rc.alumno_id = a.id AND rc.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_banio rb ON rb.alumno_id = a.id AND rb.fecha = COALESCE($2::date, CURRENT_DATE)
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       WHERE a.grupo_id = $1
         AND a.deleted_at IS NULL
         AND a.estado IN ('inscrito', 'reinscrito')
-      ORDER BY a.nombre_completo
+      ORDER BY a.id, a.nombre_completo
     `, [grupo.id, fechaParam]);
 
     const fechaReal = (await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fechaParam])).rows[0].f;

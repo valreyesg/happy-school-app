@@ -133,9 +133,13 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
   const [animo,               setAnimo]               = useState(null);
   const [pipiCount,           setPipiCount]           = useState(0);
   const [popoCount,           setPopoCount]           = useState(0);
-  const [queComio,            setQueComio]            = useState('');
-  const [cuantoComio,         setCuantoComio]         = useState(null);
-  const [observacionesComida, setObservacionesComida] = useState('');
+  // Comidas por 4 tiempos
+  const [comidas, setComidas] = useState({
+    desayuno:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+    colacion:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+    comida:      { que_comio: '', cuanto_comio: null, observaciones: '' },
+    comida_extra: { que_comio: '', cuanto_comio: null, observaciones: '' },
+  });
   const [actividadRealizada,  setActividadRealizada]  = useState(null);
   const [actividadDesc,       setActividadDesc]       = useState('');
   const [actividadFotos,      setActividadFotos]      = useState([]);
@@ -178,10 +182,18 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       setPipiCount(data.banio.pipi_count || 0);
       setPopoCount(data.banio.popo_count || 0);
     }
-    if (data.comida) {
-      setQueComio(data.comida.que_comio || '');
-      setCuantoComio(data.comida.cuanto_comio || null);
-      setObservacionesComida(data.comida.observaciones || '');
+    if (data.comida && Array.isArray(data.comida)) {
+      const nuevasComidas = { ...comidas };
+      data.comida.forEach(c => {
+        if (c.tiempo && nuevasComidas[c.tiempo]) {
+          nuevasComidas[c.tiempo] = {
+            que_comio: c.que_comio || '',
+            cuanto_comio: c.cuanto_comio || null,
+            observaciones: c.observaciones || '',
+          };
+        }
+      });
+      setComidas(nuevasComidas);
     }
     if (data.esfinteres) {
       setFueSolo(data.esfinteres.fue_solo ?? null);
@@ -301,9 +313,7 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       notas,
       pipi_count: pipiCount,
       popo_count: popoCount,
-      que_comio: queComio,
-      cuanto_comio: cuantoComio,
-      observaciones_comida: observacionesComida,
+      comidas: Object.entries(comidas).map(([tiempo, data]) => ({ tiempo, ...data })),
       fue_solo:              mostrarEsfinteres ? fueSolo        : undefined,
       pidio_ir:              mostrarEsfinteres ? pidioIr        : undefined,
       tuvo_accidente:        mostrarEsfinteres ? tuvoAccidente  : undefined,
@@ -427,29 +437,52 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
         </Seccion>
       )}
 
-      {/* Alimentación */}
-      <Seccion titulo="🍽️ Alimentación">
-        <textarea rows={2} placeholder="¿Qué comió hoy?"
-          value={queComio} onChange={e => setQueComio(e.target.value)}
-          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
-        <p className="text-xs font-black text-gray-400">¿Cuánto comió?</p>
-        <div className="grid grid-cols-4 gap-2">
-          {CUANTO.map(c => (
-            <button key={c.key} onClick={() => setCuantoComio(c.key)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 transition-all
-                ${cuantoComio === c.key
-                  ? 'border-hs-purple bg-hs-purple/10'
-                  : 'border-gray-200 hover:border-hs-purple/40'}`}>
-              <span className="text-2xl">{c.emoji}</span>
-              <span className={`text-xs font-bold ${cuantoComio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
-                {c.label}
-              </span>
-            </button>
+      {/* Alimentación — 4 Tiempos */}
+      <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
+        <div className="space-y-4">
+          {Object.entries({
+            desayuno: { emoji: '🥐', label: 'Desayuno' },
+            colacion: { emoji: '🍎', label: 'Colación' },
+            comida: { emoji: '🍽️', label: 'Comida' },
+            comida_extra: { emoji: '🍜', label: 'Comida Extra (Solo extensión)' },
+          }).filter(([tiempo]) => {
+            // Comida Extra solo si tiene extensión
+            if (tiempo === 'comida_extra') {
+              return alumno.tiene_extension || false;
+            }
+            return true;
+          }).map(([tiempo, tiempoInfo]) => (
+            <div key={tiempo} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>
+                <p className="text-xs text-hs-purple font-bold">
+                  {comidas[tiempo].cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempo].cuanto_comio)?.label : '—'}
+                </p>
+              </div>
+              <textarea rows={2} placeholder={`¿Qué comió en ${tiempoInfo.label.toLowerCase()}?`}
+                value={comidas[tiempo].que_comio}
+                onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], que_comio: e.target.value } })}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+              <div className="space-y-1">
+                <p className="text-xs font-black text-gray-600">¿Cuánto comió?</p>
+                <div className="grid grid-cols-4 gap-2">
+                  {CUANTO.map(c => (
+                    <button key={c.key} onClick={() => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], cuanto_comio: c.key } })}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all
+                        ${comidas[tiempo].cuanto_comio === c.key
+                          ? 'border-hs-purple bg-white shadow-md'
+                          : 'border-gray-200 hover:border-hs-purple/40'}`}>
+                      <span className="text-2xl">{c.emoji}</span>
+                      <span className={`text-xs font-bold text-center ${comidas[tiempo].cuanto_comio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
+                        {c.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-        <textarea rows={2} placeholder="Observaciones de comida (opcional)…"
-          value={observacionesComida} onChange={e => setObservacionesComida(e.target.value)}
-          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
       </Seccion>
 
       {/* Actividades */}

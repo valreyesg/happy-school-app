@@ -54,7 +54,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       ),
 
       query(
-        'SELECT * FROM registro_comida WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)',
+        'SELECT * FROM registro_comida WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE) ORDER BY tiempo',
         [alumnoId, fecha]
       ),
 
@@ -94,7 +94,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       alumno_id: alumnoId,
       bitacora:    bitacora.rows[0]    || null,
       banio:       banio.rows[0]       || null,
-      comida:      comida.rows[0]      || null,
+      comida:      comida.rows         || [],
       panial:      panial.rows        || [],
       esfinteres:  esfinteres.rows[0]  || null,
       medicamentos: medicamentos.rows  || [],
@@ -115,8 +115,8 @@ router.post('/guardar', async (req, res, next) => {
       tuvo_fiebre, temperatura_dia, se_enfermo, descripcion_enfermedad, notas,
       // Baño
       pipi_count, popo_count,
-      // Comida
-      que_comio, cuanto_comio, observaciones_comida,
+      // Comida (array de 4 tiempos)
+      comidas,
       // Esfínteres
       fue_solo, pidio_ir, tuvo_accidente, descripcion_accidente, necesito_ayuda, notas_progreso,
     } = req.body;
@@ -163,14 +163,19 @@ router.post('/guardar', async (req, res, next) => {
       `, [alumno_id, bitacoraId, fechaFinal, pipi_count || 0, popo_count || 0]);
     }
 
-    // Upsert comida
-    if (que_comio !== undefined || cuanto_comio !== undefined) {
-      await query(`
-        INSERT INTO registro_comida (alumno_id, bitacora_id, fecha, que_comio, cuanto_comio, observaciones)
-        VALUES ($1,$2,$3,$4,$5,$6)
-        ON CONFLICT (alumno_id, fecha) DO UPDATE SET
-          que_comio = $4, cuanto_comio = $5, observaciones = $6
-      `, [alumno_id, bitacoraId, fechaFinal, que_comio, cuanto_comio, observaciones_comida]);
+    // Upsert comida (múltiples tiempos)
+    if (comidas && Array.isArray(comidas) && comidas.length > 0) {
+      for (const comida of comidas) {
+        const { tiempo, que_comio, cuanto_comio, observaciones } = comida;
+        if (tiempo && (que_comio !== undefined || cuanto_comio !== undefined)) {
+          await query(`
+            INSERT INTO registro_comida (alumno_id, bitacora_id, fecha, tiempo, que_comio, cuanto_comio, observaciones)
+            VALUES ($1,$2,$3,$4,$5,$6,$7)
+            ON CONFLICT (alumno_id, fecha, tiempo) DO UPDATE SET
+              que_comio = $5, cuanto_comio = $6, observaciones = $7, updated_at = NOW()
+          `, [alumno_id, bitacoraId, fechaFinal, tiempo, que_comio, cuanto_comio, observaciones]);
+        }
+      }
     }
 
     // Upsert esfínteres

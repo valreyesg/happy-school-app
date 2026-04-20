@@ -311,10 +311,10 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
 
-  const b   = data?.bitacora;
-  const com = data?.comida;
-  const ban = data?.banio;
-  const esf = data?.esfinteres;
+  const b     = data?.bitacora;
+  const comidas = data?.comida || [];
+  const ban   = data?.banio;
+  const esf   = data?.esfinteres;
 
   return (
     <div className="space-y-4">
@@ -350,13 +350,20 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
             {b.actividad_descripcion && <FilaBit label="Descripción"   valor={b.actividad_descripcion} />}
           </div>
 
-          {/* Alimentación */}
-          {com && (
-            <div className="card-hs space-y-1">
+          {/* Alimentación — 4 Tiempos */}
+          {comidas.length > 0 && (
+            <div className="card-hs space-y-2">
               <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🍽️ Alimentación</h3>
-              <FilaBit label="¿Cuánto?"   valor={CUANTO_LABEL[com.cuanto_comio] ?? com.cuanto_comio} />
-              <FilaBit label="¿Qué comió?" valor={com.que_comio} />
-              <FilaBit label="Observaciones" valor={com.observaciones} />
+              {comidas.map((c, i) => (
+                <div key={i} className="border-l-4 border-hs-purple pl-3 py-1">
+                  <p className="text-xs font-black text-hs-purple mb-1">
+                    {{desayuno:'🥐 Desayuno', colacion:'🍎 Colación', comida:'🍽️ Comida', comida_extra:'🍜 Comida Extra'}[c.tiempo]}
+                  </p>
+                  <FilaBit label="¿Cuánto?" valor={CUANTO_LABEL[c.cuanto_comio] ?? c.cuanto_comio} />
+                  {c.que_comio && <FilaBit label="¿Qué?" valor={c.que_comio} />}
+                  {c.observaciones && <FilaBit label="Nota" valor={c.observaciones} />}
+                </div>
+              ))}
             </div>
           )}
 

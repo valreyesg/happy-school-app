@@ -1,14 +1,20 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 24 completada)
+## Última actualización: 2026-04-19 (sesión 26 en progreso)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
 
-### ⚡ FASE 6.8 — Bitácora 4 tiempos (1.5 horas)
-- [ ] Separar visualmente en bitácora del padre: Desayuno, Colación, Comida, Comida Extra
-- [ ] Datos ya existen en `registro_comida` — solo falta UI + lógica de agrupación por tiempo
+### ✅ FASE 6.8 — Bitácora 4 tiempos (COMPLETADO)
+- [x] Separar visualmente en bitácora del padre: Desayuno, Colación, Comida, Comida Extra
+- [x] Migración 013: columna `tiempo` en `registro_comida`
+- [x] Backend: GET retorna array, POST acepta array de comidas
+- [x] UI Padre: muestra 4 secciones de alimentación (filtra Comida Extra si no tiene extensión)
+- [x] UI Miss: 4 inputs visuales con botones "Cuánto comió" más legibles
+- [x] UI Directora: muestra 4 tiempos en detalle de alumno
+- [x] FIX: duplicado Ana García López (DISTINCT ON en endpoints)
+- [ ] TODO: Agregar `tiene_extension` al API para filtrar Comida Extra correctamente
 
 ### ⚡ Pequeño fix — Indicador de Comedor en Dashboard Miss (30 min)
 - [ ] Portal papá: módulo de confirmación semanal de servicio comida (domingo antes de dormir)

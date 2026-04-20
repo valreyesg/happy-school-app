@@ -34,14 +34,15 @@ El campo `fecha_nacimiento` (y cualquier columna `DATE`/`TIMESTAMP`) llega del A
 
 ## 🗂️ RELACIÓN ENTRE TABLAS DE BITÁCORA
 La bitácora de un día es la combinación de VARIAS tablas — no está toda en una sola:
-- `bitacora_diaria` → estado_animo, tarea_realizada, comportamiento, tuvo_fiebre, notas (NO tiene cuanto_comio)
-- `registro_comida` → cuanto_comio, que_comio, observaciones (JOIN por alumno_id + fecha)
+- `bitacora_diaria` → estado_animo, tarea_realizada, comportamiento, tuvo_fiebre, notas (NO tiene comida)
+- `registro_comida` → **4 tiempos: desayuno, colacion, comida, comida_extra** — cada uno con cuanto_comio, que_comio, observaciones (JOIN por `alumno_id + fecha + tiempo` desde sesión 26)
 - `registro_banio` → pipi_count, popo_count (JOIN por alumno_id + fecha)
 - `registro_panial` → cambios de pañal con hora (solo Maternal — JOIN por alumno_id + DATE(hora))
 - `control_esfinteres` → fue_solo, pidio_ir, tuvo_accidente (JOIN por alumno_id + fecha)
 - `medicamentos` → nombre, dosis, hora_administracion (JOIN por alumno_id + fecha)
 
 > ⚠️ **Regla:** antes de hacer cualquier JOIN en un SELECT, verificar en qué tabla exacta vive cada columna leyendo `001_schema_inicial.sql`. Nunca asumir.
+> **Sesión 26:** Usar `DISTINCT ON (alumno_id)` en JOINs con `registro_comida` para evitar duplicados (múltiples tiempos = múltiples filas)
 
 ## 📋 ENUMS DISPONIBLES
 - `rol_principal_tipo`: `directora | administrativo | maestra_titular | maestra_auxiliar | maestra_especial | maestra_puerta | padre`

@@ -6,15 +6,16 @@
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
 
-### ✅ FASE 6.8 — Bitácora 4 tiempos (COMPLETADO)
+### ✅ FASE 6.8 — Bitácora 4 tiempos (COMPLETADO SESIÓN 26)
 - [x] Separar visualmente en bitácora del padre: Desayuno, Colación, Comida, Comida Extra
 - [x] Migración 013: columna `tiempo` en `registro_comida`
 - [x] Backend: GET retorna array, POST acepta array de comidas
 - [x] UI Padre: muestra 4 secciones de alimentación (filtra Comida Extra si no tiene extensión)
-- [x] UI Miss: 4 inputs visuales con botones "Cuánto comió" más legibles
+- [x] UI Miss: 4 inputs visuales con botones "Cuánto comió" + campo notas por tiempo
 - [x] UI Directora: muestra 4 tiempos en detalle de alumno
 - [x] FIX: duplicado Ana García López (DISTINCT ON en endpoints)
-- [ ] TODO: Agregar `tiene_extension` al API para filtrar Comida Extra correctamente
+- [x] FIX: error React en comidas state, validación con optional chaining
+- [x] Backend: campos `tiene_extension` en endpoints alumnos y grupos
 
 ### ⚡ Pequeño fix — Indicador de Comedor en Dashboard Miss (30 min)
 - [ ] Portal papá: módulo de confirmación semanal de servicio comida (domingo antes de dormir)

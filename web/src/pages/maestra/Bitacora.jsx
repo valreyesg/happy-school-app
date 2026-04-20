@@ -183,7 +183,12 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       setPopoCount(data.banio.popo_count || 0);
     }
     if (data.comida && Array.isArray(data.comida)) {
-      const nuevasComidas = { ...comidas };
+      const nuevasComidas = {
+        desayuno:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+        colacion:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+        comida:      { que_comio: '', cuanto_comio: null, observaciones: '' },
+        comida_extra: { que_comio: '', cuanto_comio: null, observaciones: '' },
+      };
       data.comida.forEach(c => {
         if (c.tiempo && nuevasComidas[c.tiempo]) {
           nuevasComidas[c.tiempo] = {
@@ -444,13 +449,7 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
             desayuno: { emoji: '🥐', label: 'Desayuno' },
             colacion: { emoji: '🍎', label: 'Colación' },
             comida: { emoji: '🍽️', label: 'Comida' },
-            comida_extra: { emoji: '🍜', label: 'Comida Extra (Solo extensión)' },
-          }).filter(([tiempo]) => {
-            // Comida Extra solo si tiene extensión
-            if (tiempo === 'comida_extra') {
-              return alumno.tiene_extension || false;
-            }
-            return true;
+            comida_extra: { emoji: '🍜', label: 'Comida Extra' },
           }).map(([tiempo, tiempoInfo]) => (
             <div key={tiempo} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
               <div className="flex items-center justify-between">

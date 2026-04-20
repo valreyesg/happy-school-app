@@ -150,7 +150,7 @@
 - [ ] **Exportación Contable:** Botón para generar **Excel** (datos puros) con filtros para la administración.
 
 ## 7. CALENDARIO Y REPORTES
-- [ ] **Automatización de Cumpleaños:** Precarga con ícono 🎂 en todas las vistas.
+- [x] **Automatización de Cumpleaños:** ✅ sesión 25 — Ícono 🎂 en Filtro de Entrada (ya estaba implementado, validado y funcionando).
 - [ ] **Eventos Enriquecidos:** Panel para asignar Color y Emoji por categoría. Campos para ubicación y recordatorios.
 - [ ] **Exportación:** Generar PDF del calendario mensual con diseño infantil (general o por familia).
 

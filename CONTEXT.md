@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 24 completada)
-### Sesión 24: ✅ Galería fotos en Miss (debajo upload). ✅ Galería fotos en Padre (integrada en Actividades). ✅ Firma digital incidentes (canvas + Cloudinary). ✅ Comportamiento separado. ✅ Selector fecha sin fin de semana. ✅ Primer día hábil al entrar. ✅ Pañal: ocultar baño si usa_panial=true.
-### Próxima sesión: FASE 5 (Inscripciones, Ciclos escolares, Administración).
+### Última actualización: 2026-04-19 (sesión 25 completada)
+### Sesión 25: ✅ Automatización de Cumpleaños — Ícono 🎂 en Filtro de Entrada (ya estaba implementado, solo validado). ✅ Test con Ana García López (fecha actualizada a 2026-04-19). ✅ Próxima: Bitácora 4 tiempos (FASE 6.8) + Envío recibo WhatsApp (FASE 4).
+### Próxima sesión: FASE 3.1 Reporte Excel/PDF asistencia + FASE 4 Envío recibos WhatsApp + FASE 6.8 Bitácora 4 tiempos.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

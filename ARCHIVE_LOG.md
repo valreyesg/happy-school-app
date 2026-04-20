@@ -48,6 +48,11 @@
 - [x] **Dashboard Miss — Navegación rápida a bitácora:** Click directo en alumno de tabla → abre su bitácora SIN pasos extras. Cambio en `/maestra/Bitacora.jsx`: importa `useSearchParams()`, captura `alumnoId` de query params, auto-selecciona alumno si viene en URL. Ruta `mi-grupo` movida ANTES de `/:id` en `grupos.js` para evitar conflicto con Express.
 - [x] **Dashboard Miss — Simplificación de acciones rápidas:** Quitar tarjetas "Asistencia" y "Bitácora" de la sección de acciones. Solo queda "Galería". Motivo: acceso directo ya integrado en la tabla (elimina pasos intermedios). Quitados imports `CheckSquare` y `BookOpen` de Dashboard.
 
+## ✅ SESIÓN 25 — Completada (2026-04-19)
+- [x] **Validación de Automatización de Cumpleaños:** Verificado que el ícono 🎂 ya estaba completamente implementado en `FiltroEntrada.jsx` (líneas 11-17, 106-110, 157, 171, 282). Función `esCumpleanos()` compara mes/día actual con fecha_nacimiento usando `.substring(0,10)` para evitar bug de ISO dates. Validado en browser con Ana García López (fecha actualizada a 2026-04-19) → ícono visible en tarjeta y alerta en modal.
+- [x] **Script de actualización de fechas (`setup_cumpleanos_demo.js`):** Creado para actualizar fecha_nacimiento de alumnos de prueba. Usa `require('dotenv').config()` y módulo `../config/database` para conectar a PostgreSQL via DATABASE_URL.
+- [x] **Preparación para siguientes sesiones:** Identificadas 3 tareas quick-win para próxima sesión (FASE 3.1, FASE 4, FASE 6.8). Documentadas en PENDIENTES.md sin cambios en lo no completado (respetó instrucción del usuario).
+
 ## ✅ SESIÓN 24 — Completada (2026-04-19)
 - [x] **Galería de fotos en Miss:** Subsección "📷 Galería de actividades guardadas" integrada en sección 🎨 Actividades. Grid 4 columnas con fotos ya subidas. Mostrada solo si hay fotos.
 - [x] **Galería de fotos en Padre:** Subsección "📷 Galería de actividades guardadas" integrada en sección 🎨 Actividades (NO como sección separada). Grid 3 columnas. Fotos clickeables que abren en nueva pestaña.

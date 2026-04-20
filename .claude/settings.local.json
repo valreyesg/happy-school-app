@@ -108,7 +108,13 @@
       "Bash(pkill -9 npm)",
       "Bash(taskkill /IM node.exe /F)",
       "Bash(taskkill /IM npm.cmd /F)",
-      "Bash(kill -9 27804)"
+      "Bash(kill -9 27804)",
+      "Bash(cd /backend)",
+      "Bash(psql -U valeria_app -d valeria_app -c \"SELECT id, nombre_completo, fecha_nacimiento FROM alumnos WHERE deleted_at IS NULL LIMIT 3;\")",
+      "Bash(pkill -f \"psql\")",
+      "Bash(psql postgresql://valeria_app:valeria_app@localhost/valeria_app -c \"SELECT id, nombre_completo, fecha_nacimiento FROM alumnos WHERE deleted_at IS NULL LIMIT 3;\")",
+      "Bash(psql -U postgres -c \"SELECT id, nombre_completo, fecha_nacimiento FROM alumnos WHERE deleted_at IS NULL LIMIT 3;\")",
+      "Bash(node src/database/setup_cumpleanos_demo.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

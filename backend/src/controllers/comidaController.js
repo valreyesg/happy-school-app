@@ -92,37 +92,47 @@ exports.obtenerConfirmaciones = async (req, res) => {
     const { semana } = req.query; // YYYY-MM-DD (lunes)
     if (!semana) return res.status(400).json({ error: 'semana requerida' });
 
-    const sql = `
-      SELECT
+    // Primero obtener estadísticas
+    const statsResult = await query(
+      `SELECT
         COUNT(*) FILTER (WHERE confirmado = true) as total_confirmados,
         COUNT(*) FILTER (WHERE confirmado = true AND metodo_pago = 'transferencia') as transferencia_count,
         COUNT(*) FILTER (WHERE confirmado = true AND metodo_pago = 'efectivo') as efectivo_count,
         COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = true) as pagado_count,
-        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false) as sin_verificar_count,
-        json_agg(json_build_object(
-          'id', id,
-          'alumno_id', alumno_id,
-          'nombre_alumno', (SELECT nombre_completo FROM alumnos WHERE id = control_comida_semanal.alumno_id),
-          'modalidad', modalidad,
-          'monto', monto,
-          'metodo_pago', metodo_pago,
-          'pago_verificado', pago_verificado,
-          'estado', estado
-        )) FILTER (WHERE confirmado = true) as confirmaciones
-      FROM control_comida_semanal
-      WHERE semana_inicio = $1
-    `;
+        COUNT(*) FILTER (WHERE confirmado = true AND pago_verificado = false) as sin_verificar_count
+       FROM control_comida_semanal
+       WHERE semana_inicio = $1`,
+      [semana]
+    );
 
-    const result = await query(sql, [semana]);
+    // Luego obtener confirmaciones con todos los campos explícitos
+    const confirmacionesResult = await query(
+      `SELECT
+        id,
+        alumno_id,
+        (SELECT nombre_completo FROM alumnos WHERE id = control_comida_semanal.alumno_id) as nombre_alumno,
+        modalidad,
+        dias_seleccionados,
+        monto,
+        metodo_pago,
+        comprobante_pago_url,
+        comprobante_pago_public_id,
+        pago_verificado,
+        estado
+       FROM control_comida_semanal
+       WHERE semana_inicio = $1 AND confirmado = true
+       ORDER BY nombre_alumno`,
+      [semana]
+    );
 
     res.json({
       semana,
-      total_confirmados: parseInt(result.rows[0].total_confirmados) || 0,
-      transferencia_count: parseInt(result.rows[0].transferencia_count) || 0,
-      efectivo_count: parseInt(result.rows[0].efectivo_count) || 0,
-      pagado_count: parseInt(result.rows[0].pagado_count) || 0,
-      sin_verificar_count: parseInt(result.rows[0].sin_verificar_count) || 0,
-      confirmaciones: result.rows[0].confirmaciones || []
+      total_confirmados: parseInt(statsResult.rows[0].total_confirmados) || 0,
+      transferencia_count: parseInt(statsResult.rows[0].transferencia_count) || 0,
+      efectivo_count: parseInt(statsResult.rows[0].efectivo_count) || 0,
+      pagado_count: parseInt(statsResult.rows[0].pagado_count) || 0,
+      sin_verificar_count: parseInt(statsResult.rows[0].sin_verificar_count) || 0,
+      confirmaciones: confirmacionesResult.rows || []
     });
   } catch (e) {
     res.status(500).json({ error: e.message });

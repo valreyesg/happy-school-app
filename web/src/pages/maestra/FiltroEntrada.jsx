@@ -58,7 +58,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
         const [año, mes, dia] = hoy.split('-');
         const lunes = new Date(año, parseInt(mes) - 1, parseInt(dia));
         lunes.setDate(lunes.getDate() - lunes.getDay() + 1);
-        const semanaInicio = lunes.toISOString().split('T')[0];
+        const semanaInicio = lunes.toLocaleDateString('en-CA');
 
         const res = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaInicio}`);
         if (res.data) {
@@ -201,7 +201,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
               <p className="text-xs text-gray-500 px-2">
                 {confirmacionComida.modalidad === 'semana_completa'
                   ? '📋 Semana completa ($250)'
-                  : `📋 ${confirmacionComida.dias_seleccionados?.length} días ($${confirmacionComida.monto})`
+                  : `📋 ${confirmacionComida.monto / 50} días ($${confirmacionComida.monto})`
                 }
                 {confirmacionComida.metodo_pago === 'transferencia' && ' | 💳 Transferencia'}
                 {confirmacionComida.metodo_pago === 'efectivo' && ' | 💵 Efectivo'}

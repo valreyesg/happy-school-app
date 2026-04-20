@@ -36,13 +36,13 @@ router.get('/confirmacion/:alumno_id', verifyToken,
   comidaController.verConfirmacion
 );
 
-// PUT: Directora verifica pago (entrada)
-router.put('/confirmacion/:id/verificar-pago', verifyToken, authorize(['directora', 'administrativo']),
+// PUT: Directora, admin o maestra verifica pago (filtro entrada)
+router.put('/confirmacion/:id/verificar-pago', verifyToken, authorize(['directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial']),
   comidaController.verificarPago
 );
 
-// PUT: Directora marca como no pagado (entrada)
-router.put('/confirmacion/:id/cancelar', verifyToken, authorize(['directora', 'administrativo']),
+// PUT: Directora, admin o maestra cancela comida no pagada (filtro entrada)
+router.put('/confirmacion/:id/cancelar', verifyToken, authorize(['directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial']),
   comidaController.cancelarComida
 );
 

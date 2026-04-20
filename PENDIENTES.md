@@ -1,10 +1,17 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-20 (sesión 27 COMPLETADA)
+## Última actualización: 2026-04-20 (sesión 28 COMPLETADA)
 
 ---
 
-## 🔜 SESIÓN 28 — Próxima sesión
+## 🔜 SESIÓN 29 — Próxima sesión
+
+### Testing y Validación
+- [ ] Testing del job cron lunes 8:30 AM (auto-cancelación sin pago)
+- [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia
+- [ ] UI responsividad browser (mobile, tablet, desktop)
+- [ ] Sincronización web-mobile: confirmación comida
+- [ ] Agregar modal comprobante: mostrar imagen/PDF cuando papá sube transferencia
 
 ---
 

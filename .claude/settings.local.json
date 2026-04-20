@@ -150,7 +150,11 @@
       "Bash(curl -s \"http://localhost:3000/api/alumnos\")",
       "Bash(kill -9 5006 5285 4627 4693 5426 4921)",
       "Bash(node -e \"const jwt = require\\('jsonwebtoken'\\); const token = jwt.sign\\({userId:'123'}, process.env.JWT_SECRET || 'test'\\); console.log\\(token\\);\")",
-      "Bash(curl -s 'http://localhost:3000/api/comida/confirmaciones?semana=2026-04-20' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJpYXQiOjE3NzY2NjU0Mjh9.AwhrDHCjZSH1FegSdea6oi2xBw2DjEvFcHxhgTgrVn0')"
+      "Bash(curl -s 'http://localhost:3000/api/comida/confirmaciones?semana=2026-04-20' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxMjMiLCJpYXQiOjE3NzY2NjU0Mjh9.AwhrDHCjZSH1FegSdea6oi2xBw2DjEvFcHxhgTgrVn0')",
+      "Bash(pkill -9 -f \"npm run dev\")",
+      "Bash(pkill -9 -f vite)",
+      "Bash(node src/database/setup_comida_pagos_demo.js)",
+      "Bash(rm -rf node_modules/.vite)"
     ],
     "additionalDirectories": [
       "\\tmp",

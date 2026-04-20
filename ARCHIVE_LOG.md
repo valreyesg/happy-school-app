@@ -1,6 +1,31 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 28 — FASE 6.9 Control de Pagos Comida (2026-04-20)
+- [x] **Backend permisos:** Maestras (titular, puerta, especial) + Admin + Directora pueden marcar pago verificado en filtro entrada (`/comida/confirmacion/:id/verificar-pago` y `/cancelar`).
+- [x] **Backend endpoint actualizado:** `GET /comida/confirmaciones?semana=` ahora devuelve lista explícita con todos los campos (modalidad, monto, metodo_pago, pago_verificado, estado) sin usar json_agg.
+- [x] **Web Directora: ComidaPagos.jsx (NUEVO):** Panel control pagos semanal. Navegación anterior/siguiente semana con rango visual "20 abr al 24 abr". Stats grid: confirmados, pagados, sin verificar, transferencia, efectivo. Lista alumnos con toggle ✅ Pagado / ❌ No Pagó. Cambio de estado PUT en tiempo real.
+- [x] **Web Admin:** Acceso a `/admin/comida-pagos` con misma funcionalidad que directora.
+- [x] **Web Maestra: FiltroEntrada.jsx:** Sección comida en modal entrada moestra modalidad y método pago. Toggle "✅ Pago verificado" / "❌ No pagó - Cancelar comida" para registrar entrada.
+- [x] **Rutas en App.jsx:** Agregada `/directora/comida-pagos` → ComidaPagos + `/admin/comida-pagos` → ComidaPagos (reutilizado).
+- [x] **Sidebar DirectoraLayout:** Agregado link "Pagos Comida" (CreditCard icon) junto a "Menú Comida".
+- [x] **Fixes:** Corrección fecha ISO (`toISOString()` → `toLocaleDateString('en-CA')`) en FiltroEntrada para consistencia con hora local.
+- [x] **Demo data:** Script `setup_comida_pagos_demo.js` crea 3 registros: 1 con transferencia (sin pagar), 1 con efectivo (sin pagar), 1 pagado. Validación de estructura en DB.
+- [x] **HTTP Cache fix:** Middleware en backend desactiva ETags/Cache-Control para endpoints `/api/` (no-store, no-cache, must-revalidate).
+
+**Bugs encontrados y solucionados en esta sesión:**
+1. **HTTP 304 Not Modified:** Navegador y Express cacheaban respuestas de GET `/comida/confirmaciones` → FIX: agregar middleware desactiva cache con headers (no-store, no-cache, must-revalidate).
+2. **json_agg omitía campos NULL:** PostgreSQL no incluía dias_seleccionados ni comprobante_pago_url en json_build_object cuando eran NULL → FIX: cambiar a query directa SELECT con todos los campos explícitos.
+3. **Navegación de semanas rota:** Cambiar semana adelante/atrás regresaba a fecha incorrecta (18 abr en lugar de 20 abr) → FIX: parsear semanaInicio correctamente antes de sumar/restar días.
+4. **JSX syntax error:** Faltaba cerrar div en sección comida de FiltroEntrada → FIX: agregar `</div>` correcto.
+
+**Pendientes para sesión 29:**
+- [ ] Testing del flujo lunes 8:30 AM auto-cancelación (job cron) con datos reales
+- [ ] Validar Cloudinary uploads (PDF menú, comprobantes transferencia)
+- [ ] UI responsividad en browser (mobile, tablet)
+- [ ] Sincronización web-mobile comida confirmación
+- [ ] Agregar comprobante visual (modal con imagen/PDF) cuando papá sube transferencia (Cloudinary URL)
+
 ## ✅ SESIÓN 27 — FASE 6.9 Indicador de Comedor (2026-04-20)
 - [x] **Migraciones 014 y 015:** Tablas `control_comida_semanal` (confirmación semanal, modalidad, pago) y `menu_comida_semanal` (menú texto/PDF, publicado).
 - [x] **Backend: rutas `/comida/*` completas:** GET menu (público), POST/DELETE menu (directora), GET confirmaciones (estadísticas), POST/GET/PUT confirmación (padre/directora), PUT verificar-pago y PUT cancelar.

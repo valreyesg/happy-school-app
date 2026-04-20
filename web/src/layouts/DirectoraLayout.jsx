@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: '/directora/asistencia',   icon: ClipboardList,   label: 'Asistencia' },
   { to: '/directora/turno-puerta', icon: DoorOpen,        label: 'Turno Puerta' },
   { to: '/directora/comida-menu',  icon: UtensilsCrossed, label: 'Menú Comida' },
+  { to: '/directora/comida-pagos', icon: CreditCard,      label: 'Pagos Comida' },
   { to: '/directora/alumnos',    icon: Users,           label: 'Alumnos' },
   { to: '/directora/grupos',     icon: GraduationCap,   label: 'Grupos' },
   { to: '/directora/personal',    icon: UserCheck,       label: 'Personal' },

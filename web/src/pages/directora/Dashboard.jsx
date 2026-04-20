@@ -5,6 +5,7 @@ import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck, Settin
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
+import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;
@@ -176,6 +177,9 @@ export default function DirectoraDashboard() {
           </div>
         </div>
       )}
+
+      {/* Banner comida */}
+      <BannerComidaHoy />
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

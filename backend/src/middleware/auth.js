@@ -61,4 +61,4 @@ const authorize = (...rolesPermitidos) => {
   };
 };
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authorize, verifyToken: authenticate };

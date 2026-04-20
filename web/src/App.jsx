@@ -23,6 +23,7 @@ import DirectoraConfig from '@/pages/directora/Configuracion';
 import DirectoraAlumnoPerfil from '@/pages/directora/AlumnoPerfil';
 import DirectoraAsistencia from '@/pages/directora/Asistencia';
 import DirectoraTurnoPuerta from '@/pages/directora/TurnoPuerta';
+import DirectoraComidaMenu from '@/pages/directora/ComidaMenu';
 
 // Páginas de administrativo
 import AdminDashboard from '@/pages/administrativo/Dashboard';
@@ -42,6 +43,7 @@ import PadreDashboard from '@/pages/padre/Dashboard';
 import PadreBitacora from '@/pages/padre/Bitacora';
 import PadrePagos from '@/pages/padre/Pagos';
 import PadreCalendario from '@/pages/padre/Calendario';
+import PadreComidaSemanal from '@/pages/padre/ComidaSemanal';
 
 // Guard de autenticación
 const PrivateRoute = ({ element, rolesPermitidos }) => {
@@ -95,6 +97,7 @@ export default function App() {
         <Route path="evaluaciones" element={<DirectoraEvaluaciones />} />
         <Route path="config" element={<DirectoraConfig />} />
         <Route path="turno-puerta" element={<DirectoraTurnoPuerta />} />
+        <Route path="comida-menu" element={<DirectoraComidaMenu />} />
       </Route>
 
       {/* Administrativo */}
@@ -135,6 +138,7 @@ export default function App() {
         <Route path="bitacora" element={<PadreBitacora />} />
         <Route path="pagos" element={<PadrePagos />} />
         <Route path="calendario" element={<PadreCalendario />} />
+        <Route path="comida" element={<PadreComidaSemanal />} />
       </Route>
 
       {/* 404 */}

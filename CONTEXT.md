@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 26 completada)
-### Sesión 26: ✅ FASE 6.8 — Bitácora 4 Tiempos completada. Separación visual Desayuno 🥐, Colación 🍎, Comida 🍽️, Comida Extra 🍜 en portales Miss, Papá y Directora. Migration 013 + backend array + fixes React. Desduplicación Ana García López con DISTINCT ON.
-### Próxima sesión (27): PRIORIDAD — FASE 6.9 Indicador Comedor (confirmación papá domingo, control pago lunes, banner Directora/Admin con contador).
+### Última actualización: 2026-04-20 (sesión 27 completada)
+### Sesión 27: ✅ FASE 6.9 — Indicador de Comedor completada (100%). Confirmación semanal papá, control pago lunes 8:30 AM con auto-cancelación y WhatsApp, menú semanal texto/PDF, banner Directora con estadísticas (confirmados, transferencia, efectivo). Migraciones 014-015 + comidaController + job cron + portales web/mobile/directora.
+### Próxima sesión (28): Testing del flujo lunes 8:30 AM auto-cancelación, validar Cloudinary uploads (PDF/comprobantes), UI responsive en browser, sincronización web-mobile.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

@@ -1,6 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { LayoutDashboard, BookOpen, CreditCard, CalendarDays, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, BookOpen, CreditCard, CalendarDays, UtensilsCrossed, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
 import toast from 'react-hot-toast';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 const NAV_ITEMS = [
   { to: '/padre',            icon: LayoutDashboard, label: 'Inicio',     exact: true },
   { to: '/padre/bitacora',   icon: BookOpen,        label: 'Bitácora'   },
+  { to: '/padre/comida',     icon: UtensilsCrossed, label: 'Comida'     },
   { to: '/padre/pagos',      icon: CreditCard,      label: 'Pagos'      },
   { to: '/padre/calendario', icon: CalendarDays,    label: 'Calendario' },
 ];

@@ -1,6 +1,36 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 27 — FASE 6.9 Indicador de Comedor (2026-04-20)
+- [x] **Migraciones 014 y 015:** Tablas `control_comida_semanal` (confirmación semanal, modalidad, pago) y `menu_comida_semanal` (menú texto/PDF, publicado).
+- [x] **Backend: rutas `/comida/*` completas:** GET menu (público), POST/DELETE menu (directora), GET confirmaciones (estadísticas), POST/GET/PUT confirmación (padre/directora), PUT verificar-pago y PUT cancelar.
+- [x] **Backend: comidaController.js:** Lógica completa con Cloudinary para menú y comprobantes. FIX: cambiar import de `../database/db` a `../config/database` y renombrar variables `query` locales a `sql` para evitar shadowing.
+- [x] **Backend: job cron lunes 8:31 AM:** `procesarComidaNoPagada()` busca confirmaciones sin pago verificado, cambia estado a cancelado, envía WhatsApp al padre (plantilla existente).
+- [x] **Backend: auth middleware:** Agregar export `verifyToken: authenticate` para comidaRoutes.
+- [x] **Web papá: ComidaSemanal.jsx:** Muestra menú semanal (texto/PDF), formulario confirmación (domingo), selector modalidad (semana $250 | días $50), método pago (transferencia + comprobante | efectivo). Estilos consistentes: card-hs, btn-red, input-hs.
+- [x] **Web directora: ComidaMenu.jsx:** Crear/editar menú semanal (texto + PDF a Cloudinary). Estilos consistentes. Botón "Agregar Menú" + form modal.
+- [x] **Web directora: BannerComidaHoy.jsx:** Grid 3 columnas: confirmados, transferencia (📲), efectivo (💵). Llamada a GET `/comida/confirmaciones`. Link a ComidaMenu. Gradient naranja/amarillo (tema directora).
+- [x] **Web maestra/filtro: FiltroEntrada.jsx:** Checkbox condicional "✅ Pago comida verificado" (solo si alumno confirmó). PUT `/comida/confirmacion/:id/verificar-pago` o `/cancelar` al guardar entrada.
+- [x] **Mobile papá: comida.jsx:** Pantalla confirmación semanal con React Native, misma lógica que web.
+- [x] **Navegación:** Icons `UtensilsCrossed` (lucide-react) en PadreLayout (`/padre/comida`) y DirectoraLayout (`/directora/comida-menu`). FIX: cambiar emoji 🍽️ a icon.
+- [x] **Rutas en App.jsx:** Registradas `/padre/comida` → ComidaSemanal, `/directora/comida-menu` → ComidaMenu, mobile padre `/comida`.
+- [x] **Demo data:** Script `setup_comida_full_demo.js` crea 6 confirmaciones (3 transferencia, 3 efectivo), todas pagadas. Menú completo de 5 tiempos.
+- [x] **Testing:** Backend endpoint `/api/comida/menu?semana=2026-04-20` retorna menú correctamente. Job cron configurado. Servidores ejecutándose (backend 3000, web 5173).
+
+**Bugs encontrados y solucionados en esta sesión:**
+1. **Import error en comidaController.js:** Imports incorrecto `../database/db` → FIX: cambiar a `../config/database`
+2. **Variable shadowing en comidaController.js:** Local `query` string sobrescribía imported `query` function en crearOActualizarMenu() y obtenerConfirmaciones() → FIX: renombrar locales a `sql`
+3. **auth middleware no exportaba verifyToken:** comidaRoutes import fallaba → FIX: agregar export alias `verifyToken: authenticate`
+4. **Navbar icons eran emoji 🍽️ en lugar de lucide-react:** Styling inconsistente → FIX: cambiar a `UtensilsCrossed` icon
+5. **Backend procesos viejos en puertos 3000:** Conflicto de EADDRINUSE → FIX: matar procesos previos antes de iniciar
+
+**Pendientes para sesión 28:**
+- [ ] Probar flujo completo lunes 8:30 AM con datos reales (auto-cancelación y WhatsApp)
+- [ ] Validar styling en browser (responsividad, colores, márgenes)
+- [ ] Verificar sincronización entre web y mobile en comida
+- [ ] Testing de upload PDF en ComidaMenu (Cloudinary)
+- [ ] Testing de upload comprobante en ComidaSemanal (Cloudinary)
+
 ## ✅ SESIÓN 26 — FASE 6.8 Bitácora 4 Tiempos (2026-04-19)
 - [x] **Migración 013:** Agregado columna `tiempo` a `registro_comida` (desayuno, colacion, comida, comida_extra) con constraint único `(alumno_id, fecha, tiempo)`.
 - [x] **Backend GET `/bitacora/:alumnoId`:** Ahora retorna `comida` como array de registros (antes era objeto único). ORDER BY tiempo para mantener orden visual.

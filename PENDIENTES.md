@@ -1,18 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 26 completada)
+## Última actualización: 2026-04-20 (sesión 27 COMPLETADA)
 
 ---
 
-## 🔜 PRÓXIMA SESIÓN — Prioridad alta
-
-### ⚡ FASE 6.9 — Indicador de Comedor (Confirmación y Control de Pago)
-- [ ] Portal papá: módulo de confirmación semanal de servicio comida (domingo antes de dormir)
-  - Selector: "Confirmo servicio de comida para la próxima semana"
-  - Selector método de pago: "Transferencia (confirmar a más tardar lunes)" | "Efectivo el lunes"
-  - Guardado en tabla `control_comida` o similar con `estado` (pendiente/confirmado/pagado/cancelado)
-- [ ] Si no hay pago recibido el lunes 8:00 AM → estado = `cancelado` + notificación papá vía WhatsApp
-- [ ] Dashboard Directora/Administrador: Banner con contador "🍽️ X niños confirmaron comida hoy" (basado en domingo anterior)
+## 🔜 SESIÓN 28 — Próxima sesión
 
 ---
 

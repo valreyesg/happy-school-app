@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 
 const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
+const { iniciarJobComida } = require('./jobs/comidaJobs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -48,6 +49,9 @@ app.get('/health', (req, res) => {
 
 // Manejo de errores
 app.use(errorHandler);
+
+// Iniciar jobs cron
+iniciarJobComida();
 
 app.listen(PORT, () => {
   console.log(`🏫 Happy School API corriendo en puerto ${PORT}`);

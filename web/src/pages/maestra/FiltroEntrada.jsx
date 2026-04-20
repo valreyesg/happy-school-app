@@ -44,7 +44,38 @@ const CHECKS_DEFAULT = {
 
 function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [form, setForm] = useState(CHECKS_DEFAULT);
+  const [confirmacionComida, setConfirmacionComida] = useState(null);
+  const [cargandoComida, setCargandoComida] = useState(false);
+  const [pagoVerificado, setPagoVerificado] = useState(false);
   const queryClient = useQueryClient();
+
+  // Cargar confirmación de comida al abrir modal
+  useEffect(() => {
+    const cargarConfirmacionComida = async () => {
+      try {
+        setCargandoComida(true);
+        const hoy = new Date().toLocaleDateString('en-CA');
+        const [año, mes, dia] = hoy.split('-');
+        const lunes = new Date(año, parseInt(mes) - 1, parseInt(dia));
+        lunes.setDate(lunes.getDate() - lunes.getDay() + 1);
+        const semanaInicio = lunes.toISOString().split('T')[0];
+
+        const res = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaInicio}`);
+        if (res.data) {
+          setConfirmacionComida(res.data);
+          setPagoVerificado(res.data.pago_verificado || false);
+        }
+      } catch (e) {
+        // Sin confirmación, no mostrar nada
+      } finally {
+        setCargandoComida(false);
+      }
+    };
+
+    if (alumno?.id) {
+      cargarConfirmacionComida();
+    }
+  }, [alumno?.id]);
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/entrada', data).then(r => r.data),
@@ -64,7 +95,23 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
 
   const set = (field, val) => setForm(f => ({ ...f, [field]: val }));
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Si hay confirmación de comida, actualizar estado de pago
+    if (confirmacionComida && !cargandoComida) {
+      try {
+        if (pagoVerificado) {
+          await api.put(`/comida/confirmacion/${confirmacionComida.id}/verificar-pago`);
+          toast.success('✅ Pago de comida verificado');
+        } else if (confirmacionComida.pago_verificado) {
+          // Si estaba verificado y ahora lo desmarcamos, marcar como cancelado
+          await api.put(`/comida/confirmacion/${confirmacionComida.id}/cancelar`);
+          toast.success('❌ Comida cancelada');
+        }
+      } catch (e) {
+        toast.error('Error actualizando comida');
+      }
+    }
+
     mutation.mutate({
       alumno_id: alumno.id,
       ...form,
@@ -137,6 +184,30 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           <CheckRow field="trae_bata"       label="Bata"            emoji="🥼" />
           <CheckRow field="trae_termo"      label="Termo"           emoji="🧴" />
           <CheckRow field="agua_suficiente" label="Agua suficiente" emoji="💧" />
+
+          {/* Sección Comida (solo si confirmó) */}
+          {confirmacionComida && (
+            <>
+              <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Comida</p>
+              <button
+                type="button"
+                onClick={() => setPagoVerificado(!pagoVerificado)}
+                className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 transition-all font-bold text-sm text-left
+                  ${pagoVerificado ? 'border-green-400 bg-green-50 text-green-700' : 'border-red-400 bg-red-50 text-red-700'}`}
+              >
+                <span className="text-xl">{pagoVerificado ? '✅' : '❌'}</span>
+                <span>{pagoVerificado ? 'Pago verificado' : 'No pagó - Cancelar comida'}</span>
+              </button>
+              <p className="text-xs text-gray-500 px-2">
+                {confirmacionComida.modalidad === 'semana_completa'
+                  ? '📋 Semana completa ($250)'
+                  : `📋 ${confirmacionComida.dias_seleccionados?.length} días ($${confirmacionComida.monto})`
+                }
+                {confirmacionComida.metodo_pago === 'transferencia' && ' | 💳 Transferencia'}
+                {confirmacionComida.metodo_pago === 'efectivo' && ' | 💵 Efectivo'}
+              </p>
+            </>
+          )}
         </div>
 
         <div className="p-5 border-t border-gray-100">

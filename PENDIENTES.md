@@ -1,29 +1,18 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 26 en progreso)
+## Última actualización: 2026-04-19 (sesión 26 completada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
 
-### ✅ FASE 6.8 — Bitácora 4 tiempos (COMPLETADO SESIÓN 26)
-- [x] Separar visualmente en bitácora del padre: Desayuno, Colación, Comida, Comida Extra
-- [x] Migración 013: columna `tiempo` en `registro_comida`
-- [x] Backend: GET retorna array, POST acepta array de comidas
-- [x] UI Padre: muestra 4 secciones de alimentación (filtra Comida Extra si no tiene extensión)
-- [x] UI Miss: 4 inputs visuales con botones "Cuánto comió" + campo notas por tiempo
-- [x] UI Directora: muestra 4 tiempos en detalle de alumno
-- [x] FIX: duplicado Ana García López (DISTINCT ON en endpoints)
-- [x] FIX: error React en comidas state, validación con optional chaining
-- [x] Backend: campos `tiene_extension` en endpoints alumnos y grupos
-
-### ⚡ Pequeño fix — Indicador de Comedor en Dashboard Miss (30 min)
+### ⚡ FASE 6.9 — Indicador de Comedor (Confirmación y Control de Pago)
 - [ ] Portal papá: módulo de confirmación semanal de servicio comida (domingo antes de dormir)
   - Selector: "Confirmo servicio de comida para la próxima semana"
   - Selector método de pago: "Transferencia (confirmar a más tardar lunes)" | "Efectivo el lunes"
   - Guardado en tabla `control_comida` o similar con `estado` (pendiente/confirmado/pagado/cancelado)
 - [ ] Si no hay pago recibido el lunes 8:00 AM → estado = `cancelado` + notificación papá vía WhatsApp
-- [ ] Dashboard Miss: Banner con contador "🍽️ X niños confirmaron comida hoy" (basado en domingo anterior)
+- [ ] Dashboard Directora/Administrador: Banner con contador "🍽️ X niños confirmaron comida hoy" (basado en domingo anterior)
 
 ---
 

@@ -1,6 +1,18 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 26 — FASE 6.8 Bitácora 4 Tiempos (2026-04-19)
+- [x] **Migración 013:** Agregado columna `tiempo` a `registro_comida` (desayuno, colacion, comida, comida_extra) con constraint único `(alumno_id, fecha, tiempo)`.
+- [x] **Backend GET `/bitacora/:alumnoId`:** Ahora retorna `comida` como array de registros (antes era objeto único). ORDER BY tiempo para mantener orden visual.
+- [x] **Backend POST `/bitacora/guardar`:** Acepta objeto `comidas` array con estructura `[{tiempo, que_comio, cuanto_comio, observaciones}]`. Itera e inserta/updatea cada tiempo con upsert por `(alumno_id, fecha, tiempo)`.
+- [x] **Backend FIX duplicados:** Aplicado `DISTINCT ON (a.id)` en `/alumnos/mis-hijos` y `/grupos/mi-grupo` para evitar múltiples filas cuando un alumno tiene múltiples registros de comida (Ana García López duplicada).
+- [x] **Backend campos extensión:** Agregado `tiene_extension` desde `config_horario_alumno` en endpoints de alumnos y grupos.
+- [x] **UI Miss — 4 tiempos visuales:** 4 secciones coloreadas (naranja desayuno, verde colación, rojo comida, púrpura extra) con textarea "¿Qué comió?", 4 botones emoji "¿Cuánto?", y textarea "Notas (ej: rechazó verduras...)".
+- [x] **UI Papá — Bitácora de comida:** 4 secciones coloreadas, filtra Comida Extra si `hijoActual.tiene_extension === false`. Muestra datos incluso sin bitácora completa.
+- [x] **UI Directora — Bitácora comida:** Muestra array de 4 tiempos con bordes coloreados, emoji y notas.
+- [x] **Fixes React:** Error en FormBitacora por acceso undefined a `comidas[tiempo]`. Solución: inicializar `nuevasComidas` sin dependencia de state, usar optional chaining (`?.`), envolver sección en `{comidas && ...}`.
+- [x] **Próximo guardado para sesión 27:** Sistema de confirmación semanal comida (domingo) + control pago lunes (Indicador Comedor Dashboard Directora/Administrador).
+
 ## ✅ Log de Tareas Completadas.
 ## ✅ FASE 1 — Completada (2026-04-16)
 - [x] Fundación completa del proyecto (monorepo, schema, backend, web, mobile base)

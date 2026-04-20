@@ -483,6 +483,22 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
             ✗ No realizó
           </button>
         </div>
+        {data?.actividades?.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-purple-100">
+            <p className="text-xs font-black text-gray-400 mb-2">📷 Galería de actividades guardadas</p>
+            <div className="grid grid-cols-4 gap-2">
+              {data.actividades.map((a, i) => (
+                <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
+                  <img
+                    src={a.foto_url}
+                    alt="Actividad"
+                    className="w-full aspect-square object-cover rounded-lg border-2 border-purple-100 group-hover:border-purple-400 transition-all"
+                  />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
       </Seccion>
 
       {/* Comportamiento */}

@@ -1,9 +1,9 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-19 (sesión 23 completada)
-### Sesión 23: Renombrado "Tarea" → "Actividades" con soporte N fotos. ✅ Migración 011 (renombro columna + descripción). ✅ Endpoints nuevos POST/GET fotos. ✅ Miss: sección actividades con upload. ✅ Papá: galería + descripción. ✅ Mobile actualizado. 🐛 BUG CRITICAL: Renaming sin audit completo → 500 errors en `/grupos/mi-grupo` y `/alumnos/mis-hijos`. RESUELTO: audit+refactor backend. Documentado en memory para no repetir.
-### Próxima sesión: (1) Visualización fotos en galería padre (fetch/display pendiente). (2) Firma digital del padre en incidentes.
+### Última actualización: 2026-04-19 (sesión 24 completada)
+### Sesión 24: ✅ Galería fotos en Miss (debajo upload). ✅ Galería fotos en Padre (integrada en Actividades). ✅ Firma digital incidentes (canvas + Cloudinary). ✅ Comportamiento separado. ✅ Selector fecha sin fin de semana. ✅ Primer día hábil al entrar. ✅ Pañal: ocultar baño si usa_panial=true.
+### Próxima sesión: FASE 5 (Inscripciones, Ciclos escolares, Administración).
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

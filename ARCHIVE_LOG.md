@@ -48,6 +48,16 @@
 - [x] **Dashboard Miss — Navegación rápida a bitácora:** Click directo en alumno de tabla → abre su bitácora SIN pasos extras. Cambio en `/maestra/Bitacora.jsx`: importa `useSearchParams()`, captura `alumnoId` de query params, auto-selecciona alumno si viene en URL. Ruta `mi-grupo` movida ANTES de `/:id` en `grupos.js` para evitar conflicto con Express.
 - [x] **Dashboard Miss — Simplificación de acciones rápidas:** Quitar tarjetas "Asistencia" y "Bitácora" de la sección de acciones. Solo queda "Galería". Motivo: acceso directo ya integrado en la tabla (elimina pasos intermedios). Quitados imports `CheckSquare` y `BookOpen` de Dashboard.
 
+## ✅ SESIÓN 24 — Completada (2026-04-19)
+- [x] **Galería de fotos en Miss:** Subsección "📷 Galería de actividades guardadas" integrada en sección 🎨 Actividades. Grid 4 columnas con fotos ya subidas. Mostrada solo si hay fotos.
+- [x] **Galería de fotos en Padre:** Subsección "📷 Galería de actividades guardadas" integrada en sección 🎨 Actividades (NO como sección separada). Grid 3 columnas. Fotos clickeables que abren en nueva pestaña.
+- [x] **Firma digital de incidentes (Padre):** Componente `SignaturePad.jsx` (canvas interactivo). Endpoint `PATCH /bitacora/incidente/:id/firma` guarda firma en Cloudinary (`happyschool/firmas`). UI padre: botón "✍️ Firmar para confirmar enterado" en cada incidente sin firma. Display "✅ Firmado + fecha" cuando ya firmado.
+- [x] **Separación Comportamiento:** Sección "🌟 Comportamiento" propia (NO integrada en Actividades). Solo se muestra si hay datos de comportamiento.
+- [x] **Selector de fecha sin fin de semana:** Botones ◀️ ▶️ saltan sábados/domingos automáticamente. Navega solo entre días hábiles.
+- [x] **Inicializar en primer día hábil:** Padre al entrar no ve domingo. Se inicia en viernes (último día hábil) si hoy es fin de semana.
+- [x] **Pañal: ocultar baño si usa_panial=true:** Condición `{!usaPanial && banio && (` en línea 353. Agregado `usa_panial` a GET `/alumnos/mis-hijos`. Migración SQL 012 para actualizar Ana García López a `usa_panial=true`. Solo muestra "Cambios de pañal" para Maternal.
+- [x] **Bug: `usa_panial` no llegaba a frontend:** ROOT CAUSE: Procesos Node viejos en background. SOLUTION: Matar todos, reiniciar limpio, usar puerto flexible (5185 al final). Migración SQL 012 ejecutada correctamente con `apply_fix.js`.
+
 ## ✅ SESIÓN 23 — Completada (2026-04-19 sesión noche)
 ### Cambio semántico: "Tarea" → "Actividades" + soporte N fotos
 - [x] **Migración 011 (`011_actividad_descripcion.sql`):**

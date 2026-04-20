@@ -1,12 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-19 (sesión 23 completada noche)
+## Última actualización: 2026-04-19 (sesión 24 completada)
 
 ---
 
 ## 🔜 PRÓXIMA SESIÓN — Prioridad alta
-- [ ] Firma digital del padre en incidentes (pendiente de sesión 20)
-- [ ] Visualización de fotos en galería padre (upload funciona, pero fetch/display pendiente)
 
 ---
 

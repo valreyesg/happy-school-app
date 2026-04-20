@@ -17,7 +17,7 @@ router.get('/por-qr/:qrData', ctrl.buscarPorQR);
 router.get('/mis-hijos', async (req, res, next) => {
   try {
     const result = await query(`
-      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
+      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
              g.nombre AS grupo_nombre, g.color_hex,
              b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
              rc.cuanto_comio
@@ -32,9 +32,18 @@ router.get('/mis-hijos', async (req, res, next) => {
     `, [req.user.id]);
 
     const rows = result.rows.map(r => {
-      const { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas, ...alumno } = r;
+      const { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas } = r;
       const bitacora_hoy = estado_animo !== null ? { estado_animo, cuanto_comio, actividad_realizada, comportamiento, notas } : null;
-      return { ...alumno, bitacora_hoy };
+      return {
+        ...r,
+        bitacora_hoy,
+        // Excluir explícitamente los campos de bitácora del nivel superior
+        estado_animo: undefined,
+        cuanto_comio: undefined,
+        actividad_realizada: undefined,
+        comportamiento: undefined,
+        notas: undefined,
+      };
     });
 
     res.json(rows);

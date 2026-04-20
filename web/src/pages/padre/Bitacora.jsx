@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link, Navigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
+import SignaturePad from '../../components/ui/SignaturePad';
 
 const ANIMO = {
   feliz:     { emoji: '😊', label: 'Feliz'     },
@@ -60,17 +62,35 @@ function PildoraBool({ label, valor }) {
 
 function SelectorFecha({ fecha, onChange }) {
   const date = new Date(fecha + 'T12:00:00');
-  const anterior = new Date(date); anterior.setDate(anterior.getDate() - 1);
-  const siguiente = new Date(date); siguiente.setDate(siguiente.getDate() + 1);
   const hoy = new Date().toLocaleDateString('en-CA');
   const esHoy = fecha === hoy;
+
+  const irAnterior = () => {
+    let anterior = new Date(date);
+    anterior.setDate(anterior.getDate() - 1);
+    while (anterior.getDay() === 0 || anterior.getDay() === 6) {
+      anterior.setDate(anterior.getDate() - 1);
+    }
+    onChange(anterior.toLocaleDateString('en-CA'));
+  };
+
+  const irSiguiente = () => {
+    let siguiente = new Date(date);
+    siguiente.setDate(siguiente.getDate() + 1);
+    while (siguiente.getDay() === 0 || siguiente.getDay() === 6) {
+      siguiente.setDate(siguiente.getDate() + 1);
+    }
+    if (siguiente.toLocaleDateString('en-CA') <= hoy) {
+      onChange(siguiente.toLocaleDateString('en-CA'));
+    }
+  };
 
   const fmt = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <div className="flex items-center gap-2 bg-white rounded-2xl border border-red-100 p-2 mb-4">
       <button
-        onClick={() => onChange(anterior.toISOString().split('T')[0])}
+        onClick={irAnterior}
         className="p-2 rounded-xl hover:bg-red-50 transition-colors"
       >
         <ChevronLeft size={20} className="text-red-500" />
@@ -80,7 +100,7 @@ function SelectorFecha({ fecha, onChange }) {
         {esHoy && <p className="text-xs font-black text-red-500">Hoy</p>}
       </div>
       <button
-        onClick={() => !esHoy && onChange(siguiente.toISOString().split('T')[0])}
+        onClick={irSiguiente}
         disabled={esHoy}
         className={`p-2 rounded-xl transition-colors ${esHoy ? 'opacity-30 cursor-not-allowed' : 'hover:bg-red-50'}`}
       >
@@ -123,11 +143,32 @@ export default function PadreBitacora() {
   const alumnoId = params.get('alumnoId');
   const nombreParam = params.get('nombre');
   const hoy = new Date().toLocaleDateString('en-CA');
-  const [fecha, setFecha] = useState(hoy);
+
+  // Inicializar en primer día hábil (no fin de semana)
+  const getPrimerDiaHabil = () => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() - 1);
+    }
+    return d.toLocaleDateString('en-CA');
+  };
+
+  const [fecha, setFecha] = useState(getPrimerDiaHabil());
+  const [incidenteFirmando, setIncidenteFirmando] = useState(null);
+  const queryClient = useQueryClient();
+
+  // Forzar refetch limpiando cache localStorage
+  useEffect(() => {
+    localStorage.clear();
+    queryClient.clear();
+    queryClient.refetchQueries({ queryKey: ['mis-hijos'] });
+  }, [queryClient]);
 
   const { data: hijos = [] } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
+    staleTime: 0,
+    gcTime: 0,
   });
 
   const { data, isLoading, isError } = useQuery({
@@ -137,6 +178,37 @@ export default function PadreBitacora() {
     retry: 1,
   });
 
+  const firmaMutation = useMutation({
+    mutationFn: (formData) => api.patch(`/bitacora/incidente/${incidenteFirmando.id}/firma`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora-padre', alumnoId, fecha] });
+      toast.success('✅ Incidente firmado');
+      setIncidenteFirmando(null);
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const handleSign = (signatureDataUrl) => {
+    const formData = new FormData();
+    const blob = dataURLtoBlob(signatureDataUrl);
+    formData.append('firma', blob, 'firma.png');
+    firmaMutation.mutate(formData);
+  };
+
+  const dataURLtoBlob = (dataURL) => {
+    const arr = dataURL.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new Blob([u8arr], { type: mime });
+  };
+
   const bit     = data?.bitacora;
   const banio   = data?.banio;
   const comida  = data?.comida;
@@ -145,8 +217,11 @@ export default function PadreBitacora() {
   const meds    = data?.medicamentos || [];
   const incidentes = data?.incidentes || [];
   const actividades = data?.actividades || [];
+  const hijoActual = hijos.find(h => h.id === alumnoId);
+  const usaPanial = hijoActual?.usa_panial || false;
 
-  const nombreHijo = nombreParam ? decodeURIComponent(nombreParam) : hijos.find(h => h.id === alumnoId)?.nombre_completo || 'Mi hijo/a';
+
+  const nombreHijo = nombreParam ? decodeURIComponent(nombreParam) : hijoActual?.nombre_completo || 'Mi hijo/a';
 
   return (
     <div className="space-y-4 animate-fade-in max-w-2xl mx-auto">
@@ -234,8 +309,8 @@ export default function PadreBitacora() {
                 </Seccion>
               )}
 
-              {/* Actividades y conducta */}
-              <Seccion titulo="Actividades y conducta" emoji="🎨">
+              {/* Actividades */}
+              <Seccion titulo="Actividades" emoji="🎨">
                 {bit.actividad_descripcion && (
                   <div className="bg-purple-50 rounded-xl p-3 mb-3">
                     <p className="text-sm font-semibold text-purple-700">📝 {bit.actividad_descripcion}</p>
@@ -245,17 +320,37 @@ export default function PadreBitacora() {
                   label="Participación"
                   valor={bit.actividad_realizada === true ? 'Sí participó ✓' : bit.actividad_realizada === false ? 'No participó ✗' : null}
                 />
-                {bit.comportamiento && (
+                {actividades.length > 0 && (
+                  <div className="mt-3 pt-3 border-t border-purple-100">
+                    <p className="text-xs font-black text-gray-400 mb-2">📷 Galería de actividades guardadas</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {actividades.map((a, i) => (
+                        <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
+                          <img
+                            src={a.foto_url}
+                            alt="Actividad"
+                            className="w-full aspect-square object-cover rounded-xl border-2 border-purple-100 group-hover:border-purple-400 transition-all"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Seccion>
+
+              {/* Comportamiento */}
+              {bit.comportamiento && (
+                <Seccion titulo="Comportamiento" emoji="🌟">
                   <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${COMPORTAMIENTO[bit.comportamiento]?.color}`}>
                     <span className="text-xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji}</span>
                     {COMPORTAMIENTO[bit.comportamiento]?.label}
                   </div>
-                )}
-                <FilaInfo label="Notas de conducta" valor={bit.comportamiento_notas} />
-              </Seccion>
+                  <FilaInfo label="Notas" valor={bit.comportamiento_notas} />
+                </Seccion>
+              )}
 
-              {/* Baño */}
-              {banio && (
+              {/* Baño (solo si NO usa pañal) */}
+              {!usaPanial && banio && (
                 <Seccion titulo="Baño" emoji="🚿">
                   <div className="flex gap-6 justify-center py-2">
                     <div className="text-center">
@@ -337,37 +432,17 @@ export default function PadreBitacora() {
                 </Seccion>
               )}
 
-              {/* Galería de actividades */}
-              {actividades.length > 0 && (
-                <Seccion titulo="Galería de actividades" emoji="📷">
-                  <div className="grid grid-cols-3 gap-3">
-                    {actividades.map((a, i) => (
-                      <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
-                        <img
-                          src={a.foto_url}
-                          alt="Actividad"
-                          className="w-full aspect-square object-cover rounded-xl border-2 border-purple-100 group-hover:border-purple-400 transition-all"
-                        />
-                      </a>
-                    ))}
-                  </div>
-                  {actividades[0]?.descripcion && (
-                    <p className="text-xs text-gray-500 mt-3 italic">{actividades[0].descripcion}</p>
-                  )}
-                </Seccion>
-              )}
-
               {/* Incidentes */}
               {incidentes.length > 0 && (
                 <Seccion titulo="Incidentes del día" emoji="⚠️">
                   {incidentes.map((inc, i) => (
-                    <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-1">
+                    <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-2">
                       <p className="text-sm font-black text-red-800">{inc.descripcion}</p>
                       {inc.acciones_tomadas && (
                         <p className="text-xs text-red-600">Acciones: {inc.acciones_tomadas}</p>
                       )}
                       {inc.fotos_urls?.length > 0 && (
-                        <div className="flex gap-2 flex-wrap mt-2">
+                        <div className="flex gap-2 flex-wrap">
                           {inc.fotos_urls.map((url, j) => (
                             <a key={j} href={url} target="_blank" rel="noreferrer">
                               <img src={url} alt="Foto" className="w-16 h-16 object-cover rounded-lg border border-red-200" />
@@ -378,6 +453,22 @@ export default function PadreBitacora() {
                       <p className="text-xs text-red-400">
                         {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </p>
+                      {inc.firma_padre_url ? (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-lg text-xs">
+                          <span className="text-sm">✅ Firmado</span>
+                          <span className="text-gray-500">
+                            {new Date(inc.firma_fecha).toLocaleDateString('es-MX')}
+                          </span>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setIncidenteFirmando(inc)}
+                          disabled={firmaMutation.isPending}
+                          className="w-full px-3 py-2 rounded-lg font-bold text-xs bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                        >
+                          {firmaMutation.isPending ? '⏳ Firmando...' : '✍️ Firmar para confirmar enterado'}
+                        </button>
+                      )}
                     </div>
                   ))}
                 </Seccion>
@@ -400,6 +491,14 @@ export default function PadreBitacora() {
             </div>
           )}
         </>
+      )}
+
+      {/* Modal firma */}
+      {incidenteFirmando && (
+        <SignaturePad
+          onSign={handleSign}
+          onCancel={() => setIncidenteFirmando(null)}
+        />
       )}
     </div>
   );

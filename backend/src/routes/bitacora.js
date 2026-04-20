@@ -394,4 +394,40 @@ router.get('/:alumnoId/actividades', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── PATCH /bitacora/incidente/:incidenteId/firma ────────────────────────
+// Padre firma un incidente para confirmar enterado
+router.patch('/incidente/:incidenteId/firma', upload.single('firma'), async (req, res, next) => {
+  try {
+    const { incidenteId } = req.params;
+
+    let firmaUrl = null;
+    if (req.file) {
+      const upload = await uploadToCloudinary(req.file.buffer, { folder: 'happyschool/firmas' });
+      firmaUrl = upload.url;
+    } else if (req.body.firma_data) {
+      // Base64 from canvas
+      const buffer = Buffer.from(req.body.firma_data.replace(/^data:image\/png;base64,/, ''), 'base64');
+      const upload = await uploadToCloudinary(buffer, { folder: 'happyschool/firmas' });
+      firmaUrl = upload.url;
+    }
+
+    if (!firmaUrl) {
+      return res.status(400).json({ error: 'No signature provided' });
+    }
+
+    const result = await query(`
+      UPDATE incidentes
+      SET firma_padre_url = $1, firma_fecha = NOW(), updated_at = NOW()
+      WHERE id = $2
+      RETURNING *
+    `, [firmaUrl, incidenteId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Incident not found' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

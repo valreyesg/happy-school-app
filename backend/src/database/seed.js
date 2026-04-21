@@ -25,11 +25,12 @@ async function seed() {
 
   // ── Grupos ─────────────────────────────────────────────────────────────────
   const gruposDef = [
-    { nombre: 'Maternal',  nivel: 'Maternal',  codigo: 'maternal',  color: '#FC8181' },
-    { nombre: 'Prekinder', nivel: 'Prekinder', codigo: 'prekinder', color: '#F6E05E' },
-    { nombre: 'Kinder 1',  nivel: 'Kinder 1',  codigo: 'kinder1',   color: '#68D391' },
-    { nombre: 'Kinder 2',  nivel: 'Kinder 2',  codigo: 'kinder2',   color: '#4299E1' },
-    { nombre: 'Kinder 3',  nivel: 'Kinder 3',  codigo: 'kinder3',   color: '#B794F4' },
+    { nombre: 'Maternal',   nivel: 'Maternal',  codigo: 'maternal',  color: '#FC8181' },
+    { nombre: 'Prekinder',  nivel: 'Prekinder', codigo: 'prekinder', color: '#F6E05E' },
+    { nombre: 'Kinder 1A',  nivel: 'Kinder 1',  codigo: 'kinder1',   color: '#68D391' },
+    { nombre: 'Kinder 1B',  nivel: 'Kinder 1',  codigo: 'kinder1',   color: '#4FD1C5' },
+    { nombre: 'Kinder 2',   nivel: 'Kinder 2',  codigo: 'kinder2',   color: '#4299E1' },
+    { nombre: 'Kinder 3',   nivel: 'Kinder 3',  codigo: 'kinder3',   color: '#B794F4' },
   ];
   for (const g of gruposDef) {
     await query(`
@@ -57,11 +58,12 @@ async function seed() {
 
   // ── Maestras de prueba ─────────────────────────────────────────────────────
   const maestrasDef = [
-    { nombre: 'Maestra Maternal',  email: 'maternal@happyschool.edu.mx',  tel: '5500000010', grupo: 'Maternal'  },
-    { nombre: 'Maestra Prekinder', email: 'prekinder@happyschool.edu.mx', tel: '5500000011', grupo: 'Prekinder' },
-    { nombre: 'Maestra Kinder 1',  email: 'kinder1@happyschool.edu.mx',   tel: '5500000012', grupo: 'Kinder 1'  },
-    { nombre: 'Maestra Kinder 2',  email: 'kinder2@happyschool.edu.mx',   tel: '5500000013', grupo: 'Kinder 2'  },
-    { nombre: 'Maestra Kinder 3',  email: 'kinder3@happyschool.edu.mx',   tel: '5500000014', grupo: 'Kinder 3'  },
+    { nombre: 'Maestra Maternal',   email: 'maternal@happyschool.edu.mx',   tel: '5500000010', grupo: 'Maternal'   },
+    { nombre: 'Maestra Prekinder',  email: 'prekinder@happyschool.edu.mx',  tel: '5500000011', grupo: 'Prekinder'  },
+    { nombre: 'Maestra Kinder 1A',  email: 'kinder1@happyschool.edu.mx',    tel: '5500000012', grupo: 'Kinder 1A'  },
+    { nombre: 'Maestra Kinder 1B',  email: 'kinder1b@happyschool.edu.mx',   tel: '5500000015', grupo: 'Kinder 1B'  },
+    { nombre: 'Maestra Kinder 2',   email: 'kinder2@happyschool.edu.mx',    tel: '5500000013', grupo: 'Kinder 2'   },
+    { nombre: 'Maestra Kinder 3',   email: 'kinder3@happyschool.edu.mx',    tel: '5500000014', grupo: 'Kinder 3'   },
   ];
   for (const m of maestrasDef) {
     const ur = await query(`

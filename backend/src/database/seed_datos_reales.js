@@ -22,12 +22,13 @@ const ALUMNOS = [
   { nombre: 'Camila Torres García',       fn: '2021-06-14', curp: 'TOGC210614MDFRRMA1', grupo: 'Prekinder', panial: false },
   { nombre: 'Sebastián Medina Castro',    fn: '2021-02-08', curp: 'MECS210208HDFDSBA1', grupo: 'Prekinder', panial: false },
   { nombre: 'Lucía Jiménez Vargas',       fn: '2021-11-25', curp: 'JIVL211125MDFFMCA1', grupo: 'Prekinder', panial: false },
-  // Kinder 1
-  { nombre: 'Diego Hernández Moreno',     fn: '2020-03-22', curp: 'HEMD200322HDFRNAA1', grupo: 'Kinder 1',  panial: false },
-  { nombre: 'Gabriela Martínez Silva',    fn: '2020-08-17', curp: 'MASG200817MDFRRLA1', grupo: 'Kinder 1',  panial: false },
-  { nombre: 'Andrés Reyes Ortega',        fn: '2020-05-11', curp: 'REOA200511HDFRYNA1', grupo: 'Kinder 1',  panial: false },
-  { nombre: 'María Fernanda Castillo',    fn: '2020-10-03', curp: 'CALM201003MDFRRNA1', grupo: 'Kinder 1',  panial: false, alergias: 'Cacahuates' },
-  { nombre: 'Rodrigo Núñez Paredes',      fn: '2020-01-28', curp: 'NUPR200128HDFRZNA1', grupo: 'Kinder 1',  panial: false },
+  // Kinder 1A
+  { nombre: 'Diego Hernández Moreno',     fn: '2020-03-22', curp: 'HEMD200322HDFRNAA1', grupo: 'Kinder 1A',  panial: false },
+  { nombre: 'Gabriela Martínez Silva',    fn: '2020-08-17', curp: 'MASG200817MDFRRLA1', grupo: 'Kinder 1A',  panial: false },
+  { nombre: 'Andrés Reyes Ortega',        fn: '2020-05-11', curp: 'REOA200511HDFRYNA1', grupo: 'Kinder 1A',  panial: false },
+  // Kinder 1B
+  { nombre: 'María Fernanda Castillo',    fn: '2020-10-03', curp: 'CALM201003MDFRRNA1', grupo: 'Kinder 1B',  panial: false, alergias: 'Cacahuates' },
+  { nombre: 'Rodrigo Núñez Paredes',      fn: '2020-01-28', curp: 'NUPR200128HDFRZNA1', grupo: 'Kinder 1B',  panial: false },
   // Kinder 2
   { nombre: 'Alejandro Soto Venegas',     fn: '2019-06-15', curp: 'SOVA190615HDFTNLA1', grupo: 'Kinder 2',  panial: false },
   { nombre: 'Daniela Cruz Méndez',        fn: '2019-09-20', curp: 'CUMD190920MDFRRNA1', grupo: 'Kinder 2',  panial: false },

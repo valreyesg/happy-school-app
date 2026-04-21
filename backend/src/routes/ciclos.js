@@ -92,22 +92,45 @@ router.get('/:id/preview-promocion', authorize('directora'), async (req, res, ne
         g.nivel, g.nivel_codigo, g.nombre AS grupo_actual,
         g_dest.id AS grupo_destino_id, g_dest.nombre AS grupo_destino_nombre,
         g_dest.nivel AS nivel_destino,
+        cnt_dest.cantidad_grupos_destino,
         CASE g.nivel_codigo
           WHEN 'kinder3' THEN 'egresado'
           ELSE 'reinscrito'
         END AS nuevo_estado
        FROM alumnos a
        JOIN grupos g ON a.grupo_id = g.id
-       LEFT JOIN grupos g_dest ON g_dest.ciclo_id = $1
-         AND g_dest.nivel_codigo = (
-           CASE g.nivel_codigo
-             WHEN 'maternal'  THEN 'prekinder'
-             WHEN 'prekinder' THEN 'kinder1'
-             WHEN 'kinder1'   THEN 'kinder2'
-             WHEN 'kinder2'   THEN 'kinder3'
-             ELSE NULL
-           END
-         )
+       LEFT JOIN LATERAL (
+         SELECT id, nombre, nivel
+         FROM grupos
+         WHERE ciclo_id = $1
+           AND nivel_codigo = (
+             CASE g.nivel_codigo
+               WHEN 'maternal'  THEN 'prekinder'
+               WHEN 'prekinder' THEN 'kinder1'
+               WHEN 'kinder1'   THEN 'kinder2'
+               WHEN 'kinder2'   THEN 'kinder3'
+               ELSE NULL
+             END
+           )
+           AND deleted_at IS NULL
+         ORDER BY nombre
+         LIMIT 1
+       ) g_dest ON true
+       LEFT JOIN LATERAL (
+         SELECT COUNT(*) AS cantidad_grupos_destino
+         FROM grupos
+         WHERE ciclo_id = $1
+           AND nivel_codigo = (
+             CASE g.nivel_codigo
+               WHEN 'maternal'  THEN 'prekinder'
+               WHEN 'prekinder' THEN 'kinder1'
+               WHEN 'kinder1'   THEN 'kinder2'
+               WHEN 'kinder2'   THEN 'kinder3'
+               ELSE NULL
+             END
+           )
+           AND deleted_at IS NULL
+       ) cnt_dest ON true
        WHERE a.ciclo_id = $2
          AND a.deleted_at IS NULL
          AND a.estado NOT IN ('baja', 'egresado')

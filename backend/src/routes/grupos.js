@@ -186,4 +186,41 @@ router.get('/:id/alumnos', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Eliminar grupo (soft-delete)
+router.delete('/:id', authorize('directora'), async (req, res, next) => {
+  try {
+    // Verificar que el grupo no tenga alumnos activos
+    const checkResult = await query(`
+      SELECT COUNT(*) AS total FROM alumnos
+      WHERE grupo_id = $1 AND deleted_at IS NULL
+        AND estado IN ('inscrito', 'reinscrito')
+    `, [req.params.id]);
+
+    const totalAlumnos = parseInt(checkResult.rows[0].total);
+    if (totalAlumnos > 0) {
+      return res.status(400).json({
+        error: `No se puede eliminar un grupo con ${totalAlumnos} alumno(s) activo(s). Reasigna los alumnos primero.`
+      });
+    }
+
+    // Soft-delete del grupo
+    const result = await query(`
+      UPDATE grupos SET deleted_at = NOW(), activo = false, updated_at = NOW()
+      WHERE id = $1 AND deleted_at IS NULL RETURNING *
+    `, [req.params.id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Grupo no encontrado' });
+    }
+
+    // Desactivar asignaciones de maestras del grupo
+    await query(`
+      UPDATE asignaciones_grupo SET activo = false, updated_at = NOW()
+      WHERE grupo_id = $1
+    `, [req.params.id]);
+
+    res.json({ message: 'Grupo eliminado correctamente', grupo: result.rows[0] });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

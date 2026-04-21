@@ -8,7 +8,8 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const grupos = {
   maternal:  '9a44b4df-0347-4938-bcd3-008945ff9ac5',
   prekinder: 'ac566ca1-7e1e-480b-babd-f2a529c0abeb',
-  kinder1:   'd692fdae-df6e-4d72-a43a-4c15a00a60d4',
+  kinder1a:  'd692fdae-df6e-4d72-a43a-4c15a00a60d4',  // Renombrado de 'Kinder 1'
+  kinder1b:  '9e15894d-0c75-4147-b470-42f29fed9bd5',  // Nuevo grupo Kinder 1B
   kinder2:   '39e16b01-ddf1-40d7-95ee-1cb67737250e',
   kinder3:   '920c245a-797d-4f48-9d3e-939e77b5b09a',
 };
@@ -16,7 +17,7 @@ const grupos = {
 const maestras = {
   maternal:  '1c76edb9-2435-4e29-a6c3-5349681b435a', // Gabriela Soto
   prekinder: 'c52f63bd-6bfc-4d3c-949f-1b17530dd265', // Mónica Vargas
-  kinder1:   'c27bbcca-c596-4f0f-bb11-6b47a4c4a287', // Diana Cruz
+  kinder1a:  'c27bbcca-c596-4f0f-bb11-6b47a4c4a287', // Diana Cruz → Kinder 1A
   kinder2:   '56234fa1-1693-4b2c-8621-7ced975b1907', // Paola Gutiérrez
   kinder3:   'd051b547-c6ba-48e5-8c62-106069b49455', // Andrea Morales
 };
@@ -34,12 +35,13 @@ const alumnos = [
   { id: '34bb8e7e-924a-4f97-9aac-16586c139748', nombre: 'Santiago Gutiérrez', grupo: 'prekinder', usa_panial: false },
   { id: '6079cf19-793f-483b-829f-69194bab8716', nombre: 'Sebastián Medina', grupo: 'prekinder', usa_panial: false },
   { id: 'aedaf1cb-ae1b-4ca3-9377-480c27f4eab4', nombre: 'Valeria Flores',  grupo: 'prekinder', usa_panial: false },
-  // Kinder 1
-  { id: '9ddfaab9-19bf-416d-bb67-31a20d76eec3', nombre: 'Andrés Reyes',     grupo: 'kinder1',   usa_panial: false },
-  { id: '8ff43cbb-b326-4209-b88a-6b3a263e5821', nombre: 'Diego Hernández',  grupo: 'kinder1',   usa_panial: false },
-  { id: '86899a32-4b36-4d21-bc8b-b1cd46effcb7', nombre: 'Gabriela Martínez',grupo: 'kinder1',   usa_panial: false },
-  { id: '2f63f316-0f05-4622-9b4b-e9e3d93e4218', nombre: 'María Fernanda',   grupo: 'kinder1',   usa_panial: false },
-  { id: '8349ffc0-8db5-458b-adbc-fd602987c757', nombre: 'Rodrigo Núñez',    grupo: 'kinder1',   usa_panial: false },
+  // Kinder 1A
+  { id: '9ddfaab9-19bf-416d-bb67-31a20d76eec3', nombre: 'Andrés Reyes',     grupo: 'kinder1a',  usa_panial: false },
+  { id: '8ff43cbb-b326-4209-b88a-6b3a263e5821', nombre: 'Diego Hernández',  grupo: 'kinder1a',  usa_panial: false },
+  { id: '86899a32-4b36-4d21-bc8b-b1cd46effcb7', nombre: 'Gabriela Martínez',grupo: 'kinder1a',  usa_panial: false },
+  // Kinder 1B
+  { id: '2f63f316-0f05-4622-9b4b-e9e3d93e4218', nombre: 'María Fernanda',   grupo: 'kinder1b',  usa_panial: false },
+  { id: '8349ffc0-8db5-458b-adbc-fd602987c757', nombre: 'Rodrigo Núñez',    grupo: 'kinder1b',  usa_panial: false },
   // Kinder 2
   { id: '4f66b9da-0a94-449a-9e5c-a45e23aff01e', nombre: 'Alejandro Soto',   grupo: 'kinder2',   usa_panial: false },
   { id: 'dec35a85-27b2-4383-8613-7fa2aba38d94', nombre: 'Daniela Cruz',     grupo: 'kinder2',   usa_panial: false },

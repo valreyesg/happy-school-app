@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-20 (sesión 32 COMPLETADA)
+## Última actualización: 2026-04-20 (sesión 33+ COMPLETADA — limpieza grupos)
 
 ---
 
@@ -9,14 +9,8 @@
 ### Ciclos Escolares (continuación)
 - [ ] Test E2E completo: crear ciclo destino → copiar grupos → ejecutar promoción → verificar alumnos movidos
 - [ ] Panel "Historial egresados": endpoint GET alumnos egresados del ciclo anterior
-- [ ] Validar flujo en browser: Maternal → Prekinder, Prekinder → K1, etc. mostrando grupo destino correcto
+- [ ] Validar flujo en browser: Maternal → Prekinder, Prekinder → K1A, Prekinder → K1B selector manual
 - [ ] Descargar Excel export antes de confirmar cierre (validar formato)
-
-### Automatización de Grupos (NUEVO)
-- [x] Endpoint copiar grupos del ciclo anterior ✅ SESIÓN 33
-- [x] Botón "Copiar grupos" en modal PASO 1 ✅ SESIÓN 33
-- [x] Filtrar ciclos pasados en selector destino ✅ SESIÓN 33
-- [x] Validación: advertencia si ciclo destino no tiene grupos ✅ SESIÓN 33
 
 ### Testing y Validación (continúa de sesión anterior)
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia

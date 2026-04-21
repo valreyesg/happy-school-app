@@ -1,6 +1,42 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 33+ — Limpieza y Reestructuración de Grupos 2025-2026 (2026-04-20)
+- [x] **Problema:** Ciclo 2025-2026 tenía grupos incorrectos/duplicados. Se requería 6 grupos: Maternal, Prekinder, Kinder 1A, Kinder 1B, Kinder 2, Kinder 3. Un nivel puede tener múltiples subgrupos diferenciados por letra.
+- [x] **Restricción crítica:** Datos históricos de semana 13-17 abril + 20 abril referencian grupos por UUID hardcodeado en `seed_semana_13_17_abril.js`. NO se pueden eliminar/recrear grupos — perderían UUID y datos quedarían huérfanos.
+- [x] **Solución:** RENOMBRAR grupos existentes en lugar de borrar. 'Kinder 1' → 'Kinder 1A' (UUID preservada: `d692fdae-df6e-4d72-a43a-4c15a00a60d4`). Crear 'Kinder 1B' nuevo (UUID: `9e15894d-0c75-4147-b470-42f29fed9bd5`).
+- [x] **Script de limpieza:** Creado `backend/src/database/fix_grupos_2025_2026.js` (transacción atómica, idempotente):
+  - Obtiene ciclo 2025-2026
+  - Renombra 'Kinder 1' → 'Kinder 1A'
+  - Crea 'Kinder 1B' si no existe
+  - Soft-delete de grupos sobrantes (no canónicos)
+  - Crea usuario + personal + asignación para maestra genérica K1B (`kinder1b@happyschool.edu.mx`)
+  - Recrea UNIQUE index como índice parcial (excluye `deleted_at IS NOT NULL`)
+- [x] **Backend cambios:**
+  - `backend/src/routes/grupos.js`: Agregado endpoint `DELETE /:id` (soft-delete, valida sin alumnos activos)
+  - `backend/src/routes/ciclos.js`: Arreglado `preview-promocion` — uso de LATERAL + LIMIT 1 para evitar duplicados cuando hay múltiples grupos por nivel. Agregado campo `cantidad_grupos_destino` para facilitar selector manual en UI.
+- [x] **Seeds actualizados:**
+  - `seed.js`: Grupos ahora: Maternal, Prekinder, Kinder 1A, Kinder 1B, Kinder 2, Kinder 3. Maestras: 6 (agregada K1B con email `kinder1b@happyschool.edu.mx`, tel `5500000015`)
+  - `seed_datos_reales.js`: Alumnos divididos: Diego, Gabriela, Andrés → K1A; María Fernanda, Rodrigo → K1B
+  - `seed_semana_13_17_abril.js`: Keys actualizadas: `kinder1` → `kinder1a`, `kinder1b` nuevo. Alumnos reasignados a grupos correctos.
+- [x] **Datos históricos preservados:** Todos los registros de bitácora, asistencia, comida, pagos de semana 13-17 abril + 20 abril siguen íntegros (UUIDs de grupos preservadas, JOINs válidos).
+- [x] **Validación:** Script ejecutado exitosamente. BD contiene exactamente 6 grupos del ciclo activo.
+
+**Bugs encontrados y solucionados:**
+1. **Conflicto de datos históricos:** Semana 13-17 abril referencia UUIDs hardcodeados de grupos. Si se borraban/recreaban grupos, los datos quedaban huérfanos. FIX: Estrategia de RENOMBRAR en lugar de borrar.
+2. **Índice UNIQUE incluye deleted_at:** Después de soft-delete de 'Kinder 1', el índice bloqueaba recrear un grupo con ese nombre. FIX: Recrear índice como `CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL`.
+3. **Preview-promocion genera duplicados:** Con 2 grupos Kinder 1A y K1B (mismo nivel_codigo), LEFT JOIN retornaba filas duplicadas por alumno. FIX: Usar LATERAL con LIMIT 1 para tomar solo el primer grupo.
+
+**Decisiones de diseño:**
+- Kinder 1B sin maestra titular inicial (creada genérica `kinder1b@happyschool.edu.mx` — Valeria la actualiza manualmente cuando incorpore maestra real).
+- Alumnos del viejo K1 → todos a K1A por defecto (redistribución manual desde UI si Valeria prefiere).
+- Índice parcial: permite usar soft-delete sin impedir futuros registros con mismo nombre en ciclos diferentes o sin `deleted_at`.
+
+**Pendientes para sesión 34:**
+- [ ] Validar UI en navegador: 6 grupos visibles en dashboard directora
+- [ ] Test promoción: alumnos Prekinder → selector manual entre K1A y K1B
+- [ ] Panel historial egresados
+
 ## ✅ SESIÓN 32 — Ciclos Escolares: Crear, Cierre y Promoción de Alumnos (2026-04-20)
 - [x] **Backend CRUD completo:** 4 endpoints en `backend/src/routes/ciclos.js`:
   - `GET /ciclos` — lista todos los ciclos con conteo de alumnos activos

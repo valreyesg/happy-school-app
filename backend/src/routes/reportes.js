@@ -117,6 +117,8 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           AND a.estado IN ('inscrito','reinscrito')
         LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $1
         WHERE g.activo = true
+          AND g.deleted_at IS NULL
+          AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)
         GROUP BY g.id, g.nombre, g.color_hex
         ORDER BY g.nivel
       `, [hoy]),

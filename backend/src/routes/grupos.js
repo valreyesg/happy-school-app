@@ -35,7 +35,7 @@ router.get('/', async (req, res, next) => {
       LEFT JOIN personal p_aux ON p_aux.id = ag_aux.personal_id
       WHERE g.deleted_at IS NULL
         ${activo !== 'todos' ? `AND g.activo = ${activo === 'true'}` : ''}
-        ${ciclo_id ? `AND g.ciclo_id = '${ciclo_id}'` : ''}
+        ${ciclo_id ? `AND g.ciclo_id = '${ciclo_id}'` : 'AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)'}
       GROUP BY g.id, c.nombre, p_tit.nombre_completo, p_tit.id
       ORDER BY g.nivel, g.nombre
     `);

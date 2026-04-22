@@ -144,6 +144,9 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         LEFT JOIN alumnos a ON a.grupo_id = g.id AND a.deleted_at IS NULL
         LEFT JOIN pagos p ON p.alumno_id = a.id
           AND p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
+        WHERE g.activo = true
+          AND g.deleted_at IS NULL
+          AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)
         GROUP BY g.id, g.nombre, g.color_hex
         ORDER BY g.nombre
       `, [m, a]),

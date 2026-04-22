@@ -4,7 +4,7 @@
 
 ---
 
-## 🔜 SESIÓN 34 — Próxima sesión
+## 🔜 SESIÓN 35 — Próxima sesión
 
 ### Ciclos Escolares (continuación)
 - [ ] Test E2E completo: crear ciclo destino → copiar grupos → ejecutar promoción → verificar alumnos movidos

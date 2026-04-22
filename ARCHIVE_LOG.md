@@ -1,6 +1,15 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 34 — Corrección duplicados de grupos en todo el sistema (2026-04-21)
+- [x] **Problema:** Al hacer fetch de `/grupos` sin `ciclo_id`, el backend devolvía grupos de todos los ciclos (Kinder 1, Kinder 1A, Kinder 1B, duplicados de ciclos anteriores). El dashboard directora mostraba grupos incorrectos.
+- [x] **Root cause:** 3 queries en el backend usaban `FROM grupos` o `WHERE g.activo = true` sin filtrar por ciclo activo.
+- [x] **Fix en `backend/src/routes/grupos.js`:** Cuando no se pasa `ciclo_id`, el WHERE ahora incluye `AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)`.
+- [x] **Fix en `backend/src/routes/reportes.js`:** Query `asistenciaPorGrupo` del dashboard directora ahora filtra `AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)`.
+- [x] **Fix en `backend/src/routes/pagos.js`:** Query de resumen de pagos por grupo ahora filtra por ciclo activo.
+- [x] **Validado:** GET /grupos, GET /reportes/dashboard y GET /pagos devuelven exactamente 6 grupos del ciclo 2025-2026: Maternal, Prekinder, Kinder 1A, Kinder 1B, Kinder 2, Kinder 3.
+- [x] **Portal del papá verificado:** No hace fetch directo a `/grupos`. El `grupo_nombre` viene del alumno directamente vía `/alumnos/mis-hijos` — sin riesgo de duplicados.
+
 ## ✅ SESIÓN 33+ — Limpieza y Reestructuración de Grupos 2025-2026 (2026-04-20)
 - [x] **Problema:** Ciclo 2025-2026 tenía grupos incorrectos/duplicados. Se requería 6 grupos: Maternal, Prekinder, Kinder 1A, Kinder 1B, Kinder 2, Kinder 3. Un nivel puede tener múltiples subgrupos diferenciados por letra.
 - [x] **Restricción crítica:** Datos históricos de semana 13-17 abril + 20 abril referencian grupos por UUID hardcodeado en `seed_semana_13_17_abril.js`. NO se pueden eliminar/recrear grupos — perderían UUID y datos quedarían huérfanos.

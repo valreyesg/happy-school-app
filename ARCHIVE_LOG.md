@@ -1,7 +1,37 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 42
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 43
+
+---
+
+## ✅ SESIÓN 43 — UI Mejoras Portal Directora
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:**
+- `web/src/pages/directora/Pagos.jsx`
+- `web/src/pages/directora/ServicioComida.jsx` (nuevo)
+- `web/src/pages/directora/TurnoPuerta.jsx`
+- `web/src/layouts/DirectoraLayout.jsx`
+- `web/src/App.jsx`
+- `backend/src/routes/turnos-puerta.js`
+- `backend/migrations/021_turno_puerta_tipo.sql` (nuevo)
+- `backend/run-migration.js` (nuevo — helper reutilizable)
+
+**Tareas Completadas (3/3):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Pagos — Selector Grupo → Alumno** | ModalPago global reemplaza select plano con flujo Grupo → Alumno. Preview de recargo estimado + total antes de registrar (misma lógica del backend). |
+| **Servicio de Comida unificado** | Nueva página `/directora/comida` con tabs Pagos / Menú. Tab Pagos: 3 cards (Confirmados, Pagados con desglose transf/efect, Sin pagar) + lista alumnos dividida en Semana completa vs Días específicos. Tab Menú: imagen/PDF + subir menú desde modal. Antiguas rutas `comida-menu` y `comida-pagos` redirigen a `/directora/comida`. Nav sidebar colapsado a 1 item. |
+| **Turno Puerta ENTRADA/SALIDA** | Migración BD 021: columna `turno` + constraint única por `(fecha, personal_id, turno)`. Tabs Entrada (☀️) / Salida (🌙) independientes. Checkbox "Por semana" para asignar los 5 días de una vez. La misma Miss puede tener ambos turnos el mismo día. |
+
+**Bugs corregidos:**
+- `ComidaPagos.jsx` usaba claves inexistentes del backend (`stats.pagado_count`). `ServicioComida.jsx` usa las claves correctas (`stats.pagados.total`, `stats.sin_verificar.total`).
+- `ComidaPagos.jsx` leía `conf.nombre_alumno` (undefined). `ServicioComida.jsx` usa `conf.nombre_completo`.
+
+**Impacto:** Portal Directora más usable — selector de alumno intuitivo por grupo, comida unificada en una sola vista con tabs, turno de puerta con distinción entrada/salida.
 
 ---
 

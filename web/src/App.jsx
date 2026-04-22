@@ -23,6 +23,7 @@ import DirectoraConfig from '@/pages/directora/Configuracion';
 import DirectoraAlumnoPerfil from '@/pages/directora/AlumnoPerfil';
 import DirectoraAsistencia from '@/pages/directora/Asistencia';
 import DirectoraTurnoPuerta from '@/pages/directora/TurnoPuerta';
+import DirectoraServicioComida from '@/pages/directora/ServicioComida';
 import DirectoraComidaMenu from '@/pages/directora/ComidaMenu';
 import DirectoraComidaPagos from '@/pages/directora/ComidaPagos';
 import DirectoraCiclos from '@/pages/directora/CiclosEscolares';
@@ -99,8 +100,9 @@ export default function App() {
         <Route path="evaluaciones" element={<DirectoraEvaluaciones />} />
         <Route path="config" element={<DirectoraConfig />} />
         <Route path="turno-puerta" element={<DirectoraTurnoPuerta />} />
-        <Route path="comida-menu" element={<DirectoraComidaMenu />} />
-        <Route path="comida-pagos" element={<DirectoraComidaPagos />} />
+        <Route path="comida" element={<DirectoraServicioComida />} />
+        <Route path="comida-menu" element={<Navigate to="/directora/comida" replace />} />
+        <Route path="comida-pagos" element={<Navigate to="/directora/comida" replace />} />
         <Route path="ciclos" element={<DirectoraCiclos />} />
       </Route>
 

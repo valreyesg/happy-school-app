@@ -57,10 +57,18 @@ function StatCard({ label, valor, sub, color }) {
 // ─── Modal Registrar Pago ─────────────────────────────────────────────────────
 
 function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
-  const { data: todosAlumnos = [] } = useQuery({
-    queryKey: ['alumnos-select'],
-    queryFn: () => api.get('/alumnos', { params: { limit: 200 } }).then(r => r.data?.alumnos || r.data),
+  const [grupoId, setGrupoId] = useState('');
+
+  const { data: grupos = [] } = useQuery({
+    queryKey: ['grupos'],
+    queryFn: () => api.get('/grupos').then(r => r.data),
     enabled: !alumno,
+  });
+
+  const { data: alumnosGrupo = [], isFetching: cargandoAlumnos } = useQuery({
+    queryKey: ['grupo-alumnos', grupoId],
+    queryFn: () => api.get(`/grupos/${grupoId}/alumnos`).then(r => r.data),
+    enabled: !alumno && !!grupoId,
   });
 
   const [form, setForm] = useState({
@@ -79,6 +87,30 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
   const qc = useQueryClient();
 
   const conceptoSel = conceptos.find(c => c.id === form.concepto_id);
+
+  // Calcular recargo preview (misma lógica que el backend)
+  const recargoPreview = useMemo(() => {
+    if (!conceptoSel?.dia_recargo || !form.aplicar_recargo || !form.monto) return 0;
+    const hoy = new Date();
+    const diaActual = hoy.getDate();
+    const mesActual = hoy.getMonth() + 1;
+    const anioActual = hoy.getFullYear();
+    const montoPorDia = parseFloat(conceptoSel.monto_recargo_dia) || 0;
+    const m = form.mes_correspondiente;
+    const a = form.anio_correspondiente;
+    if (a < anioActual || (a === anioActual && m < mesActual)) {
+      const fechaVenc = new Date(a, m - 1, conceptoSel.dia_recargo);
+      const dias = Math.max(0, Math.floor((hoy - fechaVenc) / 86400000));
+      return +(dias * montoPorDia).toFixed(2);
+    }
+    if (m === mesActual && a === anioActual && diaActual >= conceptoSel.dia_recargo) {
+      const dias = diaActual - conceptoSel.dia_recargo + 1;
+      return +(dias * montoPorDia).toFixed(2);
+    }
+    return 0;
+  }, [conceptoSel, form.aplicar_recargo, form.monto, form.mes_correspondiente, form.anio_correspondiente]);
+
+  const totalPreview = form.monto ? +(parseFloat(form.monto) + recargoPreview).toFixed(2) : 0;
 
   const mut = useMutation({
     mutationFn: d => api.post('/pagos', d).then(r => r.data),
@@ -123,16 +155,45 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
               </div>
             </div>
           ) : (
-            <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1">Alumno *</label>
-              <select className="input-hs" value={form.alumno_id}
-                onChange={e => setForm(f => ({ ...f, alumno_id: e.target.value }))} required>
-                <option value="">Selecciona un alumno…</option>
-                {todosAlumnos.map(a => (
-                  <option key={a.id} value={a.id}>{a.nombre_completo}</option>
-                ))}
-              </select>
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-1">Grupo *</label>
+                <select
+                  className="input-hs"
+                  value={grupoId}
+                  onChange={e => {
+                    setGrupoId(e.target.value);
+                    setForm(f => ({ ...f, alumno_id: '' }));
+                  }}
+                  required
+                >
+                  <option value="">Selecciona un grupo…</option>
+                  {grupos.map(g => (
+                    <option key={g.id} value={g.id}>{g.nombre} — {g.nivel}</option>
+                  ))}
+                </select>
+              </div>
+
+              {grupoId && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Alumno *</label>
+                  <select
+                    className="input-hs"
+                    value={form.alumno_id}
+                    onChange={e => setForm(f => ({ ...f, alumno_id: e.target.value }))}
+                    required
+                    disabled={cargandoAlumnos}
+                  >
+                    <option value="">
+                      {cargandoAlumnos ? 'Cargando alumnos…' : 'Selecciona un alumno…'}
+                    </option>
+                    {alumnosGrupo.map(a => (
+                      <option key={a.id} value={a.id}>{a.nombre_completo}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </>
           )}
 
           <div>
@@ -167,11 +228,31 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
           </div>
 
           {conceptoSel?.dia_recargo && (
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" className="w-4 h-4 rounded" checked={form.aplicar_recargo}
-                onChange={e => setForm(f => ({ ...f, aplicar_recargo: e.target.checked }))} />
-              <span className="text-sm font-semibold text-gray-700">Calcular recargo automático</span>
-            </label>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 rounded" checked={form.aplicar_recargo}
+                  onChange={e => setForm(f => ({ ...f, aplicar_recargo: e.target.checked }))} />
+                <span className="text-sm font-semibold text-gray-700">Calcular recargo automático</span>
+              </label>
+              {form.monto && (
+                <div className="bg-gray-50 rounded-xl p-3 space-y-1 text-sm">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Monto base</span>
+                    <span className="font-bold">{fmt(form.monto)}</span>
+                  </div>
+                  {form.aplicar_recargo && recargoPreview > 0 && (
+                    <div className="flex justify-between text-red-600">
+                      <span>Recargo estimado</span>
+                      <span className="font-bold">+ {fmt(recargoPreview)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-gray-900 border-t pt-1 mt-1">
+                    <span className="font-black">Total a registrar</span>
+                    <span className="font-black text-purple-700">{fmt(totalPreview)}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           <div>

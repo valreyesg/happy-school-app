@@ -1,27 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 43 lista — Pagos + Servicio Comida + Notificaciones
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 43 completada — Portal Directora UI
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 43 — UI Mejoras Portal (continuación)
-
-### 🎨 MEJORAS UI — PORTAL DIRECTORA
-
-#### Pagos (Directora) — pendiente
-- [ ] **Registrar Pago (modal global):** Agregar selector de grupo + buscador de alumno (reemplazar select plano).
-
-#### Servicio de Comida (Unificado — Antes: Menú + Pagos Comida)
-- [ ] Crear single menú "Servicio de Comida" con:
-  - Menú semanal (visual).
-  - Tabla: Confirmados, Pagados, Pendientes.
-  - Dividir alumnos: Semana completa vs. X días específicos (mostrar qué días eligió).
-
-#### Turno Puerta (Directora)
-- [ ] Agregar configuración para SALIDA (falta).
-- [ ] Permitir configurar por día o por semana.
+## 📍 SESIÓN 44 — UI Mejoras Portal Maestra + Papá
 
 ### 🎨 MEJORAS UI — PORTAL MAESTRA
 - [ ] **Navegación entre fechas:** Filtro Entrada, Registro Salida, Asistencia, Bitácora → botones prev/next días.

@@ -9,7 +9,7 @@ router.use(authenticate);
 router.get('/hoy', async (req, res, next) => {
   try {
     const result = await query(`
-      SELECT tp.id, tp.fecha::text, p.id AS personal_id, u.nombre
+      SELECT tp.id, tp.fecha::text, tp.turno, p.id AS personal_id, u.nombre
       FROM turno_puerta tp
       JOIN personal p ON tp.personal_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
@@ -24,13 +24,13 @@ router.get('/', authorize('directora', 'administrativo'), async (req, res, next)
   try {
     const fecha = req.query.fecha || (await query(`SELECT CURRENT_DATE::text AS f`)).rows[0].f;
     const result = await query(`
-      SELECT tp.id, tp.fecha::text, p.id AS personal_id, u.rol_principal,
+      SELECT tp.id, tp.fecha::text, tp.turno, p.id AS personal_id, u.rol_principal,
              p.foto_url, u.nombre
       FROM turno_puerta tp
       JOIN personal p ON tp.personal_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
       WHERE tp.fecha = $1
-      ORDER BY u.nombre
+      ORDER BY tp.turno, u.nombre
     `, [fecha]);
     res.json(result.rows);
   } catch (err) { next(err); }
@@ -54,15 +54,15 @@ router.get('/personal', authorize('directora', 'administrativo'), async (req, re
 // Asignar turno
 router.post('/', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
-    const { personal_id, fecha } = req.body;
+    const { personal_id, fecha, turno = 'entrada' } = req.body;
     const me = await query(`SELECT id FROM personal WHERE usuario_id = $1`, [req.user.id]);
     const asignado_por = me.rows[0]?.id || null;
     const result = await query(`
-      INSERT INTO turno_puerta (fecha, personal_id, asignado_por)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (fecha, personal_id) DO NOTHING
-      RETURNING id, fecha::text, personal_id
-    `, [fecha, personal_id, asignado_por]);
+      INSERT INTO turno_puerta (fecha, personal_id, asignado_por, turno)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (fecha, personal_id, turno) DO NOTHING
+      RETURNING id, fecha::text, turno, personal_id
+    `, [fecha, personal_id, asignado_por, turno]);
     res.json(result.rows[0] || { ya_existe: true });
   } catch (err) { next(err); }
 });

@@ -114,10 +114,109 @@ function ModalAsistenciaGrupo({ grupo, onClose }) {
   );
 }
 
-function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading }) {
-  const [grupoAbierto, setGrupoAbierto] = useState(null);
+function ModalSalidasGrupo({ grupo, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
+            <h2 className="text-lg font-black text-gray-800">Salidas — {grupo.grupo_nombre}</h2>
+            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+              {grupo.salidas.length} salidas
+            </span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
+          {grupo.salidas.length === 0 ? (
+            <p className="text-sm text-gray-400 font-semibold text-center py-6">Sin salidas registradas</p>
+          ) : (
+            grupo.salidas.map(s => (
+              <div key={s.id + s.hora_salida} className={`flex items-center gap-3 p-3 rounded-2xl ${s.es_anticipada ? 'bg-orange-50' : 'bg-gray-50'}`}>
+                <span className="text-lg">{!s.autorizado ? '🚨' : s.es_anticipada ? '⚠️' : '✅'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-sm text-gray-800">{s.nombre_completo}</p>
+                  {s.nombre_quien_recoge && <p className="text-xs text-gray-400 font-semibold truncate">Recogido por: {s.nombre_quien_recoge}</p>}
+                </div>
+                <div className="text-right shrink-0">
+                  <span className={`font-black text-sm ${!s.autorizado ? 'text-red-600' : s.es_anticipada ? 'text-orange-600' : 'text-green-600'}`}>
+                    {new Date(s.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                  </span>
+                  {s.es_anticipada && <p className="text-xs text-orange-400 font-semibold">anticipada</p>}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  // Agrupar salidas por grupo
+function ModalDocumentacionGrupo({ grupo, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
+            <h2 className="text-lg font-black text-gray-800">Documentación — {grupo.grupo_nombre}</h2>
+            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+              {grupo.alumnos.length} alumnos
+            </span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
+          {grupo.alumnos.map(a => (
+            <div key={a.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl">
+              <span className="text-lg">🔴</span>
+              <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ModalRetardosGrupo({ grupo, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-3 h-3 rounded-full" style={{ background: grupo.tieneAlumnosSeveros ? '#DC2626' : grupo.color_hex }} />
+            <h2 className="text-lg font-black text-gray-800">Retardos — {grupo.grupo_nombre}</h2>
+            <span className={`ml-auto text-xs font-black px-2 py-1 rounded-xl ${grupo.tieneAlumnosSeveros ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
+              {grupo.totalRetardos} retardos
+            </span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
+          {grupo.alumnos.map(a => {
+            const retardos = parseInt(a.retardos || 0);
+            return (
+              <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
+                <span className="text-lg">{retardos >= 3 ? '🔴' : '🟡'}</span>
+                <div className="flex-1">
+                  <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                </div>
+                <span className={`font-black text-lg ${retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
+                  {retardos}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading, onCardClick }) {
   const porGrupo = asistenciaPorGrupo.map(g => {
     const salidas = salidasHoy.filter(s => s.grupo_nombre === g.grupo_nombre);
     const anticipadas = salidas.filter(s => s.es_anticipada).length;
@@ -125,95 +224,45 @@ function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading }) {
     return { ...g, salidas, anticipadas, noAutorizadas };
   });
 
+  const getEmojiSalidas = (salidas, anticipadas, noAutorizadas) => {
+    if (noAutorizadas > 0) return '🚨';
+    if (anticipadas > 0) return '⚠️';
+    return '✅';
+  };
+
   return (
     <div className="card-hs">
       <h2 className="text-lg font-black text-gray-800 mb-4">🚪 Salidas registradas hoy — por grupo</h2>
       {isLoading ? (
         <div className="skeleton h-24 rounded-2xl" />
       ) : (
-        <div className="space-y-3">
-          {porGrupo.map(g => {
-            const abierto = grupoAbierto === g.grupo_id;
-            const enEscuela = parseInt(g.presentes) - g.salidas.length;
-            return (
-              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
-                style={{ borderColor: g.color_hex + '50' }}>
-                {/* Cabecera del grupo — siempre visible */}
-                <button
-                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
-                  className="w-full flex items-center gap-3 p-4 text-left transition-colors hover:opacity-90"
-                  style={{ background: g.color_hex + '15' }}
-                >
-                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: g.color_hex }} />
-                  <span className="font-black text-gray-700 flex-1">{g.grupo_nombre}</span>
-
-                  {/* Chips resumen */}
-                  <div className="flex items-center gap-2 text-xs font-bold">
-                    <span className="bg-white/80 text-gray-600 px-2 py-0.5 rounded-full">
-                      {g.salidas.length}/{g.presentes} salieron
-                    </span>
-                    {enEscuela > 0 && (
-                      <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                        {enEscuela} en escuela
-                      </span>
-                    )}
-                    {g.anticipadas > 0 && (
-                      <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
-                        ⚠️ {g.anticipadas}
-                      </span>
-                    )}
-                    {g.noAutorizadas > 0 && (
-                      <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                        🚨 {g.noAutorizadas}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-gray-400 text-sm ml-1">{abierto ? '▲' : '▼'}</span>
-                </button>
-
-                {/* Detalle expandible */}
-                {abierto && (
-                  <div className="divide-y divide-gray-50">
-                    {g.salidas.length === 0 ? (
-                      <p className="px-4 py-3 text-sm text-gray-400 font-semibold">Sin salidas registradas</p>
-                    ) : (
-                      g.salidas.map(a => (
-                        <div key={a.id + a.hora_salida} className={`flex items-center gap-3 px-4 py-3 ${a.es_anticipada ? 'bg-orange-50' : 'bg-white'}`}>
-                          <span className="text-base">{!a.autorizado ? '🚨' : a.es_anticipada ? '⚠️' : '✅'}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-                            {a.nombre_quien_recoge && (
-                              <p className="text-xs text-gray-400 font-semibold truncate">
-                                Recogido por: {a.nombre_quien_recoge}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right shrink-0">
-                            <span className={`font-black text-sm ${
-                              !a.autorizado ? 'text-red-600' : a.es_anticipada ? 'text-orange-600' : 'text-green-600'
-                            }`}>
-                              {new Date(a.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
-                            </span>
-                            {a.es_anticipada && (
-                              <p className="text-xs text-orange-400 font-semibold">anticipada</p>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          {porGrupo.map(g => (
+            <button key={g.grupo_id} onClick={() => onCardClick(g)}
+              className="text-center p-4 rounded-2xl border-2 cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ borderColor: g.color_hex + '60', background: g.color_hex + '10' }}>
+              <div className="text-2xl font-black" style={{ color: g.color_hex }}>
+                {g.salidas.length}
               </div>
-            );
-          })}
+              <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
+              {(g.anticipadas > 0 || g.noAutorizadas > 0) && (
+                <div className="mt-2 flex flex-wrap gap-1 justify-center">
+                  {g.noAutorizadas > 0 && <span className="text-xs font-black px-1.5 py-0.5 bg-red-100 text-red-700 rounded">🚨 {g.noAutorizadas}</span>}
+                  {g.anticipadas > 0 && <span className="text-xs font-black px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded">⚠️ {g.anticipadas}</span>}
+                </div>
+              )}
+              <div className="mt-2 text-lg">
+                {getEmojiSalidas(g.salidas, g.anticipadas, g.noAutorizadas)}
+              </div>
+            </button>
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function DocumentacionPorGrupo({ documentacionPendiente, asistenciaPorGrupo, isLoading }) {
-  const [grupoAbierto, setGrupoAbierto] = useState(null);
+function DocumentacionPorGrupo({ documentacionPendiente, asistenciaPorGrupo, isLoading, onCardClick }) {
   const porGrupo = agruparPorGrupo(documentacionPendiente, asistenciaPorGrupo);
 
   return (
@@ -226,46 +275,25 @@ function DocumentacionPorGrupo({ documentacionPendiente, asistenciaPorGrupo, isL
       ) : porGrupo.length === 0 ? (
         <div className="text-center py-6 text-green-700 font-black">🎉 Todos los documentos completos!</div>
       ) : (
-        <div className="space-y-3">
-          {porGrupo.map(g => {
-            const abierto = grupoAbierto === g.grupo_id;
-            return (
-              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
-                style={{ borderColor: g.color_hex + '50' }}>
-                <button
-                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
-                  className="w-full flex items-center gap-3 p-4 text-left hover:opacity-90 transition-opacity"
-                  style={{ background: g.color_hex + '15' }}>
-                  <div className="w-3 h-3 rounded-full" style={{ background: g.color_hex }} />
-                  <span className="font-black text-gray-800 flex-1">{g.grupo_nombre}</span>
-                  <span className="text-xs font-black px-2 py-1 rounded-xl bg-white/80 text-gray-700">
-                    {g.alumnos.length} alumnos
-                  </span>
-                  <span className="text-gray-400 text-sm">{abierto ? '▲' : '▼'}</span>
-                </button>
-                {abierto && (
-                  <div className="divide-y divide-gray-50">
-                    {g.alumnos.map(a => (
-                      <div key={a.id} className="flex items-center gap-3 p-4">
-                        <span className="text-xl">🔴</span>
-                        <div>
-                          <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+          {porGrupo.map(g => (
+            <button key={g.grupo_id} onClick={() => onCardClick(g)}
+              className="text-center p-4 rounded-2xl border-2 cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ borderColor: g.color_hex + '60', background: g.color_hex + '10' }}>
+              <div className="text-2xl font-black" style={{ color: g.color_hex }}>
+                {g.alumnos.length}
               </div>
-            );
-          })}
+              <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
+              <div className="mt-2 text-lg">🔴</div>
+            </button>
+          ))}
         </div>
       )}
     </div>
   );
 }
 
-function RetardosPorGrupo({ retardosMes, asistenciaPorGrupo, isLoading }) {
-  const [grupoAbierto, setGrupoAbierto] = useState(null);
+function RetardosPorGrupo({ retardosMes, asistenciaPorGrupo, isLoading, onCardClick }) {
   const porGrupo = agruparPorGrupo(retardosMes, asistenciaPorGrupo);
 
   return (
@@ -278,40 +306,22 @@ function RetardosPorGrupo({ retardosMes, asistenciaPorGrupo, isLoading }) {
       ) : porGrupo.length === 0 ? (
         <div className="text-center py-6 text-green-700 font-black">🎉 Sin retardos este mes</div>
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {porGrupo.map(g => {
-            const abierto = grupoAbierto === g.grupo_id;
-            const totalRetardos = g.alumnos.reduce((sum, a) => sum + a.retardos, 0);
+            const totalRetardos = g.alumnos.reduce((sum, a) => sum + parseInt(a.retardos || 0), 0);
+            const tieneAlumnosSeveros = g.alumnos.some(a => parseInt(a.retardos || 0) >= 3);
             return (
-              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
-                style={{ borderColor: g.color_hex + '50' }}>
-                <button
-                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
-                  className="w-full flex items-center gap-3 p-4 text-left hover:opacity-90 transition-opacity"
-                  style={{ background: g.color_hex + '15' }}>
-                  <div className="w-3 h-3 rounded-full" style={{ background: g.color_hex }} />
-                  <span className="font-black text-gray-800 flex-1">{g.grupo_nombre}</span>
-                  <span className="text-xs font-black px-2 py-1 rounded-xl bg-white/80 text-gray-700">
-                    {totalRetardos} retardos
-                  </span>
-                  <span className="text-gray-400 text-sm">{abierto ? '▲' : '▼'}</span>
-                </button>
-                {abierto && (
-                  <div className="divide-y divide-gray-50">
-                    {g.alumnos.map(a => (
-                      <div key={a.id} className="flex items-center gap-3 p-4">
-                        <span className="text-xl">{a.retardos >= 3 ? '🔴' : '🟡'}</span>
-                        <div className="flex-1">
-                          <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-                        </div>
-                        <span className={`font-black text-lg ${a.retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
-                          {a.retardos}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <button key={g.grupo_id} onClick={() => onCardClick(g)}
+                className="text-center p-4 rounded-2xl border-2 cursor-pointer hover:opacity-80 transition-opacity"
+                style={{ borderColor: tieneAlumnosSeveros ? '#DC2626' : g.color_hex + '60', background: tieneAlumnosSeveros ? '#FEE2E2' : g.color_hex + '10' }}>
+                <div className="text-2xl font-black" style={{ color: tieneAlumnosSeveros ? '#DC2626' : g.color_hex }}>
+                  {totalRetardos}
+                </div>
+                <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
+                <div className="mt-2 text-lg">
+                  {tieneAlumnosSeveros ? '🔴' : '🟡'}
+                </div>
+              </button>
             );
           })}
         </div>
@@ -344,10 +354,16 @@ export default function DirectoraDashboard() {
   });
 
   const [modalGrupo, setModalGrupo] = useState(null);
+  const [modalSalidas, setModalSalidas] = useState(null);
+  const [modalDocumentacion, setModalDocumentacion] = useState(null);
+  const [modalRetardos, setModalRetardos] = useState(null);
 
   return (
     <div className="space-y-8 animate-fade-in">
       {modalGrupo && <ModalAsistenciaGrupo grupo={modalGrupo} onClose={() => setModalGrupo(null)} />}
+      {modalSalidas && <ModalSalidasGrupo grupo={modalSalidas} onClose={() => setModalSalidas(null)} />}
+      {modalDocumentacion && <ModalDocumentacionGrupo grupo={modalDocumentacion} onClose={() => setModalDocumentacion(null)} />}
+      {modalRetardos && <ModalRetardosGrupo grupo={modalRetardos} onClose={() => setModalRetardos(null)} />}
 
       {/* Encabezado */}
       <div>
@@ -433,7 +449,12 @@ export default function DirectoraDashboard() {
                 </div>
                 <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
                 <div className="mt-2 text-lg">
-                  {g.presentes === g.total ? '🎉' : g.presentes >= g.total * 0.8 ? '✅' : <span title="Menos del 80% de alumnos presentes">⚠️</span>}
+                  {(() => {
+                    const total = parseInt(g.total || 0);
+                    const presentes = parseInt(g.presentes || 0);
+                    const emoji = total === 0 ? '⬜' : presentes === total ? '🎉' : presentes >= total * 0.8 ? '✅' : '⚠️';
+                    return emoji === '⚠️' ? <span title="Menos del 80% de alumnos presentes">{emoji}</span> : emoji;
+                  })()}
                 </div>
               </button>
             ))}
@@ -446,6 +467,7 @@ export default function DirectoraDashboard() {
         salidasHoy={resumen?.salidasHoy || []}
         asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
         isLoading={isLoading}
+        onCardClick={setModalSalidas}
       />
 
       {/* Incidentes del día */}
@@ -494,11 +516,13 @@ export default function DirectoraDashboard() {
           documentacionPendiente={resumen?.documentacionPendiente || []}
           asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
           isLoading={isLoading}
+          onCardClick={setModalDocumentacion}
         />
         <RetardosPorGrupo
           retardosMes={resumen?.retardosMes || []}
           asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
           isLoading={isLoading}
+          onCardClick={setModalRetardos}
         />
       </div>
 

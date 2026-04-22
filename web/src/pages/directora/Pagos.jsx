@@ -467,7 +467,6 @@ export default function PagosDirectora() {
           id: p.alumno_id,
           nombre_completo: p.alumno_nombre,
           foto_url: p.foto_url,
-          grupo_id: p.grupo_id,
           grupo_nombre: p.grupo_nombre,
           grupo_color: p.color_hex,
           pagos: [],
@@ -493,10 +492,10 @@ export default function PagosDirectora() {
     return map;
   }, [pagosLista]);
 
-  // Mapa grupoId → nivel
-  const grupoIdANivel = useMemo(() => {
+  // Mapa grupoNombre → nivel (pagosLista solo tiene grupo_nombre, no grupo_id)
+  const grupoNombreANivel = useMemo(() => {
     const mapa = {};
-    grupos.forEach(g => { mapa[g.id] = g.nivel; });
+    grupos.forEach(g => { mapa[g.nombre] = g.nivel; });
     return mapa;
   }, [grupos]);
 
@@ -504,11 +503,11 @@ export default function PagosDirectora() {
     let lista = Array.from(alumnosMapa.values());
     if (busqueda) lista = lista.filter(a => a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()));
     if (nivelFiltro && grupos.length > 0) {
-      lista = lista.filter(a => grupoIdANivel[a.grupo_id] === nivelFiltro);
+      lista = lista.filter(a => grupoNombreANivel[a.grupo_nombre] === nivelFiltro);
     }
     if (filtroSemaforo) lista = lista.filter(a => a.semaforo === filtroSemaforo);
     return lista.sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
-  }, [alumnosMapa, busqueda, nivelFiltro, filtroSemaforo, grupoIdANivel, grupos.length]);
+  }, [alumnosMapa, busqueda, nivelFiltro, filtroSemaforo, grupoNombreANivel, grupos.length]);
 
   const generar = useMutation({
     mutationFn: () => api.post('/pagos/generar-mes', { mes, anio }).then(r => r.data),

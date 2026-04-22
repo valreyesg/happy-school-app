@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck } from 'lucide-react';
@@ -6,6 +6,7 @@ import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
+import AvatarAlumno from '@/components/ui/AvatarAlumno';
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;
@@ -13,6 +14,28 @@ function esCumpleanos(fecha_nacimiento) {
   const [, mesHoy, diaHoy] = hoy.split('-');
   const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
   return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
+const ESTADO_STYLE = {
+  presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',      emoji: '✅' },
+  retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',        emoji: '⏰' },
+  no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'No entró',       emoji: '🚫' },
+  ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Sin registrar',  emoji: '⬜' },
+};
+
+function agruparPorGrupo(lista, asistenciaPorGrupo) {
+  const colorMap = Object.fromEntries(
+    (asistenciaPorGrupo || []).map(g => [g.grupo_nombre, { grupo_id: g.grupo_id, color_hex: g.color_hex }])
+  );
+  const acc = {};
+  for (const a of lista) {
+    if (!acc[a.grupo_nombre]) {
+      const meta = colorMap[a.grupo_nombre] || { grupo_id: a.grupo_nombre, color_hex: '#FEE2E2' };
+      acc[a.grupo_nombre] = { ...meta, grupo_nombre: a.grupo_nombre, alumnos: [] };
+    }
+    acc[a.grupo_nombre].alumnos.push(a);
+  }
+  return Object.values(acc).sort((a, b) => a.grupo_nombre.localeCompare(b.grupo_nombre));
 }
 
 const StatCard = ({ icon: Icon, label, value, sublabel, color, emoji }) => (
@@ -25,6 +48,71 @@ const StatCard = ({ icon: Icon, label, value, sublabel, color, emoji }) => (
     {sublabel && <div className="text-xs text-gray-400 font-semibold mt-1">{sublabel}</div>}
   </div>
 );
+
+function FilaModal({ alumno }) {
+  const cfg = ESTADO_STYLE[alumno.estado_asistencia] || ESTADO_STYLE.ausente;
+  return (
+    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
+      <AvatarAlumno alumno={alumno} size="sm" />
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-sm text-gray-800 truncate">{alumno.nombre_completo}</p>
+        {alumno.hora_entrada && (
+          <p className="text-xs text-gray-400 font-semibold">
+            🕐 {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX',
+              { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+          </p>
+        )}
+      </div>
+      <span className={`text-xs font-black px-2 py-1 rounded-xl ${cfg.bg} ${cfg.text}`}>
+        {cfg.emoji} {cfg.label}
+      </span>
+    </div>
+  );
+}
+
+function ModalAsistenciaGrupo({ grupo, onClose }) {
+  const [alumnos, setAlumnos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    setCargando(true);
+    const fechaHoy = new Date().toLocaleDateString('en-CA');
+    api.get(`/asistencia/grupo/${grupo.grupo_id}`, { params: { fecha: fechaHoy } })
+      .then(r => { setAlumnos(r.data); setCargando(false); })
+      .catch(() => setCargando(false));
+  }, [grupo.grupo_id]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
+            <h2 className="text-lg font-black text-gray-800">Asistencia — {grupo.grupo_nombre}</h2>
+            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+              {grupo.presentes}/{grupo.total} presentes
+            </span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
+          {cargando ? (
+            <>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skeleton h-14 rounded-2xl" />
+              ))}
+            </>
+          ) : (
+            alumnos.map(a => <FilaModal key={a.id} alumno={a} />)
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading }) {
   const [grupoAbierto, setGrupoAbierto] = useState(null);
@@ -124,6 +212,114 @@ function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading }) {
   );
 }
 
+function DocumentacionPorGrupo({ documentacionPendiente, asistenciaPorGrupo, isLoading }) {
+  const [grupoAbierto, setGrupoAbierto] = useState(null);
+  const porGrupo = agruparPorGrupo(documentacionPendiente, asistenciaPorGrupo);
+
+  return (
+    <div className="card-hs">
+      <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
+        📄 Documentación incompleta
+      </h2>
+      {isLoading ? (
+        <div className="skeleton h-24 rounded-2xl" />
+      ) : porGrupo.length === 0 ? (
+        <div className="text-center py-6 text-green-700 font-black">🎉 Todos los documentos completos!</div>
+      ) : (
+        <div className="space-y-3">
+          {porGrupo.map(g => {
+            const abierto = grupoAbierto === g.grupo_id;
+            return (
+              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
+                style={{ borderColor: g.color_hex + '50' }}>
+                <button
+                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
+                  className="w-full flex items-center gap-3 p-4 text-left hover:opacity-90 transition-opacity"
+                  style={{ background: g.color_hex + '15' }}>
+                  <div className="w-3 h-3 rounded-full" style={{ background: g.color_hex }} />
+                  <span className="font-black text-gray-800 flex-1">{g.grupo_nombre}</span>
+                  <span className="text-xs font-black px-2 py-1 rounded-xl bg-white/80 text-gray-700">
+                    {g.alumnos.length} alumnos
+                  </span>
+                  <span className="text-gray-400 text-sm">{abierto ? '▲' : '▼'}</span>
+                </button>
+                {abierto && (
+                  <div className="divide-y divide-gray-50">
+                    {g.alumnos.map(a => (
+                      <div key={a.id} className="flex items-center gap-3 p-4">
+                        <span className="text-xl">🔴</span>
+                        <div>
+                          <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RetardosPorGrupo({ retardosMes, asistenciaPorGrupo, isLoading }) {
+  const [grupoAbierto, setGrupoAbierto] = useState(null);
+  const porGrupo = agruparPorGrupo(retardosMes, asistenciaPorGrupo);
+
+  return (
+    <div className="card-hs">
+      <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
+        ⏰ Retardos del mes
+      </h2>
+      {isLoading ? (
+        <div className="skeleton h-24 rounded-2xl" />
+      ) : porGrupo.length === 0 ? (
+        <div className="text-center py-6 text-green-700 font-black">🎉 Sin retardos este mes</div>
+      ) : (
+        <div className="space-y-3">
+          {porGrupo.map(g => {
+            const abierto = grupoAbierto === g.grupo_id;
+            const totalRetardos = g.alumnos.reduce((sum, a) => sum + a.retardos, 0);
+            return (
+              <div key={g.grupo_id} className="rounded-2xl border-2 overflow-hidden"
+                style={{ borderColor: g.color_hex + '50' }}>
+                <button
+                  onClick={() => setGrupoAbierto(abierto ? null : g.grupo_id)}
+                  className="w-full flex items-center gap-3 p-4 text-left hover:opacity-90 transition-opacity"
+                  style={{ background: g.color_hex + '15' }}>
+                  <div className="w-3 h-3 rounded-full" style={{ background: g.color_hex }} />
+                  <span className="font-black text-gray-800 flex-1">{g.grupo_nombre}</span>
+                  <span className="text-xs font-black px-2 py-1 rounded-xl bg-white/80 text-gray-700">
+                    {totalRetardos} retardos
+                  </span>
+                  <span className="text-gray-400 text-sm">{abierto ? '▲' : '▼'}</span>
+                </button>
+                {abierto && (
+                  <div className="divide-y divide-gray-50">
+                    {g.alumnos.map(a => (
+                      <div key={a.id} className="flex items-center gap-3 p-4">
+                        <span className="text-xl">{a.retardos >= 3 ? '🔴' : '🟡'}</span>
+                        <div className="flex-1">
+                          <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                        </div>
+                        <span className={`font-black text-lg ${a.retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
+                          {a.retardos}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function DirectoraDashboard() {
   const { usuario } = useAuthStore();
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -147,8 +343,12 @@ export default function DirectoraDashboard() {
     ),
   });
 
+  const [modalGrupo, setModalGrupo] = useState(null);
+
   return (
     <div className="space-y-8 animate-fade-in">
+      {modalGrupo && <ModalAsistenciaGrupo grupo={modalGrupo} onClose={() => setModalGrupo(null)} />}
+
       {/* Encabezado */}
       <div>
         <h1 className="text-3xl font-black text-gray-800">
@@ -225,16 +425,17 @@ export default function DirectoraDashboard() {
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
             {(resumen?.asistenciaPorGrupo || []).map(g => (
-              <div key={g.grupo_id} className="text-center p-4 rounded-2xl border-2"
+              <button key={g.grupo_id} onClick={() => setModalGrupo(g)}
+                className="text-center p-4 rounded-2xl border-2 cursor-pointer hover:opacity-80 transition-opacity"
                 style={{ borderColor: g.color_hex + '60', background: g.color_hex + '10' }}>
                 <div className="text-2xl font-black" style={{ color: g.color_hex }}>
                   {g.presentes}/{g.total}
                 </div>
                 <div className="text-xs font-bold text-gray-600 mt-1">{g.grupo_nombre}</div>
                 <div className="mt-2 text-lg">
-                  {g.presentes === g.total ? '🎉' : g.presentes >= g.total * 0.8 ? '✅' : '⚠️'}
+                  {g.presentes === g.total ? '🎉' : g.presentes >= g.total * 0.8 ? '✅' : <span title="Menos del 80% de alumnos presentes">⚠️</span>}
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -289,70 +490,16 @@ export default function DirectoraDashboard() {
 
       {/* Fila inferior */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Alumnos sin documentación */}
-        <div className="card-hs">
-          <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
-            📄 Documentación incompleta
-          </h2>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1,2,3].map(i => <div key={i} className="skeleton h-12 rounded-xl" />)}
-            </div>
-          ) : resumen?.documentacionPendiente?.length > 0 ? (
-            <div className="space-y-2">
-              {resumen.documentacionPendiente.slice(0, 5).map(a => (
-                <div key={a.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl">
-                  <span className="text-xl">🔴</span>
-                  <div>
-                    <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-                    <p className="text-xs text-gray-500">{a.grupo_nombre}</p>
-                  </div>
-                </div>
-              ))}
-              {resumen.documentacionPendiente.length > 5 && (
-                <p className="text-sm text-gray-500 font-semibold text-center pt-2">
-                  +{resumen.documentacionPendiente.length - 5} más
-                </p>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-green-600 font-bold">
-              🎉 Todos los documentos completos!
-            </div>
-          )}
-        </div>
-
-        {/* Retardos del mes */}
-        <div className="card-hs">
-          <h2 className="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
-            ⏰ Retardos este mes
-          </h2>
-          {isLoading ? (
-            <div className="space-y-3">
-              {[1,2,3].map(i => <div key={i} className="skeleton h-12 rounded-xl" />)}
-            </div>
-          ) : resumen?.retardosMes?.length > 0 ? (
-            <div className="space-y-2">
-              {resumen.retardosMes.slice(0, 5).map(a => (
-                <div key={a.id} className="flex items-center gap-3 p-3 rounded-2xl"
-                  style={{ background: a.retardos >= 3 ? '#FEE2E2' : '#FFFBEB' }}>
-                  <span className="text-xl">{a.retardos >= 3 ? '🔴' : '🟡'}</span>
-                  <div className="flex-1">
-                    <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-                    <p className="text-xs text-gray-500">{a.grupo_nombre}</p>
-                  </div>
-                  <span className={`font-black text-lg ${a.retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
-                    {a.retardos}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-green-600 font-bold">
-              ✅ Sin retardos este mes
-            </div>
-          )}
-        </div>
+        <DocumentacionPorGrupo
+          documentacionPendiente={resumen?.documentacionPendiente || []}
+          asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
+          isLoading={isLoading}
+        />
+        <RetardosPorGrupo
+          retardosMes={resumen?.retardosMes || []}
+          asistenciaPorGrupo={resumen?.asistenciaPorGrupo || []}
+          isLoading={isLoading}
+        />
       </div>
 
     </div>

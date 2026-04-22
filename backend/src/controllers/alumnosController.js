@@ -4,12 +4,21 @@ const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudi
 
 const listar = async (req, res, next) => {
   try {
-    const { grupo_id, estado, buscar, page = 1, limit = 50 } = req.query;
+    const { grupo_id, estado, buscar, page = 1, limit = 50, ciclo_id } = req.query;
     const offset = (page - 1) * limit;
 
     let whereConditions = ['a.deleted_at IS NULL'];
     const params = [];
     let paramIdx = 1;
+    let useInscripciones = false;
+
+    // Si viene ciclo_id, usar inscripciones como fuente (modo histórico)
+    if (ciclo_id) {
+      useInscripciones = true;
+      whereConditions = ['i.ciclo_id = $1'];
+      params.push(ciclo_id);
+      paramIdx = 2;
+    }
 
     // Si es padre, solo ve sus hijos
     if (req.user.rol_principal === 'padre') {
@@ -22,8 +31,8 @@ const listar = async (req, res, next) => {
       paramIdx++;
     }
 
-    // Si es maestra titular, solo su grupo
-    if (req.user.rol_principal === 'maestra_titular' && !grupo_id) {
+    // Si es maestra titular, solo su grupo (no aplica para ciclos históricos)
+    if (req.user.rol_principal === 'maestra_titular' && !grupo_id && !ciclo_id) {
       whereConditions.push(`a.grupo_id IN (
         SELECT ag.grupo_id FROM asignaciones_grupo ag
         JOIN personal p ON ag.personal_id = p.id
@@ -34,7 +43,11 @@ const listar = async (req, res, next) => {
     }
 
     if (grupo_id) {
-      whereConditions.push(`a.grupo_id = $${paramIdx}`);
+      if (useInscripciones) {
+        whereConditions.push(`i.grupo_id = $${paramIdx}`);
+      } else {
+        whereConditions.push(`a.grupo_id = $${paramIdx}`);
+      }
       params.push(grupo_id);
       paramIdx++;
     }
@@ -53,33 +66,65 @@ const listar = async (req, res, next) => {
 
     const where = whereConditions.join(' AND ');
 
-    const result = await query(`
-      SELECT
-        a.id, a.nombre_completo, a.fecha_nacimiento, a.foto_url,
-        a.grupo_id, g.nombre AS grupo_nombre, g.nivel, g.color_hex,
-        a.estado, a.usa_panial, a.alergias, a.qr_code_url,
-        a.created_at,
-        -- Indicador documentación completa
-        CASE
-          WHEN EXISTS (
-            SELECT 1 FROM documentos d
-            WHERE d.entidad_tipo = 'alumno' AND d.entidad_id = a.id
-            AND d.tipo IN ('acta_nacimiento', 'curp', 'cartilla_vacunacion', 'foto_escolar')
-            GROUP BY d.entidad_id HAVING COUNT(DISTINCT d.tipo) >= 4
-          ) THEN 'completa'
-          ELSE 'incompleta'
-        END AS documentacion
-      FROM alumnos a
-      LEFT JOIN grupos g ON a.grupo_id = g.id
-      WHERE ${where}
-      ORDER BY g.nivel, a.nombre_completo
-      LIMIT $${paramIdx} OFFSET $${paramIdx + 1}
-    `, [...params, limit, offset]);
+    // Query diferente según si es histórico o actual
+    let sqlBase, countSqlBase;
+    if (useInscripciones) {
+      sqlBase = `
+        SELECT
+          a.id, a.nombre_completo, a.fecha_nacimiento, a.foto_url,
+          i.grupo_id, g.nombre AS grupo_nombre, g.nivel, g.color_hex,
+          a.estado, a.usa_panial, a.alergias, a.qr_code_url,
+          a.created_at,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM documentos d
+              WHERE d.entidad_tipo = 'alumno' AND d.entidad_id = a.id
+              AND d.tipo IN ('acta_nacimiento', 'curp', 'cartilla_vacunacion', 'foto_escolar')
+              GROUP BY d.entidad_id HAVING COUNT(DISTINCT d.tipo) >= 4
+            ) THEN 'completa'
+            ELSE 'incompleta'
+          END AS documentacion
+        FROM inscripciones i
+        JOIN alumnos a ON a.id = i.alumno_id AND a.deleted_at IS NULL
+        LEFT JOIN grupos g ON g.id = i.grupo_id
+        WHERE ${where}
+        ORDER BY g.nivel, a.nombre_completo
+      `;
+      countSqlBase = `
+        SELECT COUNT(DISTINCT a.id) FROM inscripciones i
+        JOIN alumnos a ON a.id = i.alumno_id AND a.deleted_at IS NULL
+        WHERE ${where}
+      `;
+    } else {
+      sqlBase = `
+        SELECT
+          a.id, a.nombre_completo, a.fecha_nacimiento, a.foto_url,
+          a.grupo_id, g.nombre AS grupo_nombre, g.nivel, g.color_hex,
+          a.estado, a.usa_panial, a.alergias, a.qr_code_url,
+          a.created_at,
+          CASE
+            WHEN EXISTS (
+              SELECT 1 FROM documentos d
+              WHERE d.entidad_tipo = 'alumno' AND d.entidad_id = a.id
+              AND d.tipo IN ('acta_nacimiento', 'curp', 'cartilla_vacunacion', 'foto_escolar')
+              GROUP BY d.entidad_id HAVING COUNT(DISTINCT d.tipo) >= 4
+            ) THEN 'completa'
+            ELSE 'incompleta'
+          END AS documentacion
+        FROM alumnos a
+        LEFT JOIN grupos g ON a.grupo_id = g.id
+        WHERE ${where}
+        ORDER BY g.nivel, a.nombre_completo
+      `;
+      countSqlBase = `SELECT COUNT(*) FROM alumnos a WHERE ${where}`;
+    }
 
-    const countResult = await query(
-      `SELECT COUNT(*) FROM alumnos a WHERE ${where}`,
-      params
+    const result = await query(
+      `${sqlBase} LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+      [...params, limit, offset]
     );
+
+    const countResult = await query(countSqlBase, params);
 
     res.json({
       alumnos: result.rows,

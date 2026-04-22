@@ -9,9 +9,18 @@ router.use(authenticate);
 router.get('/', async (req, res, next) => {
   try {
     const { ciclo_id, activo = 'true' } = req.query;
+    const cicloFiltro = ciclo_id
+      ? `AND g.ciclo_id = '${ciclo_id}'`
+      : 'AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)';
+
+    // Para ciclos históricos, contar alumnos desde inscripciones (los alumnos ya no apuntan al grupo)
+    const totalAlumnosExpr = ciclo_id
+      ? `(SELECT COUNT(*) FROM inscripciones i WHERE i.grupo_id = g.id)`
+      : `COUNT(DISTINCT a.id)`;
+
     const result = await query(`
       SELECT g.*, c.nombre AS ciclo_nombre,
-        COUNT(DISTINCT a.id) AS total_alumnos,
+        ${totalAlumnosExpr} AS total_alumnos,
         p_tit.nombre_completo AS maestra_nombre,
         p_tit.id AS maestra_personal_id,
         COALESCE(
@@ -35,7 +44,7 @@ router.get('/', async (req, res, next) => {
       LEFT JOIN personal p_aux ON p_aux.id = ag_aux.personal_id
       WHERE g.deleted_at IS NULL
         ${activo !== 'todos' ? `AND g.activo = ${activo === 'true'}` : ''}
-        ${ciclo_id ? `AND g.ciclo_id = '${ciclo_id}'` : 'AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)'}
+        ${cicloFiltro}
       GROUP BY g.id, c.nombre, p_tit.nombre_completo, p_tit.id
       ORDER BY g.nivel, g.nombre
     `);

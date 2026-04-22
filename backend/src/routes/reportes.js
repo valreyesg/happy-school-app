@@ -9,6 +9,8 @@ router.use(authenticate);
 // Devuelve todas las stats que muestra la pantalla de inicio
 router.get('/dashboard', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
+    const { ciclo_id } = req.query;
+
     // Usar CURRENT_DATE de PostgreSQL para respetar zona horaria local del servidor
     const { rows: [{ hoy, mes_actual: mesActual, anio_actual: anioActual }] } = await query(
       `SELECT CURRENT_DATE::text AS hoy,
@@ -27,15 +29,15 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       salidasAnticipadasResult,
     ] = await Promise.all([
 
-      // Total de alumnos inscritos en ciclo activo
+      // Total de alumnos inscritos en ciclo (activo o especificado)
       query(`
         SELECT COUNT(*) AS total
         FROM alumnos a
         JOIN ciclos_escolares c ON a.ciclo_id = c.id
         WHERE a.deleted_at IS NULL
           AND a.estado IN ('inscrito', 'reinscrito')
-          AND c.activo = true
-      `),
+          AND c.id = COALESCE($1::uuid, (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1))
+      `, [ciclo_id]),
 
       // Asistencia de hoy: presentes+retardos = en escuela, ausentes, no_entrada
       query(`
@@ -118,10 +120,10 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $1
         WHERE g.activo = true
           AND g.deleted_at IS NULL
-          AND g.ciclo_id = (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1)
+          AND g.ciclo_id = COALESCE($2::uuid, (SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1))
         GROUP BY g.id, g.nombre, g.color_hex
         ORDER BY g.nivel
-      `, [hoy]),
+      `, [hoy, ciclo_id]),
 
       // Todas las salidas de hoy con flag de anticipada
       query(`

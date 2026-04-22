@@ -1,18 +1,22 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-21 (sesión 35 COMPLETADA — indicador comida en dashboards)
+## Última actualización: 2026-04-21 (sesión 37 COMPLETADA — Historial por ciclo Sprint 1+2)
 
 ---
 
-## 🔜 SESIÓN 37 — Próxima sesión
+## 🔜 SESIÓN 38 — Próxima sesión
 
-### Ciclos Escolares (continuación)
-- [ ] Restaurar BD a estado 2025-2026 activo (quedó 2026-2027 activo tras el test E2E)
-- [ ] Validar que dashboards Miss/Directora/Papá funcionan correctamente con el ciclo restaurado
+### Historial por ciclo (continuación)
+- [ ] **Sprint 3 — Portal Papá — padre/Pagos.jsx:** Agrupar pagos por año con encabezados visuales (sin cambio de backend).
+- [ ] **Sprint 3 — Portal Papá — padre/Bitacora.jsx:** Selector de ciclos anteriores usando `GET /alumnos/:id/ciclos` + listado de días con `GET /bitacora/:id/rango` + detalle con endpoint actual.
+
+### Limpieza de BD / Datos
+- [ ] **Eliminar duplicados de Ana García López** — tiene 3 registros en tabla `alumnos` con mismo nombre pero distinto UUID. Limpiar dejando solo 1 y reasignar sus relaciones (padres, bitácoras, asistencia, pagos).
+- [ ] **Evitar futuros duplicados** — agregar constraint UNIQUE en `alumnos(nombre_completo, ciclo_id)` o validar por CURP obligatorio en el seed/formulario de alta.
+
+### Ciclos Escolares (pendiente de sesiones anteriores)
 - [ ] Panel "Historial egresados": endpoint GET alumnos egresados + tabla en web Directora
 - [ ] Descargar y validar formato del Excel export antes de confirmar cierre
-- [ ] **Historial por ciclo — Capa 1 (Directora):** Selector de ciclo escolar en vistas clave (Grupos, Reportes, Pagos) para consultar datos de ciclos cerrados en modo solo lectura. La mayoría de endpoints ya aceptan `ciclo_id` — bajo esfuerzo.
-- [ ] **Historial por ciclo — Capa 2 (Portal Papá):** Sección "Ciclos anteriores" en perfil del alumno con grupos, pagos, asistencia y bitácoras de cada ciclo cursado.
 
 ### Testing y Validación (continúa de sesión anterior)
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia

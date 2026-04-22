@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import SelectorCiclo from '../../components/ui/SelectorCiclo';
 
 // ─── Colores por nivel ────────────────────────────────────────────────────────
 const NIVEL_COLORES = {
@@ -167,7 +168,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
 }
 
 // ─── Tarjeta de grupo ─────────────────────────────────────────────────────────
-function TarjetaGrupo({ grupo, maestras, onEdit }) {
+function TarjetaGrupo({ grupo, maestras, onEdit, soloLectura }) {
   const col = colorNivel(grupo.nivel);
   const ocupacion = grupo.total_alumnos || 0;
   const capacidad = grupo.cupo_maximo || 1;
@@ -187,13 +188,15 @@ function TarjetaGrupo({ grupo, maestras, onEdit }) {
           <h3 className="text-lg font-black text-gray-800">{grupo.nombre}</h3>
           <p className="text-xs text-gray-500 font-semibold capitalize">{grupo.turno} · {grupo.horario_entrada} – {grupo.horario_salida}</p>
         </div>
-        <button
-          onClick={() => onEdit(grupo)}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-purple-600 p-1 rounded-lg hover:bg-purple-50"
-          title="Editar"
-        >
-          ✏️
-        </button>
+        {!soloLectura && (
+          <button
+            onClick={() => onEdit(grupo)}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-purple-600 p-1 rounded-lg hover:bg-purple-50"
+            title="Editar"
+          >
+            ✏️
+          </button>
+        )}
       </div>
 
       {/* Maestra */}
@@ -230,10 +233,13 @@ export default function DirectoraGrupos() {
   const queryClient = useQueryClient();
   const [modal, setModal] = useState(null); // null | 'nuevo' | { ...grupo }
   const [soloActivos, setSoloActivos] = useState(true);
+  const [cicloId, setCicloId] = useState(null); // null = ciclo activo
+
+  const esHistorico = cicloId !== null;
 
   const { data: grupos = [], isLoading } = useQuery({
-    queryKey: ['grupos', soloActivos],
-    queryFn: () => api.get('/grupos', { params: { activo: soloActivos } }).then(r => r.data),
+    queryKey: ['grupos', soloActivos, cicloId],
+    queryFn: () => api.get('/grupos', { params: { activo: soloActivos, ...(cicloId && { ciclo_id: cicloId }) } }).then(r => r.data),
   });
 
   const { data: maestras = [] } = useQuery({
@@ -261,8 +267,22 @@ export default function DirectoraGrupos() {
 
   const gruposFiltrados = soloActivos ? grupos.filter(g => g.activo !== false) : grupos;
 
+  const cicloActualData = grupos.length > 0 && grupos[0].ciclo_nombre
+    ? grupos[0].ciclo_nombre
+    : null;
+
   return (
     <div className="animate-fade-in">
+      {esHistorico && (
+        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+          <span className="text-lg">📚</span>
+          <div>
+            <p className="font-semibold text-amber-900">Modo solo lectura</p>
+            <p className="text-sm text-amber-800">Estás viendo datos históricos. Los botones de crear y editar están deshabilitados.</p>
+          </div>
+        </div>
+      )}
+
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -271,7 +291,8 @@ export default function DirectoraGrupos() {
             {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3">
+          <SelectorCiclo value={cicloId} onChange={setCicloId} />
           <label className="flex items-center gap-2 text-sm font-semibold text-gray-600 cursor-pointer select-none">
             <input
               type="checkbox"
@@ -284,6 +305,8 @@ export default function DirectoraGrupos() {
           <button
             className="btn-hs btn-hs-primary"
             onClick={() => setModal('nuevo')}
+            disabled={esHistorico}
+            title={esHistorico ? 'No puedes crear grupos en ciclos históricos' : ''}
           >
             + Nuevo grupo
           </button>
@@ -307,7 +330,7 @@ export default function DirectoraGrupos() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {gruposFiltrados.map(g => (
-            <TarjetaGrupo key={g.id} grupo={g} maestras={maestras} onEdit={setModal} />
+            <TarjetaGrupo key={g.id} grupo={g} maestras={maestras} onEdit={setModal} soloLectura={esHistorico} />
           ))}
         </div>
       )}

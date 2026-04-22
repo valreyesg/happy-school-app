@@ -1,6 +1,35 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 37 — Historial por Ciclo Escolar Sprint 1+2 (2026-04-21)
+
+### Backend — 4 endpoints nuevos/modificados
+- [x] **`GET /alumnos?ciclo_id=<uuid>`** — Cuando llega `ciclo_id`, usa `inscripciones` como fuente en lugar de `alumnos.grupo_id` directo (que ya fue sobrescrito por la promoción). Sin `ciclo_id` → comportamiento original sin cambios. Archivo: `backend/src/controllers/alumnosController.js`
+- [x] **`GET /alumnos/:id/ciclos`** — Devuelve todos los ciclos en que estuvo inscrito un alumno, desde tabla `inscripciones`. Usado por Portal Papá para selector de ciclo en Bitácora. Archivo: `backend/src/routes/alumnos.js`
+- [x] **`GET /bitacora/:alumnoId/rango?fecha_inicio=&fecha_fin=`** — Listado de días de bitácora en un rango de fechas (para historial de ciclo completo). Resumen por día (estado_animo, comportamiento, notas, maestra). Detalle del día sigue con el endpoint existente `?fecha=`. Archivo: `backend/src/routes/bitacora.js`
+- [x] **`GET /reportes/dashboard?ciclo_id=<uuid>`** — Parametrizadas las 2 queries hardcodeadas a `activo = true`. Ahora usan `COALESCE($ciclo_id::uuid, SELECT id WHERE activo = true)`. Archivo: `backend/src/routes/reportes.js`
+- [x] **`GET /grupos`** — Para ciclos históricos, `total_alumnos` se calcula desde `inscripciones` (subquery correlacionado) en lugar de `alumnos.grupo_id` directo. Archivo: `backend/src/routes/grupos.js`
+
+### Frontend — Directora
+- [x] **`SelectorCiclo.jsx`** — Componente reutilizable. Carga todos los ciclos, muestra "📅 Ciclo actual" como opción por defecto y lista los históricos (no activos) por nombre. Archivo: `web/src/components/ui/SelectorCiclo.jsx`
+- [x] **`Grupos.jsx`** — Integrado `SelectorCiclo`. Al seleccionar ciclo histórico: banner amarillo "📚 Modo solo lectura", botón "+ Nuevo grupo" deshabilitado, botón ✏️ oculto en cada tarjeta. Archivo: `web/src/pages/directora/Grupos.jsx`
+- [x] **`Alumnos.jsx`** — Integrado `SelectorCiclo`. Al cambiar ciclo: limpia filtros (grupo + estado → ''), pasa `ciclo_id` al endpoint, banner de solo lectura, botones ✏️ y QR ocultos en modo histórico. Archivo: `web/src/pages/directora/Alumnos.jsx`
+
+### Restauración de BD (datos de prueba)
+- BD restaurada a **2025-2026 activo**: 18 alumnos inscritos con grupos del ciclo correcto.
+- **2026-2027 inactivo**: 10 egresados/bajas (datos del test E2E sesión 36).
+- Limpieza de inscripciones: `grupo_id IS NULL` en 4 registros → asignados a Kinder 3 en 2026-2027. Asignaciones de maestras en 2026-2027 corregidas (`es_titular = true` en la primera asignación por grupo).
+- **Pendiente:** Ana García López tiene 3 registros duplicados en tabla `alumnos` (datos sucios del seed). Limpiar en sesión 38.
+
+### Bugs encontrados y soluciones
+- **Import named vs default**: `SelectorCiclo.jsx` importaba `{ api }` pero `api.js` exporta `default`. Fix: cambiar a `import api from`.
+- **Estado inicial `inscrito` en Alumnos**: al cambiar al ciclo histórico, los alumnos tienen estado `reinscrito/egresado/baja` y el filtro `estado='inscrito'` devolvía 0 resultados. Fix: `handleCicloChange` resetea `estadoFiltro` a `''` cuando se selecciona un ciclo histórico.
+- **Botón ✏️ no ocultado**: `TarjetaGrupo` y `TarjetaAlumno` no recibían la prop `soloLectura`. Fix: pasar prop desde el padre y envolver los botones en `{!soloLectura && ...}`.
+- **total_alumnos = 0 en histórico**: `GET /grupos` contaba con `alumnos.grupo_id` directo, que ya fue movido al ciclo actual. Fix: subquery correlacionado `(SELECT COUNT(*) FROM inscripciones WHERE grupo_id = g.id)` cuando hay `ciclo_id`.
+- **Maestras sin titular**: al copiar grupos en la promoción, todas las asignaciones se guardaron con `es_titular = false`. Fix temporal en BD: marcada la primera asignación por grupo como `es_titular = true`.
+
+---
+
 ## ✅ SESIÓN 36 — E2E Promoción + Panel Configuración Grupos (2026-04-21)
 
 ### Funcionalidades completadas

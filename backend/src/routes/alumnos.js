@@ -218,4 +218,19 @@ router.delete('/:id/blacklist/:blId', authorize('directora'), async (req, res, n
   } catch (err) { next(err); }
 });
 
+// ── GET /alumnos/:id/ciclos — ciclos en que estuvo inscrito ──────────────────
+router.get('/:id/ciclos', async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT DISTINCT ce.id, ce.nombre, ce.fecha_inicio, ce.fecha_fin, ce.activo
+      FROM inscripciones i
+      JOIN ciclos_escolares ce ON ce.id = i.ciclo_id
+      WHERE i.alumno_id = $1
+      ORDER BY ce.fecha_inicio DESC
+    `, [req.params.id]);
+
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

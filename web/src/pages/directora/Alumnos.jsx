@@ -7,6 +7,7 @@ import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
+import SelectorCiclo from '@/components/ui/SelectorCiclo';
 
 // ─── Página principal ────────────────────────────────────────────────────────
 
@@ -14,20 +15,35 @@ export default function DirectoraAlumnos() {
   const [buscar, setBuscar] = useState('');
   const [grupoFiltro, setGrupoFiltro] = useState('');
   const [estadoFiltro, setEstadoFiltro] = useState('inscrito');
+  const [cicloId, setCicloId] = useState(null); // null = ciclo activo
+
+  const handleCicloChange = (id) => {
+    setCicloId(id);
+    setGrupoFiltro('');
+    if (id !== null) setEstadoFiltro(''); // ciclo histórico: mostrar todos los estados
+    else setEstadoFiltro('inscrito');
+  };
   const [modalAbierto, setModalAbierto] = useState(false);
   const [alumnoEditar, setAlumnoEditar] = useState(null);
 
+  const esHistorico = cicloId !== null;
+
   const { data, isLoading } = useQuery({
-    queryKey: ['alumnos', buscar, grupoFiltro, estadoFiltro],
+    queryKey: ['alumnos', buscar, grupoFiltro, estadoFiltro, cicloId],
     queryFn: () => api.get('/alumnos', {
-      params: { buscar, grupo_id: grupoFiltro || undefined, estado: estadoFiltro || undefined },
+      params: { buscar, grupo_id: grupoFiltro || undefined, estado: estadoFiltro || undefined, ...(cicloId && { ciclo_id: cicloId }) },
     }).then(r => r.data),
     keepPreviousData: true,
   });
 
+  const { data: ciclos = [] } = useQuery({
+    queryKey: ['ciclos'],
+    queryFn: () => api.get('/ciclos').then(r => r.data),
+  });
+
   const { data: grupos = [] } = useQuery({
-    queryKey: ['grupos'],
-    queryFn: () => api.get('/grupos').then(r => r.data),
+    queryKey: ['grupos', cicloId],
+    queryFn: () => api.get('/grupos', { params: { ...(cicloId && { ciclo_id: cicloId }) } }).then(r => r.data),
   });
 
   const abrirCrear = () => { setAlumnoEditar(null); setModalAbierto(true); };
@@ -40,17 +56,30 @@ export default function DirectoraAlumnos() {
   return (
     <div className="space-y-6 animate-fade-in">
 
+      {esHistorico && (
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3">
+          <span className="text-lg">📚</span>
+          <div>
+            <p className="font-semibold text-amber-900">Modo solo lectura</p>
+            <p className="text-sm text-amber-800">Estás viendo datos históricos. Los botones de crear y editar están deshabilitados.</p>
+          </div>
+        </div>
+      )}
+
       {/* Encabezado */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-black text-gray-800">Alumnos 👧🏻</h1>
           <p className="text-gray-500 font-semibold mt-1">
             {total} alumno{total !== 1 ? 's' : ''} registrado{total !== 1 ? 's' : ''}
           </p>
         </div>
-        <button onClick={abrirCrear} className="btn-primary flex items-center gap-2">
-          <Plus size={20} /> Nuevo alumno
-        </button>
+        <div className="flex gap-3">
+          <SelectorCiclo value={cicloId} onChange={handleCicloChange} />
+          <button onClick={abrirCrear} className="btn-primary flex items-center gap-2" disabled={esHistorico} title={esHistorico ? 'No puedes crear alumnos en ciclos históricos' : ''}>
+            <Plus size={20} /> Nuevo alumno
+          </button>
+        </div>
       </div>
 
       {/* Filtros */}
@@ -120,6 +149,7 @@ export default function DirectoraAlumnos() {
               key={alumno.id}
               alumno={alumno}
               onEditar={() => abrirEditar(alumno)}
+              soloLectura={esHistorico}
             />
           ))}
         </div>
@@ -139,7 +169,7 @@ export default function DirectoraAlumnos() {
 
 // ─── Tarjeta de alumno ────────────────────────────────────────────────────────
 
-function TarjetaAlumno({ alumno, onEditar }) {
+function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -221,20 +251,24 @@ function TarjetaAlumno({ alumno, onEditar }) {
         >
           <FileText size={18} />
         </button>
-        <button
-          onClick={descargarQR}
-          title="Ver QR"
-          className="p-2 rounded-xl hover:bg-hs-purple/10 text-hs-purple transition-colors"
-        >
-          <QrCode size={18} />
-        </button>
-        <button
-          onClick={onEditar}
-          title="Editar alumno"
-          className="p-2 rounded-xl hover:bg-hs-yellow/20 text-hs-yellow-dark transition-colors"
-        >
-          ✏️
-        </button>
+        {!soloLectura && (
+          <>
+            <button
+              onClick={descargarQR}
+              title="Ver QR"
+              className="p-2 rounded-xl hover:bg-hs-purple/10 text-hs-purple transition-colors"
+            >
+              <QrCode size={18} />
+            </button>
+            <button
+              onClick={onEditar}
+              title="Editar alumno"
+              className="p-2 rounded-xl hover:bg-hs-yellow/20 text-hs-yellow-dark transition-colors"
+            >
+              ✏️
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

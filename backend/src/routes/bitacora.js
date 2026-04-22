@@ -104,6 +104,31 @@ router.get('/:alumnoId', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── GET /bitacora/:alumnoId/rango?fecha_inicio=&fecha_fin= ────────────────
+// Listado de días de bitácora en un rango (para historial de ciclo)
+router.get('/:alumnoId/rango', async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+    const { fecha_inicio, fecha_fin } = req.query;
+
+    if (!fecha_inicio || !fecha_fin) {
+      return res.status(400).json({ error: 'fecha_inicio y fecha_fin son requeridos' });
+    }
+
+    const result = await query(`
+      SELECT bd.fecha, bd.estado_animo, bd.comportamiento, bd.notas,
+             p.nombre_completo AS maestra_nombre
+      FROM bitacora_diaria bd
+      LEFT JOIN personal p ON bd.maestra_id = p.id
+      WHERE bd.alumno_id = $1
+        AND bd.fecha BETWEEN $2::date AND $3::date
+      ORDER BY bd.fecha DESC
+    `, [alumnoId, fecha_inicio, fecha_fin]);
+
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
 // ── POST /bitacora/guardar ────────────────────────────────────────────────
 // Guarda o actualiza la bitácora completa del día (upsert por alumno+fecha)
 router.post('/guardar', async (req, res, next) => {

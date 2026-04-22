@@ -1,20 +1,22 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 41 (Dashboard Directora completado ✅ 4/4 mejoras, ModalPago + resto pendientes)
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 41 COMPLETADA ✅ (Dashboard Directora 100% — cards + modales unificados, ModalPago + resto pendientes)
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 41 — UI Mejoras Portal (continuación)
+## 📍 SESIÓN 41 — UI Mejoras Portal (COMPLETADA) ✅
 
 ### 🎨 MEJORAS UI — PORTAL DIRECTORA
 
-#### Dashboard Directora ✅ COMPLETADO
-- [x] **Asistencia por grupo:** Clic en tarjeta → modal detallado con lista de alumnos del grupo.
-- [x] **Clarificar emoji ⚠️** — agregar tooltip "Menos del 80% de alumnos presentes".
-- [x] **Documentación Incompleta:** Agrupar por grupo con acordeón (sumatoria por grupo visible, expandir para ver alumnos).
-- [x] **Retardos del Mes:** Agrupar por grupo con acordeón (consistencia con Asistencia).
+#### Dashboard Directora ✅ 100% COMPLETADO
+- [x] **Asistencia por grupo:** Cards clickeables → modal con lista de alumnos + estado + hora entrada
+- [x] **Emoji ⚠️ con tooltip:** "Menos del 80% de alumnos presentes"
+- [x] **Documentación Incompleta:** Cards por grupo (número de alumnos) → modal con detalle
+- [x] **Retardos del Mes:** Cards por grupo (total retardos) → modal con detalle, borde rojo si hay severidad (≥3)
+- [x] **Salidas registradas hoy:** Cards por grupo (número de salidas) → modal con detalle, chips de alerta inline
+- [x] **Unificación visual:** Las 4 secciones principales ahora comparten diseño de cards + modales (consistencia 100%)
 
 #### Pagos (Directora) — pendiente
 - [ ] **Registrar Pago (modal global):** Agregar selector de grupo + buscador de alumno (reemplazar select plano).

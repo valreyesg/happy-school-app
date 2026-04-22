@@ -1,7 +1,25 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-21 | Sesiones documentadas: 7 → 37
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 38
+
+---
+
+## ✅ SESIÓN 38 — 5 Bugs Críticos Resueltos
+
+**Fecha:** 2026-04-22
+
+| Bug | Archivo | Fix |
+|-----|---------|-----|
+| Duplicado $$ en tabla Comida | `web/src/pages/directora/ComidaPagos.jsx:164` | Removido `$` literal extra en template string |
+| Orden alimentación bitácora papá | `web/src/pages/padre/Bitacora.jsx:346` | Sort por `['desayuno','colacion','comida','comida_extra']` antes del filter |
+| Configuración no carga horarios | `web/src/pages/directora/Configuracion.jsx:54` | Eliminado `onSuccess` deprecado (React Query v5); usa `configData` del hook con `valores ?? configData?.horarios` |
+| Calendario filtro por rol padre | `backend/src/routes/calendario.js:60` | Subquery server-side que filtra por grupos del hijo del padre logueado |
+| Firma incidentes — Invalid api_key | `backend/src/routes/bitacora.js:427` | Guardado base64 directo en BD; eliminada dependencia de Cloudinary para firmas |
+
+**También en esta sesión:**
+- Protocolo "Inicia sesión" / "Cierra sesión" documentado en CONTEXT.md
+- Mejora memoria: Claude siempre inicia backend + web (no Valeria)
 
 ---
 

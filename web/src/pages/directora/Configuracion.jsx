@@ -48,18 +48,20 @@ const COLOR_MAP = {
 
 export default function Configuracion() {
   const qc = useQueryClient();
-  const [valores, setValores] = useState({});
+  const [valores, setValores] = useState(null);
   const [guardado, setGuardado] = useState(false);
 
-  const { isLoading } = useQuery({
+  const { isLoading, data: configData } = useQuery({
     queryKey: ['config-horarios'],
     queryFn: () => api.get('/config/horarios').then(r => r.data),
-    onSuccess: (data) => setValores(data.horarios || {}),
   });
+
+  const valoresActivos = valores ?? configData?.horarios ?? {};
 
   const mutation = useMutation({
     mutationFn: (data) => api.put('/config/horarios', data),
     onSuccess: () => {
+      setValores(null);
       qc.invalidateQueries(['config-horarios']);
       setGuardado(true);
       setTimeout(() => setGuardado(false), 3000);
@@ -67,10 +69,10 @@ export default function Configuracion() {
   });
 
   const handleChange = (clave, val) => {
-    setValores(prev => ({ ...prev, [clave]: val }));
+    setValores(prev => ({ ...(prev ?? configData?.horarios ?? {}), [clave]: val }));
   };
 
-  const handleGuardar = () => mutation.mutate(valores);
+  const handleGuardar = () => mutation.mutate(valoresActivos);
 
   if (isLoading) {
     return (
@@ -104,7 +106,7 @@ export default function Configuracion() {
                 <label className="block text-sm font-bold text-gray-700 mb-1">{label}</label>
                 <input
                   type={tipo}
-                  value={valores[clave] ?? ''}
+                  value={valoresActivos[clave] ?? ''}
                   onChange={e => handleChange(clave, e.target.value)}
                   className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-purple-400 bg-white"
                   min={tipo === 'number' ? 0 : undefined}

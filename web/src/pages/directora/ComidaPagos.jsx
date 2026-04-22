@@ -161,7 +161,7 @@ const ComidaPagos = () => {
                 <div className="flex-1">
                   <h3 className="font-black text-gray-800">{conf.nombre_alumno}</h3>
                   <div className="text-sm text-gray-600 mt-1 font-bold">
-                    📋 {conf.modalidad === 'semana_completa' ? 'Semana completa' : `${conf.monto / 50} días`} ($${conf.monto})
+                    📋 {conf.modalidad === 'semana_completa' ? 'Semana completa' : `${conf.monto / 50} días`} (${conf.monto})
                     {' | '}
                     {conf.metodo_pago === 'transferencia' ? '💳 Transferencia' : '💵 Efectivo'}
                   </div>

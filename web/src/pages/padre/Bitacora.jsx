@@ -343,13 +343,17 @@ export default function PadreBitacora() {
               {comidas.length > 0 && (
                 <Seccion titulo="Alimentación" emoji="🍽️">
                   <div className="space-y-3">
-                    {comidas.filter(c => {
-                      // Mostrar Comida Extra solo si el alumno tiene extensión
-                      if (c.tiempo === 'comida_extra') {
-                        return hijoActual?.tiene_extension || false;
-                      }
-                      return true;
-                    }).map((c, i) => (
+                    {[...comidas]
+                      .sort((a, b) => {
+                        const orden = ['desayuno', 'colacion', 'comida', 'comida_extra'];
+                        return orden.indexOf(a.tiempo) - orden.indexOf(b.tiempo);
+                      })
+                      .filter(c => {
+                        if (c.tiempo === 'comida_extra') {
+                          return hijoActual?.tiene_extension || false;
+                        }
+                        return true;
+                      }).map((c, i) => (
                       <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
                         <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>
                         {c.que_comio && <p className="text-sm font-semibold mb-1">{c.que_comio}</p>}

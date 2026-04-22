@@ -9,11 +9,11 @@
 ## 📍 SESIÓN 38 — Inmediato (1-2 semanas)
 
 ### 🔧 BUGS CRÍTICOS (BLOQUEAN FLUJO)
-- [ ] **BUG: Firma en Incidentes padre** — Error "Invalid api_key placeholder" al firmar + confirmar. Revisar endpoint/configuración de firma digital.
-- [ ] **BUG: Calendario — filtro de eventos por rol** — Papá ve eventos de otros grupos (ej. Maternal ve Kinder 1). Validar query `GET /calendario` por `alumno.grupo_id`.
-- [ ] **BUG: Orden alimentación en bitácora padre** — No sigue el mismo orden que Miss (Desayuno, Colación, Comida, Comida Extra). Normalizar listado.
-- [ ] **BUG: Configuración — no carga horarios previos** — Directora no ve datos guardados en settings. Validar persistencia en GET `/configuracion`.
-- [ ] **BUG: Duplicados de signo $$ en tabla Comida** — Mostrar una sola columna de precio.
+- [x] **BUG: Firma en Incidentes padre** — Resuelto: base64 guardado directo en BD, sin Cloudinary.
+- [x] **BUG: Calendario — filtro de eventos por rol** — Resuelto: subquery server-side filtra por grupos del hijo del padre.
+- [x] **BUG: Orden alimentación en bitácora padre** — Resuelto: sort por orden canónico antes del filter.
+- [x] **BUG: Configuración — no carga horarios previos** — Resuelto: eliminado onSuccess deprecado, usa configData del hook.
+- [x] **BUG: Duplicados de signo $$ en tabla Comida** — Resuelto: removido $ literal extra.
 
 ### 📋 CONTINUACIÓN HISTORIAL POR CICLO (Sprint 3 — Sesión 37 incompleto)
 - [ ] **Portal Papá — Bitácora:** Selector de ciclos anteriores + navegación por rango de fechas usando `GET /alumnos/:id/ciclos` + `GET /bitacora/:id/rango`.

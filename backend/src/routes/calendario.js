@@ -59,6 +59,16 @@ router.get('/', async (req, res, next) => {
 
     if (req.user.rol_principal === 'padre') {
       sql += ` AND e.publicado = true`;
+      params.push(req.user.id);
+      sql += ` AND (
+        e.grupo_id IS NULL
+        OR e.grupo_id IN (
+          SELECT a.grupo_id FROM alumnos a
+          JOIN alumno_padre ap ON ap.alumno_id = a.id
+          WHERE ap.padre_id = $${params.length}
+            AND a.deleted_at IS NULL
+        )
+      )`;
     }
 
     if (grupo_id) {

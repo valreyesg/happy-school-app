@@ -1,7 +1,24 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-21 (sesión 37 COMPLETADA — Reorganización PENDIENTES.md + ARCHIVE_LOG.md)
+### Última actualización: 2026-04-22 (sesión 38 COMPLETADA — 5 bugs críticos resueltos)
+
+## ✅ SESIÓN 38 — 5 Bugs Críticos Resueltos
+
+### Trabajo técnico completado
+- ✅ **Duplicado $$** en ComidaPagos.jsx — template string corregido.
+- ✅ **Orden alimentación** bitácora papá — sort canónico desayuno→colación→comida→comida_extra.
+- ✅ **Configuración no carga horarios** — onSuccess deprecado eliminado, usa configData del hook.
+- ✅ **Calendario filtro por rol** — subquery server-side; papá solo ve su grupo + globales.
+- ✅ **Firma incidentes** — base64 guardado directo en BD, eliminada dependencia Cloudinary.
+
+### Mejoras de proceso
+- ✅ Protocolo "Inicia sesión" / "Cierra sesión" documentado en CONTEXT.md.
+- ✅ Memoria actualizada: Claude siempre inicia backend + web antes de pedir validación.
+
+### Próxima sesión (39)
+- Sprint 3 historial Portal Papá: Bitácora selector ciclos + Pagos agrupados por ciclo.
+- Limpieza BD: duplicados Ana García + constraint UNIQUE alumnos.
 
 ## ✅ SESIÓN 37 — Historial por Ciclo + Reorganización de Documentación
 
@@ -25,8 +42,22 @@
 > - **Rol:** Senior Fullstack Developer (Node/React/Expo).
 > - **Estilo:** Brevedad extrema. Ir directo al código o solución técnica.
 > - **Higiene:** Respetar estrictamente `.claudeignore` y `SCHEMA_SHORTCUT.md`.
-> - **Protocolo de Cierre:** Actualizar `PENDIENTES.md` y `ARCHIVE_LOG.md` tras CADA cambio.
 > - **UX Guardrail:** Validar toda interfaz contra la "Regla de los 2 clics".
+>
+> **PROTOCOLO DE INICIO — trigger: "Inicia sesión"**
+> Cuando Valeria diga "Inicia sesión [bullets opcionales de lo que atacará hoy]", ejecutar EN ESTE ORDEN:
+> 1. Leer CONTEXT.md, PENDIENTES.md y SCHEMA_SHORTCUT.md (ya hecho al leer esto)
+> 2. NO leer ARCHIVE_LOG.md salvo que se pida explícitamente
+> 3. Respetar `.claudeignore`
+> 4. Responder: resumen de sesión anterior (1 línea) + sugerencia de qué atacar hoy ordenado por impacto/velocidad
+> 5. Si Valeria incluyó bullets de lo que atacará → confirmar que tengo contexto suficiente y empezar directo
+>
+> **PROTOCOLO DE CIERRE — trigger: "Cierra sesión"**
+> Cuando Valeria diga "Cierra sesión", ejecutar EN ESTE ORDEN sin preguntar:
+> 1. PENDIENTES.md → marcar ✅ SOLO los items trabajados esta sesión (no tocar el resto)
+> 2. CONTEXT.md → actualizar "Última actualización" + bloque sesión actual + "Próxima sesión"
+> 3. ARCHIVE_LOG.md → insertar bloque nuevo AL INICIO del log (después del header), sin releer el archivo completo
+> 4. `git add` de los 4 archivos + commit `"feat: SESIÓN XX — [resumen 1 línea]"`
 
 ---
 

@@ -246,36 +246,54 @@ export default function MaestraDashboard() {
               ? 'bg-green-50 border-green-100'
               : 'bg-gray-50 border-gray-100'
           }`}>
-            <h2 className="font-black text-sm flex items-center gap-2 mb-2">
+            <h2 className="font-black text-sm flex items-center gap-2 mb-3">
               🍱 Confirmaciones de servicio de comida
             </h2>
-            {confirmacionesComida.confirmaciones.filter(c => c.pago_verificado).length > 0 ? (
-              <div className="space-y-2">
-                {confirmacionesComida.confirmaciones
-                  .filter(c => c.pago_verificado)
-                  .map(confirmacion => {
-                    const alumno = alumnos.find(a => a.id === confirmacion.alumno_id);
-                    const diasNombres = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sab'];
-                    const modalidadLabel = confirmacion.modalidad === 'semana_completa'
-                      ? 'Semana completa'
-                      : confirmacion.dias_seleccionados && confirmacion.dias_seleccionados.length > 0
-                      ? confirmacion.dias_seleccionados.map(d => diasNombres[d]).join(', ')
-                      : 'Días específicos';
-                    return (
-                      <div
-                        key={confirmacion.id}
-                        className="px-3 py-2 rounded-lg bg-green-100 text-green-800 text-xs font-bold"
-                      >
-                        ✓ {alumno?.nombre_completo} - {modalidadLabel}
-                      </div>
-                    );
-                  })}
-              </div>
-            ) : (
-              <p className="text-xs font-semibold text-gray-500">
-                Sin confirmaciones de servicio aún
-              </p>
-            )}
+            {(() => {
+              const diaHoy = new Date().getDay();
+              const confirmacionesVerificadas = confirmacionesComida.confirmaciones.filter(c => c.pago_verificado);
+              const ninosComenHoy = confirmacionesVerificadas.filter(c =>
+                c.modalidad === 'semana_completa' ||
+                (c.dias_seleccionados && c.dias_seleccionados.includes(diaHoy))
+              ).length;
+              const esFinDeSemana = diaHoy === 0 || diaHoy === 6;
+
+              return (
+                <>
+                  {!esFinDeSemana && (
+                    <div className="mb-3 px-3 py-2 rounded-lg bg-green-200 text-green-900 text-sm font-bold text-center">
+                      🍽️ {ninosComenHoy} {ninosComenHoy === 1 ? 'niño come' : 'niños comen'} hoy
+                    </div>
+                  )}
+                  {confirmacionesVerificadas.length > 0 ? (
+                    <div className="space-y-2">
+                      {confirmacionesVerificadas.map(confirmacion => {
+                        const alumno = alumnos.find(a => a.id === confirmacion.alumno_id);
+                        const diasNombres = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                        const diasSeleccionados = confirmacion.dias_seleccionados ?? [];
+                        const modalidadLabel = confirmacion.modalidad === 'semana_completa'
+                          ? 'Semana completa'
+                          : diasSeleccionados.length > 0
+                          ? diasSeleccionados.map(d => diasNombres[d]).join(', ')
+                          : 'Días específicos';
+                        return (
+                          <div
+                            key={confirmacion.id}
+                            className="px-3 py-2 rounded-lg bg-green-100 text-green-800 text-xs font-bold"
+                          >
+                            ✓ {alumno?.nombre_completo} - {modalidadLabel}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs font-semibold text-gray-500">
+                      Sin confirmaciones de servicio aún
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </div>
 
         </div>

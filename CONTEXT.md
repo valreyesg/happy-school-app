@@ -1,12 +1,13 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-21 (sesión 34 completada — corrección duplicados grupos)
+### Última actualización: 2026-04-21 (sesión 35 completada — indicador comida en dashboards)
 ### Sesión 32: ✅ Módulo Ciclos Escolares COMPLETO — Backend CRUD + transacción promoción, Web pantalla con flujo 3-pasos, integración rutas/sidebar. Promoción automática: Maternal→Prekinder→K1→K2→K3→Egresado.
 ### Sesión 33: ✅ AUTOMATIZACIÓN GRUPOS — Modal 3-pasos (seleccionar destino → revisar promoción → confirmar), Endpoint copiar grupos del ciclo anterior con maestras, Filtro ciclos pasados, Validación grupos destino, Export Excel (grupos+maestras+alumnos).
 ### Sesión 33+ (20-04-2026): ✅ LIMPIEZA ESTRUCTURA GRUPOS — Renombrado 'Kinder 1' → 'Kinder 1A' (UUID preservada), creado 'Kinder 1B' (UUID nueva: 9e15894d-0c75-4147-b470-42f29fed9bd5), divididos alumnos (3 a K1A, 2 a K1B), creada maestra genérica para K1B. Backend: DELETE endpoint grupos + preview-promocion sin duplicados (LATERAL + LIMIT 1). Seeds actualizados (seed.js, seed_datos_reales.js, seed_semana_13_17_abril.js). Datos históricos (semana 13-17 abril, 20 abril) preservados íntegros.
 ### Sesión 34 (21-04-2026): ✅ CORRECCIÓN DUPLICADOS GRUPOS — Fix en grupos.js, reportes.js y pagos.js: todos los endpoints que listan grupos ahora filtran automáticamente por ciclo activo cuando no se pasa ciclo_id. Dashboard directora y página Grupos muestran exactamente 6 grupos del ciclo 2025-2026. Portal del papá verificado: sin riesgo (obtiene grupo desde alumno directo).
-### Próxima sesión (35): Test E2E promoción (crear ciclo destino → copiar grupos → ejecutar → verificar), Panel historial egresados, Validar selector K1A/K1B, Excel export.
+### Sesión 35 (21-04-2026): ✅ INDICADOR COMIDA "X NIÑOS COMEN HOY" — Agregado en dashboard Miss (módulo comida mejorado) + dashboard Directora (banner comida mejorado). Filtra automáticamente por día actual y estado pago verificado. Se oculta en fin de semana. Nombre de días mejorados (Lunes en lugar de Lun).
+### Próxima sesión (36): Test E2E promoción (crear ciclo destino → copiar grupos → ejecutar → verificar), Panel historial egresados, Validar selector K1A/K1B, Excel export.
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

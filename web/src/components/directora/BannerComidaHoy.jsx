@@ -37,13 +37,27 @@ const BannerComidaHoy = () => {
 
   if (loading || !stats || !stats.pagados || !stats.sin_verificar || stats.total_confirmados === 0) return null;
 
+  const diaHoy = new Date().getDay();
+  const ninosComenHoy = stats.confirmaciones.filter(c =>
+    c.pago_verificado && (
+      c.modalidad === 'semana_completa' ||
+      (c.dias_seleccionados && c.dias_seleccionados.includes(diaHoy))
+    )
+  ).length;
+  const esFinDeSemana = diaHoy === 0 || diaHoy === 6;
+
   return (
     <div className="card-hs bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 flex-1">
           <div>
             <h3 className="text-lg font-black text-orange-700">🍽️ Comida de Hoy</h3>
-            <div className="text-2xl font-black text-orange-600 mt-1">{stats.total_confirmados} confirmados</div>
+            {!esFinDeSemana && (
+              <div className="text-2xl font-black text-green-600 mt-1">
+                {ninosComenHoy} {ninosComenHoy === 1 ? 'niño come' : 'niños comen'} hoy
+              </div>
+            )}
+            <div className="text-sm text-orange-600 font-bold mt-1">{stats.total_confirmados} confirmados esta semana</div>
           </div>
 
           <div className="flex gap-4 text-sm">
@@ -62,7 +76,7 @@ const BannerComidaHoy = () => {
 
         <Link
           to="/directora/comida-menu"
-          className="px-3 py-2 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition text-xs"
+          className="px-3 py-2 bg-orange-500 text-white rounded-lg font-bold hover:bg-orange-600 transition text-xs shrink-0"
         >
           Gestionar Menú
         </Link>

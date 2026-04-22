@@ -1,10 +1,10 @@
 # PENDIENTES — Happy School App
 
-## Última actualización: 2026-04-20 (sesión 33+ COMPLETADA — limpieza grupos)
+## Última actualización: 2026-04-21 (sesión 35 COMPLETADA — indicador comida en dashboards)
 
 ---
 
-## 🔜 SESIÓN 35 — Próxima sesión
+## 🔜 SESIÓN 36 — Próxima sesión
 
 ### Ciclos Escolares (continuación)
 - [ ] Test E2E completo: crear ciclo destino → copiar grupos → ejecutar promoción → verificar alumnos movidos

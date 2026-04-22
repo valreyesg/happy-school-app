@@ -1,6 +1,34 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 35 — Indicador "X niños comen hoy" en Dashboard Miss y Directora (2026-04-21)
+- [x] **Dashboard Miss — Módulo de comida mejorado:**
+  - Agregado indicador destacado "🍽️ X niños comen hoy" en verde (antes de la lista de confirmaciones)
+  - Lógica: filtra confirmaciones verificadas (`pago_verificado = true`) por el día actual
+  - Considera tanto `modalidad = 'semana_completa'` como `dias_seleccionados.includes(diaHoy)`
+  - Se oculta automáticamente en fin de semana (sábado/domingo)
+  - Pluralización correcta: "1 niño come" vs "X niños comen"
+  - Archivo: `web/src/pages/maestra/Dashboard.jsx` (líneas 241-282)
+
+- [x] **Dashboard Directora — Banner comida mejorado:**
+  - Agregado indicador "🍽️ X niños comen hoy" en color verde destacado (encima del total semanal)
+  - Misma lógica de filtrado que la Miss (día actual + modalidad)
+  - El total semanal ("5 confirmados esta semana") ahora es texto secundario
+  - Se oculta en fin de semana
+  - Archivo: `web/src/components/directora/BannerComidaHoy.jsx`
+
+- [x] **Test en browser:**
+  - Insertado alumno "Mateo López Hernández" (Maternal) con confirmación "Lunes, Martes, Miércoles" y `pago_verificado = true`
+  - Verificado en dashboard Miss: muestra "2 niños comen hoy" (Ana = semana completa, Mateo = L/M/X)
+  - Verificado en dashboard directora: mismo indicador visible
+
+- [x] **Cambios secundarios:**
+  - Mejorado array de nombres de días: `['Domingo', 'Lunes', ...]` en lugar de abreviados para mayor claridad en la UI
+
+**Decisiones de diseño:**
+- Indicador de "no confirmados" no se implementó (fuera de scope — Valeria expresó que solo interesa confirmados a la Miss, no-confirmados es tema de directora)
+- Fin de semana: indicador desaparece (no hay servicio de comida los sábados/domingos)
+
 ## ✅ SESIÓN 34 — Corrección duplicados de grupos en todo el sistema (2026-04-21)
 - [x] **Problema:** Al hacer fetch de `/grupos` sin `ciclo_id`, el backend devolvía grupos de todos los ciclos (Kinder 1, Kinder 1A, Kinder 1B, duplicados de ciclos anteriores). El dashboard directora mostraba grupos incorrectos.
 - [x] **Root cause:** 3 queries en el backend usaban `FROM grupos` o `WHERE g.activo = true` sin filtrar por ciclo activo.

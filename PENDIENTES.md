@@ -6,31 +6,15 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 38 — Inmediato (1-2 semanas)
+## 📍 SESIÓN 39 — Sprint 3 + UI Mejoras (2-4 semanas)
 
-### 🔧 BUGS CRÍTICOS (BLOQUEAN FLUJO)
-- [x] **BUG: Firma en Incidentes padre** — Resuelto: base64 guardado directo en BD, sin Cloudinary.
-- [x] **BUG: Calendario — filtro de eventos por rol** — Resuelto: subquery server-side filtra por grupos del hijo del padre.
-- [x] **BUG: Orden alimentación en bitácora padre** — Resuelto: sort por orden canónico antes del filter.
-- [x] **BUG: Configuración — no carga horarios previos** — Resuelto: eliminado onSuccess deprecado, usa configData del hook.
-- [x] **BUG: Duplicados de signo $$ en tabla Comida** — Resuelto: removido $ literal extra.
-
-### 📋 CONTINUACIÓN HISTORIAL POR CICLO (Sprint 3 — Sesión 37 incompleto)
+### 📋 CONTINUACIÓN HISTORIAL POR CICLO (Sprint 3)
 - [ ] **Portal Papá — Bitácora:** Selector de ciclos anteriores + navegación por rango de fechas usando `GET /alumnos/:id/ciclos` + `GET /bitacora/:id/rango`.
 - [ ] **Portal Papá — Pagos:** Agrupar por año/ciclo con encabezados visuales (sin cambio backend).
 
-### 🧹 LIMPIEZA DE DATOS BD
-- [x] **Eliminar duplicados Ana García López** — 3 registros sin CURP eliminados (soft-delete). 1 registro canónico con CURP `GALA220315MDFRLNA1` mantiene todas las relaciones.
-- [x] **Constraint UNIQUE futuro** — Validación CURP obligatoria en backend (alumnosController.js). Migración 020 verifica que todos los alumnos activos tengan CURP. Guard en seed.js previene reinserción de duplicados.
-
-### ✅ VALIDACIONES Y TESTING
-- [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia.
-- [ ] Modal comprobante padre: mostrar imagen/PDF cuando sube transferencia.
-- [ ] ⏰ Test manual lunes: cron 8:31 AM WhatsApp auto-cancelación comida.
-
 ---
 
-## 🎯 SESIÓN 39-40 — Corto plazo (3-4 semanas)
+## 🎯 SESIÓN 40-41 — Corto plazo (3-4 semanas)
 
 ### 🎨 MEJORAS UI — PORTAL DIRECTORA
 
@@ -96,7 +80,7 @@
 
 ---
 
-## 🎯 SESIÓN 41-42 — Mediano plazo (1-2 meses)
+## 🎯 SESIÓN 42-43 — Mediano plazo (1-2 meses)
 
 ### 🔄 CICLOS ESCOLARES — COMPLETAR SPRINT 3
 - [ ] **Panel "Historial Egresados":** Endpoint `GET /alumnos?estado=egresado&ciclo_id=X` + tabla Directora.
@@ -155,7 +139,7 @@
 
 ---
 
-## 🎯 SESIÓN 43-44 — Largo plazo (2-3 meses)
+## 🎯 SESIÓN 44-45 — Largo plazo (2-3 meses)
 
 ### 🗂️ CATÁLOGOS DINÁMICOS — 100% ADMINISTRABLE
 - [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Parentescos, Alergias, Tipos Pago, Motivos Salida, Emojis, etc.
@@ -197,13 +181,12 @@
 
 | Prioridad | Sprint | Tarea | Complejidad | Estimado | Bloquea |
 |-----------|--------|-------|-------------|----------|---------|
-| 🔴 CRÍTICA | 38 | Bugs (5 items) | ⭐ | 3-4h | Múltiples |
-| 🔴 CRÍTICA | 38 | Historial ciclo Sprint 3 | ⭐⭐ | 8-10h | Papá portal |
-| 🟠 ALTA | 39-40 | Dashboard Directora | ⭐⭐ | 6-8h | Usabilidad |
-| 🟠 ALTA | 39-40 | Notificaciones globales | ⭐⭐⭐ | 12-16h | Todos portales |
-| 🟡 MEDIA | 39-40 | Tabs por nivel (UI) | ⭐ | 4-5h | - |
-| 🟡 MEDIA | 41-42 | Tareas grupales | ⭐⭐⭐ | 16-20h | - |
-| 🟢 BAJA | 43+ | Catálogos dinámicos | ⭐⭐⭐⭐ | 24-32h | Configurabilidad |
+| 🔴 CRÍTICA | 39 | Historial ciclo Sprint 3 | ⭐⭐ | 8-10h | Papá portal |
+| 🟠 ALTA | 40-41 | Dashboard Directora | ⭐⭐ | 6-8h | Usabilidad |
+| 🟠 ALTA | 40-41 | Notificaciones globales | ⭐⭐⭐ | 12-16h | Todos portales |
+| 🟡 MEDIA | 40-41 | Tabs por nivel (UI) | ⭐ | 4-5h | - |
+| 🟡 MEDIA | 42-43 | Tareas grupales | ⭐⭐⭐ | 16-20h | - |
+| 🟢 BAJA | 44+ | Catálogos dinámicos | ⭐⭐⭐⭐ | 24-32h | Configurabilidad |
 
 ---
 

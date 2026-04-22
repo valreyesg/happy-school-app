@@ -1,7 +1,30 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 38
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 39
+
+---
+
+## ✅ SESIÓN 39 INICIO — Limpieza de BD + Validación CURP
+
+**Fecha:** 2026-04-22
+
+**Tareas Completadas:**
+
+| Tarea | Detalle |
+|-------|---------|
+| **D) Eliminar test_ciclos.js** | Archivo de prueba E2E temporal (sesión 36) eliminado. |
+| **C) Limpiar duplicados Ana García López** | 3 registros sin CURP eliminados (soft-delete). Canónico con CURP `GALA220315MDFRLNA1` mantiene relaciones. |
+| **Migración CURP obligatoria** | `backend/migrations/020_curp_required_alumnos.sql` — valida que todos los alumnos activos tengan CURP. |
+| **Validación backend** | `backend/src/controllers/alumnosController.js` — CURP obligatoria al crear alumnos (retorna 400 si falta). |
+| **Script limpieza** | `backend/src/database/fix_duplicados_ana.js` — procesó 26 tablas con `alumno_id`, reasignó relaciones. |
+| **Guard seed.js** | `backend/src/database/seed.js` — búsqueda por CURP previene reinserción de duplicados. |
+
+**Prevención futura:**
+- CURP como llave de identidad (no nombre)
+- Constraint UNIQUE parcial en BD ya existente (`002_unique_constraints.sql`)
+- Backend rechaza alumnos sin CURP
+- Seed verifica por CURP antes de insertar
 
 ---
 

@@ -18,6 +18,12 @@
 - [x] **Salidas registradas hoy:** Cards por grupo (número de salidas) → modal con detalle, chips de alerta inline
 - [x] **Unificación visual:** Las 4 secciones principales ahora comparten diseño de cards + modales (consistencia 100%)
 
+---
+
+## 📍 SESIÓN 42 — UI Mejoras Portal (continuación)
+
+### 🎨 MEJORAS UI — PORTAL DIRECTORA
+
 #### Pagos (Directora) — pendiente
 - [ ] **Registrar Pago (modal global):** Agregar selector de grupo + buscador de alumno (reemplazar select plano).
 
@@ -56,7 +62,7 @@
 
 ---
 
-## 🎯 SESIÓN 42-43 — Mediano plazo (1-2 meses)
+## 🎯 SESIÓN 43-45 — Mediano plazo (1-2 meses)
 
 ### 🔄 CICLOS ESCOLARES — COMPLETAR SPRINT 3
 - [ ] **Panel "Historial Egresados":** Endpoint `GET /alumnos?estado=egresado&ciclo_id=X` + tabla Directora.
@@ -115,7 +121,7 @@
 
 ---
 
-## 🎯 SESIÓN 44-45 — Largo plazo (2-3 meses)
+## 🎯 SESIÓN 46-47 — Largo plazo (2-3 meses)
 
 ### 🗂️ CATÁLOGOS DINÁMICOS — 100% ADMINISTRABLE
 - [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Parentescos, Alergias, Tipos Pago, Motivos Salida, Emojis, etc.

@@ -111,18 +111,25 @@ async function seed() {
 
   // ── Alumno de prueba para el padre ────────────────────────────────────────
   const gMaternal = grupoId('Maternal');
-  const alumnoR = await query(`
-    INSERT INTO alumnos (nombre_completo, fecha_nacimiento, grupo_id, ciclo_id, usa_panial)
-    VALUES ('Ana García López', '2022-03-15', $1, $2, true)
-    ON CONFLICT DO NOTHING RETURNING id
-  `, [gMaternal, cicloId]);
+  // Buscar primero por CURP para evitar duplicados
+  const existingAlumno = await query(
+    `SELECT id FROM alumnos WHERE curp = $1 AND deleted_at IS NULL LIMIT 1`,
+    ['GALA220315MDFRLNA1']
+  );
 
   let alumnoId;
-  if (alumnoR.rows.length > 0) {
-    alumnoId = alumnoR.rows[0].id;
+  if (existingAlumno.rows.length > 0) {
+    alumnoId = existingAlumno.rows[0].id;
   } else {
-    const ex = await query(`SELECT id FROM alumnos WHERE nombre_completo = 'Ana García López' LIMIT 1`);
-    alumnoId = ex.rows[0]?.id;
+    const alumnoR = await query(`
+      INSERT INTO alumnos (nombre_completo, fecha_nacimiento, curp, grupo_id, ciclo_id, usa_panial)
+      VALUES ('Ana García López', '2022-03-15', 'GALA220315MDFRLNA1', $1, $2, true)
+      RETURNING id
+    `, [gMaternal, cicloId]);
+
+    if (alumnoR.rows.length > 0) {
+      alumnoId = alumnoR.rows[0].id;
+    }
   }
 
   // ── Usuario padre vinculado al alumno de prueba ───────────────────────────

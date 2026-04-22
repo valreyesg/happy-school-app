@@ -204,6 +204,10 @@ const crear = async (req, res, next) => {
       medico_nombre, medico_telefono, notas,
     } = req.body;
 
+    if (!curp || curp.trim() === '') {
+      return res.status(400).json({ error: 'La CURP es obligatoria para registrar un alumno.' });
+    }
+
     const result = await query(`
       INSERT INTO alumnos (
         nombre_completo, fecha_nacimiento, curp, grupo_id, ciclo_id,

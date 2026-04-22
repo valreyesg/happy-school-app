@@ -20,8 +20,8 @@
 - [ ] **Portal Papá — Pagos:** Agrupar por año/ciclo con encabezados visuales (sin cambio backend).
 
 ### 🧹 LIMPIEZA DE DATOS BD
-- [ ] **Eliminar duplicados Ana García López** — 3 registros en `alumnos` con mismo nombre, distinto UUID. Limpiar dejando 1, reasignar relaciones (padres, bitácoras, asistencia, pagos).
-- [ ] **Constraint UNIQUE futuro** — Agregar `UNIQUE(nombre_completo, ciclo_id)` en tabla `alumnos` O validar CURP obligatorio en alta.
+- [x] **Eliminar duplicados Ana García López** — 3 registros sin CURP eliminados (soft-delete). 1 registro canónico con CURP `GALA220315MDFRLNA1` mantiene todas las relaciones.
+- [x] **Constraint UNIQUE futuro** — Validación CURP obligatoria en backend (alumnosController.js). Migración 020 verifica que todos los alumnos activos tengan CURP. Guard en seed.js previene reinserción de duplicados.
 
 ### ✅ VALIDACIONES Y TESTING
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia.

@@ -243,7 +243,9 @@
       "Bash(npx eslint *)",
       "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -c \"SELECT id, nombre, activo FROM ciclos_escolares ORDER BY fecha_inicio;\")",
       "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -t -c \"SELECT id, nombre, activo FROM ciclos_escolares ORDER BY fecha_inicio\")",
-      "Bash(kill -9 8928 8786 8629 8762)"
+      "Bash(kill -9 8928 8786 8629 8762)",
+      "PowerShell(Stop-Process -Force 2>&1)",
+      "Bash(node src/database/fix_duplicados_ana.js)"
     ],
     "additionalDirectories": [
       "\\tmp",

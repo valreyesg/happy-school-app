@@ -1,15 +1,24 @@
 # Happy School App — Comunidad Infantil
 ## Estado del Proyecto
 
-### Última actualización: 2026-04-21 (sesión 37 completada — Historial por ciclo Sprint 1+2)
-### Sesión 32: ✅ Módulo Ciclos Escolares COMPLETO — Backend CRUD + transacción promoción, Web pantalla con flujo 3-pasos, integración rutas/sidebar. Promoción automática: Maternal→Prekinder→K1→K2→K3→Egresado.
-### Sesión 33: ✅ AUTOMATIZACIÓN GRUPOS — Modal 3-pasos (seleccionar destino → revisar promoción → confirmar), Endpoint copiar grupos del ciclo anterior con maestras, Filtro ciclos pasados, Validación grupos destino, Export Excel (grupos+maestras+alumnos).
-### Sesión 33+ (20-04-2026): ✅ LIMPIEZA ESTRUCTURA GRUPOS — Renombrado 'Kinder 1' → 'Kinder 1A', creado 'Kinder 1B', divididos alumnos. Backend: DELETE endpoint grupos + preview-promocion sin duplicados.
-### Sesión 34 (21-04-2026): ✅ CORRECCIÓN DUPLICADOS GRUPOS — Fix en grupos.js, reportes.js y pagos.js.
-### Sesión 35 (21-04-2026): ✅ INDICADOR COMIDA "X NIÑOS COMEN HOY" — Dashboard Miss + Directora.
-### Sesión 36 (21-04-2026): ✅ E2E PROMOCIÓN COMPLETO + PANEL CONFIGURACIÓN GRUPOS — Panel selección grupos al copiar (checkbox + renombrar + grupos nuevos), selector grupo destino dinámico en Paso 2, lógica de estados corregida, backend limpia grupos previos antes de re-copiar.
-### Sesión 37 (21-04-2026): ✅ HISTORIAL POR CICLO — Sprint 1 (4 endpoints backend) + Sprint 2 (SelectorCiclo en Grupos y Alumnos directora). BD restaurada a 2025-2026 activo. Sprint 3 (Portal Papá) pendiente para sesión 38.
-### Próxima sesión (38): Sprint 3 historial Portal Papá (Pagos + Bitácora), limpieza duplicados Ana García, constraint anti-duplicados alumnos, panel historial egresados.
+### Última actualización: 2026-04-21 (sesión 37 COMPLETADA — Reorganización PENDIENTES.md + ARCHIVE_LOG.md)
+
+## ✅ SESIÓN 37 — Historial por Ciclo + Reorganización de Documentación
+
+### Trabajo técnico completado
+- ✅ Backend: 5 endpoints nuevos/modificados para historial por ciclo (`GET /alumnos?ciclo_id`, `GET /alumnos/:id/ciclos`, `GET /bitacora/:alumnoId/rango`, `GET /reportes/dashboard?ciclo_id`, `GET /grupos`).
+- ✅ Frontend Directora: `SelectorCiclo.jsx` reutilizable, Grupos.jsx y Alumnos.jsx integradas con selector + modo solo lectura para ciclos históricos.
+- ✅ BD: Restaurada a 2025-2026 activo con 18 alumnos. 2026-2027 inactivo con 10 egresados/bajas.
+
+### Documentación reorganizada
+- ✅ **PENDIENTES.md** — Reescrito: 4 sprints claros (38, 39-40, 41-42, 43+), 8 deduplicaciones, tabla de priorización. 254 líneas limpias, sin duplicados.
+- ✅ **ARCHIVE_LOG.md** — Creado/reorganizado: Referencia rápida (credenciales, roles, estructura), 31 sesiones documentadas (37→7), 14 bugs históricos en tabla. 497 líneas bien estructuradas.
+- ✅ **MEMORY.md** — Actualizado con referencia a sesión 37.
+
+### Próxima sesión (38)
+- Atacar 5 bugs críticos (3-4h): firma incidentes, calendario filtro rol, orden alimentación, horarios config, duplicados $$
+- Sprint 3 historial Portal Papá (Pagos + Bitácora por ciclo)
+- Limpieza: duplicados Ana García + constraint UNIQUE alumnos
 
 > [!IMPORTANT]
 > **INSTRUCCIONES DE SISTEMA (SYSTEM SKILLS):**

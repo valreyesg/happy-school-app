@@ -214,11 +214,41 @@
       "Bash(curl -s -X POST http://localhost:3000/api/ciclos/test/copiar-grupos-del-anterior -H \"Authorization: Bearer test\" -H \"Content-Type: application/json\")",
       "PowerShell(Stop-Process -Force -ErrorAction SilentlyContinue)",
       "PowerShell(\"V Procesos Node detenidos\")",
-      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\")"
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\")",
+      "Bash(psql -U postgres -d happy_school -c \"SELECT id, nombre, ciclo_id, nivel FROM grupos WHERE ciclo_id = \\(SELECT id FROM ciclos_escolares WHERE nombre = '2025-2026'\\) ORDER BY nombre;\")",
+      "Bash(cat)",
+      "Bash(psql -U postgres -d happy_school -f /tmp/check_grupos.sql)",
+      "Bash(node src/database/fix_grupos_2025_2026.js)",
+      "Bash(curl -s \"http://localhost:3000/reportes/dashboard?fecha=2026-04-20\")",
+      "Bash(curl -s \"http://localhost:3000/grupos\" -H \"Authorization: Bearer test\")",
+      "Bash(psql -U postgres -d happy_school -c \"SELECT nombre, nivel, nivel_codigo FROM grupos WHERE ciclo_id = \\(SELECT id FROM ciclos_escolares WHERE nombre = '2025-2026'\\) AND deleted_at IS NULL ORDER BY nombre;\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('accessToken','NO_TOKEN'\\)[:50] if 'accessToken' in d else d\\)\")",
+      "Bash(curl -s -X POST http://localhost:3000/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"directora@happyschool.com\",\"password\":\"password123\"}')",
+      "Bash(taskkill //F //PID 33416)",
+      "Bash(grep -v \"//.*grupo\")",
+      "Bash(PGPASSWORD=postgres psql -U postgres -d happyschool -c \"SELECT a.id, a.nombre_completo, g.nombre as grupo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id WHERE a.deleted_at IS NULL ORDER BY g.nombre, a.nombre_completo LIMIT 10;\")",
+      "Bash(PGPASSWORD=happyschool psql -U happyschool -d happyschool -c \"SELECT a.id, a.nombre_completo, g.nombre as grupo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id WHERE a.deleted_at IS NULL ORDER BY g.nombre, a.nombre_completo LIMIT 10;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT a.id, a.nombre_completo, g.nombre as grupo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id WHERE a.deleted_at IS NULL ORDER BY g.nombre, a.nombre_completo LIMIT 10;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT ccs.alumno_id, a.nombre_completo, ccs.semana_inicio, ccs.modalidad, ccs.pago_verificado FROM control_comida_semanal ccs JOIN alumnos a ON a.id = ccs.alumno_id WHERE ccs.pago_verificado = true ORDER BY ccs.semana_inicio DESC LIMIT 5;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT date_trunc\\('week', CURRENT_DATE\\)::date AS lunes_actual;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"INSERT INTO control_comida_semanal \\(alumno_id, semana_inicio, confirmado, modalidad, dias_seleccionados, monto, metodo_pago, pago_verificado, estado\\) VALUES \\('8ff43cbb-b326-4209-b88a-6b3a263e5821', '2026-04-20', true, 'dias_especificos', ARRAY[1,2,3], 90.00, 'transferencia', true, 'pagado'\\) ON CONFLICT \\(alumno_id, semana_inicio\\) DO NOTHING;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT a.id, a.nombre_completo, a.grupo_id, g.nombre FROM alumnos a JOIN grupos g ON g.id = a.grupo_id WHERE a.id = '8ff43cbb-b326-4209-b88a-6b3a263e5821';\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT a.id, a.nombre_completo, a.grupo_id, g.nombre FROM alumnos a JOIN grupos g ON g.id = a.grupo_id WHERE a.id = '5c21fb57-33c7-4add-aebb-a249c6df50e7';\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT a.id, a.nombre_completo FROM alumnos a WHERE a.grupo_id = '9a44b4df-0347-4938-bcd3-008945ff9ac5' AND a.deleted_at IS NULL AND a.id != '5c21fb57-33c7-4add-aebb-a249c6df50e7';\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"INSERT INTO control_comida_semanal \\(alumno_id, semana_inicio, confirmado, modalidad, dias_seleccionados, monto, metodo_pago, pago_verificado, estado\\) VALUES \\('ede7d099-823c-456b-8787-0e217cab1fcc', '2026-04-20', true, 'dias_especificos', ARRAY[1,2,3], 90.00, 'transferencia', true, 'pagado'\\) ON CONFLICT \\(alumno_id, semana_inicio\\) DO NOTHING;\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"vale.reyes.garcia@gmail.com\",\"password\":\"password\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/ciclos -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
+      "Bash(sqlite3 :memory: \".databases\")",
+      "Bash(psql -U postgres -d happy_school -c \"SELECT COUNT\\(*\\) as usuarios FROM usuarios;\")",
+      "Bash(npx eslint *)",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -c \"SELECT id, nombre, activo FROM ciclos_escolares ORDER BY fecha_inicio;\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -t -c \"SELECT id, nombre, activo FROM ciclos_escolares ORDER BY fecha_inicio\")",
+      "Bash(kill -9 8928 8786 8629 8762)"
     ],
     "additionalDirectories": [
       "\\tmp",
-      "c:\\Users\\vreyesg\\.claude\\projects\\c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER\\memory"
+      "c:\\Users\\vreyesg\\.claude\\projects\\c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER\\memory",
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend"
     ]
   }
 }

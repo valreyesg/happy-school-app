@@ -1,55 +1,29 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 39 inicio (Limpieza D+C completada, Sprint 3 pendiente)
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 41 inicio (UI Directora Parte 1 completada, Dashboard + ModalPago pendientes)
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 39 — Sprint 3 + UI Mejoras (2-4 semanas)
-
-### 📋 CONTINUACIÓN HISTORIAL POR CICLO (Sprint 3)
-- [ ] **Portal Papá — Bitácora:** Selector de ciclos anteriores + navegación por rango de fechas usando `GET /alumnos/:id/ciclos` + `GET /bitacora/:id/rango`.
-- [ ] **Portal Papá — Pagos:** Agrupar por año/ciclo con encabezados visuales (sin cambio backend).
-
----
-
-## 🎯 SESIÓN 40-41 — Corto plazo (3-4 semanas)
+## 📍 SESIÓN 41 — UI Mejoras Portal (continuación)
 
 ### 🎨 MEJORAS UI — PORTAL DIRECTORA
 
-#### Dashboard Directora
-- [ ] **Resumen Asistencia + Salidas HOY:** Agrupar por grupo (cards simples). Al clic → modal detallado. Remover "Horarios Configurados" (no es dashboard).
-- [ ] **Clarificar emoji de advertencia** en Asistencia por Grupo — específicar qué significa (¿retardos? ¿inasistencia?).
-- [ ] **Documentación Incompleta:** Mostrar sumatoria por grupo en dashboard. Clic → abre modal con detalle de cuáles documentos faltan.
-- [ ] **Retardos del Mes:** Agrupar por grupo también (consistencia con Asistencia).
+#### Dashboard Directora (pendientes)
+- [ ] **Asistencia por grupo:** Clic en tarjeta → modal detallado con lista de alumnos del grupo.
+- [ ] **Clarificar emoji ⚠️** — agregar tooltip "Menos del 80% de alumnos presentes".
+- [ ] **Documentación Incompleta:** Agrupar por grupo con acordeón (sumatoria por grupo visible, expandir para ver alumnos).
+- [ ] **Retardos del Mes:** Agrupar por grupo con acordeón (consistencia con Asistencia).
 
-#### Asistencia (Directora)
-- [ ] Ordenar grupos por nivel (Maternal → Prekinder → Kinder 1/2/3 → Todos).
-- [ ] Navegación entre días + ocultar fines de semana (no se laboran).
-- [ ] Vista mensual: navegación entre meses + remover scrollbar morada fija (mostrar todo sin scroll).
+#### Pagos (Directora) — pendiente
+- [ ] **Registrar Pago (modal global):** Agregar selector de grupo + buscador de alumno (reemplazar select plano).
 
 #### Servicio de Comida (Unificado — Antes: Menú + Pagos Comida)
 - [ ] Crear single menú "Servicio de Comida" con:
   - Menú semanal (visual).
   - Tabla: Confirmados, Pagados, Pendientes.
   - Dividir alumnos: Semana completa vs. X días específicos (mostrar qué días eligió).
-- [ ] Remover duplicado $$ en tabla.
-
-#### Alumnos (Directora)
-- [ ] Tabs por nivel (mismo orden Asistencia) en lugar de listado de grupos.
-- [ ] Cambiar "Incompleta" → "Documentación Incompleta".
-- [ ] Iconos (Perfil, QR, Editar) visibles por default, no hover.
-
-#### Grupos (Directora)
-- [ ] Fijar inconsistencia: capacidad máxima vs. mostrada (15 vs. 5/20?).
-- [ ] Agregar sufijos A, B, C para Kinder 1/2/3 (permitir múltiples grupos mismo nivel).
-- [ ] Especificar a qué ciclo escolar activo pertenecen.
-
-#### Pagos (Directora)
-- [ ] Tabs por nivel (consistencia con Asistencia/Alumnos).
-- [ ] Registrar Pago: agregar selector grupo + buscador de alumno.
-- [ ] Configuración: cargar valores previos de horarios/reglas (fix persistencia).
 
 #### Turno Puerta (Directora)
 - [ ] Agregar configuración para SALIDA (falta).

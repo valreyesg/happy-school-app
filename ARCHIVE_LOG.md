@@ -1,7 +1,56 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 39
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 41
+
+---
+
+## ✅ SESIÓN 40 — UI Mejoras Portal Directora (Parte 1)
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:** `Semaforo.jsx`, `Grupos.jsx`, `Alumnos.jsx`, `Asistencia.jsx`, `Pagos.jsx`, `Dashboard.jsx`, `index.css`
+
+| Tarea | Detalle |
+|-------|---------|
+| **Semaforo.jsx** | Badge "Incompleta" → "Documentación Incompleta" |
+| **Grupos.jsx — Bug cupo_maximo** | Form usaba `capacidad_maxima` (undefined); corregido a `cupo_maximo` — los valores ahora persisten correctamente al editar |
+| **Grupos.jsx — Ciclo activo** | Badge `📅 {cicloActualData}` en encabezado — dato ya venía del backend pero no se renderizaba |
+| **Grupos.jsx — Sufijos** | Placeholder mejorado + helper text "Usa sufijos A, B, C" cuando nivel es Kinder 1/2/3 |
+| **Alumnos.jsx — Tabs por nivel** | Select de grupo reemplazado por tabs dinámicos derivados del backend. Filtrado por nivel en cliente con `useMemo` |
+| **Alumnos.jsx — Iconos visibles** | Removido `opacity-0 group-hover:opacity-100` — iconos siempre visibles |
+| **Asistencia.jsx — Orden grupos** | Tabs de grupos ordenados por nivel de aparición en el backend (no hardcodeado) |
+| **Asistencia.jsx — Navegación días** | Botones `‹ ›` navegan entre días hábiles, saltando sábado/domingo automáticamente. Fecha parseada con `T12:00` para evitar desfase UTC |
+| **Asistencia.jsx — Scrollbar** | Clase `.scrollbar-hidden` en vista mensual — barra morada ya no aparece |
+| **Pagos.jsx — Tabs por nivel** | Select de grupo reemplazado por tabs dinámicos derivados del backend. Filtrado usando mapa `grupoNombre→nivel` |
+| **Dashboard.jsx** | Sección "Horarios Configurados" eliminada (no era dashboard). `useQuery` de config-horarios y `import Settings` removidos |
+
+**Pendiente para sesión 41:**
+- Dashboard: Clic en tarjeta Asistencia → modal detalle + clarificar ⚠️
+- Dashboard: Documentación Incompleta agrupada por grupo con acordeón
+- Dashboard: Retardos del Mes agrupados por grupo con acordeón
+- Pagos: ModalPago global — selector de grupo + buscador de alumno
+
+**Bugs corregidos en el proceso:**
+- Niveles hardcodeados en frontend (`maternal`, `kinder_1`) no coincidían con BD (`"Maternal"`, `"Kinder 1"`)
+- `new Date("YYYY-MM-DD")` parsea en UTC → `getDay()` devuelve día anterior en timezone México. Fix: usar `T12:00`
+
+---
+
+## ✅ SESIÓN 39 COMPLETADA — Sprint 3 Finalizado
+
+**Fecha:** 2026-04-22
+
+**Tareas Completadas:**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Portal Papá — Bitácora** | Selector de ciclos anteriores + navegación por rango de fechas con `GET /alumnos/:id/ciclos` + `GET /bitacora/:id/rango`. Historial completo funcional. |
+| **Portal Papá — Pagos** | Agrupación por año/ciclo con encabezados visuales. Recibos ordenados (actual primero, históricos descendente). |
+| **Limpieza BD + CURP** | Duplicados Ana García eliminados (soft-delete), CURP obligatoria implementada, validación en backend y seed. |
+| **Testing validado** | Historial ciclos y pagos probados en browser. Navegación fluida confirmada. |
+
+**Sprint 3 cerrado:** Funcionalidad de historial por ciclo completamente operativa en ambos portales.
 
 ---
 

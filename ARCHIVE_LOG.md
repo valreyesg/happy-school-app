@@ -1,7 +1,34 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 41
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 42
+
+---
+
+## ✅ SESIÓN 42 — Bug Fix: Bitácora + Automatización Servidores
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:** 
+- `web/src/pages/maestra/Bitacora.jsx` (línea 741-743)
+- `.claude/settings.json` (hooks PostToolUse)
+
+**Tareas Completadas (2/2):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Bug: Bitácora sin validación entrada** | Filtro: solo mostrar alumnos con `estado_asistencia IN ('presente', 'retardo')`. Alumnos ausentes ya no aparecen en selector de bitácora. |
+| **Automatización servidores** | Hooks PostToolUse en `.claude/settings.json`: reinicia Web (puerto 5173) al editar `/web/src/**`, reinicia Backend (puerto 5000) al editar `/backend/src/**`. Procesos asincronos, sin bloqueos. |
+
+**Cambios clave:**
+- Línea 741: `const alumnos = (grupo?.alumnos \|\| []).filter(a => ['presente', 'retardo'].includes(a.estado_asistencia))`
+- Hook Web: mata proceso puerto 5173, inicia `npm run dev`
+- Hook Backend: mata proceso puerto 5000, inicia `npm run dev`
+- Script PowerShell: `kill_and_restart_server.ps1` — limpia puerto + inicia servidor
+
+**Impacto:** Evita errores lógicos (bitácora de alumno sin entrada) + acelera desarrollo (no manual restart).
+
+**Protocolo cierre sesión registrado:** Actualizar PENDIENTES → ARCHIVE_LOG + commit automático.
 
 ---
 

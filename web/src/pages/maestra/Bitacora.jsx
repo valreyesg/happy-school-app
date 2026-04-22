@@ -738,7 +738,9 @@ export default function MaestraBitacora() {
     queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
   });
 
-  const alumnos = grupo?.alumnos || [];
+  const alumnos = (grupo?.alumnos || []).filter(a =>
+    ['presente', 'retardo'].includes(a.estado_asistencia)
+  );
   const pendientes = alumnos.filter(a => !a.estado_animo);
   const guardadas  = alumnos.filter(a =>  a.estado_animo);
 

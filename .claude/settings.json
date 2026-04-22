@@ -25,10 +25,36 @@
       "Read(//c/Users/vreyesg/.claude/projects/c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER/memory/**)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1\" *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\vreyesg\\AppData\\Local\\Temp"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "if": "Edit|Write(/web/src/**)",
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -File 'C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1' -Port 5173 -ServerDir 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\web' -Command 'npm run dev'",
+            "statusMessage": "Reiniciando servidor web...",
+            "async": true,
+            "timeout": 5
+          },
+          {
+            "if": "Edit|Write(/backend/src/**)",
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -File 'C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1' -Port 5000 -ServerDir 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend' -Command 'npm run dev'",
+            "statusMessage": "Reiniciando servidor backend...",
+            "async": true,
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

@@ -1,12 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 42 en progreso — ModalPago + Servicio Comida + Notificaciones
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 43 lista — Pagos + Servicio Comida + Notificaciones
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 42 — UI Mejoras Portal (continuación)
+## 📍 SESIÓN 43 — UI Mejoras Portal (continuación)
 
 ### 🎨 MEJORAS UI — PORTAL DIRECTORA
 

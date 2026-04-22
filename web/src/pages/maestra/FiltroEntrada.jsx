@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Thermometer, Clock, QrCode } from 'lucide-react';
+import { X, Thermometer, Clock, QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
@@ -322,14 +322,31 @@ function RelojHora() {
 // ── Vista principal ────────────────────────────────────────────────────────────
 
 export default function FiltroEntrada() {
+  const hoy = new Date().toLocaleDateString('en-CA');
+
+  const ultimoDiaHabil = () => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  };
+
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
+  const soloLectura = fecha < hoy;
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [showQR, setShowQR] = useState(false);
 
+  const irDia = (delta) => {
+    const d = new Date(fecha + 'T12:00:00');
+    do { d.setDate(d.getDate() + delta); } while (d.getDay() === 0 || d.getDay() === 6);
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) setFecha(nueva);
+  };
+
   const { data, isLoading } = useQuery({
-    queryKey: ['filtro-entrada'],
-    queryFn: () => api.get('/asistencia/filtro-entrada').then(r => r.data),
-    refetchInterval: 20000,
+    queryKey: ['filtro-entrada', fecha],
+    queryFn: () => api.get(`/asistencia/filtro-entrada?fecha=${fecha}`).then(r => r.data),
+    refetchInterval: soloLectura ? false : 20000,
   });
 
   const grupos = data?.grupos ?? [];
@@ -359,25 +376,51 @@ export default function FiltroEntrada() {
             .filter(g => g.alumnos.length > 0)
     : grupos;
 
-  const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  const fechaFormatted = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
+      {/* Banner solo lectura */}
+      {soloLectura && (
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-3 flex items-center gap-2">
+          <span className="text-xl">📋</span>
+          <p className="text-sm font-bold text-blue-800">Consultando día anterior — solo lectura</p>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-gray-800">Filtro de Entrada 🚪</h1>
-          <p className="text-gray-500 font-semibold capitalize mt-0.5">{hoy}</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => irDia(-1)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+            disabled={fecha <= '2024-01-01'}
+          >
+            <ChevronLeft size={20} className="text-gray-600" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-gray-800">Filtro de Entrada 🚪</h1>
+            <p className="text-gray-500 font-semibold capitalize mt-0.5">{fechaFormatted}</p>
+          </div>
+          <button
+            onClick={() => irDia(1)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+            disabled={fecha >= hoy}
+          >
+            <ChevronRight size={20} className="text-gray-600" />
+          </button>
         </div>
         <div className="flex flex-col items-end gap-2">
           <RelojHora />
-          <button
-            onClick={() => setShowQR(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-purple-700 transition-all shadow-sm"
-          >
-            <QrCode size={16} />
-            Escanear QR
-          </button>
+          {!soloLectura && (
+            <button
+              onClick={() => setShowQR(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-purple-700 transition-all shadow-sm"
+            >
+              <QrCode size={16} />
+              Escanear QR
+            </button>
+          )}
         </div>
       </div>
 
@@ -449,7 +492,7 @@ export default function FiltroEntrada() {
               <div className="space-y-2">
                 {/* Pendientes primero */}
                 {pendientes.map(a => (
-                  <TarjetaAlumno key={a.id} alumno={a} onTap={setAlumnoSeleccionado} />
+                  <TarjetaAlumno key={a.id} alumno={a} onTap={soloLectura ? () => {} : setAlumnoSeleccionado} />
                 ))}
                 {/* Registrados al final, más tenues */}
                 {registrados.map(a => (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
@@ -17,10 +17,10 @@ const ANIMOS = [
 ];
 
 const CUANTO = [
-  { key: 'todo',      emoji: '🍽️', label: 'Todo'       },
-  { key: 'casi_todo', emoji: '🥢', label: 'Casi todo'  },
-  { key: 'poco',      emoji: '🍱', label: 'Poco'       },
-  { key: 'no_comio',  emoji: '🚫', label: 'No comió'   },
+  { key: 'todo',      emoji: '😋', label: 'Todo'       },
+  { key: 'casi_todo', emoji: '😊', label: 'Casi todo'  },
+  { key: 'poco',      emoji: '😐', label: 'Poco'       },
+  { key: 'no_comio',  emoji: '❌', label: 'No comió'   },
 ];
 
 // ENUM correcto según schema: muy_bien | bien | necesita_mejorar
@@ -121,7 +121,7 @@ function ListaAlumnos({ alumnos, seleccionado, onSeleccionar }) {
 
 // ── Formulario ────────────────────────────────────────────────────────────────
 
-function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
+function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades, onGuardado }) {
   const queryClient = useQueryClient();
 
   const grupoNivel = (alumno.nivel_codigo || '').toLowerCase();
@@ -141,7 +141,6 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
     comida_extra: { que_comio: '', cuanto_comio: null, observaciones: '' },
   });
   const [actividadRealizada,  setActividadRealizada]  = useState(null);
-  const [actividadDesc,       setActividadDesc]       = useState('');
   const [actividadFotos,      setActividadFotos]      = useState([]);
   const actFileRef = useRef();
   const [comportamiento,      setComportamiento]      = useState(null);
@@ -169,7 +168,9 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
     if (data.bitacora) {
       setAnimo(data.bitacora.estado_animo || null);
       setActividadRealizada(data.bitacora.actividad_realizada ?? null);
-      setActividadDesc(data.bitacora.actividad_descripcion || '');
+      const texto = data.bitacora.actividad_descripcion || '';
+      const items = texto.split('\n').filter(s => s.trim().length > 0);
+      setActividades(items.length > 0 ? items : ['']);
       setComportamiento(data.bitacora.comportamiento || null);
       setComportamientoNotas(data.bitacora.comportamiento_notas || '');
       setTuvoFiebre(data.bitacora.tuvo_fiebre || false);
@@ -272,7 +273,7 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
     fd.append('grupo_id', alumno.grupo_id);
     fd.append('alumno_id', alumno.id);
     fd.append('fecha', fecha);
-    fd.append('descripcion', actividadDesc || null);
+    fd.append('descripcion', actividades.map(s => s.trim()).filter(s => s.length > 0).join('; ') || null);
     fd.append('es_grupal', 'false');
     actividadFotos.forEach(f => fd.append('fotos', f));
     actFotosMutation.mutate(fd);
@@ -308,7 +309,7 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
       fecha,
       estado_animo: animo,
       actividad_realizada: actividadRealizada,
-      actividad_descripcion: actividadDesc,
+      actividad_descripcion: actividades.map(s => s.trim()).filter(s => s.length > 0).join('\n'),
       comportamiento,
       comportamiento_notas: comportamientoNotas,
       tuvo_fiebre: tuvoFiebre,
@@ -492,9 +493,30 @@ function FormBitacora({ alumno, fecha, soloLectura, onGuardado }) {
 
       {/* Actividades */}
       <Seccion titulo="🎨 Actividades">
-        <textarea rows={2} placeholder="Describe la actividad realizada (ej: pintura, juego libre, música)…"
-          value={actividadDesc} onChange={e => setActividadDesc(e.target.value)}
-          className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+        <div className="space-y-2 mb-3">
+          {actividades.map((act, idx) => (
+            <div key={idx} className="flex gap-2 items-start">
+              <textarea rows={2}
+                placeholder={`Actividad ${idx + 1}…`}
+                value={act}
+                onChange={e => setActividades(prev => prev.map((a, i) => i === idx ? e.target.value : a))}
+                disabled={soloLectura}
+                className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none disabled:bg-gray-100 disabled:text-gray-500" />
+              {!soloLectura && actividades.length > 1 && (
+                <button onClick={() => setActividades(prev => prev.filter((_, i) => i !== idx))}
+                  className="mt-1 text-red-400 hover:text-red-600 p-1">
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        {!soloLectura && (
+          <button onClick={() => setActividades(prev => [...prev, ''])}
+            className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-purple-300 text-purple-500 hover:bg-purple-50 transition-all mb-3">
+            + Agregar otra actividad
+          </button>
+        )}
         <div>
           <input type="file" accept="image/*" multiple ref={actFileRef} className="hidden"
             onChange={e => setActividadFotos(Array.from(e.target.files))} />
@@ -714,6 +736,7 @@ export default function MaestraBitacora() {
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [alumnoIdAutoselect, setAlumnoIdAutoselect] = useState(searchParams.get('alumnoId'));
+  const [actividades, setActividades] = useState(['']);
 
   const soloLectura = fecha < hoy;
 
@@ -832,6 +855,8 @@ export default function MaestraBitacora() {
                 alumno={alumnoSeleccionado}
                 fecha={fecha}
                 soloLectura={soloLectura}
+                actividades={actividades}
+                setActividades={setActividades}
                 onGuardado={() => setAlumnoSeleccionado(null)}
               />
             </div>

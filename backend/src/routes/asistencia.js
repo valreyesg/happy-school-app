@@ -220,6 +220,10 @@ router.post('/salida', async (req, res, next) => {
 // Devuelve TODOS si: no tiene grupo asignado (maestra_puerta permanente) O tiene turno_puerta hoy
 router.get('/filtro-entrada', async (req, res, next) => {
   try {
+    const fechaParam = req.query.fecha || null;
+    const fechaRow = await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fechaParam]);
+    const fechaResuelta = fechaRow.rows[0].f;
+
     const [grupoAsig, turnoHoy] = await Promise.all([
       query(`
         SELECT g.id, g.nombre, g.color_hex
@@ -234,8 +238,8 @@ router.get('/filtro-entrada', async (req, res, next) => {
       query(`
         SELECT 1 FROM turno_puerta tp
         JOIN personal p ON tp.personal_id = p.id
-        WHERE tp.fecha = CURRENT_DATE AND p.usuario_id = $1
-      `, [req.user.id]),
+        WHERE tp.fecha = $1::date AND p.usuario_id = $2
+      `, [fechaResuelta, req.user.id]),
     ]);
 
     const tieneTurno = turnoHoy.rows.length > 0;
@@ -256,13 +260,13 @@ router.get('/filtro-entrada', async (req, res, next) => {
         re.qr_escaneado
       FROM alumnos a
       JOIN grupos g ON a.grupo_id = g.id
-      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
-      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $1::date
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = $1::date
       WHERE a.deleted_at IS NULL AND a.estado IN ('inscrito','reinscrito')
         AND g.deleted_at IS NULL AND g.activo = true
         ${whereGrupo}
       ORDER BY g.nivel, g.nombre, a.nombre_completo
-    `);
+    `, [fechaResuelta]);
 
     // Agrupar por grupo
     const grupos = {};
@@ -278,8 +282,7 @@ router.get('/filtro-entrada', async (req, res, next) => {
       grupos[row.grupo_id].alumnos.push(row);
     }
 
-    const fecha = (await query(`SELECT CURRENT_DATE::text AS f`)).rows[0].f;
-    res.json({ grupos: Object.values(grupos), fecha });
+    res.json({ grupos: Object.values(grupos), fecha: fechaResuelta });
   } catch (err) { next(err); }
 });
 
@@ -345,13 +348,17 @@ router.get('/grupo/:grupo_id/mensual', async (req, res, next) => {
 // Filtro de salida — alumnos presentes hoy sin salida registrada
 router.get('/filtro-salida', async (req, res, next) => {
   try {
+    const fechaParam = req.query.fecha || null;
+    const fechaRow = await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fechaParam]);
+    const fechaResuelta = fechaRow.rows[0].f;
+
     // hora_salida_normal de config
     const cfgResult = await query(
       `SELECT valor FROM configuracion_general WHERE clave = 'hora_salida_normal' LIMIT 1`
     );
     const hora_salida_normal = cfgResult.rows[0]?.valor || '15:00';
 
-    // Alumnos presentes hoy, agrupados por grupo, con flag de salida ya registrada
+    // Alumnos presentes el día especificado, agrupados por grupo, con flag de salida ya registrada
     const result = await query(`
       SELECT
         a.id, a.nombre_completo, a.foto_url,
@@ -362,14 +369,14 @@ router.get('/filtro-salida', async (req, res, next) => {
         rs.nombre_quien_recoge
       FROM alumnos a
       JOIN grupos g ON a.grupo_id = g.id
-      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
-      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
-      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = CURRENT_DATE
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $1::date
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = $1::date
+      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = $1::date
       WHERE a.deleted_at IS NULL AND a.estado IN ('inscrito','reinscrito')
         AND g.deleted_at IS NULL AND g.activo = true
         AND ast.estado IN ('presente','retardo')
       ORDER BY g.nivel, g.nombre, a.nombre_completo
-    `);
+    `, [fechaResuelta]);
 
     // Padres y personas autorizadas por alumno (para el selector "quién recoge")
     const alumnoIds = [...new Set(result.rows.map(r => r.id))];
@@ -419,7 +426,7 @@ router.get('/filtro-salida', async (req, res, next) => {
       });
     }
 
-    res.json({ grupos: Object.values(grupos), hora_salida_normal });
+    res.json({ grupos: Object.values(grupos), hora_salida_normal, fecha: fechaResuelta });
   } catch (err) { next(err); }
 });
 

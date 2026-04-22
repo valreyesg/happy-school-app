@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, Clock, XCircle, Thermometer, X, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, Thermometer, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
@@ -303,15 +303,32 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
 // ── Vista principal ────────────────────────────────────────────────────────────
 
 export default function MaestraAsistencia() {
+  const hoy = new Date().toLocaleDateString('en-CA');
+
+  const ultimoDiaHabil = () => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  };
+
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
+  const soloLectura = fecha < hoy;
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
 
+  const irDia = (delta) => {
+    const d = new Date(fecha + 'T12:00:00');
+    do { d.setDate(d.getDate() + delta); } while (d.getDay() === 0 || d.getDay() === 6);
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) setFecha(nueva);
+  };
+
   const { data: grupo, isLoading } = useQuery({
-    queryKey: ['mi-grupo'],
-    queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
-    refetchInterval: 30000,
+    queryKey: ['mi-grupo', fecha],
+    queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
+    refetchInterval: soloLectura ? false : 30000,
   });
 
-  const hoy = new Date().toLocaleDateString('es-MX', {
+  const fechaFormatted = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {
     weekday: 'long', day: 'numeric', month: 'long',
   });
 
@@ -320,10 +337,34 @@ export default function MaestraAsistencia() {
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
+      {/* Banner solo lectura */}
+      {soloLectura && (
+        <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-3 flex items-center gap-2">
+          <span className="text-xl">📋</span>
+          <p className="text-sm font-bold text-blue-800">Consultando día anterior — solo lectura</p>
+        </div>
+      )}
+
       {/* Encabezado */}
-      <div>
-        <h1 className="text-2xl font-black text-gray-800">Asistencia ✅</h1>
-        <p className="text-gray-500 font-semibold capitalize mt-1">{hoy}</p>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => irDia(-1)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+          disabled={fecha <= '2024-01-01'}
+        >
+          <ChevronLeft size={20} className="text-gray-600" />
+        </button>
+        <div>
+          <h1 className="text-2xl font-black text-gray-800">Asistencia ✅</h1>
+          <p className="text-gray-500 font-semibold capitalize mt-1">{fechaFormatted}</p>
+        </div>
+        <button
+          onClick={() => irDia(1)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+          disabled={fecha >= hoy}
+        >
+          <ChevronRight size={20} className="text-gray-600" />
+        </button>
       </div>
 
       {/* Stats grupo */}
@@ -362,7 +403,7 @@ export default function MaestraAsistencia() {
           </h2>
           <div className="space-y-2">
             {pendientes.map(a => (
-              <TarjetaAlumno key={a.id} alumno={a} onRegistrar={setAlumnoSeleccionado} />
+              <TarjetaAlumno key={a.id} alumno={a} onRegistrar={soloLectura ? () => {} : setAlumnoSeleccionado} />
             ))}
           </div>
         </section>

@@ -9,16 +9,14 @@ import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import SelectorCiclo from '@/components/ui/SelectorCiclo';
 
-// ─── Constantes de orden y etiquetas ─────────────────────────────────────
-const NIVEL_ORDEN = { maternal: 0, prekinder: 1, kinder_1: 2, kinder_2: 3, kinder_3: 4 };
-const NIVEL_LABELS = { maternal: 'Maternal', prekinder: 'Prekinder', kinder_1: 'Kinder 1', kinder_2: 'Kinder 2', kinder_3: 'Kinder 3' };
-const NIVEL_COLORES = {
-  maternal:  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
-  prekinder: { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
-  kinder_1:  { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
-  kinder_2:  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
-  kinder_3:  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
-};
+// Paleta de colores para los niveles — se asigna por posición de aparición
+const PALETA_NIVELES = [
+  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
+  { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
+  { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
+  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
+  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+];
 
 // ─── Página principal ────────────────────────────────────────────────────────
 
@@ -64,7 +62,15 @@ export default function DirectoraAlumnos() {
   const alumnos = data?.alumnos || [];
   const total = data?.total || 0;
 
-  // Filtrar por nivel después de obtener datos
+  // Niveles únicos en orden de aparición (vienen del backend, sin hardcodear)
+  const nivelesUnicos = useMemo(() => {
+    const vistos = new Set();
+    return grupos
+      .map(g => g.nivel)
+      .filter(n => n && !vistos.has(n) && vistos.add(n));
+  }, [grupos]);
+
+  // Filtrar por nivel — campo `nivel` viene de la query SQL (g.nivel)
   const alumnosFiltrados = useMemo(() => {
     if (!nivelFiltro) return alumnos;
     return alumnos.filter(a => a.nivel === nivelFiltro);
@@ -128,8 +134,8 @@ export default function DirectoraAlumnos() {
         >
           Todos
         </button>
-        {['maternal', 'prekinder', 'kinder_1', 'kinder_2', 'kinder_3'].map(nivel => {
-          const color = NIVEL_COLORES[nivel];
+        {nivelesUnicos.map((nivel, idx) => {
+          const color = PALETA_NIVELES[idx % PALETA_NIVELES.length];
           return (
             <button
               key={nivel}
@@ -140,7 +146,7 @@ export default function DirectoraAlumnos() {
                   : `${color.bg} ${color.text} opacity-60 hover:opacity-100`
               }`}
             >
-              {NIVEL_LABELS[nivel]}
+              {nivel}
             </button>
           );
         })}

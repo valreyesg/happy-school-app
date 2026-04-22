@@ -6,7 +6,14 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const NIVEL_ORDEN = { maternal: 0, prekinder: 1, kinder_1: 2, kinder_2: 3, kinder_3: 4 };
+// Orden de niveles — se construye dinámicamente del backend, no hardcodeado
+function buildNivelOrden(grupos) {
+  const orden = {};
+  grupos.forEach(g => {
+    if (g.nivel && !(g.nivel in orden)) orden[g.nivel] = Object.keys(orden).length;
+  });
+  return orden;
+}
 
 const ESTADO_STYLE = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',     emoji: '✅' },
@@ -246,9 +253,11 @@ export default function DirectoraAsistencia() {
     queryFn: () => api.get('/grupos').then(r => r.data),
   });
 
+  const nivelOrden = grupos?.length ? buildNivelOrden(grupos) : {};
+
   useEffect(() => {
     if (grupos?.length && !grupoSeleccionado) {
-      const gruposOrdenados = [...grupos].sort((a, b) => (NIVEL_ORDEN[a.nivel] ?? 99) - (NIVEL_ORDEN[b.nivel] ?? 99));
+      const gruposOrdenados = [...grupos].sort((a, b) => (nivelOrden[a.nivel] ?? 99) - (nivelOrden[b.nivel] ?? 99));
       setGrupoSeleccionado(gruposOrdenados[0].id);
     }
   }, [grupos]);
@@ -271,14 +280,17 @@ export default function DirectoraAsistencia() {
     no_entrada: alumnos.filter(a => a.estado_asistencia === 'no_entrada').length,
   };
 
-  const irAlDia = (dias) => {
-    const nuevaFecha = new Date(fechaSeleccionada);
-    nuevaFecha.setDate(nuevaFecha.getDate() + dias);
-    // Saltar fines de semana: si cae sábado (6) o domingo (0)
-    while (nuevaFecha.getDay() === 0 || nuevaFecha.getDay() === 6) {
-      nuevaFecha.setDate(nuevaFecha.getDate() + (dias > 0 ? 1 : -1));
+  const irAlDia = (direccion) => {
+    // Parsear con T12:00 para evitar desfase UTC → día anterior en timezone local
+    const f = new Date(fechaSeleccionada + 'T12:00');
+    f.setDate(f.getDate() + direccion);
+    while (f.getDay() === 0 || f.getDay() === 6) {
+      f.setDate(f.getDate() + (direccion > 0 ? 1 : -1));
     }
-    setFechaSeleccionada(nuevaFecha.toISOString().slice(0, 10));
+    const yyyy = f.getFullYear();
+    const mm = String(f.getMonth() + 1).padStart(2, '0');
+    const dd = String(f.getDate()).padStart(2, '0');
+    setFechaSeleccionada(`${yyyy}-${mm}-${dd}`);
   };
 
   return (
@@ -325,7 +337,7 @@ export default function DirectoraAsistencia() {
       {/* Tabs de grupos ordenados por nivel */}
       {grupos && (
         <div className="flex gap-2 flex-wrap">
-          {[...grupos].sort((a, b) => (NIVEL_ORDEN[a.nivel] ?? 99) - (NIVEL_ORDEN[b.nivel] ?? 99)).map(g => (
+          {[...grupos].sort((a, b) => (nivelOrden[a.nivel] ?? 99) - (nivelOrden[b.nivel] ?? 99)).map(g => (
             <button
               key={g.id}
               onClick={() => setGrupoSeleccionado(g.id)}

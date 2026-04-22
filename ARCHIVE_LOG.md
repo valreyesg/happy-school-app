@@ -5,6 +5,48 @@
 
 ---
 
+## ✅ SESIÓN 41 — Dashboard Directora Unificado
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:** `web/src/pages/directora/Dashboard.jsx`
+
+**Tareas Completadas (6/6):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Asistencia por grupo — Modal** | Cards clickeables (grid 5 cols) → modal overlay con lista de alumnos, estado (presente/retardo/no_entrada/ausente), hora entrada, avatar. Fetch `GET /asistencia/grupo/:id?fecha=hoy` al abrir. |
+| **Emoji ⚠️ con tooltip** | Agregado `title="Menos del 80% de alumnos presentes"` cuando presentes < total * 0.8 |
+| **Maternal sin asistencia** | Emoji ⬜ cuando `total === 0` (sin alumnos inscritos) |
+| **Documentación Incompleta — Cards** | Reemplazo acordeón por grid cards (5 cols). Agrupa por grupo. Clic → modal con lista de alumnos sin docs. Header muestra número de alumnos. |
+| **Retardos del Mes — Cards** | Reemplazo acordeón por grid cards (5 cols). Agrupa por grupo. Clic → modal con lista de alumnos + contador retardos. Borde/fondo rojo si hay alumno con ≥3 retardos. |
+| **Salidas registradas hoy — Cards** | Reemplazo acordeón por grid cards (5 cols). Clic → modal con lista de salidas. Header muestra número de salidas. Chips de alerta inline (🚨 no autorizadas, ⚠️ anticipadas). |
+| **Unificación visual** | Las 4 secciones principales (Asistencia, Salidas, Documentación, Retardos) ahora comparten diseño de cards clickeables + modales. Consistencia 100%. |
+
+**Nuevos componentes:**
+- `FilaModal` — fila individual en modal de asistencia
+- `ModalAsistenciaGrupo` — modal overlay asistencia por grupo
+- `ModalSalidasGrupo` — modal overlay salidas por grupo
+- `ModalDocumentacionGrupo` — modal overlay documentación por grupo
+- `ModalRetardosGrupo` — modal overlay retardos por grupo
+- Función `agruparPorGrupo()` — reutilizable para agrupar listas por grupo
+- Constante `ESTADO_STYLE` — estilos para estados de asistencia
+
+**Bugs corregidos en el proceso:**
+- Valores del backend como strings (`'0'`, `'031'`) → conversión a número con `parseInt()` antes de comparaciones
+- `a.retardos` era string `"031"` (concatenaba en lugar de sumar) → fix: `parseInt(a.retardos || 0)` en reduce
+- Modal necesitaba `stopPropagation()` para cerrar solo al clic en overlay, no en contenedor interno
+
+**Pendiente para sesión 42:**
+- Modal Pagos (Directora) — selector de grupo + buscador alumno
+- Servicio de Comida unificado
+- Turno Puerta configuración SALIDA
+- Mejoras Portal Maestra (navegación días, emojis bitácora)
+- Mejoras Portal Papá (orden bitácora, recibos, validación pagos)
+- Notificaciones globales (campanita + modal)
+
+---
+
 ## ✅ SESIÓN 40 — UI Mejoras Portal Directora (Parte 1)
 
 **Fecha:** 2026-04-22

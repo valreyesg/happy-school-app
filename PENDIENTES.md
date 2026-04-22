@@ -4,13 +4,15 @@
 
 ---
 
-## 🔜 SESIÓN 36 — Próxima sesión
+## 🔜 SESIÓN 37 — Próxima sesión
 
 ### Ciclos Escolares (continuación)
-- [ ] Test E2E completo: crear ciclo destino → copiar grupos → ejecutar promoción → verificar alumnos movidos
-- [ ] Panel "Historial egresados": endpoint GET alumnos egresados del ciclo anterior
-- [ ] Validar flujo en browser: Maternal → Prekinder, Prekinder → K1A, Prekinder → K1B selector manual
-- [ ] Descargar Excel export antes de confirmar cierre (validar formato)
+- [ ] Restaurar BD a estado 2025-2026 activo (quedó 2026-2027 activo tras el test E2E)
+- [ ] Validar que dashboards Miss/Directora/Papá funcionan correctamente con el ciclo restaurado
+- [ ] Panel "Historial egresados": endpoint GET alumnos egresados + tabla en web Directora
+- [ ] Descargar y validar formato del Excel export antes de confirmar cierre
+- [ ] **Historial por ciclo — Capa 1 (Directora):** Selector de ciclo escolar en vistas clave (Grupos, Reportes, Pagos) para consultar datos de ciclos cerrados en modo solo lectura. La mayoría de endpoints ya aceptan `ciclo_id` — bajo esfuerzo.
+- [ ] **Historial por ciclo — Capa 2 (Portal Papá):** Sección "Ciclos anteriores" en perfil del alumno con grupos, pagos, asistencia y bitácoras de cada ciclo cursado.
 
 ### Testing y Validación (continúa de sesión anterior)
 - [ ] Validar Cloudinary uploads: PDF menú, comprobantes transferencia

@@ -310,10 +310,15 @@ router.get('/:id/export', authorize('directora'), async (req, res, next) => {
 // POST /ciclos/:id/copiar-grupos-del-anterior — copiar grupos + maestras del ciclo anterior
 router.post('/:id/copiar-grupos-del-anterior', authorize('directora'), async (req, res, next) => {
   const { id } = req.params;
+  const { grupos: gruposPersonalizados } = req.body || {};
   const client = await getClient();
 
   try {
     await client.query('BEGIN');
+
+    // Borrar grupos existentes del ciclo destino (y sus asignaciones) antes de copiar nuevos
+    await client.query('DELETE FROM asignaciones_grupo WHERE ciclo_id = $1', [id]);
+    await client.query('DELETE FROM grupos WHERE ciclo_id = $1', [id]);
 
     // Obtener ciclo destino
     const cicloDestinoResult = await client.query(
@@ -342,42 +347,81 @@ router.post('/:id/copiar-grupos-del-anterior', authorize('directora'), async (re
 
     const cicloAnteriorId = cicloAnteriorResult.rows[0].id;
 
-    // Obtener grupos del ciclo anterior
-    const gruposAnteriorResult = await client.query(
-      `SELECT id, nombre, nivel, nivel_codigo FROM grupos WHERE ciclo_id = $1`,
-      [cicloAnteriorId]
-    );
+    // Si no viene lista personalizada, obtener todos del ciclo anterior
+    let gruposACopiar = [];
+    if (gruposPersonalizados && Array.isArray(gruposPersonalizados) && gruposPersonalizados.length > 0) {
+      gruposACopiar = gruposPersonalizados;
+    } else {
+      const gruposAnteriorResult = await client.query(
+        `SELECT id, nombre, nivel, nivel_codigo FROM grupos WHERE ciclo_id = $1`,
+        [cicloAnteriorId]
+      );
+      gruposACopiar = gruposAnteriorResult.rows.map(g => ({
+        grupo_id_origen: g.id,
+        nombre_destino: g.nombre,
+        nivel: g.nivel,
+        nivel_codigo: g.nivel_codigo
+      }));
+    }
 
     // Copiar grupos al ciclo destino
     const gruposMap = {}; // para mapear grupo_id anterior -> nuevo
+    let conteoGruposCopiados = 0;
 
-    for (const grupoAnterior of gruposAnteriorResult.rows) {
-      const grupoNuevoResult = await client.query(
-        `INSERT INTO grupos (ciclo_id, nombre, nivel, nivel_codigo, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, NOW(), NOW())
-         RETURNING id`,
-        [id, grupoAnterior.nombre, grupoAnterior.nivel, grupoAnterior.nivel_codigo]
-      );
+    for (const grupoConfig of gruposACopiar) {
+      if (grupoConfig.grupo_id_origen) {
+        // Caso 1: grupo_id_origen especificado → copiar del anterior y opcionalmente renombrar
+        const grupoAnteriorResult = await client.query(
+          `SELECT id, nombre, nivel, nivel_codigo FROM grupos WHERE id = $1 AND ciclo_id = $2`,
+          [grupoConfig.grupo_id_origen, cicloAnteriorId]
+        );
 
-      gruposMap[grupoAnterior.id] = grupoNuevoResult.rows[0].id;
+        if (grupoAnteriorResult.rows.length > 0) {
+          const grupoAnterior = grupoAnteriorResult.rows[0];
+          const nombreDestino = grupoConfig.nombre_destino || grupoAnterior.nombre;
+          const grupoNuevoResult = await client.query(
+            `INSERT INTO grupos (ciclo_id, nombre, nivel, nivel_codigo, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, NOW(), NOW())
+             RETURNING id`,
+            [id, nombreDestino, grupoAnterior.nivel, grupoAnterior.nivel_codigo]
+          );
+          gruposMap[grupoAnterior.id] = grupoNuevoResult.rows[0].id;
+          conteoGruposCopiados++;
+        }
+      } else if (grupoConfig.nombre_destino && grupoConfig.nivel && grupoConfig.nivel_codigo) {
+        // Caso 2: crear grupo nuevo sin origen (no hay asignaciones de maestras)
+        const grupoNuevoResult = await client.query(
+          `INSERT INTO grupos (ciclo_id, nombre, nivel, nivel_codigo, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, NOW(), NOW())
+           RETURNING id`,
+          [id, grupoConfig.nombre_destino, grupoConfig.nivel, grupoConfig.nivel_codigo]
+        );
+        conteoGruposCopiados++;
+      }
     }
 
-    // Copiar asignaciones de maestras
-    const asignacionesResult = await client.query(
-      `SELECT personal_id, grupo_id FROM asignaciones_grupo
-       WHERE grupo_id IN (SELECT id FROM grupos WHERE ciclo_id = $1)`,
-      [cicloAnteriorId]
-    );
+    // Copiar asignaciones de maestras (solo de los grupos origen que se copiaron)
+    let conteoAsignacionesCopiadas = 0;
+    const gruposOrigenACopiar = Object.keys(gruposMap);
+    if (gruposOrigenACopiar.length > 0) {
+      const placeholders = gruposOrigenACopiar.map((_, i) => `$${i + 1}`).join(',');
+      const asignacionesResult = await client.query(
+        `SELECT personal_id, grupo_id FROM asignaciones_grupo
+         WHERE grupo_id IN (${placeholders})`,
+        gruposOrigenACopiar
+      );
 
-    for (const asignacion of asignacionesResult.rows) {
-      const grupoNuevoId = gruposMap[asignacion.grupo_id];
-      if (grupoNuevoId) {
-        await client.query(
-          `INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, created_at, updated_at)
-           VALUES ($1, $2, $3, NOW(), NOW())
-           ON CONFLICT DO NOTHING`,
-          [asignacion.personal_id, grupoNuevoId, id]
-        );
+      for (const asignacion of asignacionesResult.rows) {
+        const grupoNuevoId = gruposMap[asignacion.grupo_id];
+        if (grupoNuevoId) {
+          await client.query(
+            `INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, created_at, updated_at)
+             VALUES ($1, $2, $3, NOW(), NOW())
+             ON CONFLICT DO NOTHING`,
+            [asignacion.personal_id, grupoNuevoId, id]
+          );
+          conteoAsignacionesCopiadas++;
+        }
       }
     }
 
@@ -385,8 +429,8 @@ router.post('/:id/copiar-grupos-del-anterior', authorize('directora'), async (re
 
     res.json({
       message: 'Grupos copiados correctamente',
-      grupos_copiados: gruposAnteriorResult.rows.length,
-      asignaciones_copiadas: asignacionesResult.rows.length,
+      grupos_copiados: conteoGruposCopiados,
+      asignaciones_copiadas: conteoAsignacionesCopiadas,
     });
   } catch (error) {
     await client.query('ROLLBACK');

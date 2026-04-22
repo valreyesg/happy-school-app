@@ -99,13 +99,105 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [copyingGroups, setCopyingGroups] = useState(false);
   const [mensajeValidacion, setMensajeValidacion] = useState('');
+  const [mostrarPanelGrupos, setMostrarPanelGrupos] = useState(false);
+  const [gruposAnterior, setGruposAnterior] = useState([]);
+  const [gruposSeleccionados, setGruposSeleccionados] = useState({});
+  const [gruposDestino, setGruposDestino] = useState([]);
+  const [gruposParaEditar, setGruposParaEditar] = useState({});
+  const [gruposNuevos, setGruposNuevos] = useState([]);
+
+  const NIVELES = [
+    { nivel: 'Maternal', nivel_codigo: 'maternal' },
+    { nivel: 'Prekinder', nivel_codigo: 'prekinder' },
+    { nivel: 'Kinder 1', nivel_codigo: 'kinder1' },
+    { nivel: 'Kinder 2', nivel_codigo: 'kinder2' },
+    { nivel: 'Kinder 3', nivel_codigo: 'kinder3' },
+  ];
 
   const cambiarEstado = (idx, nuevoEstado) => {
     setAjustes(a => {
       const copia = [...a];
       copia[idx].nuevo_estado = nuevoEstado;
+      if (nuevoEstado === 'baja') {
+        copia[idx].grupo_destino_id = null;
+        copia[idx].grupo_destino_nombre = null;
+      }
       return copia;
     });
+  };
+
+  const cambiarGrupoDestino = (idx, nuevoGrupoId) => {
+    const grupoElegido = gruposDestino.find(g => g.id === nuevoGrupoId);
+    setAjustes(a => {
+      const copia = [...a];
+      copia[idx].grupo_destino_id = nuevoGrupoId;
+      copia[idx].grupo_destino_nombre = grupoElegido?.nombre || '';
+      return copia;
+    });
+  };
+
+  const abrirPanelSeleccionGrupos = async () => {
+    setMostrarPanelGrupos(true);
+    setCopyingGroups(true);
+    try {
+      const res = await api.get(`/grupos?ciclo_id=${cicloActual.id}`);
+      const grupos = res.data;
+      setGruposAnterior(grupos);
+      const selectAll = {};
+      const editAll = {};
+      grupos.forEach(g => {
+        selectAll[g.id] = true;
+        editAll[g.id] = g.nombre;
+      });
+      setGruposSeleccionados(selectAll);
+      setGruposParaEditar(editAll);
+    } catch (err) {
+      setMensajeValidacion('❌ Error al cargar grupos: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setCopyingGroups(false);
+    }
+  };
+
+  const confirmarSeleccionGrupos = async () => {
+    if (!cicloDestino) return;
+    setCopyingGroups(true);
+    try {
+      const gruposACopiar = [
+        ...gruposAnterior
+          .filter(g => gruposSeleccionados[g.id])
+          .map(g => ({
+            grupo_id_origen: g.id,
+            nombre_destino: gruposParaEditar[g.id] ?? g.nombre,
+            nivel: g.nivel,
+            nivel_codigo: g.nivel_codigo
+          })),
+        ...gruposNuevos.filter(g => g.nombre_destino.trim())
+      ];
+
+      const res = await api.post(`/ciclos/${cicloDestino.id}/copiar-grupos-del-anterior`, {
+        grupos: gruposACopiar
+      });
+
+      setMensajeValidacion(`✓ ${res.data.grupos_copiados} grupos copiados correctamente`);
+      setCicloDestino(prev => ({
+        ...prev,
+        grupos_creados: res.data.grupos_copiados
+      }));
+
+      setMostrarPanelGrupos(false);
+      setGruposSeleccionados({});
+      setGruposParaEditar({});
+      setGruposNuevos([]);
+
+      const destinoActualizado = { ...cicloDestino, grupos_creados: res.data.grupos_copiados };
+      setTimeout(() => {
+        handleSeleccionarDestino(destinoActualizado);
+      }, 500);
+    } catch (err) {
+      setMensajeValidacion('❌ Error al copiar grupos: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setCopyingGroups(false);
+    }
   };
 
   const handleSeleccionarDestino = async (destino) => {
@@ -113,13 +205,16 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
     setMensajeValidacion('');
 
     if (!destino.grupos_creados || destino.grupos_creados === 0) {
-      setMensajeValidacion('⚠️ Este ciclo no tiene grupos creados. Crea los grupos antes de promocionar.');
+      setMensajeValidacion('⚠️ Este ciclo no tiene grupos creados. Selecciona uno para copiar grupos.');
       return;
     }
 
-    // Hacer nuevo preview con ciclo_destino_id
+    // Cargar grupos del ciclo destino y hacer preview
     setLoadingPreview(true);
     try {
+      const gruposRes = await api.get(`/grupos?ciclo_id=${destino.id}`);
+      setGruposDestino(gruposRes.data);
+
       const res = await api.get(`/ciclos/${cicloActual.id}/preview-promocion?ciclo_destino_id=${destino.id}`);
       setAjustes(res.data);
       setStep(2);
@@ -149,33 +244,11 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
     }
   };
 
-  const handleCopiarGrupos = async () => {
-    if (!cicloDestino) return;
-    setCopyingGroups(true);
-    try {
-      const res = await api.post(`/ciclos/${cicloDestino.id}/copiar-grupos-del-anterior`);
-      setMensajeValidacion(`✓ ${res.data.grupos_copiados} grupos + ${res.data.asignaciones_copiadas} maestras copiados correctamente`);
-
-      // Actualizar cicloDestino con nuevo count de grupos
-      setCicloDestino(prev => ({
-        ...prev,
-        grupos_creados: res.data.grupos_copiados
-      }));
-
-      // Intentar avanzar al siguiente paso
-      setTimeout(() => {
-        handleSeleccionarDestino(cicloDestino);
-      }, 1000);
-    } catch (err) {
-      setMensajeValidacion('❌ Error al copiar grupos: ' + (err.response?.data?.error || err.message));
-    } finally {
-      setCopyingGroups(false);
-    }
-  };
 
   const conteoAlumnos = ajustes.length;
   const conteoEgresados = ajustes.filter(a => a.nuevo_estado === 'egresado').length;
-  const conteoPromovidos = conteoAlumnos - conteoEgresados;
+  const conteoBajas = ajustes.filter(a => a.nuevo_estado === 'baja').length;
+  const conteoPromovidos = conteoAlumnos - conteoEgresados - conteoBajas;
 
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
@@ -201,7 +274,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
             </p>
             {step === 2 && (
               <p className="text-xs text-gray-600 mt-1">
-                Total: {conteoAlumnos} alumnos | ✓ {conteoPromovidos} promovidos | 🎓 {conteoEgresados} egresados
+                Total: {conteoAlumnos} alumnos | ✓ {conteoPromovidos} promovidos | 🎓 {conteoEgresados} egresados{conteoBajas > 0 ? ` | ❌ ${conteoBajas} bajas` : ''}
               </p>
             )}
           </div>
@@ -214,7 +287,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
                 <p className="text-sm font-semibold text-amber-900">📋 Instrucción:</p>
                 <p className="text-sm text-amber-800 mt-1">
-                  Selecciona el ciclo DESTINO donde se promocionarán los alumnos. El ciclo debe tener todos los grupos ya creados.
+                  Selecciona el ciclo DESTINO. Desde aquí podrás configurar los grupos que tendrá el nuevo ciclo: elige cuáles copiar del ciclo actual, renómbralos si es necesario, o agrega grupos nuevos.
                 </p>
               </div>
 
@@ -264,14 +337,108 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                 </div>
               )}
 
-              {cicloDestino && !cicloDestino.grupos_creados && (
+              {cicloDestino && (
                 <button
-                  onClick={handleCopiarGrupos}
+                  onClick={abrirPanelSeleccionGrupos}
                   disabled={copyingGroups}
                   className="w-full py-2 px-4 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 transition"
                 >
-                  {copyingGroups ? '⏳ Copiando grupos...' : '📋 Copiar grupos del ciclo anterior'}
+                  {copyingGroups ? '⏳ Cargando grupos...' : cicloDestino.grupos_creados > 0 ? '⚙️ Reconfigurar grupos del ciclo nuevo' : '📋 Seleccionar grupos a copiar'}
                 </button>
+              )}
+
+              {mostrarPanelGrupos && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-40">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                      <h3 className="text-lg font-black text-gray-800">Seleccionar grupos a copiar</h3>
+                      <button onClick={() => { setMostrarPanelGrupos(false); setGruposSeleccionados({}); }} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+                      <p className="text-xs text-gray-500 font-semibold uppercase">Grupos del ciclo anterior</p>
+                      {gruposAnterior.map(grupo => (
+                        <div key={grupo.id} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                          <input
+                            type="checkbox"
+                            checked={!!gruposSeleccionados[grupo.id]}
+                            onChange={e => setGruposSeleccionados(s => ({ ...s, [grupo.id]: e.target.checked }))}
+                            className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          />
+                          <div className="flex-1">
+                            <label className="block text-xs text-gray-500">{grupo.nivel}</label>
+                            <input
+                              type="text"
+                              value={gruposParaEditar[grupo.id] || grupo.nombre}
+                              onChange={e => setGruposParaEditar(s => ({ ...s, [grupo.id]: e.target.value }))}
+                              disabled={!gruposSeleccionados[grupo.id]}
+                              className="input-hs text-sm w-full mt-1 disabled:bg-gray-100 disabled:text-gray-400"
+                            />
+                          </div>
+                          <div className="text-xs text-gray-400">{grupo.total_alumnos || 0} alumnos</div>
+                        </div>
+                      ))}
+
+                      {gruposNuevos.length > 0 && (
+                        <p className="text-xs text-gray-500 font-semibold uppercase pt-2 border-t border-gray-100">Grupos nuevos</p>
+                      )}
+                      {gruposNuevos.map((gn, idx) => (
+                        <div key={idx} className="flex items-center gap-3 p-3 border border-dashed border-purple-300 bg-purple-50 rounded-lg">
+                          <div className="flex-1 grid grid-cols-2 gap-2">
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Nivel</label>
+                              <select
+                                value={gn.nivel_codigo}
+                                onChange={e => {
+                                  const nivel = NIVELES.find(n => n.nivel_codigo === e.target.value);
+                                  setGruposNuevos(prev => prev.map((g, i) => i === idx ? { ...g, nivel_codigo: nivel.nivel_codigo, nivel: nivel.nivel } : g));
+                                }}
+                                className="input-hs text-sm w-full"
+                              >
+                                {NIVELES.map(n => <option key={n.nivel_codigo} value={n.nivel_codigo}>{n.nivel}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs text-gray-500 mb-1">Nombre del grupo</label>
+                              <input
+                                type="text"
+                                value={gn.nombre_destino}
+                                onChange={e => setGruposNuevos(prev => prev.map((g, i) => i === idx ? { ...g, nombre_destino: e.target.value } : g))}
+                                placeholder="Ej. Kinder 2A"
+                                className="input-hs text-sm w-full"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => setGruposNuevos(prev => prev.filter((_, i) => i !== idx))}
+                            className="text-red-400 hover:text-red-600 text-lg leading-none"
+                          >×</button>
+                        </div>
+                      ))}
+
+                      <button
+                        onClick={() => setGruposNuevos(prev => [...prev, { nombre_destino: '', nivel: 'Kinder 2', nivel_codigo: 'kinder2' }])}
+                        className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-purple-300 text-purple-600 font-semibold hover:bg-purple-50 text-sm"
+                      >
+                        + Agregar grupo nuevo
+                      </button>
+                    </div>
+                    <div className="flex gap-2 px-6 py-4 border-t border-gray-100">
+                      <button
+                        onClick={() => { setMostrarPanelGrupos(false); setGruposSeleccionados({}); setGruposNuevos([]); }}
+                        className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={confirmarSeleccionGrupos}
+                        disabled={copyingGroups || Object.values(gruposSeleccionados).every(v => !v)}
+                        className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50"
+                      >
+                        {copyingGroups ? 'Copiando...' : 'Confirmar selección'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
 
               <button
@@ -279,7 +446,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                 disabled={exporting}
                 className="w-full py-2 px-4 mt-4 rounded-lg border-2 border-blue-500 text-blue-600 font-semibold hover:bg-blue-50 disabled:opacity-50 transition"
               >
-                {exporting ? '⬇️ Exportando...' : '⬇️ Exportar reporte ciclo actual (Excel)'}
+                {exporting ? '⬇️ Exportando...' : '⬇️ Descargar respaldo del ciclo actual (grupos, maestras y alumnos)'}
               </button>
             </div>
           )}
@@ -305,30 +472,53 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                     </tr>
                   </thead>
                   <tbody>
-                    {ajustes.map((a, idx) => (
-                      <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-2 px-3 font-semibold text-gray-700">{a.nombre_completo}</td>
-                        <td className="py-2 px-3 text-gray-600">{a.grupo_actual}</td>
-                        <td className="text-center text-purple-600">↑</td>
-                        <td className="py-2 px-3">
-                          {a.nuevo_estado === 'egresado' ? (
-                            <span className="text-gray-400 italic">—</span>
-                          ) : (
-                            <span className="text-green-700 font-semibold">{a.grupo_destino_nombre}</span>
-                          )}
-                        </td>
-                        <td className="py-2 px-3">
-                          <select
-                            value={a.nuevo_estado}
-                            onChange={e => cambiarEstado(idx, e.target.value)}
-                            className="input-hs text-xs py-1 px-2"
-                          >
-                            <option value="reinscrito">Reinscrito</option>
-                            <option value="egresado">Egresado</option>
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
+                    {ajustes.map((a, idx) => {
+                      const gruposDelNivel = gruposDestino.filter(g => g.nivel_codigo === (
+                        a.nivel_codigo === 'maternal' ? 'prekinder' :
+                        a.nivel_codigo === 'prekinder' ? 'kinder1' :
+                        a.nivel_codigo === 'kinder1' ? 'kinder2' :
+                        a.nivel_codigo === 'kinder2' ? 'kinder3' : null
+                      ));
+                      return (
+                        <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-2 px-3 font-semibold text-gray-700">{a.nombre_completo}</td>
+                          <td className="py-2 px-3 text-gray-600">{a.grupo_actual}</td>
+                          <td className="text-center text-purple-600">↑</td>
+                          <td className="py-2 px-3">
+                            {(a.nuevo_estado === 'egresado' || a.nuevo_estado === 'baja') ? (
+                              <span className="text-gray-400 italic">—</span>
+                            ) : gruposDelNivel.length > 1 ? (
+                              <select
+                                value={a.grupo_destino_id || ''}
+                                onChange={e => cambiarGrupoDestino(idx, e.target.value)}
+                                className="input-hs text-xs py-1 px-2"
+                              >
+                                <option value="">Seleccionar grupo...</option>
+                                {gruposDelNivel.map(g => (
+                                  <option key={g.id} value={g.id}>{g.nombre}</option>
+                                ))}
+                              </select>
+                            ) : (
+                              <span className="text-green-700 font-semibold">{a.grupo_destino_nombre}</span>
+                            )}
+                          </td>
+                          <td className="py-2 px-3">
+                            {a.nivel_codigo === 'kinder3' ? (
+                              <span className="text-sm font-semibold text-purple-700">🎓 Egresado</span>
+                            ) : (
+                              <select
+                                value={a.nuevo_estado}
+                                onChange={e => cambiarEstado(idx, e.target.value)}
+                                className="input-hs text-xs py-1 px-2"
+                              >
+                                <option value="reinscrito">Reinscrito</option>
+                                <option value="baja">Baja</option>
+                              </select>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -345,6 +535,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                 <ul className="text-sm text-green-800 mt-3 space-y-1 ml-4">
                   <li>✓ {conteoPromovidos} alumnos promocionados a nuevos grupos</li>
                   <li>🎓 {conteoEgresados} alumnos egresados</li>
+                  {conteoBajas > 0 && <li>❌ {conteoBajas} alumnos registrados como baja</li>}
                 </ul>
               </div>
 

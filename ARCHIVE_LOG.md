@@ -1,6 +1,34 @@
 # Archive Log — Happy School App
 ## Historial Detallado de Funcionalidades Completadas
 
+## ✅ SESIÓN 36 — E2E Promoción + Panel Configuración Grupos (2026-04-21)
+
+### Funcionalidades completadas
+- [x] **Test E2E promoción de ciclo escolar** — flujo completo validado en BD: crear ciclo 2026-2027, configurar grupos, ejecutar promoción, verificar alumnos movidos.
+- [x] **Panel de selección de grupos** — al copiar grupos al ciclo nuevo, se muestra sub-modal con: checkbox por grupo (incluir/excluir), campo de nombre editable (renombrar), botón "+ Agregar grupo nuevo" (con selector de nivel y nombre libre). Reemplaza el botón de "Copiar todo automáticamente".
+- [x] **Backend `copiar-grupos-del-anterior` mejorado** — acepta body `{ grupos: [...] }` con lista selectiva. Cada ítem puede tener `grupo_id_origen` (copia + asignaciones de maestra) o solo `nombre_destino + nivel + nivel_codigo` (crea vacío). Sin body → copia todo (fallback). Borra grupos previos del ciclo destino antes de copiar (permite re-configurar).
+- [x] **Selector dinámico de grupo destino en Paso 2** — cuando un nivel tiene múltiples grupos en el ciclo destino (ej: K2A y K2B), muestra `<select>` en lugar de texto estático. Carga grupos del ciclo destino con `GET /grupos?ciclo_id=X` al entrar al Paso 2.
+- [x] **Lógica de estados corregida** — Kinder 3: muestra "🎓 Egresado" fijo sin selector. Resto de niveles: selector `Reinscrito / Baja` (eliminado "Egresado" de niveles que no terminan ciclo). Al seleccionar Baja, grupo destino se limpia automáticamente.
+- [x] **Botón "Reconfigurar grupos"** — visible siempre en Paso 1 una vez seleccionado el ciclo destino (antes solo aparecía si `grupos_creados === 0`). Permite corregir la configuración si algo quedó mal.
+- [x] **Textos corregidos** — instrucción del Paso 1 actualizada (ya no dice "el ciclo debe tener grupos creados"). Botón de Excel renombrado a "Descargar respaldo del ciclo actual (grupos, maestras y alumnos)".
+- [x] **Contadores actualizados** — header del Paso 2 y resumen del Paso 3 incluyen bajas: "X promovidos | 🎓 Y egresados | ❌ Z bajas".
+
+### Resultado verificado en BD
+- Ciclo 2026-2027: ACTIVO con 6 grupos (Kinder 1, Kinder 2A, Kinder 2B, Kinder 3, Maternal, Prekinder)
+- 20 alumnos reinscitos | 5 egresados (Kinder 3) | 3 bajas
+
+### Bugs encontrados y soluciones
+- **Bug stale closure**: `setTimeout(() => handleSeleccionarDestino(cicloDestino))` usaba el valor viejo del estado antes del `setCicloDestino`. Fix: construir `destinoActualizado = { ...cicloDestino, grupos_creados: N }` y pasar ese objeto directamente al timeout.
+- **Bug `nombre_destino` undefined**: `gruposParaEditar[g.id]` era `undefined` si el usuario no había tocado el input (el estado no se inicializaba con valor por defecto). Fix: `gruposParaEditar[g.id] ?? g.nombre`.
+- **Bug grupos sucios**: al re-intentar copiar grupos, el endpoint acumulaba grupos duplicados. Fix: el backend ahora hace `DELETE FROM asignaciones_grupo / grupos WHERE ciclo_id = $1` al inicio de cada transacción de copiado.
+- **Bug 401 en GET /grupos**: el access token de 15min expiraba durante el flujo largo del modal. El interceptor de refresh existe y funciona — el problema era el stale closure que causaba que la llamada se hiciera con el estado viejo antes de que el interceptor pudiera actuar.
+
+### Archivos modificados
+- `web/src/pages/directora/CiclosEscolares.jsx` — panel selección, selector dinámico, lógica estados, textos
+- `backend/src/routes/ciclos.js` — endpoint `copiar-grupos-del-anterior` mejorado
+
+---
+
 ## ✅ SESIÓN 35 — Indicador "X niños comen hoy" en Dashboard Miss y Directora (2026-04-21)
 - [x] **Dashboard Miss — Módulo de comida mejorado:**
   - Agregado indicador destacado "🍽️ X niños comen hoy" en verde (antes de la lista de confirmaciones)

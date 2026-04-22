@@ -4,6 +4,16 @@ import api from '@/services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const NIVEL_ORDEN = { maternal: 0, prekinder: 1, kinder_1: 2, kinder_2: 3, kinder_3: 4 };
+const NIVEL_LABELS = { maternal: 'Maternal', prekinder: 'Prekinder', kinder_1: 'Kinder 1', kinder_2: 'Kinder 2', kinder_3: 'Kinder 3' };
+const NIVEL_COLORES = {
+  maternal:  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
+  prekinder: { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
+  kinder_1:  { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
+  kinder_2:  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
+  kinder_3:  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+};
+
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -421,7 +431,7 @@ export default function PagosDirectora() {
   const [mes, setMes]   = useState(hoy.getMonth() + 1);
   const [anio, setAnio] = useState(hoy.getFullYear());
   const [busqueda, setBusqueda] = useState('');
-  const [filtroGrupo, setFiltroGrupo] = useState('');
+  const [nivelFiltro, setNivelFiltro] = useState('');
   const [filtroSemaforo, setFiltroSemaforo] = useState('');
   const [showModalConceptos, setShowModalConceptos] = useState(false);
   const [showModalPagoGlobal, setShowModalPagoGlobal] = useState(false);
@@ -483,13 +493,22 @@ export default function PagosDirectora() {
     return map;
   }, [pagosLista]);
 
+  // Mapa grupoId → nivel
+  const grupoIdANivel = useMemo(() => {
+    const mapa = {};
+    grupos.forEach(g => { mapa[g.id] = g.nivel; });
+    return mapa;
+  }, [grupos]);
+
   const alumnos = useMemo(() => {
     let lista = Array.from(alumnosMapa.values());
     if (busqueda) lista = lista.filter(a => a.nombre_completo.toLowerCase().includes(busqueda.toLowerCase()));
-    if (filtroGrupo) lista = lista.filter(a => a.grupo_nombre === filtroGrupo);
+    if (nivelFiltro && grupos.length > 0) {
+      lista = lista.filter(a => grupoIdANivel[a.grupo_id] === nivelFiltro);
+    }
     if (filtroSemaforo) lista = lista.filter(a => a.semaforo === filtroSemaforo);
     return lista.sort((a, b) => a.nombre_completo.localeCompare(b.nombre_completo));
-  }, [alumnosMapa, busqueda, filtroGrupo, filtroSemaforo]);
+  }, [alumnosMapa, busqueda, nivelFiltro, filtroSemaforo, grupoIdANivel, grupos.length]);
 
   const generar = useMutation({
     mutationFn: () => api.post('/pagos/generar-mes', { mes, anio }).then(r => r.data),
@@ -600,19 +619,43 @@ export default function PagosDirectora() {
 
       {/* Filtros y tabla de alumnos */}
       <div className="card-hs p-4">
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="flex flex-col gap-3 mb-4">
           <input
             type="text"
             placeholder="Buscar alumno…"
-            className="input-hs flex-1"
+            className="input-hs"
             value={busqueda}
             onChange={e => setBusqueda(e.target.value)}
           />
-          <select className="input-hs sm:w-44" value={filtroGrupo} onChange={e => setFiltroGrupo(e.target.value)}>
-            <option value="">Todos los grupos</option>
-            {grupos.map(g => <option key={g.id} value={g.nombre}>{g.nombre}</option>)}
-          </select>
-          <select className="input-hs sm:w-44" value={filtroSemaforo} onChange={e => setFiltroSemaforo(e.target.value)}>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setNivelFiltro('')}
+              className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+                nivelFiltro === ''
+                  ? 'bg-gray-200 text-gray-800'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-150'
+              }`}
+            >
+              Todos
+            </button>
+            {['maternal', 'prekinder', 'kinder_1', 'kinder_2', 'kinder_3'].map(nivel => {
+              const color = NIVEL_COLORES[nivel];
+              return (
+                <button
+                  key={nivel}
+                  onClick={() => setNivelFiltro(nivel)}
+                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+                    nivelFiltro === nivel
+                      ? `${color.bg} ${color.text} ring-2 ${color.ring}`
+                      : `${color.bg} ${color.text} opacity-60 hover:opacity-100`
+                  }`}
+                >
+                  {NIVEL_LABELS[nivel]}
+                </button>
+              );
+            })}
+          </div>
+          <select className="input-hs" value={filtroSemaforo} onChange={e => setFiltroSemaforo(e.target.value)}>
             <option value="">Todos los estados</option>
             {Object.entries(SEMAFORO).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
           </select>

@@ -102,3 +102,12 @@
   background: #b794f4;
   border-radius: 10px;
 }
+
+/* Ocultar scrollbar pero permitir scroll */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

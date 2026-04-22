@@ -26,5 +26,5 @@ export const SemaforoPago = ({ diasAtraso, enPeriodo }) => {
 export const SemaforoDocumentacion = ({ completa }) => (
   completa
     ? <SemaforoBadge estado="verde" texto="Completa" />
-    : <SemaforoBadge estado="rojo" texto="Incompleta" />
+    : <SemaforoBadge estado="rojo" texto="Documentación Incompleta" />
 );

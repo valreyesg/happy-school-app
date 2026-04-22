@@ -25,7 +25,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
     turno: grupo?.turno || 'matutino',
     horario_entrada: grupo?.horario_entrada || '07:00',
     horario_salida: grupo?.horario_salida || '14:00',
-    capacidad_maxima: grupo?.capacidad_maxima || 15,
+    cupo_maximo: grupo?.cupo_maximo || 15,
     color_hex: grupo?.color_hex || '#805AD5',
     activo: grupo?.activo ?? true,
     maestra_titular_id: grupo?.maestra_titular_id || '',
@@ -67,9 +67,12 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
                 className="input-hs w-full"
                 value={form.nombre}
                 onChange={e => set('nombre', e.target.value)}
-                placeholder="Ej. Kinder 2 A"
+                placeholder="Ej. Kinder 1 A, Kinder 1 B"
                 required
               />
+              {['kinder_1', 'kinder_2', 'kinder_3'].includes(form.nivel) && (
+                <p className="text-xs text-gray-500 mt-1">Usa sufijos A, B, C para grupos del mismo nivel</p>
+              )}
             </div>
 
             <div>
@@ -113,8 +116,8 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Capacidad máx.</label>
               <input
                 type="number" min={1} max={40} className="input-hs w-full"
-                value={form.capacidad_maxima}
-                onChange={e => set('capacidad_maxima', parseInt(e.target.value) || 15)}
+                value={form.cupo_maximo}
+                onChange={e => set('cupo_maximo', parseInt(e.target.value) || 15)}
               />
             </div>
 
@@ -287,9 +290,16 @@ export default function DirectoraGrupos() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-black text-gray-800">Grupos 🏫</h1>
-          <p className="text-gray-500 text-sm font-semibold mt-1">
-            {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <p className="text-gray-500 text-sm font-semibold">
+              {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
+            </p>
+            {cicloActualData && (
+              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+                📅 {cicloActualData}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-3">
           <SelectorCiclo value={cicloId} onChange={setCicloId} />

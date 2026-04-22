@@ -6,6 +6,8 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+const NIVEL_ORDEN = { maternal: 0, prekinder: 1, kinder_1: 2, kinder_2: 3, kinder_3: 4 };
+
 const ESTADO_STYLE = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',     emoji: '✅' },
   retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',       emoji: '⏰' },
@@ -165,7 +167,7 @@ function VistaMensual({ grupoId }) {
       {isLoading ? (
         <div className="skeleton h-40 rounded-2xl" />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-gray-100">
+        <div className="overflow-x-auto rounded-2xl border border-gray-100 scrollbar-hidden">
           <table className="text-xs border-collapse min-w-full">
             <thead>
               <tr>
@@ -234,7 +236,10 @@ function VistaMensual({ grupoId }) {
 export default function DirectoraAsistencia() {
   const [grupoSeleccionado, setGrupoSeleccionado] = useState(null);
   const [modo, setModo] = useState('hoy'); // 'hoy' | 'mensual'
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().slice(0, 10));
+
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  const fechaActualLabel = new Date(fechaSeleccionada + 'T12:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const { data: grupos } = useQuery({
     queryKey: ['grupos'],
@@ -242,12 +247,17 @@ export default function DirectoraAsistencia() {
   });
 
   useEffect(() => {
-    if (grupos?.length && !grupoSeleccionado) setGrupoSeleccionado(grupos[0].id);
+    if (grupos?.length && !grupoSeleccionado) {
+      const gruposOrdenados = [...grupos].sort((a, b) => (NIVEL_ORDEN[a.nivel] ?? 99) - (NIVEL_ORDEN[b.nivel] ?? 99));
+      setGrupoSeleccionado(gruposOrdenados[0].id);
+    }
   }, [grupos]);
 
   const { data: alumnos = [], isLoading } = useQuery({
-    queryKey: ['asistencia-grupo', grupoSeleccionado],
-    queryFn: () => api.get(`/asistencia/grupo/${grupoSeleccionado}`).then(r => r.data),
+    queryKey: ['asistencia-grupo', grupoSeleccionado, fechaSeleccionada],
+    queryFn: () => api.get(`/asistencia/grupo/${grupoSeleccionado}`, {
+      params: { fecha: fechaSeleccionada }
+    }).then(r => r.data),
     enabled: !!grupoSeleccionado && modo === 'hoy',
     refetchInterval: 30000,
   });
@@ -261,13 +271,41 @@ export default function DirectoraAsistencia() {
     no_entrada: alumnos.filter(a => a.estado_asistencia === 'no_entrada').length,
   };
 
+  const irAlDia = (dias) => {
+    const nuevaFecha = new Date(fechaSeleccionada);
+    nuevaFecha.setDate(nuevaFecha.getDate() + dias);
+    // Saltar fines de semana: si cae sábado (6) o domingo (0)
+    while (nuevaFecha.getDay() === 0 || nuevaFecha.getDay() === 6) {
+      nuevaFecha.setDate(nuevaFecha.getDate() + (dias > 0 ? 1 : -1));
+    }
+    setFechaSeleccionada(nuevaFecha.toISOString().slice(0, 10));
+  };
+
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
       {/* Encabezado */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-black text-gray-800">Asistencia 📋</h1>
-          <p className="text-gray-500 font-semibold capitalize mt-1">{hoy}</p>
+          {modo === 'hoy' ? (
+            <div className="flex items-center gap-3 mt-2">
+              <button
+                onClick={() => irAlDia(-1)}
+                className="p-1 hover:bg-gray-100 rounded-lg text-gray-400"
+              >
+                <ChevronLeft size={20} />
+              </button>
+              <p className="text-gray-500 font-semibold capitalize text-center min-w-32">{fechaActualLabel}</p>
+              <button
+                onClick={() => irAlDia(1)}
+                className="p-1 hover:bg-gray-100 rounded-lg text-gray-400"
+              >
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          ) : (
+            <p className="text-gray-500 font-semibold capitalize mt-1">{hoy}</p>
+          )}
         </div>
         {/* Toggle hoy / mensual */}
         <div className="flex bg-gray-100 rounded-2xl p-1 gap-1">
@@ -284,10 +322,10 @@ export default function DirectoraAsistencia() {
         </div>
       </div>
 
-      {/* Tabs de grupos */}
+      {/* Tabs de grupos ordenados por nivel */}
       {grupos && (
         <div className="flex gap-2 flex-wrap">
-          {grupos.map(g => (
+          {[...grupos].sort((a, b) => (NIVEL_ORDEN[a.nivel] ?? 99) - (NIVEL_ORDEN[b.nivel] ?? 99)).map(g => (
             <button
               key={g.id}
               onClick={() => setGrupoSeleccionado(g.id)}

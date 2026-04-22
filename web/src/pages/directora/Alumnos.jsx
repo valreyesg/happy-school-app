@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, QrCode, FileText, ChevronDown, X, Upload } from 'lucide-react';
@@ -9,17 +9,28 @@ import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import SelectorCiclo from '@/components/ui/SelectorCiclo';
 
+// ─── Constantes de orden y etiquetas ─────────────────────────────────────
+const NIVEL_ORDEN = { maternal: 0, prekinder: 1, kinder_1: 2, kinder_2: 3, kinder_3: 4 };
+const NIVEL_LABELS = { maternal: 'Maternal', prekinder: 'Prekinder', kinder_1: 'Kinder 1', kinder_2: 'Kinder 2', kinder_3: 'Kinder 3' };
+const NIVEL_COLORES = {
+  maternal:  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
+  prekinder: { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
+  kinder_1:  { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
+  kinder_2:  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
+  kinder_3:  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+};
+
 // ─── Página principal ────────────────────────────────────────────────────────
 
 export default function DirectoraAlumnos() {
   const [buscar, setBuscar] = useState('');
-  const [grupoFiltro, setGrupoFiltro] = useState('');
+  const [nivelFiltro, setNivelFiltro] = useState('');
   const [estadoFiltro, setEstadoFiltro] = useState('inscrito');
   const [cicloId, setCicloId] = useState(null); // null = ciclo activo
 
   const handleCicloChange = (id) => {
     setCicloId(id);
-    setGrupoFiltro('');
+    setNivelFiltro('');
     if (id !== null) setEstadoFiltro(''); // ciclo histórico: mostrar todos los estados
     else setEstadoFiltro('inscrito');
   };
@@ -29,9 +40,9 @@ export default function DirectoraAlumnos() {
   const esHistorico = cicloId !== null;
 
   const { data, isLoading } = useQuery({
-    queryKey: ['alumnos', buscar, grupoFiltro, estadoFiltro, cicloId],
+    queryKey: ['alumnos', buscar, estadoFiltro, cicloId],
     queryFn: () => api.get('/alumnos', {
-      params: { buscar, grupo_id: grupoFiltro || undefined, estado: estadoFiltro || undefined, ...(cicloId && { ciclo_id: cicloId }) },
+      params: { buscar, estado: estadoFiltro || undefined, ...(cicloId && { ciclo_id: cicloId }) },
     }).then(r => r.data),
     keepPreviousData: true,
   });
@@ -52,6 +63,12 @@ export default function DirectoraAlumnos() {
 
   const alumnos = data?.alumnos || [];
   const total = data?.total || 0;
+
+  // Filtrar por nivel después de obtener datos
+  const alumnosFiltrados = useMemo(() => {
+    if (!nivelFiltro) return alumnos;
+    return alumnos.filter(a => a.nivel === nivelFiltro);
+  }, [alumnos, nivelFiltro]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -82,61 +99,73 @@ export default function DirectoraAlumnos() {
         </div>
       </div>
 
-      {/* Filtros */}
-      <div className="flex flex-wrap gap-3">
-        {/* Búsqueda */}
-        <div className="relative flex-1 min-w-52">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por nombre..."
-            value={buscar}
-            onChange={e => setBuscar(e.target.value)}
-            className="input-hs pl-11 w-full"
-          />
-          {buscar && (
-            <button onClick={() => setBuscar('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <X size={16} />
+      {/* Búsqueda */}
+      <div className="relative flex-1 min-w-52 max-w-md">
+        <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          placeholder="Buscar por nombre..."
+          value={buscar}
+          onChange={e => setBuscar(e.target.value)}
+          className="input-hs pl-11 w-full"
+        />
+        {buscar && (
+          <button onClick={() => setBuscar('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Tabs de nivel */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setNivelFiltro('')}
+          className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+            nivelFiltro === ''
+              ? 'bg-gray-200 text-gray-800'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-150'
+          }`}
+        >
+          Todos
+        </button>
+        {['maternal', 'prekinder', 'kinder_1', 'kinder_2', 'kinder_3'].map(nivel => {
+          const color = NIVEL_COLORES[nivel];
+          return (
+            <button
+              key={nivel}
+              onClick={() => setNivelFiltro(nivel)}
+              className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+                nivelFiltro === nivel
+                  ? `${color.bg} ${color.text} ring-2 ${color.ring}`
+                  : `${color.bg} ${color.text} opacity-60 hover:opacity-100`
+              }`}
+            >
+              {NIVEL_LABELS[nivel]}
             </button>
-          )}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Filtro grupo */}
-        <div className="relative">
-          <select
-            value={grupoFiltro}
-            onChange={e => setGrupoFiltro(e.target.value)}
-            className="input-hs pr-10 appearance-none cursor-pointer"
-          >
-            <option value="">Todos los grupos</option>
-            {grupos.map(g => (
-              <option key={g.id} value={g.id}>{g.nombre}</option>
-            ))}
-          </select>
-          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
-
-        {/* Filtro estado */}
-        <div className="relative">
-          <select
-            value={estadoFiltro}
-            onChange={e => setEstadoFiltro(e.target.value)}
-            className="input-hs pr-10 appearance-none cursor-pointer"
-          >
-            <option value="">Todos los estados</option>
-            <option value="inscrito">Inscritos</option>
-            <option value="reinscrito">Reinscritos</option>
-            <option value="baja">Bajas</option>
-            <option value="egresado">Egresados</option>
-          </select>
-          <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-        </div>
+      {/* Filtro estado */}
+      <div className="relative max-w-xs">
+        <select
+          value={estadoFiltro}
+          onChange={e => setEstadoFiltro(e.target.value)}
+          className="input-hs pr-10 appearance-none cursor-pointer"
+        >
+          <option value="">Todos los estados</option>
+          <option value="inscrito">Inscritos</option>
+          <option value="reinscrito">Reinscritos</option>
+          <option value="baja">Bajas</option>
+          <option value="egresado">Egresados</option>
+        </select>
+        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
       </div>
 
       {/* Lista de alumnos */}
       {isLoading ? (
         <SkeletonList count={6} />
-      ) : alumnos.length === 0 ? (
+      ) : alumnosFiltrados.length === 0 ? (
         <div className="card-hs text-center py-16">
           <div className="text-6xl mb-4">🔍</div>
           <p className="text-xl font-black text-gray-600">No se encontraron alumnos</p>
@@ -144,7 +173,7 @@ export default function DirectoraAlumnos() {
         </div>
       ) : (
         <div className="grid gap-3">
-          {alumnos.map(alumno => (
+          {alumnosFiltrados.map(alumno => (
             <TarjetaAlumno
               key={alumno.id}
               alumno={alumno}
@@ -243,7 +272,7 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
       </div>
 
       {/* Acciones */}
-      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-2">
         <button
           onClick={() => navigate(`/directora/alumnos/${alumno.id}`)}
           title="Ver perfil completo"

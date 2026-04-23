@@ -1,6 +1,7 @@
 # PENDIENTES — Happy School App
 
 **Última actualización:** 2026-04-23 | **Estado:** Sesión 57 — Bugs + Protocolo
+⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
@@ -37,7 +38,7 @@
 
 ---
 
-## 🎯 SESIÓN 43-45 — Mediano plazo (1-2 meses)
+## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🔄 CICLOS ESCOLARES — COMPLETAR SPRINT 3
 - [ ] **Panel "Historial Egresados":** Endpoint `GET /alumnos?estado=egresado&ciclo_id=X` + tabla Directora.
@@ -96,7 +97,7 @@
 
 ---
 
-## 🎯 SESIÓN 46-47 — Largo plazo (2-3 meses)
+## 🎯 LARGO PLAZO — Futuro (2-3 meses)
 
 ### 🗂️ CATÁLOGOS DINÁMICOS — 100% ADMINISTRABLE
 - [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Parentescos, Alergias, Tipos Pago, Motivos Salida, Emojis, etc.

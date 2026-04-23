@@ -1,7 +1,34 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 44
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 45
+
+---
+
+## ✅ SESIÓN 45 — Actividades múltiples: Captura grupo + participación alumno
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:**
+- `backend/migrations/022_actividades_grupo.sql` (nuevo)
+- `backend/src/routes/bitacora.js`
+- `web/src/pages/maestra/Bitacora.jsx`
+- `web/src/pages/padre/Bitacora.jsx`
+- `web/src/pages/directora/AlumnoPerfil.jsx`
+
+**Tareas Completadas (7/7):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Arquitectura BD nueva** | 2 tablas: `actividades_grupo` (catálogo del día por grupo) + `actividades_alumno` (participación individual). Maestra captura UNA SOLA VEZ, alumnos se seleccionan en bitácoras. |
+| **Endpoints backend (3 nuevos)** | GET actividades-grupo (listar), POST actividades-grupo (capturar con fotos Cloudinary), POST actividades-alumno (guardar participación, auto-crea bitácora si falta). GET bitácora modificado para devolver actividades con participación. |
+| **Panel Maestra — Captura** | Sección colapsable "🎨 Actividades del día" en sidebar. Array dinámico: textarea descripción + input foto por actividad. Guardar independiente. |
+| **Sección Bitácora — Participación** | Tarjetas de actividades grupo (foto si tiene + descripción). 3 botones por actividad: ✓ Sí, ✗ No, — Sin registrar. Guardado independiente con API call. |
+| **Portal Papá — Tarjetas actividad** | Sección "🎨 Actividades" muestra tarjetas con foto + badge verde ✓/rojo ✗ de participación. Elimina galería separada. Flujo limpio por actividad. |
+| **Portal Directora — Lista compacta** | AlumnoPerfil Bitácora: nueva sección actividades con miniatura foto + badge. Layout vertical, no interfiere. |
+| **Backward compatibility** | GET bitácora devuelve `actividades` con mismo shape para datos nuevos y fallback legacy. Sin cambios en endpoints existentes. |
+
+**Impacto:** Arquitectura escalable y eficiente. Maestra no escribe actividades N veces (una por alumno), solo una vez. Papá y Directora ven datos visuales con participación clara por actividad. Sistema extensible para futuras mejoras (recurrencias, asignación a sub-grupos, etc).
 
 ---
 

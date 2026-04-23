@@ -1,19 +1,18 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesiones 50 y 51 COMPLETADAS — Sesión 52 próxima: FASE 3 Hardcodeados
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 52 COMPLETADA — FASE 3 Hardcodeados implementada
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 52 (PRÓXIMA) — FASE 3 (Hardcodeados) + Histórico + Notificaciones
+## 📍 SESIÓN 53 (PRÓXIMA) — Histórico + Notificaciones + Pendientes FASE 3
 
-### 🗂️ FASE 3 — Eliminar Hardcodeados (catálogos duplicados)
-
-- [ ] **Backend — endpoint `GET /catalogos/:tipo`:** Crear endpoint dinámico para `animo`, `comportamiento`, `cuanto-comio`, `tiempos-comida`, `condiciones-panial`, `niveles`, `roles-personal`, `estados-alumno`, `tipos-documento`, `metodos-pago`, `conceptos-pago`, `tipos-parentesco`.
-- [ ] **Web — reemplazar arrays hardcodeados:** `Bitacora.jsx`, `CiclosEscolares.jsx`, `Grupos.jsx`, `Personal.jsx`, `TurnoPuerta.jsx`, `Alumnos.jsx`, `AlumnoPerfil.jsx`, `Pagos.jsx`, `Dashboard.jsx` (padre).
-- [ ] **Mobile — reemplazar arrays hardcodeados:** `bitacora.jsx` (padre), `index.jsx` (padre), `bitacora.jsx` (maestra).
-- [ ] **IP hardcodeada en mobile:** `mobile/src/services/api.js` → `EXPO_PUBLIC_API_URL` env var en `mobile/.env`.
+### 🗂️ FASE 3 — Pendientes (completar)
+- [ ] **Web — `AlumnoPerfil.jsx`:** Migrar `ANIMO_LABEL`, `CUANTO_LABEL`, `COMP_LABEL`, `PANIAL_LABEL` a `useCatalogo` + `toMap()` (deuda directa de sesión 52).
+- [ ] **Web — `Pagos.jsx`:** Migrar `METODOS` y `TIPOS_CONCEPTO` a `useCatalogo`.
+- [ ] **Web — `TurnoPuerta.jsx`:** Migrar `ROL_LABEL` a `useCatalogo('roles-personal')`.
+- [ ] **Bitácora — Precargar menú del día:** Si el alumno tiene servicio de comida contratado y hay menú publicado para esa fecha, precargar el campo `que_comio` de cada tiempo con el platillo del menú. Requiere: verificar servicio contratado del alumno, consultar tabla de menús del día, precargar en `FormBitacora` antes de que la miss edite.
 
 ### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
 - [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados. Endpoint `GET /alumnos/:id/ciclos` ya existe.

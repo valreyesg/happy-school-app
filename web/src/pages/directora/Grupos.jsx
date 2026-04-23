@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
 import SelectorCiclo from '../../components/ui/SelectorCiclo';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 // ─── Colores por nivel ────────────────────────────────────────────────────────
 const NIVEL_COLORES = {
   maternal:  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
   prekinder: { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
-  kinder_1:  { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
-  kinder_2:  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
-  kinder_3:  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+  kinder1:   { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
+  kinder2:   { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
+  kinder3:   { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
 };
 
 function colorNivel(nivel) {
@@ -18,6 +19,7 @@ function colorNivel(nivel) {
 
 // ─── Modal de grupo ───────────────────────────────────────────────────────────
 function ModalGrupo({ grupo, maestras, onClose, onSave }) {
+  const { items: NIVELES } = useCatalogo('niveles');
   const esNuevo = !grupo;
   const [form, setForm] = useState({
     nombre: grupo?.nombre || '',
@@ -70,7 +72,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
                 placeholder="Ej. Kinder 1 A, Kinder 1 B"
                 required
               />
-              {['kinder_1', 'kinder_2', 'kinder_3'].includes(form.nivel) && (
+              {['kinder1', 'kinder2', 'kinder3'].includes(form.nivel) && (
                 <p className="text-xs text-gray-500 mt-1">Usa sufijos A, B, C para grupos del mismo nivel</p>
               )}
             </div>
@@ -78,11 +80,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nivel</label>
               <select className="input-hs w-full" value={form.nivel} onChange={e => set('nivel', e.target.value)}>
-                <option value="maternal">Maternal</option>
-                <option value="prekinder">Prekinder</option>
-                <option value="kinder_1">Kinder 1</option>
-                <option value="kinder_2">Kinder 2</option>
-                <option value="kinder_3">Kinder 3</option>
+                {NIVELES.map(n => <option key={n.key} value={n.key}>{n.label}</option>)}
               </select>
             </div>
 

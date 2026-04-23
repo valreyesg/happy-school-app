@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 // ─── Modal Nuevo Ciclo ────────────────────────────────────────────────────────
 function ModalNuevoCiclo({ onClose, onSave }) {
@@ -106,13 +107,8 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
   const [gruposParaEditar, setGruposParaEditar] = useState({});
   const [gruposNuevos, setGruposNuevos] = useState([]);
 
-  const NIVELES = [
-    { nivel: 'Maternal', nivel_codigo: 'maternal' },
-    { nivel: 'Prekinder', nivel_codigo: 'prekinder' },
-    { nivel: 'Kinder 1', nivel_codigo: 'kinder1' },
-    { nivel: 'Kinder 2', nivel_codigo: 'kinder2' },
-    { nivel: 'Kinder 3', nivel_codigo: 'kinder3' },
-  ];
+  const { items: NIVELES_CATALOGO } = useCatalogo('niveles');
+  const NIVELES = NIVELES_CATALOGO.map(n => ({ nivel: n.label, nivel_codigo: n.key }));
 
   const cambiarEstado = (idx, nuevoEstado) => {
     setAjustes(a => {

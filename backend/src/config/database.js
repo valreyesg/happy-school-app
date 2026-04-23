@@ -7,6 +7,10 @@ const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
+pool.on('connect', (client) => {
+  client.query("SET timezone = 'America/Mexico_City'");
+});
+
 pool.on('error', (err) => {
   console.error('Error inesperado en cliente de PostgreSQL:', err);
 });

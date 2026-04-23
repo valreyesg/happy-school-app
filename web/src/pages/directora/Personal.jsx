@@ -1,34 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
+import { ROL_COLOR } from '@/utils/catalogos';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
-const ROLES = [
-  { value: 'directora',         label: 'Directora' },
-  { value: 'administrativo',    label: 'Administrativo' },
-  { value: 'maestra_titular',   label: 'Miss titular' },
-  { value: 'maestra_auxiliar',  label: 'Miss auxiliar' },
-  { value: 'maestra_especial',  label: 'Miss especial' },
-  { value: 'maestra_puerta',    label: 'Miss de puerta' },
-];
-
-const ROL_COLOR = {
-  directora:         'bg-purple-100 text-purple-700',
-  administrativo:    'bg-blue-100 text-blue-700',
-  maestra_titular:   'bg-green-100 text-green-700',
-  maestra_auxiliar:  'bg-teal-100 text-teal-700',
-  maestra_especial:  'bg-yellow-100 text-yellow-700',
-  maestra_puerta:    'bg-orange-100 text-orange-700',
-};
-
-const ROL_LABEL = {
-  directora:         'Directora',
-  administrativo:    'Administrativo',
-  maestra_titular:   'Titular',
-  maestra_auxiliar:  'Auxiliar',
-  maestra_especial:  'Especial',
-  maestra_puerta:    'Puerta',
-};
 
 // ─── Modal crear / editar ─────────────────────────────────────────────────────
 function ModalPersonal({ persona, grupos, onClose, onSave }) {
@@ -155,7 +131,7 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol del sistema *</label>
                 <select className="input-hs w-full" value={form.rol_principal} onChange={e => set('rol_principal', e.target.value)}>
-                  {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                  {ROLES.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
                 </select>
               </div>
               <div>
@@ -286,7 +262,7 @@ function TarjetaPersonal({ persona, onEdit, onReset }) {
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-black text-gray-800 truncate">{persona.nombre_completo}</h3>
           <span className={`inline-block text-xs font-black px-2 py-0.5 rounded-full mt-1 ${ROL_COLOR[rol] || 'bg-gray-100 text-gray-600'}`}>
-            {ROL_LABEL[rol] || rol}
+            {ROLES.find(r => r.key === rol)?.label || rol}
           </span>
         </div>
       </div>
@@ -352,6 +328,8 @@ export default function DirectoraPersonal() {
   const [filtroRol, setFiltroRol] = useState('todos');
   const [soloActivos, setSoloActivos] = useState(true);
   const [resetConfirm, setResetConfirm] = useState(null);
+
+  const { items: ROLES } = useCatalogo('roles-personal');
 
   const { data: personal = [], isLoading } = useQuery({
     queryKey: ['personal', soloActivos],

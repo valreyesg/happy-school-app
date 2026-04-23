@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../src/services/api';
+import { ANIMO_LIST, CUANTO_LIST, COMPORTAMIENTO_LIST, CONDICIONES_PANIAL } from '../../src/constants/catalogos';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -261,20 +262,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     );
   }
 
-  const ANIMOS = [
-    { key: 'feliz', emoji: '😊' },
-    { key: 'activo', emoji: '⚡' },
-    { key: 'cansado', emoji: '😴' },
-    { key: 'triste', emoji: '😢' },
-    { key: 'irritable', emoji: '😤' },
-  ];
-
-  const CUANTO = [
-    { key: 'todo', emoji: '🍽️', label: 'Todo' },
-    { key: 'casi_todo', emoji: '🥢', label: 'Casi todo' },
-    { key: 'poco', emoji: '🍱', label: 'Poco' },
-    { key: 'no_comio', emoji: '❌', label: 'No comió' },
-  ];
+  const ANIMOS = ANIMO_LIST;
+  const CUANTO = CUANTO_LIST;
 
   return (
     <KeyboardAvoidingView
@@ -327,14 +316,14 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             ))}
             <Text style={s.panialSub2}>Registrar nuevo cambio:</Text>
             <View style={s.panialBtns}>
-              {['limpio', 'orina', 'heces', 'mixto'].map(c => (
+              {CONDICIONES_PANIAL.map(c => (
                 <TouchableOpacity
-                  key={c}
+                  key={c.key}
                   style={s.panialBtn}
-                  onPress={() => registrarPanial(c)}
+                  onPress={() => registrarPanial(c.key)}
                   disabled={panialMutation.isPending}
                 >
-                  <Text style={s.panialBtnTxt}>{c.charAt(0).toUpperCase() + c.slice(1)}</Text>
+                  <Text style={s.panialBtnTxt}>{c.key.charAt(0).toUpperCase() + c.key.slice(1)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -419,17 +408,13 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         {/* Comportamiento */}
         <Seccion titulo="Comportamiento">
           <View style={s.compRow}>
-            {[
-              { key: 'muy_bien',         icon: '⭐', label: 'Muy bien'  },
-              { key: 'bien',             icon: '👍', label: 'Bien'      },
-              { key: 'necesita_mejorar', icon: '⚠️', label: 'A mejorar' },
-            ].map(c => (
+            {COMPORTAMIENTO_LIST.map(c => (
               <TouchableOpacity
                 key={c.key}
                 style={[s.compBtn, comportamiento === c.key && s.compBtnOn]}
                 onPress={() => setComportamiento(c.key)}
               >
-                <Text style={s.compEmoji}>{c.icon}</Text>
+                <Text style={s.compEmoji}>{c.emoji}</Text>
                 <Text style={[s.compLabel, comportamiento === c.key && s.compLabelOn]}>{c.label}</Text>
               </TouchableOpacity>
             ))}

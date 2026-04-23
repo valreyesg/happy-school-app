@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
+import { ANIMO, CUANTO, COMPORTAMIENTO } from '@/constants/catalogos';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -17,9 +18,6 @@ function proximos3Dias() {
     hasta: hasta.toISOString().substring(0, 10),
   };
 }
-
-const EMOJIS_ANIMO = { feliz: '😊', activo: '⚡', cansado: '😴', triste: '😢', irritable: '😤' };
-const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 
 const CONDUCTA_STYLE = {
   muy_bien:         { emoji: '⭐', label: 'Excelente', badge: { backgroundColor: '#F0FFF4' }, text: { color: '#276749' } },
@@ -209,7 +207,7 @@ function HijoCard({ hijo }) {
           <View style={styles.gridContainer}>
             {/* Ánimo */}
             <View style={styles.gridCell}>
-              <Text style={styles.animoEmoji}>{EMOJIS_ANIMO[hijo.bitacora_hoy.estado_animo] || '🤔'}</Text>
+              <Text style={styles.animoEmoji}>{ANIMO[hijo.bitacora_hoy.estado_animo]?.emoji || '🤔'}</Text>
               <View style={styles.animoLabelBox}>
                 <Text style={styles.animoTitleLabel}>Ánimo</Text>
                 <Text style={styles.animoNombre}>{(hijo.bitacora_hoy.estado_animo || '').replace('_', ' ')}</Text>

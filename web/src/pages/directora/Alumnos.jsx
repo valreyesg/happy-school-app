@@ -8,6 +8,7 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import SelectorCiclo from '@/components/ui/SelectorCiclo';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 // Paleta de colores para los niveles — se asigna por posición de aparición
 const PALETA_NIVELES = [
@@ -25,6 +26,8 @@ export default function DirectoraAlumnos() {
   const [nivelFiltro, setNivelFiltro] = useState('');
   const [estadoFiltro, setEstadoFiltro] = useState('inscrito');
   const [cicloId, setCicloId] = useState(null); // null = ciclo activo
+
+  const { items: ESTADOS_ALUMNO } = useCatalogo('estados-alumno');
 
   const handleCicloChange = (id) => {
     setCicloId(id);
@@ -160,10 +163,7 @@ export default function DirectoraAlumnos() {
           className="input-hs pr-10 appearance-none cursor-pointer"
         >
           <option value="">Todos los estados</option>
-          <option value="inscrito">Inscritos</option>
-          <option value="reinscrito">Reinscritos</option>
-          <option value="baja">Bajas</option>
-          <option value="egresado">Egresados</option>
+          {ESTADOS_ALUMNO.map(e => <option key={e.key} value={e.key}>{e.label}</option>)}
         </select>
         <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
       </div>

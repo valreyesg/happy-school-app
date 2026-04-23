@@ -5,38 +5,10 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
+import { useCatalogo } from '@/hooks/useCatalogo';
+import { toMap } from '@/utils/catalogos';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
-
-const ANIMOS = [
-  { key: 'feliz',     emoji: '😊', label: 'Feliz'      },
-  { key: 'activo',    emoji: '⚡', label: 'Activo'     },
-  { key: 'cansado',   emoji: '😴', label: 'Cansado'    },
-  { key: 'triste',    emoji: '😢', label: 'Triste'     },
-  { key: 'irritable', emoji: '😤', label: 'Irritable'  },
-];
-
-const CUANTO = [
-  { key: 'todo',      emoji: '😋', label: 'Todo'       },
-  { key: 'casi_todo', emoji: '😊', label: 'Casi todo'  },
-  { key: 'poco',      emoji: '😐', label: 'Poco'       },
-  { key: 'no_comio',  emoji: '❌', label: 'No comió'   },
-];
-
-// ENUM correcto según schema: muy_bien | bien | necesita_mejorar
-const COMPORTAMIENTO = [
-  { key: 'muy_bien',         emoji: '⭐', label: 'Muy bien'   },
-  { key: 'bien',             emoji: '👍', label: 'Bien'       },
-  { key: 'necesita_mejorar', emoji: '⚠️', label: 'A mejorar' },
-];
-
-const PANIAL_CONDICIONES = [
-  { key: 'limpio', label: '✅ Limpio'  },
-  { key: 'orina',  label: '💧 Pipí'   },
-  { key: 'heces',  label: '💩 Popó'   },
-  { key: 'mixto',  label: '🔄 Mixto'  },
-];
-const PANIAL_LABEL = Object.fromEntries(PANIAL_CONDICIONES.map(c => [c.key, c.label]));
 
 // ── Helpers de UI ─────────────────────────────────────────────────────────────
 
@@ -142,7 +114,7 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
   const { data: actividadesGrupo } = useQuery({
     queryKey: ['actividades-grupo', grupoId, fecha],
     queryFn: () => api.get(`/bitacora/actividades-grupo?grupo_id=${grupoId}&fecha=${fecha}`).then(r => r.data).catch(() => []),
-    enabled: grupoId && fecha && mostrar,
+    enabled: !!(grupoId && fecha),
   });
 
   useEffect(() => {
@@ -309,7 +281,8 @@ function ListaAlumnos({ alumnos, seleccionado, onSeleccionar }) {
 
 // ── Formulario ────────────────────────────────────────────────────────────────
 
-function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades, onGuardado }) {
+function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades, onGuardado, catalogos }) {
+  const { ANIMOS, CUANTO, COMPORTAMIENTO, PANIAL_CONDICIONES, TIEMPOS_COMIDA, PANIAL_LABEL } = catalogos;
   const queryClient = useQueryClient();
 
   const grupoNivel = (alumno.nivel_codigo || '').toLowerCase();
@@ -410,7 +383,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       setNecesitaAyuda(data.esfinteres.necesito_ayuda ?? null);
       setNotasProgreso(data.esfinteres.notas_progreso || '');
     }
-  }, [data]);
+  }, [data, alumno.id]);
 
   // Medicamento
   const [medNombre, setMedNombre] = useState('');
@@ -604,7 +577,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                   <span className="font-bold text-purple-700">
                     {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <span className="text-gray-700 font-semibold">{PANIAL_LABEL[p.condicion] ?? p.condicion}</span>
+                  <span className="text-gray-700 font-semibold">{PANIAL_LABEL[p.condicion]?.label ?? p.condicion}</span>
                   {p.tiene_irritacion && <span className="text-orange-500 font-bold">⚠️ irritación</span>}
                 </div>
               ))}
@@ -648,34 +621,29 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       {comidas && (
         <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
           <div className="space-y-4">
-            {Object.entries({
-              desayuno: { emoji: '🥐', label: 'Desayuno' },
-              colacion: { emoji: '🍎', label: 'Colación' },
-              comida: { emoji: '🍽️', label: 'Comida' },
-              comida_extra: { emoji: '🍜', label: 'Comida Extra' },
-            }).map(([tiempo, tiempoInfo]) => (
-              <div key={tiempo} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
+            {TIEMPOS_COMIDA.map(tiempoInfo => (
+              <div key={tiempoInfo.key} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>
                   <p className="text-xs text-hs-purple font-bold">
-                    {comidas[tiempo]?.cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempo].cuanto_comio)?.label : '—'}
+                    {comidas[tiempoInfo.key]?.cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempoInfo.key].cuanto_comio)?.label : '—'}
                   </p>
                 </div>
                 <textarea rows={2} placeholder={`¿Qué comió en ${tiempoInfo.label.toLowerCase()}?`}
-                  value={comidas[tiempo]?.que_comio || ''}
-                  onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], que_comio: e.target.value } })}
+                  value={comidas[tiempoInfo.key]?.que_comio || ''}
+                  onChange={e => setComidas({ ...comidas, [tiempoInfo.key]: { ...comidas[tiempoInfo.key], que_comio: e.target.value } })}
                   className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
                 <div className="space-y-1">
                   <p className="text-xs font-black text-gray-600">¿Cuánto comió?</p>
                   <div className="grid grid-cols-4 gap-2">
                     {CUANTO.map(c => (
-                      <button key={c.key} onClick={() => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], cuanto_comio: c.key } })}
+                      <button key={c.key} onClick={() => setComidas({ ...comidas, [tiempoInfo.key]: { ...comidas[tiempoInfo.key], cuanto_comio: c.key } })}
                         className={`flex flex-col items-center gap-1 p-2 rounded-lg border-2 transition-all
-                          ${comidas[tiempo]?.cuanto_comio === c.key
+                          ${comidas[tiempoInfo.key]?.cuanto_comio === c.key
                             ? 'border-hs-purple bg-white shadow-md'
                             : 'border-gray-200 hover:border-hs-purple/40'}`}>
                         <span className="text-2xl">{c.emoji}</span>
-                        <span className={`text-xs font-bold text-center ${comidas[tiempo]?.cuanto_comio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
+                        <span className={`text-xs font-bold text-center ${comidas[tiempoInfo.key]?.cuanto_comio === c.key ? 'text-hs-purple' : 'text-gray-500'}`}>
                           {c.label}
                         </span>
                       </button>
@@ -683,8 +651,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                   </div>
                 </div>
                 <textarea rows={1} placeholder="Notas (ej: rechazó verduras, pidió más, etc.)"
-                  value={comidas[tiempo]?.observaciones || ''}
-                  onChange={e => setComidas({ ...comidas, [tiempo]: { ...comidas[tiempo], observaciones: e.target.value } })}
+                  value={comidas[tiempoInfo.key]?.observaciones || ''}
+                  onChange={e => setComidas({ ...comidas, [tiempoInfo.key]: { ...comidas[tiempoInfo.key], observaciones: e.target.value } })}
                   className="w-full border-2 border-gray-200 rounded-lg px-2 py-1 text-xs font-semibold focus:outline-none focus:border-hs-purple resize-none" />
               </div>
             ))}
@@ -961,6 +929,13 @@ export default function MaestraBitacora() {
     queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
   });
 
+  const { items: ANIMOS }            = useCatalogo('animo');
+  const { items: CUANTO }            = useCatalogo('cuanto-comio');
+  const { items: COMPORTAMIENTO }    = useCatalogo('comportamiento');
+  const { items: PANIAL_CONDICIONES } = useCatalogo('condiciones-panial');
+  const { items: TIEMPOS_COMIDA }    = useCatalogo('tiempos-comida');
+  const PANIAL_LABEL = toMap(PANIAL_CONDICIONES);
+
   const alumnos = (grupo?.alumnos || []).filter(a =>
     ['presente', 'retardo'].includes(a.estado_asistencia)
   );
@@ -1064,12 +1039,14 @@ export default function MaestraBitacora() {
                 <ChevronLeft size={18} /> Volver a la lista
               </button>
               <FormBitacora
+                key={alumnoSeleccionado.id}
                 alumno={alumnoSeleccionado}
                 fecha={fecha}
                 soloLectura={soloLectura}
                 actividades={actividades}
                 setActividades={setActividades}
                 onGuardado={() => setAlumnoSeleccionado(null)}
+                catalogos={{ ANIMOS, CUANTO, COMPORTAMIENTO, PANIAL_CONDICIONES, TIEMPOS_COMIDA, PANIAL_LABEL }}
               />
             </div>
           ) : (

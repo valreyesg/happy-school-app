@@ -1,7 +1,30 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 51
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 52
+
+---
+
+## ✅ SESIÓN 52 — FASE 3 Hardcodeados + Bugs Bitácora
+
+**Fecha:** 2026-04-23
+
+### Implementado
+- **Backend:** Endpoint `GET /catalogos/:tipo` centralizado con 11 catálogos (animo, comportamiento, cuanto-comio, tiempos-comida, condiciones-panial, niveles, roles-personal, estados-alumno, tipos-documento, metodos-pago, conceptos-pago)
+- **Web:** Hook `useCatalogo` + `toMap()` utility. Migradas 5 pantallas: `Bitacora.jsx` (maestra), `Personal.jsx`, `Alumnos.jsx`, `Grupos.jsx`, `CiclosEscolares.jsx`
+- **Fix:** Inconsistencia `kinder_1`/`kinder_2`/`kinder_3` → estandarizado a `kinder1`/`kinder2`/`kinder3`
+- **Mobile:** `EXPO_PUBLIC_API_URL` en `.env`, `src/constants/catalogos.js` centralizado. Migradas 3 pantallas: bitacora padre, index padre, bitacora maestra
+- **Fix timezone:** `SET timezone = 'America/Mexico_City'` en cada conexión del pool (`database.js`) para que `CURRENT_DATE` y `NOW()` siempre usen hora México
+- **Fix bug datos cruzados entre alumnos:** `key={alumnoSeleccionado.id}` en `FormBitacora` — fuerza desmontaje al cambiar de alumno
+- **Fix actividades lateral:** Quitado `mostrar` del `enabled` de la query `actividades-grupo` — ya carga sin necesidad de abrir el panel
+- **Fix comidas no cargaban al re-entrar:** `useEffect([data, alumno.id])` para forzar re-ejecución al montar con caché
+
+### Bugs corregidos en sesión
+1. `ANIMOS is not defined` — catálogos declarados en componente padre, no en hijo (`FormBitacora`)
+2. `PANIAL_LABEL[key]` retornaba objeto en lugar de string — faltaba `.label`
+3. Datos de alumno anterior aparecían en el siguiente — faltaba `key` prop en `FormBitacora`
+4. Tiempos de comida no cargaban al abrir bitácora — `useEffect` no se disparaba con datos de caché
+5. Actividades del lateral no aparecían — `enabled: mostrar` impedía fetch en modo collapsed
 
 ---
 

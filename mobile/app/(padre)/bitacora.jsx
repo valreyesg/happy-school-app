@@ -7,36 +7,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../src/services/api';
+import { ANIMO, CUANTO, TIEMPOS_COMIDA, COMPORTAMIENTO } from '../../src/constants/catalogos';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
-
-const ANIMO = {
-  feliz:     { emoji: '😊', label: 'Feliz' },
-  activo:    { emoji: '⚡', label: 'Activo' },
-  cansado:   { emoji: '😴', label: 'Cansado' },
-  triste:    { emoji: '😢', label: 'Triste' },
-  irritable: { emoji: '😤', label: 'Irritable' },
-};
-
-const CUANTO = {
-  todo:       { emoji: '😋', label: 'Todo' },
-  casi_todo:  { emoji: '😊', label: 'Casi todo' },
-  poco:       { emoji: '😐', label: 'Poco' },
-  no_comio:   { emoji: '❌', label: 'No comió' },
-};
-
-const TIEMPOS_COMIDA = [
-  { key: 'desayuno',    emoji: '🥐', label: 'Desayuno' },
-  { key: 'colacion',    emoji: '🍎', label: 'Colación' },
-  { key: 'comida',      emoji: '🍽️', label: 'Comida' },
-  { key: 'comida_extra',emoji: '🍜', label: 'Comida Extra' },
-];
-
-const COMPORTAMIENTO = {
-  muy_bien:         { emoji: '⭐', label: 'Excelente', color: '#D69E2E' },
-  bien:             { emoji: '👍', label: 'Bien',      color: '#38A169' },
-  necesita_mejorar: { emoji: '⚠️', label: 'A mejorar', color: '#E53E3E' },
-};
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 

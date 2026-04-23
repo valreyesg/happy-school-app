@@ -1,38 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 56 COMPLETADA (3 tareas)
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 57 — Bugs + Protocolo
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 56 ✅ COMPLETADA
-
----
-
-### ✅ 📊 DASHBOARD MAESTRA — Card "No entraron por retardos"
-- [x] **Dashboard Miss — Card implementada:** Endpoint GET `/grupos/mi-grupo/estadisticas/hoy` cuenta alumnos con `estado = 'no_entrada'` y motivo contiene "retardo"
-  - ✅ Card mostrando conteo en grid de stats (color naranja, icono UserX)
-  - ✅ Query refetch cada 30s
-
-### ✅ 👨‍👩‍👧 DASHBOARD PAPÁ — Detalle de entrada (Filtro sanitario)
-- [x] **Dashboard Papá — Filtro visible en card del hijo:** Implementado en Dashboard (no en bitácora detallada)
-  - ✅ Endpoint GET `/alumnos/mis-hijos` incluye completo `filtro_entrada`
-  - ✅ Card muestra: ✅ Autorizada / 🚫 Rechazada + motivo
-  - ✅ Grid visual checklist (uñas, uniforme, bata, agua, termo, ojos)
-
-### ✅ 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ (Fase 1)
-- [x] **Dashboard padre — Selector de ciclo implementado:** UI lista con dropdown
-  - ✅ Carga ciclos desde GET `/alumnos/:id/ciclos`
-  - ✅ Muestra ciclo actual destacado por defecto
-  - ✅ Preparado para filtro histórico en próxima iteración
-- [ ] **Fase 2 — Filtro de bitácora por ciclo:** El selector existe en UI pero NO filtra bitácora
-  - Requiere: actualizar endpoint `/bitacora/:alumnoId` para aceptar `ciclo_id` + retornar rango de fechas del ciclo
-  - Frontend: cambiar lógica de selector de fecha para navegar dentro del ciclo elegido
-
----
-
-## 📍 SESIÓN 57 (PRÓXIMA) — BUGS + PROTOCOLO SÍNTOMAS
+## 📍 SESIÓN 57 — BUGS + PROTOCOLO SÍNTOMAS
 
 ### 🔴 BUG CRÍTICO: Rechazo por síntomas vs Retardo
 - [ ] **Santiago Gutierrez Mendoza:** No entró por fiebre + síntomas, pero vista dice "Retardo #1" (imposible)

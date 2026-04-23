@@ -1,19 +1,10 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 46 completada — Actividades: Captura + Validación
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 46 completada → Sesión 47 en curso
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
-
-## 📍 SESIÓN 46 — Actividades: Corrección de rutas + autorización
-
-### ✅ COMPLETADAS (1/1)
-- [x] **Debugging actividades:** Arreglar GET 500 (ruta ordenamiento), POST 403 (autorización), parámetros queries ✅
-
-**Impacto:** Sistema de actividades múltiples completamente funcional. Maestra captura actividades con fotos en panel lateral, alumno ve actividades en bitácora, papá ve tarjetas con participación, directora ve lista compacta. Base para SESIÓN 47.
-
----
 
 ## 📍 SESIÓN 47 — Portal Papá + Mejoras UI (PRÓXIMA)
 

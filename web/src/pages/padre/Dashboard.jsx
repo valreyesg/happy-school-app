@@ -24,7 +24,7 @@ const COMPORTAMIENTO = {
 };
 
 function FiltroEntradaBadge({ item, label }) {
-  if (!item) return null;
+  if (item === null || item === undefined) return null;
   return (
     <div className="flex items-center gap-1">
       <span className="text-xs font-bold text-gray-600">{label}:</span>

@@ -31,7 +31,11 @@ router.get('/', authorize('directora', 'administrativo'), async (req, res, next)
         ) AS grupos_asignados
       FROM personal p
       LEFT JOIN usuarios u ON p.usuario_id = u.id
-      LEFT JOIN asignaciones_grupo ag ON ag.personal_id = p.id AND ag.activo = true
+      LEFT JOIN (
+        SELECT ag2.* FROM asignaciones_grupo ag2
+        JOIN ciclos_escolares ce ON ag2.ciclo_id = ce.id AND ce.activo = true
+        WHERE ag2.activo = true
+      ) ag ON ag.personal_id = p.id
       LEFT JOIN grupos g ON ag.grupo_id = g.id
       WHERE 1=1
     `;

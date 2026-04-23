@@ -462,7 +462,11 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
               {data.medicamentos.map((m, i) => (
                 <div key={i} className="py-1.5 border-b border-gray-100 last:border-0 text-sm font-semibold text-gray-700">
                   {m.nombre} — {m.dosis}
-                  {m.hora_administracion && <span className="text-gray-400 ml-2">{m.hora_administracion}</span>}
+                  {m.hora_administracion && (
+                    <span className="text-gray-400 ml-2">
+                      {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

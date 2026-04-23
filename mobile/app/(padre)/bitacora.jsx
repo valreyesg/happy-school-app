@@ -19,11 +19,18 @@ const ANIMO = {
 };
 
 const CUANTO = {
-  todo:       { emoji: '🍽️', label: 'Todo' },
-  casi_todo:  { emoji: '🥢', label: 'Casi todo' },
-  poco:       { emoji: '🍱', label: 'Poco' },
+  todo:       { emoji: '😋', label: 'Todo' },
+  casi_todo:  { emoji: '😊', label: 'Casi todo' },
+  poco:       { emoji: '😐', label: 'Poco' },
   no_comio:   { emoji: '❌', label: 'No comió' },
 };
+
+const TIEMPOS_COMIDA = [
+  { key: 'desayuno',    emoji: '🥐', label: 'Desayuno' },
+  { key: 'colacion',    emoji: '🍎', label: 'Colación' },
+  { key: 'comida',      emoji: '🍽️', label: 'Comida' },
+  { key: 'comida_extra',emoji: '🍜', label: 'Comida Extra' },
+];
 
 const COMPORTAMIENTO = {
   excelente:        { emoji: '⭐', label: 'Excelente', color: '#D69E2E' },
@@ -106,6 +113,7 @@ export default function BitacoraPadreScreen() {
   const router = useRouter();
   const hoy = new Date().toISOString().split('T')[0];
   const [fecha, setFecha] = useState(hoy);
+  const [tabActivo, setTabActivo] = useState('comida');
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['bitacora-padre', alumnoId, fecha],
@@ -116,7 +124,7 @@ export default function BitacoraPadreScreen() {
 
   const bit = data?.bitacora;
   const banio = data?.banio;
-  const comida = data?.comida;
+  const comidas = Array.isArray(data?.comida) ? data.comida : (data?.comida ? [data.comida] : []);
   const panial = data?.panial || [];
   const esfinteres = data?.esfinteres;
   const medicamentos = data?.medicamentos || [];
@@ -166,132 +174,194 @@ export default function BitacoraPadreScreen() {
             <Text style={s.animoSub}>Estado de ánimo del día</Text>
           </View>
 
-          {/* ─ Resumen rápido ─ */}
-          <View style={s.resumenRow}>
-            <View style={s.resumenItem}>
-              <Text style={s.resumenEmoji}>{comida ? (CUANTO[comida.cuanto_comio]?.emoji || '🍽️') : '—'}</Text>
-              <Text style={s.resumenLabel}>Comida</Text>
+          {/* ─ Tabs de navegación ─ */}
+          <View style={s.tabsContainer}>
+            {/* Barra de tabs */}
+            <View style={s.tabsBar}>
+              {[
+                { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
+                { key: 'actividades', emoji: '🎨', label: 'Actividades' },
+                { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
+                { key: 'salud',       emoji: '🌡️', label: 'Salud'       },
+                { key: 'incidentes',  emoji: '⚠️', label: 'Incidentes'  },
+              ].map(tab => (
+                <TouchableOpacity
+                  key={tab.key}
+                  style={[s.tabBtn, tabActivo === tab.key && s.tabBtnActivo]}
+                  onPress={() => setTabActivo(tab.key)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={{ fontSize: 18 }}>{tab.emoji}</Text>
+                  <Text style={[s.tabLabel, tabActivo === tab.key && s.tabLabelActivo]}>
+                    {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            <View style={s.resumenDiv} />
-            <View style={s.resumenItem}>
-              <Text style={s.resumenEmoji}>{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</Text>
-              <Text style={s.resumenLabel}>Actividades</Text>
-            </View>
-            <View style={s.resumenDiv} />
-            <View style={s.resumenItem}>
-              <Text style={s.resumenEmoji}>{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</Text>
-              <Text style={s.resumenLabel}>Conducta</Text>
-            </View>
-            <View style={s.resumenDiv} />
-            <View style={s.resumenItem}>
-              <Text style={s.resumenEmoji}>{bit.tuvo_fiebre ? '🤒' : '😊'}</Text>
-              <Text style={s.resumenLabel}>Salud</Text>
+
+            {/* Contenido */}
+            <View style={{ padding: 16 }}>
+
+              {/* Tab: Comida */}
+              {tabActivo === 'comida' && (
+                comidas.length > 0 ? (
+                  TIEMPOS_COMIDA.map(({ key, emoji, label }) => {
+                    const c = comidas.find(x => x.tiempo === key);
+                    if (!c) return null;
+                    return (
+                      <View key={key} style={s.tiempoComida}>
+                        <Text style={s.tiempoTitulo}>{emoji} {label}</Text>
+                        {c.que_comio ? <Text style={s.textoNormal}>{c.que_comio}</Text> : null}
+                        <FilaInfo label="¿Cuánto comió?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} negrita />
+                        <FilaInfo label="Observaciones" valor={c.observaciones} />
+                      </View>
+                    );
+                  })
+                ) : (
+                  <Text style={s.tabVacio}>Sin registro de alimentación</Text>
+                )
+              )}
+
+              {/* Tab: Actividades */}
+              {tabActivo === 'actividades' && (
+                <View>
+                  {bit.actividad_realizada !== null && bit.actividad_realizada !== undefined && (
+                    <View style={[s.compBadge, { backgroundColor: bit.actividad_realizada ? '#C6F6D5' : '#EDF2F7', marginBottom: 12 }]}>
+                      <Text style={{ fontSize: 18 }}>{bit.actividad_realizada ? '✓' : '✗'}</Text>
+                      <Text style={[s.compLabel, { color: bit.actividad_realizada ? '#276749' : '#718096' }]}>
+                        {bit.actividad_realizada ? 'Participó en actividades' : 'No participó en actividades'}
+                      </Text>
+                    </View>
+                  )}
+                  {(data?.actividades || []).map((act, i) => (
+                    <View key={i} style={{ marginBottom: 12, borderRadius: 12, borderWidth: 2, borderColor: '#E9D8FD', overflow: 'hidden' }}>
+                      {act.descripcion ? <Text style={{ padding: 10, fontSize: 13, fontWeight: '700', color: '#4A5568' }}>{act.descripcion}</Text> : null}
+                      {act.participo !== null && act.participo !== undefined && (
+                        <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
+                          <View style={[s.pildora, { backgroundColor: act.participo ? '#C6F6D5' : '#FED7D7' }]}>
+                            <Text style={[s.pildoraTxt, { color: act.participo ? '#276749' : '#C53030' }]}>
+                              {act.participo ? '✓ Participó' : '✗ No participó'}
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                  {bit.actividad_realizada === null && bit.actividad_realizada === undefined && (data?.actividades || []).length === 0 && (
+                    <Text style={s.tabVacio}>Sin registro de actividades</Text>
+                  )}
+                </View>
+              )}
+
+              {/* Tab: Higiene */}
+              {tabActivo === 'higiene' && (
+                <View>
+                  {banio && (
+                    <View style={[s.banioRow, { marginBottom: 12 }]}>
+                      <View style={s.banioItem}>
+                        <Text style={s.banioNum}>{banio.pipi_count || 0}</Text>
+                        <Text style={s.banioLabel}>Pipí 🚿</Text>
+                      </View>
+                      <View style={s.banioItem}>
+                        <Text style={s.banioNum}>{banio.popo_count || 0}</Text>
+                        <Text style={s.banioLabel}>Popó 💩</Text>
+                      </View>
+                    </View>
+                  )}
+                  {panial.map((p, i) => (
+                    <View key={i} style={s.panialLog}>
+                      <Text style={s.panialHora}>
+                        {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                      <Text style={s.panialCondicion}>
+                        {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
+                        {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
+                      </Text>
+                    </View>
+                  ))}
+                  {esfinteres && (
+                    <View style={{ marginTop: 8 }}>
+                      <View style={s.pildoraRow}>
+                        <PildoraBool label="Fue solo/a"     valor={esfinteres.fue_solo}       />
+                        <PildoraBool label="Pidió ir"       valor={esfinteres.pidio_ir}        />
+                        <PildoraBool label="Accidente"      valor={esfinteres.tuvo_accidente}  />
+                        <PildoraBool label="Necesitó ayuda" valor={esfinteres.necesito_ayuda}  />
+                      </View>
+                      <FilaInfo label="Notas" valor={esfinteres.notas_progreso} />
+                    </View>
+                  )}
+                  {!banio && panial.length === 0 && !esfinteres && (
+                    <Text style={s.tabVacio}>Sin registros de higiene</Text>
+                  )}
+                </View>
+              )}
+
+              {/* Tab: Salud */}
+              {tabActivo === 'salud' && (
+                <View>
+                  {bit.tuvo_fiebre && (
+                    <View style={s.alertaRoja}>
+                      <Text style={s.alertaTxt}>🌡 Tuvo fiebre{bit.temperatura_dia ? ` — ${bit.temperatura_dia}°C` : ''}</Text>
+                    </View>
+                  )}
+                  {bit.se_enfermo && (
+                    <View style={[s.alertaRoja, { marginTop: 8 }]}>
+                      <Text style={s.alertaTxt}>⚕️ {bit.descripcion_enfermedad || 'Presentó malestar'}</Text>
+                    </View>
+                  )}
+                  {medicamentos.map((m, i) => (
+                    <View key={i} style={s.medCard}>
+                      <Text style={s.medNombre}>{m.nombre}</Text>
+                      <Text style={s.medDetalle}>
+                        Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                      {m.notas && <Text style={s.medNotas}>{m.notas}</Text>}
+                    </View>
+                  ))}
+                  {!bit.tuvo_fiebre && !bit.se_enfermo && medicamentos.length === 0 && (
+                    <Text style={s.tabVacio}>Sin registros de salud</Text>
+                  )}
+                </View>
+              )}
+
+              {/* Tab: Incidentes */}
+              {tabActivo === 'incidentes' && (
+                (data?.incidentes || []).length > 0 ? (
+                  (data?.incidentes || []).map((inc, i) => (
+                    <View key={i} style={[s.alertaRoja, { marginBottom: 8 }]}>
+                      <Text style={[s.alertaTxt, { marginBottom: 4 }]}>{inc.descripcion}</Text>
+                      {inc.acciones_tomadas ? <Text style={{ fontSize: 12, color: '#C53030' }}>Acciones: {inc.acciones_tomadas}</Text> : null}
+                      <Text style={{ fontSize: 11, color: '#FC8181', marginTop: 4 }}>
+                        {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                      {inc.firma_padre_url ? (
+                        <View style={{ backgroundColor: '#C6F6D5', borderRadius: 8, padding: 8, marginTop: 6 }}>
+                          <Text style={{ fontSize: 12, color: '#276749', fontWeight: '700' }}>✅ Firmado</Text>
+                        </View>
+                      ) : (
+                        <Text style={{ fontSize: 12, color: '#3182CE', fontWeight: '700', marginTop: 6 }}>
+                          ✍️ Pendiente de firma — revisa en el portal web
+                        </Text>
+                      )}
+                    </View>
+                  ))
+                ) : (
+                  <Text style={s.tabVacio}>Sin incidentes hoy ✅</Text>
+                )
+              )}
             </View>
           </View>
 
-          {/* ─ Alimentación ─ */}
-          {comida && (
-            <Seccion titulo="Alimentación" emoji="🍽️">
-              {comida.que_comio && <Text style={s.textoNormal}>{comida.que_comio}</Text>}
-              <FilaInfo label="¿Cuánto comió?" valor={CUANTO[comida.cuanto_comio]?.label} negrita />
-              <FilaInfo label="Observaciones" valor={comida.observaciones} />
-            </Seccion>
-          )}
-
-          {/* ─ Actividades y comportamiento ─ */}
-          <Seccion titulo="Actividades y conducta" emoji="🎨">
-            <FilaInfo
-              label="Participación"
-              valor={bit.actividad_realizada === true ? 'Sí participó ✓' : bit.actividad_realizada === false ? 'No participó ✗' : null}
-              negrita
-            />
-            {bit.comportamiento && (
+          {/* ─ Conducta — siempre visible ─ */}
+          {bit.comportamiento && (
+            <Seccion titulo="Conducta" emoji="🌟">
               <View style={[s.compBadge, { backgroundColor: COMPORTAMIENTO[bit.comportamiento]?.color + '20' }]}>
                 <Text style={{ fontSize: 20 }}>{COMPORTAMIENTO[bit.comportamiento]?.emoji}</Text>
                 <Text style={[s.compLabel, { color: COMPORTAMIENTO[bit.comportamiento]?.color }]}>
                   {COMPORTAMIENTO[bit.comportamiento]?.label}
                 </Text>
               </View>
-            )}
-            <FilaInfo label="Notas de conducta" valor={bit.comportamiento_notas} />
-          </Seccion>
-
-          {/* ─ Baño ─ */}
-          {banio && (
-            <Seccion titulo="Baño" emoji="🚿">
-              <View style={s.banioRow}>
-                <View style={s.banioItem}>
-                  <Text style={s.banioNum}>{banio.pipi_count || 0}</Text>
-                  <Text style={s.banioLabel}>Pipí 🚿</Text>
-                </View>
-                <View style={s.banioItem}>
-                  <Text style={s.banioNum}>{banio.popo_count || 0}</Text>
-                  <Text style={s.banioLabel}>Popó 💩</Text>
-                </View>
-              </View>
-            </Seccion>
-          )}
-
-          {/* ─ Pañal (Maternal) ─ */}
-          {panial.length > 0 && (
-            <Seccion titulo="Cambios de pañal" emoji="👶🏻">
-              {panial.map((p, i) => (
-                <View key={i} style={s.panialLog}>
-                  <Text style={s.panialHora}>
-                    {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                  <Text style={s.panialCondicion}>
-                    {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
-                    {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
-                  </Text>
-                </View>
-              ))}
-            </Seccion>
-          )}
-
-          {/* ─ Control de esfínteres ─ */}
-          {esfinteres && (
-            <Seccion titulo="Control de esfínteres" emoji="🚽">
-              <View style={s.pildoraRow}>
-                <PildoraBool label="Fue solo/a" valor={esfinteres.fue_solo} />
-                <PildoraBool label="Pidió ir" valor={esfinteres.pidio_ir} />
-                <PildoraBool label="Accidente" valor={esfinteres.tuvo_accidente} />
-                <PildoraBool label="Necesitó ayuda" valor={esfinteres.necesito_ayuda} />
-              </View>
-              <FilaInfo label="Notas de progreso" valor={esfinteres.notas_progreso} />
-            </Seccion>
-          )}
-
-          {/* ─ Salud ─ */}
-          {(bit.tuvo_fiebre || bit.se_enfermo) && (
-            <Seccion titulo="Salud" emoji="🌡️">
-              {bit.tuvo_fiebre && (
-                <View style={s.alertaRoja}>
-                  <Text style={s.alertaTxt}>
-                    🌡 Tuvo fiebre{bit.temperatura_dia ? ` — ${bit.temperatura_dia}°C` : ''}
-                  </Text>
-                </View>
-              )}
-              {bit.se_enfermo && (
-                <View style={s.alertaRoja}>
-                  <Text style={s.alertaTxt}>⚕️ {bit.descripcion_enfermedad || 'Presentó malestar'}</Text>
-                </View>
-              )}
-            </Seccion>
-          )}
-
-          {/* ─ Medicamentos ─ */}
-          {medicamentos.length > 0 && (
-            <Seccion titulo="Medicamentos" emoji="💊">
-              {medicamentos.map((m, i) => (
-                <View key={i} style={s.medCard}>
-                  <Text style={s.medNombre}>{m.nombre}</Text>
-                  <Text style={s.medDetalle}>
-                    Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                  {m.notas && <Text style={s.medNotas}>{m.notas}</Text>}
-                </View>
-              ))}
+              <FilaInfo label="Notas de conducta" valor={bit.comportamiento_notas} />
             </Seccion>
           )}
 
@@ -352,6 +422,19 @@ const s = StyleSheet.create({
   // Sección
   seccion: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   seccionTitulo: { fontSize: 13, fontWeight: '900', color: '#E53E3E', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
+
+  // Tabs
+  tabsContainer: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#fff', borderRadius: 16, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
+  tabsBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
+  tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 10, gap: 2, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabBtnActivo: { borderBottomColor: '#E53E3E', backgroundColor: '#FFF5F5' },
+  tabLabel: { fontSize: 9, fontWeight: '700', color: '#A0AEC0' },
+  tabLabelActivo: { color: '#E53E3E' },
+  tabVacio: { textAlign: 'center', color: '#A0AEC0', fontWeight: '600', fontSize: 13, paddingVertical: 24 },
+
+  // Tiempos de comida
+  tiempoComida: { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
+  tiempoTitulo: { fontSize: 13, fontWeight: '900', color: '#4A5568', marginBottom: 6 },
 
   // Fila info
   fila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },

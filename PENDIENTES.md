@@ -8,13 +8,19 @@
 
 ## 📍 SESIÓN 47 — Portal Papá + Mejoras UI (PRÓXIMA)
 
-### 🎨 MEJORAS UI — PORTAL PAPÁ (6 items)
-- [ ] **Bitácora — Alimentación:** Mostrar en orden de Miss (Desayuno, Colación, Comida, Comida Extra).
-- [ ] **Vista Preparación (Próximos 3 días):** Dashboard principal muestre Tareas Pendientes + Eventos próximos.
-- [ ] **Navegación Bitácora:** Movimiento fluido entre Comida, Actividades, Conducta, Salud sin cerrar modal.
-- [ ] **Orden de Recibos:** Mes Actual primero → Meses anteriores descendente → "Ver Todos".
-- [ ] **Validación Estatus Pagos:** Verde solo si 100% al corriente (no parcial).
-- [ ] **Lógica de Avance Bitácora:** "En curso" durante jornada + "Finalizada" al cerrar. Mensaje "Aún no está lista" solo si 0% capturado.
+### 🎨 MEJORAS UI — PORTAL PAPÁ (6 items) — ✅ SESIÓN 47 COMPLETADO
+- [x] **Bitácora — Alimentación:** Mostrar en orden de Miss (Desayuno, Colación, Comida, Comida Extra).
+- [x] **Vista Preparación (Próximos 3 días):** Dashboard principal muestre Tareas Pendientes + Eventos próximos.
+- [x] **Navegación Bitácora:** Movimiento fluido entre Comida, Actividades, Conducta, Salud sin cerrar modal.
+- [x] **Orden de Recibos:** Mes Actual primero → Meses anteriores descendente → "Ver Todos".
+- [x] **Validación Estatus Pagos:** Verde solo si 100% al corriente (no parcial).
+- [x] **Lógica de Avance Bitácora:** "En curso" durante jornada + "Finalizada" al cerrar. Mensaje "Aún no está lista" solo si 0% capturado.
+
+---
+
+### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
+- [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados.
+- [ ] Aplica a: bitácora histórica, pagos históricos. Endpoint `GET /alumnos/:id/ciclos` ya existe en backend.
 
 ---
 

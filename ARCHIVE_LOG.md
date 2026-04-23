@@ -1,7 +1,41 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 46
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 47
+
+---
+
+## ✅ SESIÓN 47 — Portal Papá: UI + Histórico
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:**
+- `web/src/pages/padre/Dashboard.jsx` (HijoCard enhancement)
+- `mobile/app/(padre)/index.jsx` (HijoCard enhancement)
+- `backend/src/routes/alumnos.js` (bug fixes)
+
+**Tareas Completadas (6/6):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **#1 Orden comida en bitácora** | Mostrar Desayuno, Colación, Comida, Comida Extra en orden correcto. Implementado en web/maestra/Bitacora.jsx → propagado a padre/web, padre/mobile, directora. |
+| **#2 Próximos 3 días + modal evento** | Dashboard padre muestra eventos próximos con modal interactivo. Implementado en web Dashboard y mobile index con `proximos3Dias()` helper y `ModalEvento` component. |
+| **#3 HijoCard dashboard enhancement** | Ánimo + conducta lado a lado (mismo tamaño), alertas fiebre 🌡️ + incidentes ⚠️ en grilla 2x2, notas maestra en yellow. Implementado en web + mobile. |
+| **#4 Orden de recibos** | Ya estaba implementado (mes actual → Ver Todos → meses anteriores DESC). |
+| **#5 Validación estatus pagos** | Ya estaba implementado (verde solo si saldo_pendiente === 0). |
+| **#6 Lógica avance bitácora** | Ya estaba implementado ("En curso" + "Finalizada"). |
+
+**Bugs Arreglados:**
+1. Tabla `incidentes_alumno` → `incidentes` en GET /alumnos/mis-hijos (SELECT subquery)
+2. Orden de rutas Express: `/mis-hijos` ANTES de `/por-qr/:qrData` (ambas antes de `/:id`)
+3. Node.js no recargaba código en Windows → resolvió matando procesos manualmente
+
+**Aprendizajes Documentados:**
+- `feedback_emoji_consistency.md` — Emoji fuente de verdad en maestra/Bitacora.jsx
+- `feedback_ruta_order_express.md` — Static routes BEFORE parameterized (reconfirmado)
+
+**Próximo Pendiente:**
+- 📂 Histórico por ciclo escolar en dashboard padre (ver ciclos pasados)
 
 ---
 

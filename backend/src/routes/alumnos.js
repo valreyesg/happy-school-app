@@ -11,7 +11,6 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 router.use(authenticate);
 
 router.get('/', ctrl.listar);
-router.get('/por-qr/:qrData', ctrl.buscarPorQR);
 
 // GET /alumnos/mis-hijos — alumnos vinculados al padre autenticado
 router.get('/mis-hijos', async (req, res, next) => {
@@ -21,7 +20,12 @@ router.get('/mis-hijos', async (req, res, next) => {
         a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
         g.nombre AS grupo_nombre, g.color_hex,
         b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
-        COALESCE(cha.tiene_extension, false) AS tiene_extension
+        b.tuvo_fiebre,
+        COALESCE(cha.tiene_extension, false) AS tiene_extension,
+        (SELECT COUNT(*) FROM incidentes i
+         WHERE i.alumno_id = a.id
+           AND i.fecha::date = CURRENT_DATE
+           AND i.firma_padre_url IS NULL) AS incidentes_sin_firmar
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
       JOIN alumnos a ON ap.alumno_id = a.id
@@ -33,17 +37,18 @@ router.get('/mis-hijos', async (req, res, next) => {
     `, [req.user.id]);
 
     const rows = result.rows.map(r => {
-      const { estado_animo, actividad_realizada, comportamiento, notas } = r;
-      const bitacora_hoy = estado_animo !== null ? { estado_animo, actividad_realizada, comportamiento, notas } : null;
+      const { estado_animo, actividad_realizada, comportamiento, notas, tuvo_fiebre, incidentes_sin_firmar } = r;
+      const bitacora_hoy = estado_animo !== null ? { estado_animo, actividad_realizada, comportamiento, notas, tuvo_fiebre, incidentes_sin_firmar: parseInt(incidentes_sin_firmar || 0) } : null;
       return {
         ...r,
         bitacora_hoy,
-        // Excluir explícitamente los campos de bitácora del nivel superior
         estado_animo: undefined,
         cuanto_comio: undefined,
         actividad_realizada: undefined,
         comportamiento: undefined,
         notas: undefined,
+        tuvo_fiebre: undefined,
+        incidentes_sin_firmar: undefined,
       };
     });
 
@@ -51,6 +56,7 @@ router.get('/mis-hijos', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+router.get('/por-qr/:qrData', ctrl.buscarPorQR);
 router.get('/:id', ctrl.obtener);
 
 router.post('/', authorize('directora', 'administrativo'), ctrl.crear);

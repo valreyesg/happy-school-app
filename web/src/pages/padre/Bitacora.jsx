@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,9 +18,9 @@ const ANIMO = {
 };
 
 const CUANTO = {
-  todo:      { emoji: '🍽️', label: 'Todo'      },
-  casi_todo: { emoji: '🥢', label: 'Casi todo' },
-  poco:      { emoji: '🍱', label: 'Poco'      },
+  todo:      { emoji: '😋', label: 'Todo'      },
+  casi_todo: { emoji: '😊', label: 'Casi todo' },
+  poco:      { emoji: '😐', label: 'Poco'      },
   no_comio:  { emoji: '❌', label: 'No comió'  },
 };
 
@@ -154,7 +154,9 @@ export default function PadreBitacora() {
   };
 
   const [fecha, setFecha] = useState(getPrimerDiaHabil());
+  const [tabActivo, setTabActivo] = useState('comida');
   const [incidenteFirmando, setIncidenteFirmando] = useState(null);
+  const tabsRef = useRef(null);
   const queryClient = useQueryClient();
 
   // Forzar refetch limpiando cache
@@ -317,88 +319,219 @@ export default function PadreBitacora() {
                 </div>
               )}
 
-              {/* Resumen rápido */}
-              {bit && (
-                <div className="card-hs p-4 grid grid-cols-4 gap-2 text-center">
-                  <div>
-                    <div className="text-2xl">{comidas.length > 0 ? (CUANTO[comidas[0].cuanto_comio]?.emoji || '🍽️') : '—'}</div>
-                    <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl">{bit.actividad_realizada === true ? '🎨' : bit.actividad_realizada === false ? '❌' : '—'}</div>
-                    <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>
-                    <p className="text-xs font-semibold text-gray-400 mt-1">Conducta</p>
-                  </div>
-                  <div>
-                    <div className="text-2xl">{bit.tuvo_fiebre ? '🤒' : '😊'}</div>
-                    <p className="text-xs font-semibold text-gray-400 mt-1">Salud</p>
-                  </div>
+              {/* ── Tabs ── */}
+              <div ref={tabsRef} className="card-hs overflow-hidden">
+                <div className="grid grid-cols-5 border-b border-gray-100">
+                  {[
+                    { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
+                    { key: 'actividades', emoji: '🎨', label: 'Actividades' },
+                    { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
+                    { key: 'salud',       emoji: '🌡️', label: 'Salud'       },
+                    { key: 'incidentes',  emoji: '⚠️', label: 'Incidentes'  },
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setTabActivo(tab.key)}
+                      className={`flex flex-col items-center gap-1 py-3 text-xs font-bold transition-colors border-b-2 ${
+                        tabActivo === tab.key
+                          ? 'border-red-500 text-red-600 bg-red-50'
+                          : 'border-transparent text-gray-400 hover:text-gray-600'
+                      }`}
+                    >
+                      <span className="text-lg">{tab.emoji}</span>
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
-              )}
 
-              {/* Alimentación — 4 tiempos */}
-              {comidas.length > 0 && (
-                <Seccion titulo="Alimentación" emoji="🍽️">
-                  <div className="space-y-3">
-                    {[...comidas]
-                      .sort((a, b) => {
-                        const orden = ['desayuno', 'colacion', 'comida', 'comida_extra'];
-                        return orden.indexOf(a.tiempo) - orden.indexOf(b.tiempo);
-                      })
-                      .filter(c => {
-                        if (c.tiempo === 'comida_extra') {
-                          return hijoActual?.tiene_extension || false;
-                        }
-                        return true;
-                      }).map((c, i) => (
-                      <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
-                        <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>
-                        {c.que_comio && <p className="text-sm font-semibold mb-1">{c.que_comio}</p>}
-                        <FilaInfo label="¿Cuánto?" valor={CUANTO[c.cuanto_comio]?.label} />
-                        {c.observaciones && <p className="text-xs text-gray-600 mt-2 italic">{c.observaciones}</p>}
+                <div className="p-4">
+
+                  {/* Comida */}
+                  {tabActivo === 'comida' && (
+                    comidas.length > 0 ? (
+                      <div className="space-y-3">
+                        {[...comidas]
+                          .sort((a, b) => ['desayuno','colacion','comida','comida_extra'].indexOf(a.tiempo) - ['desayuno','colacion','comida','comida_extra'].indexOf(b.tiempo))
+                          .filter(c => c.tiempo !== 'comida_extra' || hijoActual?.tiene_extension)
+                          .map((c, i) => (
+                            <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
+                              <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>
+                              {c.que_comio && <p className="text-sm font-semibold mb-1">{c.que_comio}</p>}
+                              <FilaInfo label="¿Cuánto?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} />
+                              {c.observaciones && <p className="text-xs text-gray-600 mt-2 italic">{c.observaciones}</p>}
+                            </div>
+                          ))}
                       </div>
-                    ))}
-                  </div>
-                </Seccion>
-              )}
+                    ) : <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin registro de alimentación</p>
+                  )}
 
-              {/* Actividades */}
-              {actividades && actividades.length > 0 && (
-                <Seccion titulo="Actividades" emoji="🎨">
-                  <div className="space-y-3">
-                    {actividades.map((act, i) => (
-                      <div key={i} className="rounded-xl border-2 border-purple-100 overflow-hidden">
-                        {act.foto_url && (
-                          <a href={act.foto_url} target="_blank" rel="noreferrer">
-                            <img src={act.foto_url} alt={act.descripcion} className="w-full h-40 object-cover hover:opacity-90 transition-opacity" />
-                          </a>
-                        )}
-                        <div className="p-3 space-y-2">
-                          {act.descripcion && (
-                            <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>
-                          )}
-                          {act.participo !== null && act.participo !== undefined && (
-                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                              act.participo
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-red-100 text-red-700'
-                            }`}>
-                              {act.participo ? '✓ Participó' : '✗ No participó'}
-                            </span>
-                          )}
+                  {/* Actividades */}
+                  {tabActivo === 'actividades' && (
+                    <div className="space-y-3">
+                      {bit?.actividad_realizada !== null && bit?.actividad_realizada !== undefined && (
+                        <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${
+                          bit.actividad_realizada ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                        }`}>
+                          <span className="text-xl">{bit.actividad_realizada ? '✓' : '✗'}</span>
+                          {bit.actividad_realizada ? 'Participó en actividades' : 'No participó en actividades'}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </Seccion>
-              )}
+                      )}
+                      {actividades.map((act, i) => (
+                        <div key={i} className="rounded-xl border-2 border-purple-100 overflow-hidden">
+                          {act.foto_url && (
+                            <a href={act.foto_url} target="_blank" rel="noreferrer">
+                              <img src={act.foto_url} alt={act.descripcion} className="w-full h-40 object-cover hover:opacity-90 transition-opacity" />
+                            </a>
+                          )}
+                          <div className="p-3 space-y-2">
+                            {act.descripcion && <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>}
+                            {act.participo !== null && act.participo !== undefined && (
+                              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                                act.participo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                              }`}>
+                                {act.participo ? '✓ Participó' : '✗ No participó'}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      {bit?.actividad_realizada === null && bit?.actividad_realizada === undefined && actividades.length === 0 && (
+                        <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin actividades registradas</p>
+                      )}
+                    </div>
+                  )}
 
-              {/* Comportamiento */}
-              {bit.comportamiento && (
-                <Seccion titulo="Comportamiento" emoji="🌟">
+                  {/* Higiene */}
+                  {tabActivo === 'higiene' && (
+                    <div className="space-y-3">
+                      {!usaPanial && banio && (
+                        <div className="flex gap-6 justify-center py-2">
+                          <div className="text-center">
+                            <p className="text-4xl font-black text-gray-800">{banio.pipi_count || 0}</p>
+                            <p className="text-sm font-bold text-gray-500 mt-1">Pipí 🚿</p>
+                          </div>
+                          <div className="text-center">
+                            <p className="text-4xl font-black text-gray-800">{banio.popo_count || 0}</p>
+                            <p className="text-sm font-bold text-gray-500 mt-1">Popó 💩</p>
+                          </div>
+                        </div>
+                      )}
+                      {panial.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-xs font-black text-gray-500 uppercase">👶🏻 Cambios de pañal</p>
+                          {panial.map((p, i) => (
+                            <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
+                              <span className="text-xs font-black text-purple-600 w-12">
+                                {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              <span className="text-sm font-semibold text-gray-700">
+                                {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
+                                {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {esf && (
+                        <div className="space-y-2">
+                          <p className="text-xs font-black text-gray-500 uppercase">🚽 Control de esfínteres</p>
+                          <div className="flex flex-wrap gap-2">
+                            <PildoraBool label="Fue solo/a"     valor={esf.fue_solo}      />
+                            <PildoraBool label="Pidió ir"       valor={esf.pidio_ir}       />
+                            <PildoraBool label="Accidente"      valor={esf.tuvo_accidente} />
+                            <PildoraBool label="Necesitó ayuda" valor={esf.necesito_ayuda} />
+                          </div>
+                          <FilaInfo label="Notas de progreso" valor={esf.notas_progreso} />
+                        </div>
+                      )}
+                      {!banio && panial.length === 0 && !esf && (
+                        <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin registros de higiene</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Salud */}
+                  {tabActivo === 'salud' && (
+                    <div className="space-y-3">
+                      {bit?.tuvo_fiebre && (
+                        <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
+                          <p className="text-sm font-bold text-red-700">
+                            🌡 Tuvo fiebre{bit.temperatura_dia ? ` — ${bit.temperatura_dia}°C` : ''}
+                          </p>
+                        </div>
+                      )}
+                      {bit?.se_enfermo && (
+                        <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
+                          <p className="text-sm font-bold text-red-700">
+                            ⚕️ {bit.descripcion_enfermedad || 'Presentó malestar'}
+                          </p>
+                        </div>
+                      )}
+                      {meds.length > 0 && (
+                        <div className="space-y-2">
+                          <p className="text-xs font-black text-gray-500 uppercase">💊 Medicamentos</p>
+                          {meds.map((m, i) => (
+                            <div key={i} className="bg-purple-50 rounded-xl p-3">
+                              <p className="font-black text-purple-800">{m.nombre}</p>
+                              <p className="text-xs text-purple-600 font-semibold mt-0.5">
+                                Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                              {m.notas && <p className="text-xs text-gray-500 mt-1">{m.notas}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {!bit?.tuvo_fiebre && !bit?.se_enfermo && meds.length === 0 && (
+                        <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin registros de salud</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Incidentes */}
+                  {tabActivo === 'incidentes' && (
+                    incidentes.length > 0 ? (
+                      <div className="space-y-3">
+                        {incidentes.map((inc, i) => (
+                          <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-2">
+                            <p className="text-sm font-black text-red-800">{inc.descripcion}</p>
+                            {inc.acciones_tomadas && <p className="text-xs text-red-600">Acciones: {inc.acciones_tomadas}</p>}
+                            {inc.fotos_urls?.length > 0 && (
+                              <div className="flex gap-2 flex-wrap">
+                                {inc.fotos_urls.map((url, j) => (
+                                  <a key={j} href={url} target="_blank" rel="noreferrer">
+                                    <img src={url} alt="Foto" className="w-16 h-16 object-cover rounded-lg border border-red-200" />
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                            <p className="text-xs text-red-400">
+                              {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                            {inc.firma_padre_url ? (
+                              <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-lg text-xs">
+                                <span className="text-sm">✅ Firmado</span>
+                                <span className="text-gray-500">{new Date(inc.firma_fecha).toLocaleDateString('es-MX')}</span>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setIncidenteFirmando(inc)}
+                                disabled={firmaMutation.isPending}
+                                className="w-full px-3 py-2 rounded-lg font-bold text-xs bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                              >
+                                {firmaMutation.isPending ? '⏳ Firmando...' : '✍️ Firmar para confirmar enterado'}
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin incidentes hoy ✅</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Conducta — siempre visible debajo de tabs */}
+              {bit?.comportamiento && (
+                <Seccion titulo="Conducta" emoji="🌟">
                   <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${COMPORTAMIENTO[bit.comportamiento]?.color}`}>
                     <span className="text-xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji}</span>
                     {COMPORTAMIENTO[bit.comportamiento]?.label}
@@ -407,133 +540,8 @@ export default function PadreBitacora() {
                 </Seccion>
               )}
 
-              {/* Baño (solo si NO usa pañal) */}
-              {!usaPanial && banio && (
-                <Seccion titulo="Baño" emoji="🚿">
-                  <div className="flex gap-6 justify-center py-2">
-                    <div className="text-center">
-                      <p className="text-4xl font-black text-gray-800">{banio.pipi_count || 0}</p>
-                      <p className="text-sm font-bold text-gray-500 mt-1">Pipí 🚿</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-4xl font-black text-gray-800">{banio.popo_count || 0}</p>
-                      <p className="text-sm font-bold text-gray-500 mt-1">Popó 💩</p>
-                    </div>
-                  </div>
-                </Seccion>
-              )}
-
-              {/* Pañal */}
-              {panial.length > 0 && (
-                <Seccion titulo="Cambios de pañal" emoji="👶🏻">
-                  <div className="space-y-2">
-                    {panial.map((p, i) => (
-                      <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                        <span className="text-xs font-black text-purple-600 w-12">
-                          {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                        <span className="text-sm font-semibold text-gray-700">
-                          {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
-                          {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </Seccion>
-              )}
-
-              {/* Esfínteres */}
-              {esf && (
-                <Seccion titulo="Control de esfínteres" emoji="🚽">
-                  <div className="flex flex-wrap gap-2">
-                    <PildoraBool label="Fue solo/a"     valor={esf.fue_solo}          />
-                    <PildoraBool label="Pidió ir"       valor={esf.pidio_ir}           />
-                    <PildoraBool label="Accidente"      valor={esf.tuvo_accidente}     />
-                    <PildoraBool label="Necesitó ayuda" valor={esf.necesito_ayuda}     />
-                  </div>
-                  <FilaInfo label="Notas de progreso" valor={esf.notas_progreso} />
-                </Seccion>
-              )}
-
-              {/* Salud */}
-              {(bit.tuvo_fiebre || bit.se_enfermo) && (
-                <Seccion titulo="Salud" emoji="🌡️">
-                  {bit.tuvo_fiebre && (
-                    <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
-                      <p className="text-sm font-bold text-red-700">
-                        🌡 Tuvo fiebre{bit.temperatura_dia ? ` — ${bit.temperatura_dia}°C` : ''}
-                      </p>
-                    </div>
-                  )}
-                  {bit.se_enfermo && (
-                    <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
-                      <p className="text-sm font-bold text-red-700">
-                        ⚕️ {bit.descripcion_enfermedad || 'Presentó malestar'}
-                      </p>
-                    </div>
-                  )}
-                </Seccion>
-              )}
-
-              {/* Medicamentos */}
-              {meds.length > 0 && (
-                <Seccion titulo="Medicamentos" emoji="💊">
-                  {meds.map((m, i) => (
-                    <div key={i} className="bg-purple-50 rounded-xl p-3">
-                      <p className="font-black text-purple-800">{m.nombre}</p>
-                      <p className="text-xs text-purple-600 font-semibold mt-0.5">
-                        Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                      {m.notas && <p className="text-xs text-gray-500 mt-1">{m.notas}</p>}
-                    </div>
-                  ))}
-                </Seccion>
-              )}
-
-              {/* Incidentes */}
-              {incidentes.length > 0 && (
-                <Seccion titulo="Incidentes del día" emoji="⚠️">
-                  {incidentes.map((inc, i) => (
-                    <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-2">
-                      <p className="text-sm font-black text-red-800">{inc.descripcion}</p>
-                      {inc.acciones_tomadas && (
-                        <p className="text-xs text-red-600">Acciones: {inc.acciones_tomadas}</p>
-                      )}
-                      {inc.fotos_urls?.length > 0 && (
-                        <div className="flex gap-2 flex-wrap">
-                          {inc.fotos_urls.map((url, j) => (
-                            <a key={j} href={url} target="_blank" rel="noreferrer">
-                              <img src={url} alt="Foto" className="w-16 h-16 object-cover rounded-lg border border-red-200" />
-                            </a>
-                          ))}
-                        </div>
-                      )}
-                      <p className="text-xs text-red-400">
-                        {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                      {inc.firma_padre_url ? (
-                        <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-lg text-xs">
-                          <span className="text-sm">✅ Firmado</span>
-                          <span className="text-gray-500">
-                            {new Date(inc.firma_fecha).toLocaleDateString('es-MX')}
-                          </span>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => setIncidenteFirmando(inc)}
-                          disabled={firmaMutation.isPending}
-                          className="w-full px-3 py-2 rounded-lg font-bold text-xs bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
-                        >
-                          {firmaMutation.isPending ? '⏳ Firmando...' : '✍️ Firmar para confirmar enterado'}
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </Seccion>
-              )}
-
-              {/* Notas */}
-              {bit.notas && (
+              {/* Notas de la maestra — siempre visibles */}
+              {bit?.notas && (
                 <Seccion titulo="Mensaje de la maestra" emoji="💬">
                   <p className="text-sm text-gray-600 italic bg-yellow-50 rounded-xl p-3 leading-relaxed">
                     {bit.notas}

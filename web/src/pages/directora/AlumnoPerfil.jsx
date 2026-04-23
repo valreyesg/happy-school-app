@@ -271,7 +271,7 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
 
 // ─── Catálogos bitácora (solo lectura) ───────────────────────────────────────
 const ANIMO_LABEL   = { feliz:'😊 Feliz', activo:'⚡ Activo', cansado:'😴 Cansado', triste:'😢 Triste', irritable:'😤 Irritable' };
-const CUANTO_LABEL  = { todo:'🍽️ Todo', casi_todo:'🥢 Casi todo', poco:'🍱 Poco', no_comio:'🚫 No comió' };
+const CUANTO_LABEL  = { todo:'😋 Todo', casi_todo:'😊 Casi todo', poco:'😐 Poco', no_comio:'❌ No comió' };
 const COMP_LABEL    = { muy_bien:'⭐ Muy bien', bien:'👍 Bien', necesita_mejorar:'⚠️ A mejorar' };
 const PANIAL_LABEL  = { limpio:'✅ Limpio', orina:'💧 Pipí', heces:'💩 Popó', mixto:'🔄 Mixto' };
 

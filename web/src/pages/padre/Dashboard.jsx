@@ -1,15 +1,26 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, CreditCard, CalendarDays } from 'lucide-react';
+import { BookOpen, CreditCard, CalendarDays, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
+function proximos3Dias() {
+  const hoy = new Date();
+  const hasta = new Date(hoy);
+  hasta.setDate(hoy.getDate() + 3);
+  return {
+    desde: hoy.toISOString().substring(0, 10),
+    hasta: hasta.toISOString().substring(0, 10),
+  };
+}
+
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
-const EMOJIS_COMIDA = { todo: '🍽️', casi_todo: '🥢', poco: '🍱', no_comio: '❌' };
+const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 const COMPORTAMIENTO = {
-  muy_bien:        { emoji: '⭐' },
-  bien:            { emoji: '👍' },
-  necesita_mejorar:{ emoji: '⚠️' },
+  muy_bien:         { emoji: '⭐', label: 'Excelente', bg: 'bg-green-100',  text: 'text-green-700'  },
+  bien:             { emoji: '👍', label: 'Bien',      bg: 'bg-blue-100',   text: 'text-blue-700'   },
+  necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  bg: 'bg-orange-100', text: 'text-orange-700' },
 };
 
 function HijoCard({ hijo }) {
@@ -36,26 +47,49 @@ function HijoCard({ hijo }) {
 
       {/* Bitácora del día */}
       {bit ? (
-        <div className="p-5">
-          <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-3">Bitácora de hoy</p>
-          <div className="grid grid-cols-4 gap-2 mb-4 text-center">
-            <div>
-              <div className="text-3xl">{EMOJIS_ANIMO[bit.estado_animo] || '🤔'}</div>
-              <p className="text-xs font-semibold text-gray-400 mt-1">Ánimo</p>
+        <div className="p-5 space-y-3">
+          {/* Ánimo + Conducta + Fiebre + Incidente - mismo nivel */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Ánimo */}
+            <div className="flex flex-col items-center gap-2">
+              <span className="text-5xl">{EMOJIS_ANIMO[bit.estado_animo] || '🤔'}</span>
+              <div className="text-center">
+                <p className="text-xs font-black text-gray-400 uppercase tracking-wide">Ánimo</p>
+                <p className="text-sm font-bold text-gray-700 capitalize">{bit.estado_animo?.replace('_', ' ') || '—'}</p>
+              </div>
             </div>
-            <div>
-              <div className="text-3xl">{EMOJIS_COMIDA[bit.cuanto_comio] || '🍽️'}</div>
-              <p className="text-xs font-semibold text-gray-400 mt-1">Comida</p>
-            </div>
-            <div>
-              <div className="text-3xl">{bit.actividad_realizada ? '🎨' : '❌'}</div>
-              <p className="text-xs font-semibold text-gray-400 mt-1">Actividades</p>
-            </div>
-            <div>
-              <div className="text-3xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji || '—'}</div>
-              <p className="text-xs font-semibold text-gray-400 mt-1">Conducta</p>
-            </div>
+
+            {/* Conducta */}
+            {bit.comportamiento && (
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-5xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji}</span>
+                <div className="text-center">
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-wide">Conducta</p>
+                  <p className="text-sm font-bold text-gray-700">{COMPORTAMIENTO[bit.comportamiento]?.label}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Fiebre */}
+            {bit.tuvo_fiebre && (
+              <div className="flex flex-col items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                <span className="text-3xl">🌡️</span>
+                <p className="text-xs font-black text-red-600">Tuvo fiebre</p>
+              </div>
+            )}
+
+            {/* Incidente */}
+            {bit.incidentes_sin_firmar > 0 && (
+              <div className="flex flex-col items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
+                <span className="text-3xl">⚠️</span>
+                <p className="text-xs font-black text-orange-600">
+                  {bit.incidentes_sin_firmar === 1 ? '1 incidente' : `${bit.incidentes_sin_firmar} incidentes`}
+                </p>
+              </div>
+            )}
           </div>
+
+          {/* Notas maestra */}
           {bit.notas && (
             <p className="text-sm text-gray-500 italic bg-yellow-50 rounded-xl px-3 py-2">
               💬 {bit.notas}
@@ -87,8 +121,63 @@ function saludoPadre(parentesco, nombre) {
   return `${base}, ${nombre?.split(' ')[0]}!`;
 }
 
+function ModalEvento({ ev, onClose }) {
+  if (!ev) return null;
+  const fechaInicio = new Date(ev.fecha_inicio.substring(0, 10) + 'T12:00:00');
+  const fechaFin = ev.fecha_fin ? new Date(ev.fecha_fin.substring(0, 10) + 'T12:00:00') : null;
+  const fmtFecha = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40" />
+      <div
+        className="relative bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md p-6 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+          <X size={20} />
+        </button>
+
+        {/* Ícono + categoría */}
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-4xl">{ev.categoria_icono || '📅'}</span>
+          <div>
+            {ev.categoria_nombre && (
+              <span className="text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: (ev.categoria_color || '#805AD5') + '20', color: ev.categoria_color || '#805AD5' }}>
+                {ev.categoria_nombre}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <h3 className="text-xl font-black text-gray-800 mb-2">{ev.titulo}</h3>
+
+        {/* Fecha */}
+        <p className="text-sm font-semibold text-blue-500 capitalize mb-1">
+          📆 {fmtFecha(fechaInicio)}
+          {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() && ` → ${fmtFecha(fechaFin)}`}
+        </p>
+
+        {/* Grupo */}
+        {ev.grupo_nombre && (
+          <p className="text-sm font-semibold text-gray-500 mb-3">👥 {ev.grupo_nombre}</p>
+        )}
+
+        {/* Descripción */}
+        {ev.descripcion && (
+          <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-2xl px-4 py-3 mt-3">
+            {ev.descripcion}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function PadreDashboard() {
   const { usuario } = useAuthStore();
+  const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const { data: hijos = [], isLoading } = useQuery({
@@ -96,8 +185,15 @@ export default function PadreDashboard() {
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
 
+  const { desde, hasta } = proximos3Dias();
+  const { data: eventosProximos = [] } = useQuery({
+    queryKey: ['eventos-proximos', desde],
+    queryFn: () => api.get(`/calendario?desde=${desde}&hasta=${hasta}`).then(r => r.data),
+  });
+
   return (
     <div className="space-y-6 animate-fade-in">
+      <ModalEvento ev={eventoSeleccionado} onClose={() => setEventoSeleccionado(null)} />
       <div>
         <h1 className="text-2xl font-black text-gray-800">
           {saludoPadre(usuario?.parentesco, usuario?.nombre)} 👨🏻‍👩🏻‍👧🏻
@@ -120,6 +216,33 @@ export default function PadreDashboard() {
           </Link>
         ))}
       </div>
+
+      {/* Próximos 3 días */}
+      {eventosProximos.length > 0 && (
+        <div>
+          <h2 className="text-base font-black text-gray-700 mb-3">📅 Próximos eventos</h2>
+          <div className="space-y-2">
+            {eventosProximos.map(ev => {
+              const fecha = new Date(ev.fecha_inicio.substring(0, 10) + 'T12:00:00');
+              const etiqueta = fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+              return (
+                <button
+                  key={ev.id}
+                  onClick={() => setEventoSeleccionado(ev)}
+                  className="card-hs px-4 py-3 flex items-center gap-3 border border-blue-100 w-full text-left hover:shadow-md hover:border-blue-300 transition-all"
+                >
+                  <span className="text-xl">{ev.categoria_icono || '📅'}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-gray-800 truncate">{ev.titulo}</p>
+                    <p className="text-xs font-semibold text-blue-500 capitalize">{etiqueta}</p>
+                  </div>
+                  <span className="text-gray-300 text-lg">›</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Mis hijos */}
       <div>

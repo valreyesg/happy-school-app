@@ -1,14 +1,42 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 47 completada → Sesión 48 próxima
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 48 completada (auditoría) → Sesión 49 próxima: implementar fixes
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 48 — Histórico + Notificaciones (PRÓXIMA)
+## 🔴 SESIÓN 48 — Auditoría: Bugs Críticos + Inconsistencias entre Portales (PRÓXIMA)
 
-### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
+> Resultado de auditoría completa Sesión 47. Tres tipos de trabajo: bugs que rompen funcionalidad hoy, inconsistencias silenciosas (datos incorrectos que no se ven), y eliminación de hardcodeados.
+
+### 🐛 FASE 1 — Bugs Críticos (funcionalidad rota hoy)
+
+- [ ] **Dashboard padre mobile — endpoint incorrecto:** `mobile/app/(padre)/index.jsx:94` llama `/alumnos?rol=padre` en vez de `/alumnos/mis-hijos`. El padre mobile nunca ve ánimo, conducta ni alertas del hijo porque el endpoint genérico no devuelve `bitacora_hoy`. Fix: cambiar a `api.get('/alumnos/mis-hijos')`.
+- [ ] **Comida desde mobile-maestra no llega al padre:** `mobile/app/(maestra)/bitacora.jsx:239` envía campos sueltos (`que_comio`, `cuanto_comio`, `observaciones_comida`). El backend solo procesa el array `comidas: [{ tiempo, que_comio, cuanto_comio, observaciones }]`. Fix: reestructurar formulario mobile de comida a modelo de 4 tiempos igual que web-maestra.
+- [ ] **QR no aparece en perfil de alumno:** `web/src/pages/directora/AlumnoPerfil.jsx:577` accede a `alumno.qr_url` pero el backend devuelve `alumno.qr_code_url`. Fix: renombrar a `qr_code_url`.
+- [ ] **Semáforo de documentación siempre "incompleta":** Frontend define `cartilla_vacuna` y `foto_3x4` como requeridos; backend busca `cartilla_vacunacion` y `foto_escolar`. Fix: unificar nombres en ambos lados para que coincidan exactamente.
+
+### ⚠️ FASE 2 — Inconsistencias Silenciosas (datos que se muestran mal)
+
+- [ ] **Comportamiento vacío en padre mobile:** `mobile/app/(padre)/bitacora.jsx:35-39` usa claves `excelente` y `bueno`. El backend guarda `muy_bien` y `bien` (que escribe la maestra). Fix: alinear claves a `muy_bien`, `bien`, `necesita_mejorar`.
+- [ ] **Ánimo siempre "🤔" en dashboard padre mobile:** `mobile/app/(padre)/index.jsx:21` usa `inquieto` y `energico` como claves, omitiendo `activo` e `irritable` que sí guarda la maestra. Fix: alinear a `feliz`, `activo`, `cansado`, `triste`, `irritable`.
+- [ ] **Emoji ✅ para "No comió" en maestra mobile:** `mobile/app/(maestra)/bitacora.jsx:275-280` usa ✅ para `no_comio` (semánticamente incorrecto) y emojis de comida oriental sin sentido. Fix: alinear con los otros portales: `😋 😊 😐 ❌`.
+- [ ] **Lógica de esfínteres frágil en mobile-maestra:** `mobile/app/(maestra)/bitacora.jsx:124-129` detecta el nivel buscando "kinder 1" como substring del nombre del grupo (frágil). Web-maestra usa el campo estructurado `nivel_codigo`. Fix: pasar `nivel_codigo` como parámetro a la pantalla y usar comparación estructurada.
+- [ ] **Semáforo de pagos con lógica diferente en cada portal:** Directora calcula por días de atraso (≥30=rojo, ≥60=suspendido), Padre por monto (>$1,000=rojo), Semaforo.jsx con otro umbral. Fix: calcular `semaforo` en backend y devolver el campo calculado; eliminar lógica local en los 3 frontends.
+
+### 🗂️ FASE 3 — Eliminar Hardcodeados (catálogos duplicados)
+
+- [ ] **Backend — endpoint `GET /catalogos/:tipo`:** Crear endpoint que devuelva catálogos dinámicos: `animo`, `comportamiento`, `cuanto-comio`, `tiempos-comida`, `condiciones-panial`, `niveles` (con `nivel_siguiente` y `requiere_control_esfinteres`), `roles-personal` (con `requiere_grupo`), `estados-alumno`, `tipos-documento` (con `requerido: boolean`), `metodos-pago`, `conceptos-pago`, `tipos-parentesco`.
+- [ ] **Web — reemplazar arrays hardcodeados:** `Bitacora.jsx` (maestra), `CiclosEscolares.jsx`, `Grupos.jsx` (fix inconsistencia `kinder_1` vs `kinder1`), `Personal.jsx`, `TurnoPuerta.jsx`, `Alumnos.jsx`, `AlumnoPerfil.jsx`, `Pagos.jsx` (directora y padre), `Dashboard.jsx` (padre).
+- [ ] **Mobile — reemplazar arrays hardcodeados:** `mobile/(padre)/bitacora.jsx`, `mobile/(padre)/index.jsx`, `mobile/(maestra)/bitacora.jsx`.
+- [ ] **IP hardcodeada en mobile:** `mobile/src/services/api.js` tiene `192.168.1.93:3000` fija. Fix: mover a variable de entorno `EXPO_PUBLIC_API_URL` en `mobile/.env` (agregar al `.gitignore`).
+
+---
+
+## 📍 SESIÓN 50 — Histórico + Notificaciones
+
+### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ (pendiente mover a Sesión 48 si se completa la auditoría antes)
 - [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados.
 - [ ] Aplica a: bitácora histórica, pagos históricos. Endpoint `GET /alumnos/:id/ciclos` ya existe en backend.
 

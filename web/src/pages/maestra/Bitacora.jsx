@@ -321,10 +321,35 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const [necesitaAyuda,       setNecesitaAyuda]       = useState(null);
   const [notasProgreso,       setNotasProgreso]       = useState('');
 
+  // Lunes de la semana para consultar menú y confirmación
+  const semanaLunes = (() => {
+    const d = new Date(fecha + 'T12:00:00');
+    const day = d.getDay(); // 0=dom, 1=lun...
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    return d.toLocaleDateString('en-CA');
+  })();
+
+  const [menuPrecargado, setMenuPrecargado] = useState(false);
+
   // Cargar datos existentes
   const { data, isLoading } = useQuery({
     queryKey: ['bitacora', alumno.id, fecha],
     queryFn: () => api.get(`/bitacora/${alumno.id}?fecha=${fecha}`).then(r => r.data),
+  });
+
+  // Menú de la semana
+  const { data: menuSemana } = useQuery({
+    queryKey: ['menu-semana', semanaLunes],
+    queryFn: () => api.get(`/comida/menu?semana=${semanaLunes}`).then(r => r.data),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // Confirmación de comida del alumno esta semana
+  const { data: confirmacionComida } = useQuery({
+    queryKey: ['confirmacion-comida', alumno.id, semanaLunes],
+    queryFn: () => api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaLunes}`).then(r => r.data).catch(() => null),
+    staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
@@ -373,6 +398,39 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
           };
         }
       });
+      // Precargar menú si: alumno tiene comida confirmada, hay menú publicado y el campo está vacío
+      const tieneComidaConfirmada = confirmacionComida?.confirmado === true;
+      const menuDiasPorTiempo = menuSemana?.dias_menu;
+
+      if (tieneComidaConfirmada && menuDiasPorTiempo) {
+        // Determinar día de la semana
+        const DIAS_KEY = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+        const diaSemana = DIAS_KEY[new Date(fecha + 'T12:00:00').getDay()];
+        const menuDia = menuDiasPorTiempo[diaSemana];
+
+        // Nivel del alumno
+        const nivelAlumno = (alumno.nivel_codigo || '').toLowerCase();
+
+        // Función para saber si un tiempo aplica al nivel del alumno
+        const tiempoAplica = (tiempo) => {
+          const niveles = menuDia?.[tiempo]?.niveles || [];
+          return niveles.includes('todos') || niveles.includes(nivelAlumno);
+        };
+
+        // Precargar cada tiempo del día si aplica al nivel
+        if (menuDia) {
+          ['desayuno','colacion','comida'].forEach(tiempo => {
+            if (!nuevasComidas[tiempo].que_comio && tiempoAplica(tiempo) && menuDia[tiempo]?.platillo) {
+              nuevasComidas[tiempo].que_comio = menuDia[tiempo].platillo;
+            }
+          });
+          setMenuPrecargado(true);
+        } else {
+          setMenuPrecargado(false);
+        }
+      } else {
+        setMenuPrecargado(false);
+      }
       setComidas(nuevasComidas);
     }
     if (data.esfinteres) {
@@ -383,7 +441,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       setNecesitaAyuda(data.esfinteres.necesito_ayuda ?? null);
       setNotasProgreso(data.esfinteres.notas_progreso || '');
     }
-  }, [data, alumno.id]);
+  }, [data, alumno.id, menuSemana, confirmacionComida]);
 
   // Medicamento
   const [medNombre, setMedNombre] = useState('');
@@ -629,6 +687,9 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                     {comidas[tiempoInfo.key]?.cuanto_comio ? CUANTO.find(c => c.key === comidas[tiempoInfo.key].cuanto_comio)?.label : '—'}
                   </p>
                 </div>
+                {menuPrecargado && comidas[tiempoInfo.key]?.que_comio && (
+                  <p className="text-xs text-purple-500 font-bold -mb-1">📋 Precargado del menú semanal — edita si es necesario</p>
+                )}
                 <textarea rows={2} placeholder={`¿Qué comió en ${tiempoInfo.label.toLowerCase()}?`}
                   value={comidas[tiempoInfo.key]?.que_comio || ''}
                   onChange={e => setComidas({ ...comidas, [tiempoInfo.key]: { ...comidas[tiempoInfo.key], que_comio: e.target.value } })}

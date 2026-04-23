@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -30,8 +31,6 @@ const ESTADO_PAGO = {
   cancelado: { bg: 'bg-gray-100 text-gray-500',     label: 'Cancelado' },
 };
 
-const METODOS = ['efectivo', 'transferencia', 'tarjeta'];
-const TIPOS_CONCEPTO = ['colegiatura', 'material', 'comida', 'extension', 'evento', 'otro'];
 
 function fmt(n) {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
@@ -56,7 +55,7 @@ function StatCard({ label, valor, sub, color }) {
 
 // ─── Modal Registrar Pago ─────────────────────────────────────────────────────
 
-function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
+function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClose, onSaved }) {
   const [grupoId, setGrupoId] = useState('');
 
   const { data: grupos = [] } = useQuery({
@@ -258,15 +257,15 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
           <div>
             <label className="block text-xs font-bold text-gray-600 mb-1">Método de pago</label>
             <div className="flex gap-2">
-              {METODOS.map(m => (
-                <button key={m} type="button"
-                  onClick={() => setForm(f => ({ ...f, metodo_pago: m }))}
+              {metodos.map(m => (
+                <button key={m.key} type="button"
+                  onClick={() => setForm(f => ({ ...f, metodo_pago: m.key }))}
                   className={`flex-1 py-2 rounded-xl text-sm font-bold capitalize transition-all ${
-                    form.metodo_pago === m
+                    form.metodo_pago === m.key
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}>
-                  {m}
+                  {m.label}
                 </button>
               ))}
             </div>
@@ -308,7 +307,7 @@ function ModalPago({ alumno, conceptos, mes, anio, onClose, onSaved }) {
 
 // ─── Modal Conceptos ──────────────────────────────────────────────────────────
 
-function ModalConceptos({ conceptos, onClose }) {
+function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
   const [form, setForm] = useState({ nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 });
   const [error, setError] = useState('');
   const qc = useQueryClient();
@@ -361,7 +360,7 @@ function ModalConceptos({ conceptos, onClose }) {
               <div>
                 <label className="text-xs font-bold text-gray-500 block mb-1">Tipo</label>
                 <select className="input-hs" value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
-                  {TIPOS_CONCEPTO.map(t => <option key={t} value={t}>{t}</option>)}
+                  {tiposConcepto.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
                 </select>
               </div>
               <div>
@@ -404,7 +403,7 @@ function ModalConceptos({ conceptos, onClose }) {
 
 // ─── Fila alumno en la tabla ──────────────────────────────────────────────────
 
-function FilaAlumno({ alumno, conceptos, mes, anio }) {
+function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   const [expandido, setExpandido] = useState(false);
   const [modalPago, setModalPago] = useState(false);
 
@@ -494,6 +493,8 @@ function FilaAlumno({ alumno, conceptos, mes, anio }) {
         <ModalPago
           alumno={{ id: alumno.id, nombre_completo: alumno.nombre_completo, foto_url: alumno.foto_url, grupo_nombre: alumno.grupo_nombre }}
           conceptos={conceptos}
+          metodos={metodos}
+          tiposConcepto={tiposConcepto}
           mes={mes}
           anio={anio}
           onClose={() => setModalPago(false)}
@@ -516,6 +517,9 @@ export default function PagosDirectora() {
   const [showModalConceptos, setShowModalConceptos] = useState(false);
   const [showModalPagoGlobal, setShowModalPagoGlobal] = useState(false);
   const qc = useQueryClient();
+
+  const { items: metodos }       = useCatalogo('metodos-pago');
+  const { items: tiposConcepto } = useCatalogo('conceptos-pago');
 
   const { data: dashboard } = useQuery({
     queryKey: ['pagos-dashboard', mes, anio],
@@ -773,7 +777,7 @@ export default function PagosDirectora() {
               </thead>
               <tbody>
                 {alumnos.map(alumno => (
-                  <FilaAlumno key={alumno.id} alumno={alumno} conceptos={conceptos} mes={mes} anio={anio} />
+                  <FilaAlumno key={alumno.id} alumno={alumno} conceptos={conceptos} metodos={metodos} tiposConcepto={tiposConcepto} mes={mes} anio={anio} />
                 ))}
               </tbody>
             </table>
@@ -782,13 +786,15 @@ export default function PagosDirectora() {
       </div>
 
       {showModalConceptos && (
-        <ModalConceptos conceptos={conceptos} onClose={() => setShowModalConceptos(false)} />
+        <ModalConceptos conceptos={conceptos} tiposConcepto={tiposConcepto} onClose={() => setShowModalConceptos(false)} />
       )}
 
       {showModalPagoGlobal && (
         <ModalPago
           alumno={null}
           conceptos={conceptos}
+          metodos={metodos}
+          tiposConcepto={tiposConcepto}
           mes={mes}
           anio={anio}
           onClose={() => setShowModalPagoGlobal(false)}

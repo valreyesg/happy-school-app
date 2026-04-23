@@ -3,19 +3,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DoorOpen, X, Plus, Sun, Moon } from 'lucide-react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
-
-const ROL_LABEL = {
-  maestra_titular:  'Miss titular',
-  maestra_especial: 'Miss especial',
-  maestra_puerta:   'Miss puerta',
-  administrativo:   'Administrativo',
-};
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 export default function TurnoPuerta() {
   const [fecha, setFecha] = useState(new Date().toLocaleDateString('en-CA'));
   const [turnoVista, setTurnoVista] = useState('entrada');
   const [modoSemana, setModoSemana] = useState(false);
   const queryClient = useQueryClient();
+
+  const { map: rolMap } = useCatalogo('roles-personal');
 
   const { data: turnos = [], isLoading } = useQuery({
     queryKey: ['turnos-puerta', fecha],
@@ -148,7 +144,7 @@ export default function TurnoPuerta() {
                 </div>
                 <div className="flex-1">
                   <p className="font-black text-gray-800">{t.nombre}</p>
-                  <p className="text-xs text-gray-400 font-semibold">{ROL_LABEL[t.rol_principal] || t.rol_principal}</p>
+                  <p className="text-xs text-gray-400 font-semibold">{rolMap[t.rol_principal]?.label || t.rol_principal}</p>
                 </div>
                 <button
                   onClick={() => eliminar.mutate(t.id)}
@@ -177,7 +173,7 @@ export default function TurnoPuerta() {
                 </div>
                 <div className="flex-1">
                   <p className="font-black text-gray-800">{p.nombre}</p>
-                  <p className="text-xs text-gray-400 font-semibold">{ROL_LABEL[p.rol_principal] || p.rol_principal}</p>
+                  <p className="text-xs text-gray-400 font-semibold">{rolMap[p.rol_principal]?.label || p.rol_principal}</p>
                 </div>
                 <div className="flex gap-2">
                   <button

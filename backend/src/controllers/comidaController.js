@@ -22,13 +22,23 @@ exports.getMenu = async (req, res) => {
 // Crear/actualizar menú (directora/admin)
 exports.crearOActualizarMenu = async (req, res) => {
   try {
-    const { semana_inicio, contenido_texto } = req.body;
+    const { semana_inicio, contenido_texto, dias_menu: dias_menu_str } = req.body;
     const usuario_id = req.user.id;
 
     if (!semana_inicio) return res.status(400).json({ error: 'semana_inicio requerida' });
 
     let archivo_url = null;
     let archivo_public_id = null;
+    let dias_menu = null;
+
+    // Parsear dias_menu si viene como string
+    if (dias_menu_str) {
+      try {
+        dias_menu = typeof dias_menu_str === 'string' ? JSON.parse(dias_menu_str) : dias_menu_str;
+      } catch (e) {
+        return res.status(400).json({ error: 'dias_menu inválido — debe ser JSON válido' });
+      }
+    }
 
     if (req.file) {
       const upload = await cloudinaryService.uploadToCloudinary(req.file.buffer, {
@@ -41,13 +51,14 @@ exports.crearOActualizarMenu = async (req, res) => {
 
     const sql = `
       INSERT INTO menu_comida_semanal
-        (semana_inicio, contenido_texto, archivo_menu_url, archivo_menu_public_id, publicado, creado_por)
-      VALUES ($1, $2, $3, $4, true, $5)
+        (semana_inicio, contenido_texto, dias_menu, archivo_menu_url, archivo_menu_public_id, publicado, creado_por)
+      VALUES ($1, $2, $3, $4, $5, true, $6)
       ON CONFLICT (semana_inicio)
       DO UPDATE SET
         contenido_texto = COALESCE($2, menu_comida_semanal.contenido_texto),
-        archivo_menu_url = COALESCE($3, menu_comida_semanal.archivo_menu_url),
-        archivo_menu_public_id = COALESCE($4, menu_comida_semanal.archivo_menu_public_id),
+        dias_menu = COALESCE($3, menu_comida_semanal.dias_menu),
+        archivo_menu_url = COALESCE($4, menu_comida_semanal.archivo_menu_url),
+        archivo_menu_public_id = COALESCE($5, menu_comida_semanal.archivo_menu_public_id),
         publicado = true,
         updated_at = NOW()
       RETURNING *
@@ -56,6 +67,7 @@ exports.crearOActualizarMenu = async (req, res) => {
     const result = await query(sql, [
       semana_inicio,
       contenido_texto,
+      dias_menu ? JSON.stringify(dias_menu) : null,
       archivo_url,
       archivo_public_id,
       usuario_id

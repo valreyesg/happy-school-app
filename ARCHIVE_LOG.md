@@ -1,7 +1,34 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 53
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 54
+
+---
+
+## ✅ SESIÓN 54 — Menú estructurado + catálogos migrados + precarga bitácora
+
+**Fecha:** 2026-04-23
+
+### Completado
+
+- **`Pagos.jsx` (Directora):** Eliminados arrays hardcoded `METODOS` y `TIPOS_CONCEPTO`. Migrados a `useCatalogo('metodos-pago')` y `useCatalogo('conceptos-pago')`. Props propagados a `ModalPago`, `ModalConceptos` y `FilaAlumno`.
+
+- **`TurnoPuerta.jsx`:** Eliminado objeto `ROL_LABEL` hardcodeado. Migrado a `useCatalogo('roles-personal')` usando `rolMap[key]?.label`.
+
+- **Menú semanal estructurado (BD + Backend + 3 portales):**
+  - BD: nueva columna `dias_menu jsonb` en `menu_comida_semanal`
+  - Backend `comidaController.js`: recibe, parsea y guarda `dias_menu`
+  - `ServicioComida.jsx` (Directora): `ModalSubirMenu` reemplazado por grilla 5 días × 3 tiempos (desayuno, colación, comida) con selector de niveles expand/collapse. Default colación = Maternal (editable). Niveles cargados dinámicamente del backend. Preview estructurado en pantalla.
+  - `Bitacora.jsx` (Maestra): precarga `que_comio` por día y nivel del alumno. Maternal ve 3 tiempos, Kinder ve 2 (sin colación). Indicador 📋 en campos precargados.
+  - Menú existente (texto) se puede migrar al nuevo formato desde el modal — precarga `dias_menu` si ya existe.
+
+### Datos de prueba creados
+- Alumna: **Sofía Reyes Mendoza** — Grupo Maternal, comida confirmada y pagada semana 20-abr-2026
+- Papá: `papa.sofia.maternal@happyschool.edu.mx` / `happy2024`
+
+### Bugs detectados (→ Sesión 55)
+- Dashboard miss → bitácora sin entrada: fix anterior no funciona, reaparece formulario de entrada
+- Servicio Comida / Pagos: falta nivel del alumno y totalizados por método de pago
 
 ---
 

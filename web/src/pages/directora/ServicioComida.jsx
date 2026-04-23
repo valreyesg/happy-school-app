@@ -1,8 +1,23 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { UtensilsCrossed, ChevronLeft, ChevronRight, ImageOff, CreditCard } from 'lucide-react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
+
+const DIAS_NOMBRE = ['lunes','martes','miercoles','jueves','viernes'];
+const DIAS_LABEL  = { lunes:'Lunes', martes:'Martes', miercoles:'Miércoles', jueves:'Jueves', viernes:'Viernes' };
+const TIEMPOS     = ['desayuno','colacion','comida'];
+const TIEMPOS_LABEL = { desayuno:'🌅 Desayuno', colacion:'🥤 Colación', comida:'🍽️ Comida' };
+
+function diasVacios() {
+  return {
+    lunes:     { desayuno:{platillo:'',niveles:['todos']}, colacion:{platillo:'',niveles:['maternal']}, comida:{platillo:'',niveles:['todos']} },
+    martes:    { desayuno:{platillo:'',niveles:['todos']}, colacion:{platillo:'',niveles:['maternal']}, comida:{platillo:'',niveles:['todos']} },
+    miercoles: { desayuno:{platillo:'',niveles:['todos']}, colacion:{platillo:'',niveles:['maternal']}, comida:{platillo:'',niveles:['todos']} },
+    jueves:    { desayuno:{platillo:'',niveles:['todos']}, colacion:{platillo:'',niveles:['maternal']}, comida:{platillo:'',niveles:['todos']} },
+    viernes:   { desayuno:{platillo:'',niveles:['todos']}, colacion:{platillo:'',niveles:['maternal']}, comida:{platillo:'',niveles:['todos']} },
+  };
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -26,11 +41,38 @@ const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
 
 // ─── Modal Subir Menú ─────────────────────────────────────────────────────
 
-function ModalSubirMenu({ semana, onClose, onSaved }) {
-  const [contenidoTexto, setContenidoTexto] = useState('');
+function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
+  const [dias, setDias] = useState(() => {
+    if (menuExistente?.dias_menu) {
+      // Mezclar con vacíos por si faltan días/tiempos en el menú existente
+      const base = diasVacios();
+      for (const dia of DIAS_NOMBRE) {
+        for (const tiempo of TIEMPOS) {
+          if (menuExistente.dias_menu[dia]?.[tiempo]) {
+            base[dia][tiempo] = menuExistente.dias_menu[dia][tiempo];
+          }
+        }
+      }
+      return base;
+    }
+    return diasVacios();
+  });
   const [archivo, setArchivo] = useState(null);
   const [error, setError] = useState('');
   const qc = useQueryClient();
+
+  const { data: grupos = [] } = useQuery({
+    queryKey: ['grupos'],
+    queryFn: () => api.get('/grupos').then(r => r.data),
+  });
+
+  const nivelesUnicos = useMemo(() => {
+    const vistos = new Set();
+    return grupos
+      .map(g => g.nivel)
+      .filter(n => n && !vistos.has(n) && vistos.add(n))
+      .sort();
+  }, [grupos]);
 
   const subirMenu = useMutation({
     mutationFn: (formData) => api.post('/comida/menu', formData, {
@@ -39,7 +81,7 @@ function ModalSubirMenu({ semana, onClose, onSaved }) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['comida-menu', semana] });
       toast.success('✅ Menú guardado');
-      setContenidoTexto('');
+      setDias(diasVacios());
       setArchivo(null);
       onClose();
       onSaved?.();
@@ -51,55 +93,126 @@ function ModalSubirMenu({ semana, onClose, onSaved }) {
     },
   });
 
+  // expandido: Set de claves "dia-tiempo" que tienen el selector abierto
+  const [expandido, setExpandido] = useState(new Set());
+
+  const toggleExpandido = (dia, tiempo) => {
+    const key = `${dia}-${tiempo}`;
+    setExpandido(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  const setPlatillo = (dia, tiempo, platillo) =>
+    setDias(prev => ({ ...prev, [dia]: { ...prev[dia], [tiempo]: { ...prev[dia][tiempo], platillo } } }));
+
+  const elegirNivel = (dia, tiempo, nivel) => {
+    const actuales = dias[dia][tiempo].niveles;
+    let nuevo;
+    if (nivel === 'todos') {
+      nuevo = ['todos'];
+    } else {
+      const sinTodos = actuales.filter(n => n !== 'todos');
+      nuevo = sinTodos.includes(nivel)
+        ? sinTodos.filter(n => n !== nivel)
+        : [...sinTodos, nivel];
+      if (!nuevo.length) nuevo = ['todos'];
+    }
+    setDias(prev => ({ ...prev, [dia]: { ...prev[dia], [tiempo]: { ...prev[dia][tiempo], niveles: nuevo } } }));
+    // Colapsar al elegir
+    setExpandido(prev => { const next = new Set(prev); next.delete(`${dia}-${tiempo}`); return next; });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!contenidoTexto && !archivo) {
-      setError('Debes ingresar contenido o subir un archivo');
+    const hayPlatillo = DIAS_NOMBRE.some(d => TIEMPOS.some(t => dias[d][t].platillo.trim()));
+    if (!hayPlatillo && !archivo) {
+      setError('Ingresa al menos un platillo o sube un archivo');
       return;
     }
     const formData = new FormData();
     formData.append('semana_inicio', semana);
-    formData.append('contenido_texto', contenidoTexto);
+    formData.append('dias_menu', JSON.stringify(dias));
     if (archivo) formData.append('archivo', archivo);
     subirMenu.mutate(formData);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl animate-fade-in max-h-[92vh] flex flex-col">
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b">
-          <h3 className="text-lg font-black text-gray-800">Subir Menú</h3>
+          <h3 className="text-lg font-black text-gray-800">📋 Capturar Menú Semanal</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
           {error && <p className="text-red-600 text-sm font-semibold bg-red-50 p-3 rounded-lg">{error}</p>}
 
-          <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1">Contenido (Texto) *</label>
-            <textarea
-              className="input-hs resize-none font-mono text-sm"
-              rows={4}
-              placeholder="Lunes: Desayuno... Comida...&#10;Martes: ..."
-              value={contenidoTexto}
-              onChange={e => setContenidoTexto(e.target.value)}
-            />
-          </div>
+          {DIAS_NOMBRE.map(dia => (
+            <div key={dia} className="border-2 border-purple-100 rounded-xl p-4 space-y-3 bg-purple-50/40">
+              <h4 className="text-sm font-black text-purple-700">{DIAS_LABEL[dia]}</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {TIEMPOS.map(tiempo => (
+                  <div key={tiempo} className="space-y-1.5">
+                    <p className="text-xs font-bold text-gray-600">{TIEMPOS_LABEL[tiempo]}</p>
+                    <input
+                      type="text"
+                      placeholder="Platillo…"
+                      value={dias[dia][tiempo].platillo}
+                      onChange={e => setPlatillo(dia, tiempo, e.target.value)}
+                      className="input-hs text-sm py-1.5"
+                    />
+                    <div className="flex flex-wrap gap-1">
+                      {(() => {
+                        const key = `${dia}-${tiempo}`;
+                        const abierto = expandido.has(key);
+                        const nivActuales = dias[dia][tiempo].niveles;
+                        const etiqueta = nivActuales.includes('todos')
+                          ? 'Todos'
+                          : nivActuales.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ');
+                        if (!abierto) return (
+                          <button type="button"
+                            onClick={() => toggleExpandido(dia, tiempo)}
+                            className="px-2 py-0.5 rounded-lg text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-all">
+                            {etiqueta} ▾
+                          </button>
+                        );
+                        return (
+                          <>
+                            <button type="button"
+                              onClick={() => elegirNivel(dia, tiempo, 'todos')}
+                              className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${nivActuales.includes('todos') ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                              Todos
+                            </button>
+                            {nivelesUnicos.map(nivel => (
+                              <button key={nivel} type="button"
+                                onClick={() => elegirNivel(dia, tiempo, nivel.toLowerCase())}
+                                className={`px-2 py-0.5 rounded-lg text-xs font-bold capitalize transition-all ${nivActuales.includes(nivel.toLowerCase()) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                {nivel}
+                              </button>
+                            ))}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
 
           <div>
-            <label className="block text-xs font-bold text-gray-600 mb-1">Archivo (Imagen/PDF)</label>
-            <input
-              type="file"
-              className="input-hs"
-              accept="image/*,.pdf"
-              onChange={e => setArchivo(e.target.files?.[0] || null)}
-            />
-            {archivo && <p className="text-xs text-green-600 font-bold mt-2">✅ {archivo.name}</p>}
+            <label className="block text-xs font-bold text-gray-600 mb-1">Archivo adicional (Imagen/PDF)</label>
+            <input type="file" className="input-hs" accept="image/*,.pdf"
+              onChange={e => setArchivo(e.target.files?.[0] || null)} />
+            {archivo && <p className="text-xs text-green-600 font-bold mt-1">✅ {archivo.name}</p>}
           </div>
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
             <button type="submit" disabled={subirMenu.isPending} className="flex-1 py-3 rounded-xl bg-hs-purple hover:bg-purple-700 text-white font-black disabled:opacity-50">
-              {subirMenu.isPending ? '⏳ Guardando…' : '✅ Guardar'}
+              {subirMenu.isPending ? '⏳ Guardando…' : '✅ Guardar menú'}
             </button>
           </div>
         </form>
@@ -324,12 +437,31 @@ export default function ServicioComida() {
       {tab === 'menu' && (
         <div className="card-hs p-4">
           <h2 className="text-sm font-black text-gray-500 uppercase tracking-wider mb-3">Menú de la semana</h2>
-          {menu && (menu.archivo_menu_url || menu.contenido_texto) ? (
+          {menu && (menu.archivo_menu_url || menu.contenido_texto || menu.dias_menu) ? (
             <div className="space-y-3">
               {menu.archivo_menu_url && (
                 <img src={menu.archivo_menu_url} alt="Menú" className="rounded-xl w-full object-cover max-h-72" />
               )}
-              {menu.contenido_texto && (
+              {menu.dias_menu ? (
+                <div className="space-y-2">
+                  {DIAS_NOMBRE.map(dia => (
+                    <div key={dia} className="bg-gray-50 rounded-xl p-3">
+                      <p className="text-xs font-black text-purple-700 uppercase mb-2">{DIAS_LABEL[dia]}</p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {TIEMPOS.map(t => menu.dias_menu[dia]?.[t]?.platillo ? (
+                          <div key={t}>
+                            <p className="text-xs font-bold text-gray-400">{TIEMPOS_LABEL[t]}</p>
+                            <p className="text-sm font-semibold text-gray-800">{menu.dias_menu[dia][t].platillo}</p>
+                            {!menu.dias_menu[dia][t].niveles?.includes('todos') && (
+                              <p className="text-xs text-purple-500 font-semibold capitalize">{menu.dias_menu[dia][t].niveles?.join(', ')}</p>
+                            )}
+                          </div>
+                        ) : null)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : menu.contenido_texto && (
                 <pre className="text-sm text-gray-700 font-mono whitespace-pre-wrap bg-gray-50 rounded-xl p-4">
                   {menu.contenido_texto}
                 </pre>
@@ -348,7 +480,7 @@ export default function ServicioComida() {
       )}
 
       {showFormMenu && (
-        <ModalSubirMenu semana={semana} onClose={() => setShowFormMenu(false)} onSaved={() => qc.invalidateQueries({ queryKey: ['comida-menu', semana] })} />
+        <ModalSubirMenu semana={semana} menuExistente={menu} onClose={() => setShowFormMenu(false)} onSaved={() => qc.invalidateQueries({ queryKey: ['comida-menu', semana] })} />
       )}
     </div>
   );

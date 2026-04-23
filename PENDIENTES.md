@@ -1,17 +1,22 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 53 COMPLETADA — bugs post-FASE 3 corregidos
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 54 COMPLETADA — menú estructurado + catálogos migrados
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 54 (PRÓXIMA) — Deuda FASE 3 + Dashboard + Histórico
+## 📍 SESIÓN 55 (PRÓXIMA) — Bugs dashboard miss + Servicio Comida
 
-### 🗂️ FASE 3 — Pendientes (completar)
-- [ ] **Web — `Pagos.jsx`:** Migrar `METODOS` y `TIPOS_CONCEPTO` a `useCatalogo`.
-- [ ] **Web — `TurnoPuerta.jsx`:** Migrar `ROL_LABEL` a `useCatalogo('roles-personal')`.
-- [ ] **Bitácora — Precargar menú del día:** Si el alumno tiene servicio de comida contratado y hay menú publicado para esa fecha, precargar el campo `que_comio` de cada tiempo con el platillo del menú. Requiere: verificar servicio contratado del alumno, consultar tabla de menús del día, precargar en `FormBitacora` antes de que la miss edite.
+### 🐛 BUG — Dashboard Miss → Bitácora sin entrada registrada
+- [ ] **Bug crítico:** Desde el dashboard de la miss, al entrar a la bitácora de un alumno sin entrada registrada, aparece el formulario de captura de entrada. El fix anterior no está funcionando. **Regla:** Solo se puede registrar bitácora y salida a alumnos que tienen entrada registrada ese día. Si no hay entrada, mostrar mensaje informativo y bloquear el formulario.
+
+### 🍽️ Servicio Comida — Vista Pagos (Directora)
+- [ ] **Nivel en lista de alumnos:** En la tabla de "Pagos del servicio", agregar columna o badge con el nivel del alumno (Maternal, Prekinder, Kinder 1, etc.).
+- [ ] **Totalizados por método de pago:** Agregar resumen al tope o pie de la tabla con: Total recibido por transferencia, Total recibido en efectivo, Gran total.
+
+---
+
 
 ### 📊 DASHBOARD MAESTRA — Card "No entraron por retardos"
 - [ ] **Dashboard Miss — Card faltante:** Agregar card "Sin entrada por retardos acumulados" para que la suma de todas las cards cuadre con el total de alumnos del grupo. Actualmente existen: En escuela, Retardos, Ausentes, Bitácoras guardadas. Falta: alumnos que acumularon retardos suficientes para no poder entrar ese día.

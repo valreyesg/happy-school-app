@@ -26,7 +26,35 @@
   - ✅ Carga ciclos desde GET `/alumnos/:id/ciclos`
   - ✅ Muestra ciclo actual destacado por defecto
   - ✅ Preparado para filtro histórico en próxima iteración
-- [ ] **Próxima iteración:** Actualizar endpoint bitácora para aceptar `ciclo_id` + rango de fechas del ciclo
+- [ ] **Fase 2 — Filtro de bitácora por ciclo:** El selector existe en UI pero NO filtra bitácora
+  - Requiere: actualizar endpoint `/bitacora/:alumnoId` para aceptar `ciclo_id` + retornar rango de fechas del ciclo
+  - Frontend: cambiar lógica de selector de fecha para navegar dentro del ciclo elegido
+
+---
+
+## 📍 SESIÓN 57 (PRÓXIMA) — BUGS + PROTOCOLO SÍNTOMAS
+
+### 🔴 BUG CRÍTICO: Rechazo por síntomas vs Retardo
+- [ ] **Santiago Gutierrez Mendoza:** No entró por fiebre + síntomas, pero vista dice "Retardo #1" (imposible)
+  - Revisar: `registro_entrada.puede_entrar`, `motivo_no_entrada`, `es_retardo` — hay inconsistencia
+  - **Impacta:** Todas las vistas (Miss, Papá, Directora) que reportan entrada
+
+### 🟠 ASISTENCIA MISS — Solo muestra un alumno incorrecto
+- [ ] **Dashboard `/maestra/asistencia`:** Mostrar solo alumnos del grupo de la miss
+  - Revisar filtro en endpoint o frontend query de asistencia
+  - Actualmente trae alumnos de otros grupos
+
+### 🟠 PROTOCOLO SÍNTOMAS — Alertas visuales
+- [ ] **Dashboard Directora + Miss (`/asistencia`):** Card ROJO para alumnos rechazados por síntomas/fiebre
+  - Propósito: activar protocolo de salud inmediato
+  - Mostrar: nombre, hora, motivo (fiebre 38.5°C / síntomas: tos, diarrea, etc.)
+
+### 👨‍👩‍👧 DASHBOARD PAPÁ — Visibilidad rechazo
+- [ ] **Dashboard Papá — Filtro entrada:** Cuando entrada rechazada, mostrar claramente:
+  - ✅ Motivo exacto (fiebre X°C / síntomas / retardos acumulados)
+  - ✅ Retardos acumulados en el mes (ej: "3/3 retardos — próxima entrada bloqueada")
+  - ✅ Advertencia visual roja si ya alcanzó límite
+- [ ] **Bitácora Papá:** Agregar sección de entrada con motivo (análogo a comida/salud/incidentes)
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
 - [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.

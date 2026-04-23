@@ -1,7 +1,47 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 55
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 56
+
+---
+
+## ✅ SESIÓN 56 — Entrada (Filtro) + Ciclos históricos + Fixes
+
+**Fecha:** 2026-04-23 | **Commits:** 8
+
+### Completado
+
+- **Dashboard Maestra — Card "Sin entrada (retardos)":**
+  - Endpoint `GET /grupos/mi-grupo/estadisticas/hoy` cuenta alumnos con `estado = 'no_entrada'` cuyo `motivo_no_entrada ILIKE '%retardo%'`
+  - Card nueva en grid de stats (5 columnas) con icono UserX, color naranja, refetch cada 30s
+  - Suma correcta: En escuela + Retardos + Ausentes + **Sin entrada (retardos)** + Bitácoras guardadas = Total
+
+- **Dashboard Papá — Filtro de entrada (Checklist sanitario):**
+  - Endpoint `GET /alumnos/mis-hijos` extendido con datos completos de `registro_entrada` (uñas, bata, agua, uniforme, termo, ojos, etc.)
+  - Card de hijo muestra: 🚪 ✅ Entrada autorizada / 🚪 🚫 Rechazada + motivo
+  - Grid visual 3×2 con checklist: `if (item === null || undefined) return null` para distinguir false (⚠️) de null
+  - **Fix:** Checklist siempre visible incluso si entrada rechazada, para que papá vea qué le faltó
+
+- **Dashboard Papá Bitácora — Selector de ciclo (Fase 1):**
+  - Carga ciclos desde `GET /alumnos/:id/ciclos` (actualizado a incluir ciclo actual del grupo + históricos via UNION)
+  - Selector con dropdown mostrando ciclo actual marcado con "(Actual)"
+  - UI preparada para Fase 2 (filtro de bitácora por ciclo)
+
+- **Fixes implementados:**
+  - `FiltroEntradaBadge`: cambiar `if (!item)` → `if (item === null || undefined)` para mostrar `false` como ⚠️
+  - `Bitacora.jsx` — Comida: agregar validación `if (c.cuanto_comio)` para evitar "undefined undefined"
+  - Endpoint `/alumnos/:id/ciclos`: UNION de inscripciones históricas + ciclo actual del grupo
+
+### Archivos modificados
+- `backend/src/routes/grupos.js` (nuevo endpoint estadísticas)
+- `backend/src/routes/alumnos.js` (extender mis-hijos + actualizar ciclos)
+- `web/src/pages/padre/Dashboard.jsx` (FiltroEntradaBadge + card entrada)
+- `web/src/pages/padre/Bitacora.jsx` (SelectorCiclo + validación comida)
+- `PENDIENTES.md` (actualizar estado)
+
+### Datos de prueba validados
+- Emilio Vega Sánchez (Prekinder) — Entrada autorizada pero faltó bata + agua → ✅ visible en checklist
+- Mamá: `mama.emilio@happyschool.edu.mx` / `happy2024`
 
 ---
 

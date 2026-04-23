@@ -245,7 +245,7 @@ function TarjetaAlumno({ alumno, onTap }) {
           <p className="text-xs text-gray-400 font-semibold flex items-center gap-1 mt-0.5">
             <Clock size={11} />
             {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-            {alumno.numero_retardo_mes > 0 && (
+            {alumno.numero_retardo_mes > 0 && alumno.estado_asistencia !== 'no_entrada' && (
               <span className="text-yellow-600 ml-1">Retardo #{alumno.numero_retardo_mes}</span>
             )}
           </p>

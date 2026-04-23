@@ -123,9 +123,10 @@ router.get('/mi-grupo', async (req, res, next) => {
       LIMIT 1
     `, [req.user.id]);
 
-    // Si no tiene grupo asignado como titular, buscar como especial
+    // Si no tiene grupo asignado como titular, buscar como especial filtrando por día de la semana
     let grupo = grupoResult.rows[0];
     if (!grupo) {
+      const diaSemana = new Date().getDay();
       const especResult = await query(`
         SELECT g.id, g.nombre, g.nivel, g.nivel_codigo, g.color_hex, g.cupo_maximo
         FROM asignaciones_grupo ag
@@ -135,9 +136,10 @@ router.get('/mi-grupo', async (req, res, next) => {
         WHERE p.usuario_id = $1
           AND ag.activo = true
           AND c.activo = true
-        ORDER BY ag.created_at DESC
+          AND ($2 = ANY(ag.dias_semana) OR ag.dias_semana IS NULL)
+        ORDER BY g.nombre
         LIMIT 1
-      `, [req.user.id]);
+      `, [req.user.id, diaSemana]);
       grupo = especResult.rows[0];
     }
 

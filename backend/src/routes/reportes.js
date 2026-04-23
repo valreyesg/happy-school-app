@@ -27,6 +27,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       docsPendientesResult,
       asistenciaPorGrupoResult,
       salidasAnticipadasResult,
+      rechazadosSintomasResult,
     ] = await Promise.all([
 
       // Total de alumnos inscritos en ciclo (activo o especificado)
@@ -142,6 +143,24 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         WHERE rs.fecha = $1
         ORDER BY g.nivel, g.nombre, rs.hora_salida
       `, [hoy]),
+
+      // Alumnos rechazados por síntomas/fiebre hoy
+      query(`
+        SELECT
+          a.nombre_completo,
+          g.nombre AS grupo_nombre,
+          re.temperatura,
+          re.motivo_no_entrada,
+          re.sin_fiebre,
+          re.sin_sintomas
+        FROM registro_entrada re
+        JOIN alumnos a ON re.alumno_id = a.id
+        LEFT JOIN grupos g ON a.grupo_id = g.id
+        WHERE re.fecha = $1
+          AND re.puede_entrar = false
+          AND (re.sin_fiebre = false OR re.temperatura > 37.5 OR re.sin_sintomas = false)
+        ORDER BY g.nombre, a.nombre_completo
+      `, [hoy]),
     ]);
 
     const pagos = pagosSemResult.rows[0];
@@ -162,6 +181,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       asistenciaPorGrupo:  asistenciaPorGrupoResult.rows,
       salidasHoy:          salidasAnticipadasResult.rows,
       salidasAnticipadas:  salidasAnticipadasResult.rows.filter(r => r.es_anticipada),
+      rechazadosSintomas:  rechazadosSintomasResult.rows,
     });
   } catch (err) { next(err); }
 });

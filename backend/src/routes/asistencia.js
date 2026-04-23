@@ -26,7 +26,7 @@ router.post('/entrada', async (req, res, next) => {
 
     const ahora = new Date();
     const horaActual = ahora.toLocaleTimeString('en-CA', { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hour12: false });
-    const esRetardo = horaActual > horaFin;
+    const llegoTarde = horaActual > horaFin;
 
     // Contar retardos del mes
     const mesActual = ahora.getMonth() + 1;
@@ -39,15 +39,12 @@ router.post('/entrada', async (req, res, next) => {
         AND EXTRACT(YEAR FROM created_at) = $3
     `, [alumno_id, mesActual, anioActual]);
 
-    const numRetardos = parseInt(retardosResult.rows[0].count) + (esRetardo ? 1 : 0);
+    const retardosMesActuales = parseInt(retardosResult.rows[0].count);
     let puedeEntrar = true;
     let motivoNoEntrada = null;
+    let esRetardo = false;
 
-    if (numRetardos > maxRetardos) {
-      puedeEntrar = false;
-      motivoNoEntrada = `${numRetardos}° retardo del mes — límite de ${maxRetardos} superado`;
-    }
-
+    // Evaluar síntomas/fiebre primero (prioridad máxima)
     if (!sin_fiebre || temperatura > 37.5) {
       puedeEntrar = false;
       motivoNoEntrada = `Fiebre detectada: ${temperatura}°C`;
@@ -56,6 +53,17 @@ router.post('/entrada', async (req, res, next) => {
     if (!sin_sintomas) {
       puedeEntrar = false;
       motivoNoEntrada = `Síntomas de enfermedad: ${sintomas_notas}`;
+    }
+
+    // Solo después, evaluar retardos si pasó el filtro de salud
+    if (puedeEntrar && llegoTarde) {
+      const numRetardos = retardosMesActuales + 1;
+      if (numRetardos > maxRetardos) {
+        puedeEntrar = false;
+        motivoNoEntrada = `${numRetardos}° retardo del mes — límite de ${maxRetardos} superado`;
+      } else {
+        esRetardo = true;
+      }
     }
 
     // Registrar entrada
@@ -72,7 +80,7 @@ router.post('/entrada', async (req, res, next) => {
         motivo_no_entrada=$16
       RETURNING *
     `, [
-      alumno_id, esRetardo, numRetardos,
+      alumno_id, esRetardo, esRetardo ? (retardosMesActuales + 1) : 0,
       uñas_cortadas, sin_lagañas, sin_fiebre, temperatura, sin_sintomas, sintomas_notas,
       panial_limpio, trae_uniforme, trae_bata, trae_termo, agua_suficiente,
       puedeEntrar, motivoNoEntrada, qr_escaneado || false, req.user.id,

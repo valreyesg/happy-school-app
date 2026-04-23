@@ -510,6 +510,33 @@ export default function DirectoraDashboard() {
         </div>
       )}
 
+      {/* Rechazados por síntomas/fiebre hoy */}
+      {resumen?.rechazadosSintomas?.length > 0 && (
+        <div className="card-hs border-2 border-red-400 bg-red-50">
+          <h2 className="text-lg font-black text-red-700 mb-4 flex items-center gap-2">
+            🚨 Rechazados por síntomas hoy ({resumen.rechazadosSintomas.length})
+          </h2>
+          <div className="space-y-3">
+            {resumen.rechazadosSintomas.map((alumno, i) => (
+              <div key={i} className="bg-white rounded-2xl p-4 border border-red-300 space-y-1">
+                <div className="flex items-center justify-between">
+                  <p className="font-black text-gray-800 text-sm">
+                    👧🏻 {alumno.nombre_completo}
+                    <span className="ml-2 text-xs font-bold text-gray-400">{alumno.grupo_nombre}</span>
+                  </p>
+                  {alumno.temperatura && (
+                    <span className="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded">
+                      {alumno.temperatura}°C
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm font-semibold text-red-700">{alumno.motivo_no_entrada}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Fila inferior */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <DocumentacionPorGrupo

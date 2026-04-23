@@ -237,6 +237,29 @@ export default function MaestraDashboard() {
         </Link>
       )}
 
+      {/* Banner rechazados por síntomas — alumnos del grupo */}
+      {(() => {
+        const alumnos = grupo?.alumnos || [];
+        const rechazados = alumnos.filter(a =>
+          a.puede_entrar === false &&
+          (a.sin_fiebre === false || a.temperatura > 37.5 || a.sin_sintomas === false)
+        );
+        return rechazados.length > 0 ? (
+          <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-4">
+            <p className="font-black text-red-800 text-sm flex items-center gap-2">
+              🚨 {rechazados.length} alumno{rechazados.length > 1 ? 's' : ''} rechazado{rechazados.length > 1 ? 's' : ''} por síntomas hoy
+            </p>
+            <div className="mt-2 space-y-1">
+              {rechazados.map(a => (
+                <p key={a.id} className="text-xs font-semibold text-red-700">
+                  · {a.nombre_completo.split(' ').slice(0, 2).join(' ')} — {a.motivo_no_entrada}
+                </p>
+              ))}
+            </div>
+          </div>
+        ) : null;
+      })()}
+
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy"      color="bg-green-500" />

@@ -235,7 +235,7 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
           {alumno.hora_entrada && (
             <p className="text-xs text-gray-400 font-semibold">
               🕐 {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-              {alumno.numero_retardo_mes > 0 && (
+              {alumno.numero_retardo_mes > 0 && alumno.estado_asistencia !== 'no_entrada' && (
                 <span className="ml-2 text-yellow-600">· Retardo #{alumno.numero_retardo_mes}</span>
               )}
             </p>

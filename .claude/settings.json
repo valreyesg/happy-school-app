@@ -36,6 +36,20 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe -ExecutionPolicy Bypass -Command \"$port = 5173; $proc = netstat -ano 2>/dev/null | Select-String \\\":$port\\\" | Select-Object -First 1; if (-not $proc) { Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\web'; npm run dev > 'C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\web_dev_server.log' 2>&1 & }\"",
+            "statusMessage": "Iniciando servidor web en puerto 5173...",
+            "async": true,
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
@@ -51,10 +65,10 @@
           {
             "if": "Edit|Write(/backend/src/**)",
             "type": "command",
-            "command": "powershell.exe -ExecutionPolicy Bypass -File 'C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1' -Port 5000 -ServerDir 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend' -Command 'npm run dev'",
-            "statusMessage": "Reiniciando servidor backend...",
+            "command": "powershell.exe -ExecutionPolicy Bypass -File 'C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1' -Port 3000 -ServerDir 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend' -Command 'npm start'",
+            "statusMessage": "Reiniciando servidor backend (puerto 3000)...",
             "async": true,
-            "timeout": 5
+            "timeout": 10
           }
         ]
       }

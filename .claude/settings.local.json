@@ -271,7 +271,15 @@
       "Bash(node run-migration.js migrations/022_actividades_grupo.sql)",
       "Bash(pkill -f \"node.*server\")",
       "Bash(curl -s http://localhost:3000/ping)",
-      "Bash(node -c src/routes/bitacora.js)"
+      "Bash(node -c src/routes/bitacora.js)",
+      "Bash(curl -s http://localhost:3000/api/bitacora/incidentes/hoy)",
+      "PowerShell($netstat = netstat -ano | Select-String ':3000' | Select-Object -First 1; if \\($netstat\\) { $pid = \\($netstat -split '\\\\s+'\\)[-1]; Write-Host \"Killing PID: $pid\"; Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | ForEach-Object { Write-Host \"Killing node PID: $\\($_.Id\\)\"; Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 3; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start)",
+      "Bash(curl -s \"http://localhost:3000/api/bitacora/actividades-grupo?grupo_id=ac566ca1-7e1e-480b-babd-f2a529c0abeb&fecha=2026-04-22\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 3; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start 2>&1 | Select-Object -First 50)",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start)",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"maestra@example.com\",\"password\":\"password123\"}')",
+      "Bash(cd c:\\\\\\\\Users\\\\\\\\vreyesg\\\\\\\\SynologyDrive\\\\\\\\Documentos\\\\\\\\VALERIA\\\\\\\\APP-KINDER)"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -30,6 +30,27 @@ router.get('/incidentes/hoy', authorize('directora', 'administrativo'), async (r
   } catch (err) { next(err); }
 });
 
+// ── GET /bitacora/actividades-grupo?grupo_id=&fecha= ──────────────────────
+// DEBE ESTAR ANTES DE /:alumnoId para evitar que sea interpretado como alumnoId
+// Obtener actividades del día definidas para un grupo
+router.get('/actividades-grupo', async (req, res, next) => {
+  try {
+    const { grupo_id, fecha } = req.query;
+    if (!grupo_id) {
+      return res.status(400).json({ error: 'grupo_id is required' });
+    }
+
+    const result = await query(`
+      SELECT id, descripcion, foto_url, orden
+      FROM actividades_grupo
+      WHERE grupo_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)
+      ORDER BY orden ASC
+    `, [grupo_id, fecha]);
+
+    res.json(result.rows || []);
+  } catch (err) { next(err); }
+});
+
 // ── GET /bitacora/:alumnoId?fecha=YYYY-MM-DD ──────────────────────────────
 // Obtener bitácora completa de un alumno en una fecha (default: hoy)
 router.get('/:alumnoId', async (req, res, next) => {
@@ -426,29 +447,9 @@ router.get('/:alumnoId/actividades', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// ── GET /bitacora/actividades-grupo?grupo_id=&fecha= ──────────────────────
-// Obtener actividades del día definidas por la maestra para su grupo
-router.get('/actividades-grupo', authorize('maestra'), async (req, res, next) => {
-  try {
-    const { grupo_id, fecha } = req.query;
-    if (!grupo_id) {
-      return res.status(400).json({ error: 'grupo_id is required' });
-    }
-
-    const result = await query(`
-      SELECT id, descripcion, foto_url, orden
-      FROM actividades_grupo
-      WHERE grupo_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)
-      ORDER BY orden ASC
-    `, [grupo_id, fecha]);
-
-    res.json(result.rows || []);
-  } catch (err) { next(err); }
-});
-
 // ── POST /bitacora/actividades-grupo ──────────────────────────────────────
 // Maestra define actividades del día para su grupo (multipart con fotos opcionales)
-router.post('/actividades-grupo', upload.array('fotos', 20), authorize('maestra'), async (req, res, next) => {
+router.post('/actividades-grupo', upload.array('fotos', 20), authenticate, async (req, res, next) => {
   try {
     const { grupo_id, fecha, actividades } = req.body;
     if (!grupo_id || !actividades) {

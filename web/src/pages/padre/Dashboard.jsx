@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookOpen, CreditCard, CalendarDays, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
@@ -28,8 +28,8 @@ function FiltroEntradaBadge({ item, label }) {
   return (
     <div className="flex items-center gap-1">
       <span className="text-xs font-bold text-gray-600">{label}:</span>
-      <span className={`text-lg ${item ? '✅ text-green-600' : '⚠️ text-orange-600'}`}>
-        {item ? '✅' : '⚠️'}
+      <span className={`text-lg ${item ? '✅ text-green-600' : '❌ text-red-600'}`}>
+        {item ? '✅' : '❌'}
       </span>
     </div>
   );
@@ -38,6 +38,14 @@ function FiltroEntradaBadge({ item, label }) {
 function HijoCard({ hijo }) {
   const bit = hijo.bitacora_hoy;
   const entrada = hijo.filtro_entrada;
+  // Usar retardos_mes_total (siempre disponible) para clasificar el estado
+  const numRetardosMes = hijo.retardos_mes_total || 0;
+
+  // Estados de retardo
+  const tieneRetardo = entrada?.es_retardo && entrada?.puede_entrar;
+  const limitAlcanzado = numRetardosMes >= 3;
+  const cercaDelLimite = numRetardosMes === 2;
+  const unRetardo = numRetardosMes === 1;
 
   return (
     <Link
@@ -58,33 +66,91 @@ function HijoCard({ hijo }) {
         <span className="text-red-400 text-lg">›</span>
       </div>
 
-      {/* Filtro de entrada */}
-      {entrada && entrada.puede_entrar !== null && (
+      {/* Filtro de entrada o Estado de Retardos */}
+      {(entrada && entrada.puede_entrar !== null) || numRetardosMes > 0 ? (
         <div className={`px-5 py-3 border-b ${
-          entrada.puede_entrar
-            ? 'bg-green-50 border-green-100'
-            : 'bg-red-50 border-red-100'
+          limitAlcanzado ? 'bg-red-50 border-red-100' :
+          cercaDelLimite ? 'bg-yellow-50 border-yellow-100' :
+          unRetardo ? 'bg-yellow-50 border-yellow-100' :
+          tieneRetardo ? 'bg-orange-50 border-orange-100' :
+          entrada?.puede_entrar ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'
         }`}>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">{entrada.puede_entrar ? '🚪 ✅' : '🚪 🚫'}</span>
-            <span className={`text-xs font-black uppercase ${entrada.puede_entrar ? 'text-green-700' : 'text-red-700'}`}>
-              {entrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
-            </span>
-          </div>
-          {entrada.motivo_no_entrada && !entrada.puede_entrar && (
-            <p className="text-xs text-red-600 font-semibold mb-3">{entrada.motivo_no_entrada}</p>
+          {/* Alerta unificada de retardos */}
+          {numRetardosMes > 0 && entrada?.es_retardo && (
+            <div className={`mb-3 p-3 rounded-lg border-l-4 ${
+              limitAlcanzado
+                ? 'bg-red-100 border-l-red-500 text-red-700'
+                : cercaDelLimite
+                  ? 'bg-yellow-100 border-l-yellow-500 text-yellow-700'
+                  : 'bg-yellow-100 border-l-yellow-400 text-yellow-700'
+            }`}>
+              <p className="text-xs font-black uppercase mb-1">
+                {limitAlcanzado ? '🚫 Límite de retardos alcanzado' :
+                 cercaDelLimite ? '⚠️ Atención: próximo retardo bloquea entrada' :
+                 '⏰ Retardo registrado'}
+              </p>
+              <p className="text-xs font-semibold">
+                Retardos acumulados: {numRetardosMes}/3 del mes
+                {limitAlcanzado && ' — Mañana será rechazado/a si llega tarde'}
+              </p>
+            </div>
           )}
-          {/* Checklist siempre visible */}
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <FiltroEntradaBadge item={entrada.uñas_cortadas} label="Uñas" />
-            <FiltroEntradaBadge item={entrada.trae_uniforme} label="Uniforme" />
-            <FiltroEntradaBadge item={entrada.trae_bata} label="Bata" />
-            <FiltroEntradaBadge item={entrada.agua_suficiente} label="Agua" />
-            <FiltroEntradaBadge item={entrada.trae_termo} label="Termo" />
-            <FiltroEntradaBadge item={entrada.sin_lagañas} label="Ojos" />
-          </div>
+
+          {/* Encabezado principal de entrada */}
+          {entrada && entrada.puede_entrar !== null && (
+            <>
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
+                <span className="text-xl">{entrada.puede_entrar ? '🚪 ✅' : '🚪 🚫'}</span>
+                <span className={`text-xs font-black uppercase ${
+                  limitAlcanzado ? 'text-red-700' :
+                  cercaDelLimite && !tieneRetardo ? 'text-yellow-700' :
+                  tieneRetardo ? 'text-yellow-700' :
+                  entrada.puede_entrar ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {entrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
+                </span>
+
+                {/* Hora de entrada */}
+                {entrada.puede_entrar && entrada.hora_entrada && (
+                  <span className="text-xs text-gray-500 font-semibold">
+                    {new Date(entrada.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                )}
+
+                {/* Badge retardo */}
+                {entrada.es_retardo && entrada.puede_entrar && (
+                  <span className="inline-block px-2 py-0.5 rounded-full text-xs font-black bg-yellow-100 text-yellow-700">
+                    ⚠️ Retardo
+                  </span>
+                )}
+              </div>
+
+              {/* Motivo de rechazo */}
+              {entrada.motivo_no_entrada && !entrada.puede_entrar && (
+                <div className="mb-3 px-3 py-2 rounded-xl text-xs font-semibold border-l-4 bg-red-100 border-l-red-400 text-red-700">
+                  {!entrada.sin_fiebre || entrada.temperatura > 37.5 ? (
+                    <p>🌡️ {entrada.motivo_no_entrada}</p>
+                  ) : !entrada.sin_sintomas ? (
+                    <p>🤒 {entrada.motivo_no_entrada}</p>
+                  ) : (
+                    <p>{entrada.motivo_no_entrada}</p>
+                  )}
+                </div>
+              )}
+
+              {/* Checklist */}
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <FiltroEntradaBadge item={entrada.uñas_cortadas} label="Uñas" />
+                <FiltroEntradaBadge item={entrada.trae_uniforme} label="Uniforme" />
+                <FiltroEntradaBadge item={entrada.trae_bata} label="Bata" />
+                <FiltroEntradaBadge item={entrada.agua_suficiente} label="Agua" />
+                <FiltroEntradaBadge item={entrada.trae_termo} label="Termo" />
+                <FiltroEntradaBadge item={entrada.sin_lagañas} label="Ojos" />
+              </div>
+            </>
+          )}
         </div>
-      )}
+      ) : null}
 
       {/* Bitácora del día */}
       {bit ? (
@@ -219,12 +285,21 @@ function ModalEvento({ ev, onClose }) {
 export default function PadreDashboard() {
   const { usuario } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
+  const queryClient = useQueryClient();
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  const { data: hijos = [], isLoading } = useQuery({
+  const { data: respuesta = { hijos: [], horaLimiteEntrada: '08:30' }, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
+
+  const hijos = respuesta.hijos || [];
+  const horaLimiteEntrada = respuesta.horaLimiteEntrada || '08:30';
+
+  // Invalidar caché cuando cambia usuario
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['mis-hijos'] });
+  }, [usuario?.id, queryClient]);
 
   const { desde, hasta } = proximos3Dias();
   const { data: eventosProximos = [] } = useQuery({
@@ -240,6 +315,13 @@ export default function PadreDashboard() {
           {saludoPadre(usuario?.parentesco, usuario?.nombre)} 👨🏻‍👩🏻‍👧🏻
         </h1>
         <p className="text-sm font-semibold text-gray-500 capitalize mt-0.5">{hoy}</p>
+      </div>
+
+      {/* Recordatorio hora límite de entrada */}
+      <div className="bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3">
+        <p className="text-sm font-bold text-blue-700">
+          🚪 Se recuerda que la entrada es a más tardar a las <span className="font-black text-lg">{horaLimiteEntrada}</span> a.m.
+        </p>
       </div>
 
       {/* Accesos rápidos */}

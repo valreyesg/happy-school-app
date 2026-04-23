@@ -43,6 +43,7 @@ router.post('/entrada', async (req, res, next) => {
     let puedeEntrar = true;
     let motivoNoEntrada = null;
     let esRetardo = false;
+    let numRetardos = 0;
 
     // Evaluar síntomas/fiebre primero (prioridad máxima)
     if (!sin_fiebre || temperatura > 37.5) {
@@ -57,7 +58,7 @@ router.post('/entrada', async (req, res, next) => {
 
     // Solo después, evaluar retardos si pasó el filtro de salud
     if (puedeEntrar && llegoTarde) {
-      const numRetardos = retardosMesActuales + 1;
+      numRetardos = retardosMesActuales + 1;
       if (numRetardos > maxRetardos) {
         puedeEntrar = false;
         motivoNoEntrada = `${numRetardos}° retardo del mes — límite de ${maxRetardos} superado`;
@@ -97,10 +98,12 @@ router.post('/entrada', async (req, res, next) => {
     // Notificaciones WhatsApp
     const alumnoResult = await query(`
       SELECT a.nombre_completo, p.nombre_completo AS padre_nombre,
-             COALESCE(p.telefono_whatsapp, p.telefono) AS telefono
+             COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             u.id AS usuario_id
       FROM alumnos a
       JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
       JOIN padres p ON ap.padre_id = p.id
+      JOIN usuarios u ON p.usuario_id = u.id
       WHERE a.id = $1 LIMIT 1
     `, [alumno_id]);
 
@@ -133,6 +136,19 @@ router.post('/entrada', async (req, res, next) => {
           },
           alumnoId: alumno_id,
         });
+      }
+
+      // Insertar notificación en-app para el padre cuando hay rechazo
+      if (!puedeEntrar && info?.usuario_id) {
+        await query(`
+          INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+          VALUES ($1, $2, $3, 'entrada_rechazada', $4)
+        `, [
+          info.usuario_id,
+          `Entrada rechazada — ${info.nombre_completo}`,
+          motivoNoEntrada || `${info.nombre_completo} no pudo entrar hoy`,
+          JSON.stringify({ alumno_id, motivo: motivoNoEntrada }),
+        ]);
       }
     }
 
@@ -436,6 +452,32 @@ router.get('/filtro-salida', async (req, res, next) => {
     }
 
     res.json({ grupos: Object.values(grupos), hora_salida_normal, fecha: fechaResuelta });
+  } catch (err) { next(err); }
+});
+
+// GET /asistencia/filtro-entrada/:alumno_id?fecha=YYYY-MM-DD — Para papás consultar entrada de cualquier fecha
+router.get('/filtro-entrada/:alumno_id', async (req, res, next) => {
+  try {
+    const { alumno_id } = req.params;
+    const { fecha } = req.query; // formato YYYY-MM-DD
+
+    if (!fecha) return res.status(400).json({ error: 'fecha es obligatorio (YYYY-MM-DD)' });
+
+    const result = await query(`
+      SELECT
+        hora_entrada, es_retardo, numero_retardo_mes, puede_entrar, motivo_no_entrada,
+        uñas_cortadas, sin_lagañas, sin_fiebre, temperatura,
+        sin_sintomas, sintomas_notas, panial_limpio, trae_uniforme,
+        trae_bata, trae_termo, agua_suficiente
+      FROM registro_entrada
+      WHERE alumno_id = $1 AND fecha = $2
+    `, [alumno_id, fecha]);
+
+    if (result.rows.length === 0) {
+      return res.json(null);
+    }
+
+    res.json(result.rows[0]);
   } catch (err) { next(err); }
 });
 

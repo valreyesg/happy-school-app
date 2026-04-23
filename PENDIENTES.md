@@ -1,27 +1,24 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 58 — Próxima
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 58 COMPLETADA
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 **✅ Sesión 57 COMPLETADA:** 3 bugs entrada (síntomas vs retardos + asistencia miss + protocolo salud) — Ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
+**✅ Sesión 58 COMPLETADA:** Dashboard Papá enriquecido (entrada autorizada/rechazada, retardos, advertencias) — Ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 58 (PRÓXIMA) — DASHBOARD PAPÁ + NOTIFICACIONES
-
-### 👨‍👩‍👧 DASHBOARD PAPÁ — Visibilidad rechazo de entrada
-- [ ] **Dashboard Papá — Filtro entrada:** Cuando entrada rechazada, mostrar claramente:
-  - Motivo exacto (fiebre X°C / síntomas / retardos acumulados)
-  - Retardos acumulados en el mes (ej: "3/3 retardos — próxima entrada bloqueada")
-  - Advertencia visual roja si ya alcanzó límite
-- [ ] **Bitácora Papá:** Agregar sección de entrada con motivo (análogo a comida/salud/incidentes)
+## 📍 SESIÓN 59 (PRÓXIMA) — NOTIFICACIONES GLOBALES + BITÁCORA ENTRADA
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
 - [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.
 - [ ] **Modal en pantalla completa:** Cuando Miss/Directora crea evento/tarea/cancela comida → notificación modal en papá.
 - [ ] **Triggers multi-evento:** Evento nuevo, Tarea nueva, Pago atrasado, Cancelación comida, Entrega/recogida por tercero.
+
+### 👨‍👩‍👧 BITÁCORA PAPÁ — Agregar tab Entrada
+- [ ] **Bitácora Papá:** Agregar tab "Entrada" con motivo, checklist, hora (análogo a comida/salud/incidentes)
 
 ---
 

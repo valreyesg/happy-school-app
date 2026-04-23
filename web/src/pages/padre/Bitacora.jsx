@@ -199,6 +199,18 @@ export default function PadreBitacora() {
     gcTime: 0,
   });
 
+  // Query para entrada histórica (cualquier fecha, no solo hoy)
+  const { data: entradaHistorica = null } = useQuery({
+    queryKey: ['entrada-historica', alumnoId, fecha],
+    queryFn: () => {
+      if (!alumnoId || !fecha) return null;
+      return api.get(`/asistencia/filtro-entrada/${alumnoId}?fecha=${fecha}`)
+        .then(r => r.data)
+        .catch(() => null);
+    },
+    enabled: !!alumnoId && !!fecha,
+  });
+
   const { data: ciclos = [] } = useQuery({
     queryKey: ['ciclos-alumno', alumnoId],
     queryFn: () => alumnoId ? api.get(`/alumnos/${alumnoId}/ciclos`).then(r => r.data) : Promise.resolve([]),
@@ -260,6 +272,10 @@ export default function PadreBitacora() {
   const incidentes = data?.incidentes || [];
   const actividades = data?.actividades || [];
   const hijoActual = hijos.find(h => h.id === alumnoId);
+  const entradaHoy = hijoActual?.filtro_entrada || null;
+  const esHoyFecha = fecha === hoy;
+  // Priorizar datos históricos si existen, sino usar datos de hoy
+  const entradaMostrada = esHoyFecha ? entradaHoy : entradaHistorica;
   const usaPanial = hijoActual?.usa_panial || false;
 
   // Calcular avance bitácora (porcentaje de campos completados)
@@ -373,8 +389,9 @@ export default function PadreBitacora() {
 
               {/* ── Tabs ── */}
               <div ref={tabsRef} className="card-hs overflow-hidden">
-                <div className="grid grid-cols-5 border-b border-gray-100">
+                <div className="grid grid-cols-6 border-b border-gray-100">
                   {[
+                    { key: 'entrada',     emoji: '🚪', label: 'Entrada'     },
                     { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
                     { key: 'actividades', emoji: '🎨', label: 'Actividades' },
                     { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
@@ -397,6 +414,63 @@ export default function PadreBitacora() {
                 </div>
 
                 <div className="p-4">
+
+                  {/* Entrada */}
+                  {tabActivo === 'entrada' && (
+                    !entradaMostrada
+                      ? <p className="text-center text-sm text-gray-400 font-semibold py-8">Sin registro de entrada para esta fecha</p>
+                      : (
+                          <div className="space-y-3">
+                            {/* Hora de entrada */}
+                            <FilaInfo
+                              label="Hora de entrada"
+                              valor={new Date(entradaMostrada.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                            />
+
+                            {/* Retardo */}
+                            {entradaMostrada.es_retardo && (
+                              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-orange-50 border border-orange-200">
+                                <span>⏰</span>
+                                <span className="text-sm font-bold text-orange-700">
+                                  Retardo #{entradaMostrada.numero_retardo_mes} del mes
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Estado de entrada */}
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${
+                              entradaMostrada.puede_entrar
+                                ? 'bg-green-50 border-green-200 text-green-700'
+                                : 'bg-red-50 border-red-200 text-red-700'
+                            }`}>
+                              <span>{entradaMostrada.puede_entrar ? '✓' : '✗'}</span>
+                              {entradaMostrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
+                            </div>
+
+                            {/* Motivo rechazo */}
+                            {!entradaMostrada.puede_entrar && entradaMostrada.motivo_no_entrada && (
+                              <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
+                                <p className="text-sm font-semibold text-red-700">{entradaMostrada.motivo_no_entrada}</p>
+                              </div>
+                            )}
+
+                            {/* Checklist */}
+                            <div>
+                              <p className="text-xs font-black text-gray-500 uppercase mb-2">Checklist de entrada</p>
+                              <div className="flex flex-wrap gap-2">
+                                <PildoraBool label="Uñas cortadas" valor={entradaMostrada.uñas_cortadas} />
+                                <PildoraBool label="Uniforme" valor={entradaMostrada.trae_uniforme} />
+                                <PildoraBool label="Bata" valor={entradaMostrada.trae_bata} />
+                                <PildoraBool label="Agua suficiente" valor={entradaMostrada.agua_suficiente} />
+                                <PildoraBool label="Termo" valor={entradaMostrada.trae_termo} />
+                                <PildoraBool label="Sin lagañas" valor={entradaMostrada.sin_lagañas} />
+                                <PildoraBool label="Sin fiebre" valor={entradaMostrada.sin_fiebre} />
+                                <PildoraBool label="Sin síntomas" valor={entradaMostrada.sin_sintomas} />
+                              </div>
+                            </div>
+                          </div>
+                        )
+                  )}
 
                   {/* Comida */}
                   {tabActivo === 'comida' && (

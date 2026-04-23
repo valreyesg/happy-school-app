@@ -15,6 +15,12 @@ router.get('/', ctrl.listar);
 // GET /alumnos/mis-hijos — alumnos vinculados al padre autenticado
 router.get('/mis-hijos', async (req, res, next) => {
   try {
+    // Obtener configuración de hora límite de entrada
+    const cfgResult = await query(
+      "SELECT valor FROM configuracion_general WHERE clave = 'hora_fin_filtro'"
+    );
+    const horaLimiteEntrada = cfgResult.rows[0]?.valor || '08:30';
+
     const result = await query(`
       SELECT DISTINCT ON (a.id)
         a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
@@ -30,7 +36,13 @@ router.get('/mis-hijos', async (req, res, next) => {
         re.hora_entrada, re.es_retardo, re.puede_entrar, re.motivo_no_entrada,
         re.uñas_cortadas, re.sin_lagañas, re.sin_fiebre, re.temperatura,
         re.sin_sintomas, re.sintomas_notas, re.panial_limpio, re.trae_uniforme,
-        re.trae_bata, re.trae_termo, re.agua_suficiente
+        re.trae_bata, re.trae_termo, re.agua_suficiente, re.numero_retardo_mes,
+        -- Retardos del mes (siempre, aunque no haya entrada hoy)
+        (SELECT COUNT(*) FROM registro_entrada rx
+         WHERE rx.alumno_id = a.id AND rx.es_retardo = true
+           AND EXTRACT(MONTH FROM rx.created_at) = EXTRACT(MONTH FROM CURRENT_DATE)
+           AND EXTRACT(YEAR  FROM rx.created_at) = EXTRACT(YEAR  FROM CURRENT_DATE)
+        ) AS retardos_mes_total
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
       JOIN alumnos a ON ap.alumno_id = a.id
@@ -63,12 +75,14 @@ router.get('/mis-hijos', async (req, res, next) => {
         trae_bata: r.trae_bata,
         trae_termo: r.trae_termo,
         agua_suficiente: r.agua_suficiente,
+        numero_retardo_mes: r.numero_retardo_mes,
       } : null;
 
       return {
         ...r,
         bitacora_hoy,
         filtro_entrada,
+        retardos_mes_total: parseInt(r.retardos_mes_total || 0),
         // Clean up individual fields
         estado_animo: undefined,
         actividad_realizada: undefined,
@@ -91,10 +105,11 @@ router.get('/mis-hijos', async (req, res, next) => {
         trae_bata: undefined,
         trae_termo: undefined,
         agua_suficiente: undefined,
+        numero_retardo_mes: undefined,
       };
     });
 
-    res.json(rows);
+    res.json({ hijos: rows, horaLimiteEntrada });
   } catch (err) { next(err); }
 });
 

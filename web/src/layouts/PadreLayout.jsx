@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { LayoutDashboard, BookOpen, CreditCard, CalendarDays, UtensilsCrossed, LogOut, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
+import NotificationBell from '@/components/NotificationBell';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
@@ -82,12 +83,18 @@ export default function PadreLayout() {
       )}
 
       <main className="flex-1 flex flex-col overflow-hidden">
+        {/* Header móvil */}
         <header className="lg:hidden bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-4">
           <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
             <Menu size={22} className="text-gray-600" />
           </button>
           <Logo size="sm" showSlogan={false} />
         </header>
+
+        {/* Topbar desktop (solo campanita) */}
+        <div className="hidden lg:flex items-center justify-end bg-white border-b border-gray-100 px-8 py-3 gap-4">
+          <NotificationBell />
+        </div>
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-8">
           <Outlet />

@@ -1,7 +1,40 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 57
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 58
+
+---
+
+## ✅ SESIÓN 58 — Dashboard Papá Enriquecido: Entrada Autorizada/Rechazada + Retardos + Advertencias
+
+**Fecha:** 2026-04-23 | **Commits:** 2 (implementación + ajuste formato hora)
+
+### Funcionalidades Completadas
+
+**Dashboard Papá — Visibilidad de entrada y retardos**
+- Backend (`alumnos.js` línea 36-45):
+  - Endpoint `GET /mis-hijos` ahora retorna `filtro_entrada.numero_retardo_mes` (total retardos acumulados en el mes)
+  - Query SQL con COUNT de retardos siempre activo (aunque no haya entrada hoy)
+  - Respuesta estructurada: `{ hijos: [...], horaLimiteEntrada }`
+- Frontend (`Dashboard.jsx` - HijoCard):
+  - 3 estados visuales según retardos acumulados:
+    - **0 retardos + entrada autorizada:** Fondo verde, hora de entrada mostrada sin símbolo "@"
+    - **1-2 retardos + entrada autorizada:** Fondo amarillo, badge "⚠️ Retardo", alerta "próximo retardo bloquea entrada"
+    - **≥3 retardos:** Fondo rojo, alerta "🚫 Límite de retardos alcanzado", indica que mañana será rechazado si llega tarde
+  - Entrada rechazada:
+    - Motivo enriquecido: 🌡️ para fiebre, 🤒 para síntomas
+    - Checklist con ✅/❌: uñas, uniforme, bata, agua, termo, ojos
+  - Alerta unificada de retardos (sin repeticiones)
+
+### Archivos Modificados (1 archivo)
+- `backend/src/routes/alumnos.js` — campos `numero_retardo_mes` en SELECT y objeto `filtro_entrada`
+- `web/src/pages/padre/Dashboard.jsx` — lógica retardos, badges, colores, checklist, hora sin "@"
+
+### Verificación en Browser
+- ✅ Dashboard padre: retardos visibles, badges funcionales, hora sin símbolo
+- ✅ Colores Tailwind aplicados correctamente (verde/amarillo/rojo)
+- ✅ Checklist desplegable con ✅/❌
+- ✅ Alerta unificada (sin repeticiones de "Retardo #N")
 
 ---
 

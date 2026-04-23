@@ -305,7 +305,8 @@ router.get('/grupo/:grupo_id', async (req, res, next) => {
         re.uñas_cortadas, re.sin_lagañas, re.sin_fiebre, re.temperatura,
         re.sin_sintomas, re.sintomas_notas, re.panial_limpio,
         re.trae_uniforme, re.trae_bata, re.trae_termo, re.agua_suficiente,
-        re.numero_retardo_mes, re.qr_escaneado
+        CASE WHEN re.puede_entrar = false THEN 0 ELSE COALESCE(re.numero_retardo_mes, 0) END AS numero_retardo_mes,
+        re.qr_escaneado
       FROM alumnos a
       LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = COALESCE($2::date, CURRENT_DATE)
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = COALESCE($2::date, CURRENT_DATE)

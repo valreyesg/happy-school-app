@@ -196,7 +196,9 @@ function ModalRetardosGrupo({ grupo, onClose }) {
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
         </div>
         <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {grupo.alumnos.map(a => {
+          {grupo.alumnos
+            .filter(a => a.estado_asistencia !== 'no_entrada')
+            .map(a => {
             const retardos = parseInt(a.retardos || 0);
             return (
               <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
@@ -308,8 +310,9 @@ function RetardosPorGrupo({ retardosMes, asistenciaPorGrupo, isLoading, onCardCl
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           {porGrupo.map(g => {
-            const totalRetardos = g.alumnos.reduce((sum, a) => sum + parseInt(a.retardos || 0), 0);
-            const tieneAlumnosSeveros = g.alumnos.some(a => parseInt(a.retardos || 0) >= 3);
+            const alumnosConRetardo = g.alumnos.filter(a => a.estado_asistencia !== 'no_entrada');
+            const totalRetardos = alumnosConRetardo.reduce((sum, a) => sum + parseInt(a.retardos || 0), 0);
+            const tieneAlumnosSeveros = alumnosConRetardo.some(a => parseInt(a.retardos || 0) >= 3);
             return (
               <button key={g.grupo_id} onClick={() => onCardClick(g)}
                 className="text-center p-4 rounded-2xl border-2 cursor-pointer hover:opacity-80 transition-opacity"

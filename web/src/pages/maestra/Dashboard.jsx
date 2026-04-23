@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
@@ -60,8 +60,14 @@ function StatCard({ icon: Icon, value, label, color }) {
 export default function MaestraDashboard() {
   const { usuario } = useAuthStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // Invalidar caché de grupo cuando cambia el usuario
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['mi-grupo'] });
+  }, [usuario?.id, queryClient]);
 
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo'],

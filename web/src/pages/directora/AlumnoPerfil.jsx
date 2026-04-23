@@ -346,9 +346,37 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
             <FilaBit label="Ánimo"         valor={ANIMO_LABEL[b.estado_animo] ?? b.estado_animo} />
             <FilaBit label="Comportamiento" valor={COMP_LABEL[b.comportamiento] ?? b.comportamiento} />
             {b.comportamiento_notas && <FilaBit label="Nota conducta" valor={b.comportamiento_notas} />}
-            <FilaBit label="Actividad"    valor={b.actividad_realizada === true ? '✅ Participó' : b.actividad_realizada === false ? '❌ No participó' : null} />
-            {b.actividad_descripcion && <FilaBit label="Descripción"   valor={b.actividad_descripcion} />}
           </div>
+
+          {/* Actividades */}
+          {data?.actividades && data.actividades.length > 0 && (
+            <div className="card-hs">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🎨 Actividades</h3>
+              <div className="space-y-2">
+                {data.actividades.map((act, i) => (
+                  <div key={i} className="flex gap-3 py-2 border-b border-gray-100 last:border-0">
+                    {act.foto_url && (
+                      <a href={act.foto_url} target="_blank" rel="noreferrer" className="flex-shrink-0">
+                        <img src={act.foto_url} alt="" className="w-14 h-14 object-cover rounded-lg border border-purple-100 hover:border-purple-400 transition-all" />
+                      </a>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      {act.descripcion && (
+                        <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>
+                      )}
+                      {act.participo !== null && act.participo !== undefined && (
+                        <span className={`text-xs font-bold mt-1 inline-block ${
+                          act.participo ? 'text-green-600' : 'text-red-500'
+                        }`}>
+                          {act.participo ? '✅ Participó' : '❌ No participó'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Alimentación — 4 Tiempos */}
           {comidas.length > 0 && (

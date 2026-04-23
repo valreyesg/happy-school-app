@@ -366,33 +366,35 @@ export default function PadreBitacora() {
               )}
 
               {/* Actividades */}
-              <Seccion titulo="Actividades" emoji="🎨">
-                {bit.actividad_descripcion && (
-                  <div className="bg-purple-50 rounded-xl p-3 mb-3">
-                    <p className="text-sm font-semibold text-purple-700">📝 {bit.actividad_descripcion}</p>
+              {actividades && actividades.length > 0 && (
+                <Seccion titulo="Actividades" emoji="🎨">
+                  <div className="space-y-3">
+                    {actividades.map((act, i) => (
+                      <div key={i} className="rounded-xl border-2 border-purple-100 overflow-hidden">
+                        {act.foto_url && (
+                          <a href={act.foto_url} target="_blank" rel="noreferrer">
+                            <img src={act.foto_url} alt={act.descripcion} className="w-full h-40 object-cover hover:opacity-90 transition-opacity" />
+                          </a>
+                        )}
+                        <div className="p-3 space-y-2">
+                          {act.descripcion && (
+                            <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>
+                          )}
+                          {act.participo !== null && act.participo !== undefined && (
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                              act.participo
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {act.participo ? '✓ Participó' : '✗ No participó'}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-                <FilaInfo
-                  label="Participación"
-                  valor={bit.actividad_realizada === true ? 'Sí participó ✓' : bit.actividad_realizada === false ? 'No participó ✗' : null}
-                />
-                {actividades.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-purple-100">
-                    <p className="text-xs font-black text-gray-400 mb-2">📷 Galería de actividades guardadas</p>
-                    <div className="grid grid-cols-3 gap-3">
-                      {actividades.map((a, i) => (
-                        <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
-                          <img
-                            src={a.foto_url}
-                            alt="Actividad"
-                            className="w-full aspect-square object-cover rounded-xl border-2 border-purple-100 group-hover:border-purple-400 transition-all"
-                          />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </Seccion>
+                </Seccion>
+              )}
 
               {/* Comportamiento */}
               {bit.comportamiento && (

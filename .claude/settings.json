@@ -26,7 +26,10 @@
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
-      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1\" *)"
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\vreyesg\\\\AppData\\\\Local\\\\Temp\\\\kill_and_restart_server.ps1\" *)",
+      "Bash(npm run dev)",
+      "Bash(npm start)",
+      "Bash(npm *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\vreyesg\\AppData\\Local\\Temp"

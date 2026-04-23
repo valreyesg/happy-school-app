@@ -88,6 +88,194 @@ function SiNo({ label, value, onChange }) {
   );
 }
 
+// ── Guardar participación en actividades ─────────────────────────────────
+
+function ActividadesParticipacionGuardar({ alumnoId, fecha, bitacoraId, actividades, actividadesParticipacion, onGuardado }) {
+  const guardarMutation = useMutation({
+    mutationFn: async () => {
+      const actividadesConParticipacion = actividades
+        .filter(a => actividadesParticipacion[a.id] !== undefined)
+        .map(a => ({ actividad_grupo_id: a.id, participo: actividadesParticipacion[a.id] }));
+
+      if (actividadesConParticipacion.length === 0) {
+        throw new Error('Selecciona al menos una actividad');
+      }
+
+      let finalBitacoraId = bitacoraId;
+      if (!finalBitacoraId) {
+        // Si no existe bitácora aún, necesitamos crearla vacía primero
+        // Para esto, el backend debería hacer un upsert cuando se guarda participación
+        console.warn('Bitácora no existe aún, se creará con guardado de participación');
+      }
+
+      return api.post('/bitacora/actividades-alumno', {
+        alumno_id: alumnoId,
+        bitacora_id: finalBitacoraId,
+        actividades: actividadesConParticipacion,
+      });
+    },
+    onSuccess: () => {
+      toast.success('✅ Participación guardada');
+      onGuardado();
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  return (
+    <button
+      onClick={() => guardarMutation.mutate()}
+      disabled={guardarMutation.isPending || Object.keys(actividadesParticipacion).length === 0}
+      className="w-full py-3 rounded-xl font-black text-sm bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-50 transition-all"
+    >
+      {guardarMutation.isPending ? 'Guardando...' : '💾 Guardar participación'}
+    </button>
+  );
+}
+
+// ── Captura de actividades del grupo ──────────────────────────────────────
+
+function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
+  const queryClient = useQueryClient();
+  const [actividadesCaptua, setActividadesCaptua] = useState([{ descripcion: '', orden: 1, fotoFile: null, fotoPreview: null }]);
+
+  // Cargar actividades existentes
+  const { data: actividadesGrupo } = useQuery({
+    queryKey: ['actividades-grupo', grupoId, fecha],
+    queryFn: () => api.get(`/bitacora/actividades-grupo?grupo_id=${grupoId}&fecha=${fecha}`).then(r => r.data).catch(() => []),
+    enabled: grupoId && fecha && mostrar,
+  });
+
+  useEffect(() => {
+    if (actividadesGrupo && actividadesGrupo.length > 0) {
+      setActividadesCaptua(actividadesGrupo.map(a => ({
+        descripcion: a.descripcion,
+        orden: a.orden,
+        fotoFile: null,
+        fotoPreview: a.foto_url || null,
+      })));
+    }
+  }, [actividadesGrupo]);
+
+  const guardarMutation = useMutation({
+    mutationFn: (fd) => api.post('/bitacora/actividades-grupo', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['actividades-grupo'] });
+      toast.success('✅ Actividades del día guardadas');
+      setMostrar(false);
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const guardarActividades = () => {
+    const conDescripcion = actividadesCaptua.filter(a => a.descripcion.trim());
+    if (conDescripcion.length === 0) {
+      toast.error('Agrega al menos una actividad');
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('grupo_id', grupoId);
+    fd.append('fecha', fecha);
+    fd.append('actividades', JSON.stringify(conDescripcion.map(({ descripcion, orden }, i) => ({
+      descripcion: descripcion.trim(),
+      orden: i + 1,
+    }))));
+
+    actividadesCaptua.forEach((act, i) => {
+      if (act.fotoFile) fd.append(`fotos`, act.fotoFile, `actividad_${i}.jpg`);
+    });
+
+    guardarMutation.mutate(fd);
+  };
+
+  return (
+    <div className="mb-4 card-hs">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider">🎨 Actividades del día</h3>
+        <button
+          onClick={() => setMostrar(!mostrar)}
+          className="px-3 py-1 rounded-lg text-xs font-bold bg-hs-purple/10 text-hs-purple hover:bg-hs-purple/20 transition-all"
+        >
+          {mostrar ? '✕ Cerrar' : '✏️ Editar'}
+        </button>
+      </div>
+
+      {!mostrar && actividadesGrupo?.length > 0 && (
+        <div className="space-y-1 text-xs">
+          {actividadesGrupo.map((a, i) => (
+            <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-purple-50 rounded-lg">
+              {a.foto_url && <img src={a.foto_url} alt="" className="w-6 h-6 rounded object-cover flex-shrink-0" />}
+              <p className="text-gray-700 font-semibold flex-1 min-w-0 line-clamp-1">{a.descripcion}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {mostrar && (
+        <div className="space-y-2">
+          {actividadesCaptua.map((act, idx) => (
+            <div key={idx} className="space-y-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
+              <textarea
+                rows={2}
+                placeholder={`Actividad ${idx + 1}...`}
+                value={act.descripcion}
+                onChange={e => setActividadesCaptua(prev => prev.map((a, i) => i === idx ? { ...a, descripcion: e.target.value } : a))}
+                className="w-full border border-gray-200 rounded px-2 py-1 text-xs font-semibold focus:outline-none focus:border-hs-purple resize-none"
+              />
+              {act.fotoPreview && (
+                <img src={act.fotoPreview} alt="" className="w-10 h-10 rounded object-cover" />
+              )}
+              <div className="flex gap-1.5">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setActividadesCaptua(prev => prev.map((a, i) => i === idx
+                        ? { ...a, fotoFile: file, fotoPreview: URL.createObjectURL(file) }
+                        : a
+                      ));
+                    }
+                  }}
+                  className="hidden"
+                  id={`foto-${idx}`}
+                />
+                <label htmlFor={`foto-${idx}`} className="flex-1 px-2 py-1 text-xs font-bold border border-dashed border-purple-300 text-purple-600 rounded cursor-pointer hover:bg-purple-50">
+                  📷 Foto
+                </label>
+                {actividadesCaptua.length > 1 && (
+                  <button
+                    onClick={() => setActividadesCaptua(prev => prev.filter((_, i) => i !== idx))}
+                    className="px-2 py-1 text-xs font-bold text-red-500 hover:bg-red-50 rounded"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={() => setActividadesCaptua(prev => [...prev, { descripcion: '', orden: prev.length + 1, fotoFile: null, fotoPreview: null }])}
+            className="w-full py-1.5 text-xs font-bold border-2 border-dashed border-purple-300 text-purple-600 rounded hover:bg-purple-50"
+          >
+            + Agregar
+          </button>
+          <button
+            onClick={guardarActividades}
+            disabled={guardarMutation.isPending}
+            className="w-full py-2 rounded-lg font-black text-xs bg-hs-purple text-white hover:bg-purple-700 disabled:opacity-50 transition-all"
+          >
+            {guardarMutation.isPending ? 'Guardando...' : '💾 Guardar actividades'}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Lista de alumnos ──────────────────────────────────────────────────────────
 
 function ListaAlumnos({ alumnos, seleccionado, onSeleccionar }) {
@@ -128,6 +316,9 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const mostrarEsfinteres = !alumno.usa_panial && (
     ['maternal', 'prekinder', 'kinder1'].includes(grupoNivel)
   );
+
+  // Participación en actividades del grupo (por actividad_grupo_id)
+  const [actividadesParticipacion, setActividadesParticipacion] = useState({});
 
   // Estado del formulario
   const [animo,               setAnimo]               = useState(null);
@@ -178,6 +369,16 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       setSeEnfermo(data.bitacora.se_enfermo || false);
       setDescEnfermedad(data.bitacora.descripcion_enfermedad || '');
       setNotas(data.bitacora.notas || '');
+    }
+    // Cargar participación en actividades
+    if (data.actividades && Array.isArray(data.actividades)) {
+      const participacion = {};
+      data.actividades.forEach(act => {
+        if (act.participo !== null && act.participo !== undefined) {
+          participacion[act.id] = act.participo;
+        }
+      });
+      setActividadesParticipacion(participacion);
     }
     if (data.banio) {
       setPipiCount(data.banio.pipi_count || 0);
@@ -491,72 +692,71 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         </Seccion>
       )}
 
-      {/* Actividades */}
+      {/* Actividades del grupo */}
       <Seccion titulo="🎨 Actividades">
-        <div className="space-y-2 mb-3">
-          {actividades.map((act, idx) => (
-            <div key={idx} className="flex gap-2 items-start">
-              <textarea rows={2}
-                placeholder={`Actividad ${idx + 1}…`}
-                value={act}
-                onChange={e => setActividades(prev => prev.map((a, i) => i === idx ? e.target.value : a))}
-                disabled={soloLectura}
-                className="flex-1 border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none disabled:bg-gray-100 disabled:text-gray-500" />
-              {!soloLectura && actividades.length > 1 && (
-                <button onClick={() => setActividades(prev => prev.filter((_, i) => i !== idx))}
-                  className="mt-1 text-red-400 hover:text-red-600 p-1">
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        {!soloLectura && (
-          <button onClick={() => setActividades(prev => [...prev, ''])}
-            className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-purple-300 text-purple-500 hover:bg-purple-50 transition-all mb-3">
-            + Agregar otra actividad
-          </button>
-        )}
-        <div>
-          <input type="file" accept="image/*" multiple ref={actFileRef} className="hidden"
-            onChange={e => setActividadFotos(Array.from(e.target.files))} />
-          <button onClick={() => actFileRef.current?.click()}
-            className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-purple-300 text-purple-500 hover:bg-purple-50 transition-all">
-            {actividadFotos.length > 0 ? `📷 ${actividadFotos.length} foto(s) de actividad` : '📷 Agregar fotos de actividad (opcional)'}
-          </button>
-          {actividadFotos.length > 0 && (
-            <button onClick={subirFotosActividad} disabled={actFotosMutation.isPending}
-              className="w-full mt-2 py-2 rounded-xl font-bold text-sm bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-50 transition-all">
-              {actFotosMutation.isPending ? 'Subiendo…' : '⬆️ Subir fotos'}
-            </button>
-          )}
-        </div>
-        <div className="flex gap-3">
-          <button onClick={() => setActividadRealizada(actividadRealizada === true ? null : true)}
-            className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all
-              ${actividadRealizada === true ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-            ✓ Sí realizó
-          </button>
-          <button onClick={() => setActividadRealizada(actividadRealizada === false ? null : false)}
-            className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all
-              ${actividadRealizada === false ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-            ✗ No realizó
-          </button>
-        </div>
-        {data?.actividades?.length > 0 && (
-          <div className="mt-3 pt-3 border-t border-purple-100">
-            <p className="text-xs font-black text-gray-400 mb-2">📷 Galería de actividades guardadas</p>
-            <div className="grid grid-cols-4 gap-2">
-              {data.actividades.map((a, i) => (
-                <a key={i} href={a.foto_url} target="_blank" rel="noreferrer" className="group">
-                  <img
-                    src={a.foto_url}
-                    alt="Actividad"
-                    className="w-full aspect-square object-cover rounded-lg border-2 border-purple-100 group-hover:border-purple-400 transition-all"
-                  />
-                </a>
-              ))}
-            </div>
+        {!data?.actividades || data.actividades.length === 0 ? (
+          <p className="text-sm text-gray-500 font-semibold text-center py-4">
+            Sin actividades capturadas para hoy. Edita desde el panel izquierdo.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {data.actividades.map((act) => (
+              <div key={act.id} className="rounded-xl border-2 border-purple-100 overflow-hidden bg-purple-50">
+                {act.foto_url && (
+                  <img src={act.foto_url} alt={act.descripcion} className="w-full h-32 object-cover" />
+                )}
+                <div className="p-3 space-y-2">
+                  <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>
+                  {!soloLectura && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActividadesParticipacion(prev => ({ ...prev, [act.id]: true }))}
+                        className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all
+                          ${actividadesParticipacion[act.id] === true ? 'bg-green-500 text-white' : 'bg-white border-2 border-green-200 text-green-600 hover:bg-green-50'}`}
+                      >
+                        ✓ Sí
+                      </button>
+                      <button
+                        onClick={() => setActividadesParticipacion(prev => ({ ...prev, [act.id]: false }))}
+                        className={`flex-1 py-2 rounded-lg font-bold text-xs transition-all
+                          ${actividadesParticipacion[act.id] === false ? 'bg-red-500 text-white' : 'bg-white border-2 border-red-200 text-red-600 hover:bg-red-50'}`}
+                      >
+                        ✗ No
+                      </button>
+                      <button
+                        onClick={() => setActividadesParticipacion(prev => {
+                          const copy = { ...prev };
+                          delete copy[act.id];
+                          return copy;
+                        })}
+                        className="px-3 py-2 rounded-lg font-bold text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"
+                      >
+                        —
+                      </button>
+                    </div>
+                  )}
+                  {soloLectura && act.participo !== null && (
+                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                      act.participo ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                    }`}>
+                      {act.participo ? '✓ Participó' : '✗ No participó'}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+            {!soloLectura && (
+              <ActividadesParticipacionGuardar
+                alumnoId={alumno.id}
+                fecha={fecha}
+                bitacoraId={data.bitacora?.id}
+                actividades={data.actividades}
+                actividadesParticipacion={actividadesParticipacion}
+                onGuardado={() => {
+                  queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+                }}
+              />
+            )}
           </div>
         )}
       </Seccion>
@@ -781,6 +981,8 @@ export default function MaestraBitacora() {
     weekday: 'long', day: 'numeric', month: 'long',
   });
 
+  const [mostrarCaptuaActividades, setMostrarCaptuaActividades] = useState(false);
+
   return (
     <div className="animate-fade-in">
       {/* Layout dos columnas en desktop */}
@@ -806,6 +1008,16 @@ export default function MaestraBitacora() {
               <p className="text-xs text-amber-600 font-bold mt-1 text-center">📖 Consultando día anterior</p>
             )}
           </div>
+
+          {/* Panel: Actividades del día */}
+          {!soloLectura && grupo && (
+            <CaptuaActividadesGrupo
+              grupoId={grupo.id}
+              fecha={fecha}
+              mostrar={mostrarCaptuaActividades}
+              setMostrar={setMostrarCaptuaActividades}
+            />
+          )}
 
           {isLoading ? (
             <div className="space-y-2">

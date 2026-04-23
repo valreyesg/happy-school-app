@@ -82,10 +82,12 @@ router.get('/:alumnoId', async (req, res, next) => {
       `, [alumnoId, fecha]),
 
       query(`
-        SELECT * FROM actividades_fotos
-        WHERE (alumno_id = $1 OR es_grupal = true)
-          AND fecha = COALESCE($2::date, CURRENT_DATE)
-        ORDER BY created_at ASC
+        SELECT ag.id, ag.descripcion, ag.foto_url, ag.orden, aa.participo
+        FROM actividades_grupo ag
+        LEFT JOIN actividades_alumno aa ON aa.actividad_grupo_id = ag.id AND aa.alumno_id = $1
+        WHERE ag.grupo_id = (SELECT grupo_id FROM alumnos WHERE id = $1)
+          AND ag.fecha = COALESCE($2::date, CURRENT_DATE)
+        ORDER BY ag.orden
       `, [alumnoId, fecha]),
     ]);
 
@@ -421,6 +423,133 @@ router.get('/:alumnoId/actividades', async (req, res, next) => {
     `, [alumnoId, fecha]);
 
     res.json(result.rows || []);
+  } catch (err) { next(err); }
+});
+
+// ── GET /bitacora/actividades-grupo?grupo_id=&fecha= ──────────────────────
+// Obtener actividades del día definidas por la maestra para su grupo
+router.get('/actividades-grupo', authorize('maestra'), async (req, res, next) => {
+  try {
+    const { grupo_id, fecha } = req.query;
+    if (!grupo_id) {
+      return res.status(400).json({ error: 'grupo_id is required' });
+    }
+
+    const result = await query(`
+      SELECT id, descripcion, foto_url, orden
+      FROM actividades_grupo
+      WHERE grupo_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)
+      ORDER BY orden ASC
+    `, [grupo_id, fecha]);
+
+    res.json(result.rows || []);
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/actividades-grupo ──────────────────────────────────────
+// Maestra define actividades del día para su grupo (multipart con fotos opcionales)
+router.post('/actividades-grupo', upload.array('fotos', 20), authorize('maestra'), async (req, res, next) => {
+  try {
+    const { grupo_id, fecha, actividades } = req.body;
+    if (!grupo_id || !actividades) {
+      return res.status(400).json({ error: 'grupo_id and actividades are required' });
+    }
+
+    const actividadesArray = JSON.parse(actividades);
+    const fechaFinal = fecha || new Date().toLocaleDateString('en-CA');
+
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
+    );
+    const maestraId = personalResult.rows[0]?.id || null;
+
+    // Eliminar actividades viejas del grupo+fecha
+    await query(
+      'DELETE FROM actividades_grupo WHERE grupo_id = $1 AND fecha = $2',
+      [grupo_id, fechaFinal]
+    );
+
+    // Subir fotos a Cloudinary y crear actividades
+    const actividadesInsertadas = await Promise.all(
+      actividadesArray.map(async (act, idx) => {
+        let fotoUrl = null;
+        let publicId = null;
+
+        if (req.files && req.files[idx]) {
+          const upload = await uploadToCloudinary(req.files[idx].buffer, { folder: 'happyschool/actividades-grupo' });
+          fotoUrl = upload.url;
+          publicId = upload.public_id;
+        }
+
+        return query(`
+          INSERT INTO actividades_grupo (grupo_id, fecha, orden, descripcion, foto_url, public_id, creado_por)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id, descripcion, foto_url, orden
+        `, [grupo_id, fechaFinal, act.orden || idx + 1, act.descripcion, fotoUrl, publicId, maestraId]);
+      })
+    );
+
+    res.status(201).json({
+      ok: true,
+      actividades: actividadesInsertadas.map(r => r.rows[0]),
+    });
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/actividades-alumno ─────────────────────────────────────
+// Guardar participación del alumno en actividades del grupo
+router.post('/actividades-alumno', async (req, res, next) => {
+  try {
+    const { alumno_id, bitacora_id, actividades, fecha } = req.body;
+    if (!alumno_id || !actividades) {
+      return res.status(400).json({ error: 'alumno_id and actividades are required' });
+    }
+
+    const actividadesArray = Array.isArray(actividades) ? actividades : JSON.parse(actividades);
+
+    let finalBitacoraId = bitacora_id;
+
+    // Si no hay bitacora_id, crear una bitácora vacía (para que exista el registro)
+    if (!finalBitacoraId) {
+      const fechaFinal = fecha || new Date().toLocaleDateString('en-CA');
+      const personalResult = await query('SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]);
+      const maestraId = personalResult.rows[0]?.id || null;
+
+      const bitacoraResult = await query(`
+        INSERT INTO bitacora_diaria (alumno_id, fecha, maestra_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (alumno_id, fecha) DO UPDATE SET updated_at = NOW()
+        RETURNING id
+      `, [alumno_id, fechaFinal, maestraId]);
+
+      finalBitacoraId = bitacoraResult.rows[0].id;
+    }
+
+    // Eliminar registros viejos para esta bitácora+alumno
+    await query(
+      `DELETE FROM actividades_alumno
+       WHERE bitacora_id = $1 AND alumno_id = $2`,
+      [finalBitacoraId, alumno_id]
+    );
+
+    // Insertar nuevos registros
+    const insertados = await Promise.all(
+      actividadesArray
+        .filter(a => a.actividad_grupo_id && a.participo !== undefined)
+        .map(a =>
+          query(`
+            INSERT INTO actividades_alumno (actividad_grupo_id, bitacora_id, alumno_id, participo)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *
+          `, [a.actividad_grupo_id, finalBitacoraId, alumno_id, a.participo])
+        )
+    );
+
+    res.status(201).json({
+      ok: true,
+      bitacora_id: finalBitacoraId,
+      registros: insertados.map(r => r.rows[0]),
+    });
   } catch (err) { next(err); }
 });
 

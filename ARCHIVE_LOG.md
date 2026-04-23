@@ -1,7 +1,30 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 43
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 44
+
+---
+
+## ✅ SESIÓN 44 — UI Mejoras Portal Maestra
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:**
+- `backend/src/routes/asistencia.js`
+- `web/src/pages/maestra/Asistencia.jsx`
+- `web/src/pages/maestra/Bitacora.jsx`
+- `web/src/pages/maestra/FiltroEntrada.jsx`
+- `web/src/pages/maestra/FiltroSalida.jsx`
+
+**Tareas Completadas (3/3):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Navegación prev/next de fechas** | Agregada en FiltroEntrada, FiltroSalida y Asistencia. Botones ChevronLeft/Right + modo solo lectura para días pasados. Backend acepta `?fecha=YYYY-MM-DD` en rutas filtro-entrada y filtro-salida. |
+| **Emojis Bitácora** | Escala visual de comida cambiada de `🍽️🥢🍱🚫` a `😋😊😐❌` para hacerlos más intuitivos en campo CUANTO. |
+| **Múltiples actividades por día** | Array dinámico en Bitácora: agregar, eliminar, guardar y recargar sin pérdida. Serializado con `\n`. Compatibilidad hacia atrás con formato anterior. |
+
+**Impacto:** Portal Maestra más usable — navegación fluida entre fechas sin regresar al menú, emojis de comida más claros, actividades sin límite de una por día.
 
 ---
 

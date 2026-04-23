@@ -1,7 +1,35 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 45
+**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 46
+
+---
+
+## ✅ SESIÓN 46 — Actividades: Debugging rutas + autorización
+
+**Fecha:** 2026-04-22
+
+**Archivos modificados:**
+- `backend/src/routes/bitacora.js` (route ordering, authorization, query parameters)
+- `.claude/settings.json` (hooks para auto-restart de servidores)
+
+**Tareas Completadas (1/1):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **Debugging actividades completo** | GET /bitacora/actividades-grupo → 500 error (ruta interpretada como :alumnoId UUID). Solución: mover ruta estática ANTES de :alumnoId. POST /bitacora/actividades-grupo → 403 Forbidden (authorize middleware con roles no coincidentes). Solución: cambiar a authenticate (cualquier usuario logueado). Parámetros query duplicados → corregir [alumnoId, alumnoId, fecha] a [alumnoId, fecha]. |
+
+**Bugs Arreglados:**
+- Express route ordering: static routes ANTES de parameterized routes
+- Authorization middleware: role names must match DB exactly
+- Query parameters: no duplicar variables en arrays
+
+**Aprendizajes Documentados en memory/:**
+- `feedback_servidor_restart.md` — Protocol: restart + validate with curl
+- `feedback_ruta_order_express.md` — Express routing best practice
+- `feedback_authorize_middleware.md` — Authorization role names from DB
+
+**Impacto:** Feature "actividades múltiples" 100% funcional. End-to-end: maestra captura → alumno participa → papá ve → directora consulta. Listo para UI improvements en Sesión 47.
 
 ---
 

@@ -1,14 +1,23 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 44 completada — Portal Maestra UI
+**Última actualización:** 2026-04-22 | **Estado:** Sesión 46 completada — Actividades: Captura + Validación
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 46 — Portal Papá + Mejoras UI
+## 📍 SESIÓN 46 — Actividades: Corrección de rutas + autorización
 
-### 🎨 MEJORAS UI — PORTAL PAPÁ
+### ✅ COMPLETADAS (1/1)
+- [x] **Debugging actividades:** Arreglar GET 500 (ruta ordenamiento), POST 403 (autorización), parámetros queries ✅
+
+**Impacto:** Sistema de actividades múltiples completamente funcional. Maestra captura actividades con fotos en panel lateral, alumno ve actividades en bitácora, papá ve tarjetas con participación, directora ve lista compacta. Base para SESIÓN 47.
+
+---
+
+## 📍 SESIÓN 47 — Portal Papá + Mejoras UI (PRÓXIMA)
+
+### 🎨 MEJORAS UI — PORTAL PAPÁ (6 items)
 - [ ] **Bitácora — Alimentación:** Mostrar en orden de Miss (Desayuno, Colación, Comida, Comida Extra).
 - [ ] **Vista Preparación (Próximos 3 días):** Dashboard principal muestre Tareas Pendientes + Eventos próximos.
 - [ ] **Navegación Bitácora:** Movimiento fluido entre Comida, Actividades, Conducta, Salud sin cerrar modal.
@@ -17,27 +26,6 @@
 - [ ] **Lógica de Avance Bitácora:** "En curso" durante jornada + "Finalizada" al cerrar. Mensaje "Aún no está lista" solo si 0% capturado.
 
 ---
-
-# 📍 HISTORIAL SESIÓN 45 — Actividades múltiples: Captura + Participación
-
-### ✅ COMPLETADAS (7/7)
-- [x] **Migración BD 022:** Tablas `actividades_grupo` + `actividades_alumno` ✅
-- [x] **Endpoints backend:** GET/POST actividades-grupo, POST actividades-alumno ✅
-- [x] **Panel Maestra — Captura grupo:** Modal/panel editable "🎨 Actividades del día" en sidebar ✅
-- [x] **Sección Bitácora — Participación:** Tarjetas con foto + botones Sí/No por actividad ✅
-- [x] **Guardado participación:** API calls para guardar actividades-alumno ✅
-- [x] **Portal Papá:** Tarjetas actividad con foto + badge participación ✅
-- [x] **Portal Directora:** Lista compacta actividades en BitacoraDirectora ✅
-
-**Impacto:** Arquitectura limpia donde la maestra captura actividades UNA SOLA VEZ (por grupo+fecha) y luego en cada bitácora de alumno selecciona participación individual. Papá ve actividades con foto y participación por hijo. Directora accede desde perfil del alumno y ve todas actividades del día en lista compacta con fotos.
-
-### 🎨 MEJORAS UI — PORTAL PAPÁ
-- [ ] **Bitácora — Alimentación:** Mostrar en orden de Miss (Desayuno, Colación, Comida, Comida Extra).
-- [ ] **Vista Preparación (Próximos 3 días):** Dashboard principal muestre Tareas Pendientes + Eventos próximos.
-- [ ] **Navegación Bitácora:** Movimiento fluido entre Comida, Actividades, Conducta, Salud sin cerrar modal.
-- [ ] **Orden de Recibos:** Mes Actual primero → Meses anteriores descendente → "Ver Todos".
-- [ ] **Validación Estatus Pagos:** Verde solo si 100% al corriente (no parcial).
-- [ ] **Lógica de Avance Bitácora:** "En curso" durante jornada + "Finalizada" al cerrar. Mensaje "Aún no está lista" solo si 0% capturado.
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
 - [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.

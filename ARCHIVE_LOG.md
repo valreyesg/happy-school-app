@@ -1,7 +1,32 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 50
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 51
+
+---
+
+## ✅ SESIÓN 51 — Inconsistencias Silenciosas FASE 2
+
+**Fecha:** 2026-04-23
+
+**Archivos modificados:**
+- `mobile/app/(padre)/bitacora.jsx` (claves comportamiento)
+- `mobile/app/(padre)/index.jsx` (claves ánimo)
+- `mobile/app/(maestra)/bitacora.jsx` (emoji no_comio + esfínteres nivel_codigo)
+- `web/src/pages/padre/Pagos.jsx` (semáforo de backend)
+- `web/src/components/ui/Semaforo.jsx` (simplificar SemaforoPago)
+
+**Tareas Completadas (5/5):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **#1 Comportamiento vacío padre mobile** | `excelente/bueno` → `muy_bien/bien` en `COMPORTAMIENTO` de bitacora.jsx. ENUM en BD es `muy_bien`, `bien`, `necesita_mejorar`. |
+| **#2 Ánimo siempre 🤔 dashboard padre mobile** | Agregar `activo: '⚡'` e `irritable: '😤'`; remover `inquieto` y `energico`. Alineado con web-maestra. |
+| **#3 Emoji No comió maestra mobile** | `no_comio: '✅'` → `no_comio: '❌'`. Semánticamente correcto — negación no éxito. |
+| **#4 Esfínteres frágil maestra mobile** | Reemplaza `grupoNombre.toLowerCase().includes('kinder 1')` por `['maternal','prekinder','kinder1'].includes(nivelCodigo)`. Pasa `nivel_codigo` estructurado desde `SelectorAlumno`. |
+| **#5 Semáforo pagos unificado** | `padre/Pagos.jsx`: usa `semaforo` del backend en lugar de calcular localmente por `saldo_pendiente`. `SemaforoPago.jsx`: simplificado a recibir `estado` string. Backend (`pagos.js` línea 32) es la fuente de verdad. |
+
+**Commit:** `fix: Sesión 51 — FASE 2 inconsistencias silenciosas (5 fixes)` (5 files, 15 insertions, 24 deletions)
 
 ---
 

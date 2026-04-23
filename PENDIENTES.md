@@ -1,24 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 50 COMPLETADA — Sesión 51 próxima
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 51 COMPLETADA — Sesión 52 próxima
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 51 (PRÓXIMA) — FASE 2 (Inconsistencias Silenciosas)
-
-### ⚠️ FASE 2 — Inconsistencias Silenciosas (datos que se muestran mal)
-
-- [ ] **Comportamiento vacío en padre mobile:** `mobile/app/(padre)/bitacora.jsx:35-39` usa claves `excelente` y `bueno`. Backend guarda `muy_bien` y `bien`. Fix: alinear a `muy_bien`, `bien`, `necesita_mejorar`.
-- [ ] **Ánimo siempre "🤔" en dashboard padre mobile:** `mobile/app/(padre)/index.jsx:21` usa `inquieto` y `energico`. Backend guarda `feliz`, `activo`, `cansado`, `triste`, `irritable`. Fix: alinear claves.
-- [ ] **Emoji ✅ para "No comió" en maestra mobile:** `mobile/app/(maestra)/bitacora.jsx:275-280` — semánticamente incorrecto. Fix: alinear con otros portales: `😋 😊 😐 ❌`.
-- [ ] **Lógica de esfínteres frágil:** `mobile/app/(maestra)/bitacora.jsx:124-129` — busca "kinder 1" como substring. Fix: usar `nivel_codigo` estructurado.
-- [ ] **Semáforo de pagos con 3 lógicas distintas:** Directora (días atraso), Padre (monto), Semaforo.jsx (otro umbral). Fix: calcular en backend, devolver campo `semaforo`.
-
----
-
-## 🎯 SESIÓN 52 (PRÓXIMA DESPUÉS DE 51) — FASE 3 (Hardcodeados) + Histórico + Notificaciones
+## 📍 SESIÓN 52 (PRÓXIMA) — FASE 3 (Hardcodeados) + Histórico + Notificaciones
 
 ### 🗂️ FASE 3 — Eliminar Hardcodeados (catálogos duplicados)
 

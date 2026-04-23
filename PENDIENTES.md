@@ -1,27 +1,32 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 55 COMPLETADA — bug bitácora + comida pagos mejorado
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 56 COMPLETADA (3 tareas)
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 56 (PRÓXIMA)
+## 📍 SESIÓN 56 ✅ COMPLETADA
 
 ---
 
+### ✅ 📊 DASHBOARD MAESTRA — Card "No entraron por retardos"
+- [x] **Dashboard Miss — Card implementada:** Endpoint GET `/grupos/mi-grupo/estadisticas/hoy` cuenta alumnos con `estado = 'no_entrada'` y motivo contiene "retardo"
+  - ✅ Card mostrando conteo en grid de stats (color naranja, icono UserX)
+  - ✅ Query refetch cada 30s
 
-### 📊 DASHBOARD MAESTRA — Card "No entraron por retardos"
-- [ ] **Dashboard Miss — Card faltante:** Agregar card "Sin entrada por retardos acumulados" para que la suma de todas las cards cuadre con el total de alumnos del grupo. Actualmente existen: En escuela, Retardos, Ausentes, Bitácoras guardadas. Falta: alumnos que acumularon retardos suficientes para no poder entrar ese día.
-  - Requiere: definir umbral de retardos (¿cuántos acumulados = no entrada?), consultar alumnos del grupo que superen ese umbral en el ciclo activo.
+### ✅ 👨‍👩‍👧 DASHBOARD PAPÁ — Detalle de entrada (Filtro sanitario)
+- [x] **Dashboard Papá — Filtro visible en card del hijo:** Implementado en Dashboard (no en bitácora detallada)
+  - ✅ Endpoint GET `/alumnos/mis-hijos` incluye completo `filtro_entrada`
+  - ✅ Card muestra: ✅ Autorizada / 🚫 Rechazada + motivo
+  - ✅ Grid visual checklist (uñas, uniforme, bata, agua, termo, ojos)
 
-### 👨‍👩‍👧 DASHBOARD PAPÁ — Ver filtro de entrada del hijo
-- [ ] **Dashboard Papá — Detalle de entrada:** Mostrar cómo entró el hijo en el filtro sanitario: qué trajo completo y qué le faltó (agua, bata, uñas cortadas, etc.). Actualmente el papá no ve el resultado del filtro de entrada.
-  - Requiere: exponer en el endpoint de bitácora del padre los campos del filtro de entrada (`filtro_entrada`), y mostrarlos en la vista de bitácora del día con estilo visual claro (✅ completo / ⚠️ faltante).
-
-### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
-- [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados. Endpoint `GET /alumnos/:id/ciclos` ya existe.
-- [ ] Aplica a: bitácora histórica, pagos históricos.
+### ✅ 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ (Fase 1)
+- [x] **Dashboard padre — Selector de ciclo implementado:** UI lista con dropdown
+  - ✅ Carga ciclos desde GET `/alumnos/:id/ciclos`
+  - ✅ Muestra ciclo actual destacado por defecto
+  - ✅ Preparado para filtro histórico en próxima iteración
+- [ ] **Próxima iteración:** Actualizar endpoint bitácora para aceptar `ciclo_id` + rango de fechas del ciclo
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
 - [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.

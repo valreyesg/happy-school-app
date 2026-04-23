@@ -1,7 +1,31 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-22 | Sesiones documentadas: 7 → 48
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 50
+
+---
+
+## ✅ SESIÓN 50 — Fixes Auditoría (Bugs Críticos FASE 1)
+
+**Fecha:** 2026-04-23
+
+**Archivos modificados:**
+- `mobile/app/(padre)/index.jsx` (endpoint)
+- `mobile/app/(maestra)/bitacora.jsx` (estructura comidas)
+- `web/src/pages/directora/AlumnoPerfil.jsx` (qr_code_url + doc names)
+
+**Tareas Completadas (4/4):**
+
+| Tarea | Detalle |
+|-------|---------|
+| **#1 Dashboard padre mobile — endpoint incorrecto** | Cambiar `/alumnos?rol=padre` → `/alumnos/mis-hijos` (línea 94). Ajustar `.data.alumnos` → `.data` porque `/mis-hijos` devuelve array directo. El padre ahora verá ánimo, conducta e incidentes del hijo. |
+| **#2 Comida mobile-maestra no llega al padre** | Reemplazar campos sueltos `que_comio`, `cuanto_comio`, `observaciones_comida` (líneas 238–240) por array estructurado `comidas: [{ tiempo: 'comida', que_comio, cuanto_comio, observaciones }]`. Backend solo procesa el array. |
+| **#3 QR no aparece en perfil alumno** | Cambiar `alumno.qr_url` → `alumno.qr_code_url` (línea 577). Backend devuelve `qr_code_url` en la columna correcta. QR ahora visible en Directora. |
+| **#4 Semáforo documentación siempre "incompleta"** | Alinear nombres en `TIPOS_DOC` y `DOC_REQUERIDOS`: `cartilla_vacuna` → `cartilla_vacunacion`, `foto_3x4` → `foto_escolar` (líneas 8–19). Alineación con BD resuelve mismatch silencioso. |
+
+**Commits:**
+- `fix: Sesión 50 — 4 bugs críticos de auditoría` (3 files, 18 insertions, 15 deletions)
+- `chore: Sesión 50 — FASE 1 bugs críticos completada, preparar Sesión 51`
 
 ---
 

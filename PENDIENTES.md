@@ -1,70 +1,53 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 50 en curso — 4 bugs críticos COMPLETADOS ✅
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 50 COMPLETADA — Sesión 51 próxima
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 🔴 SESIÓN 48 — Auditoría: Bugs Críticos + Inconsistencias entre Portales (PRÓXIMA)
+## 🔴 SESIÓN 50 — Fixes Auditoría (4 Bugs Críticos) ✅ COMPLETADA
 
-> Resultado de auditoría completa Sesión 47. Tres tipos de trabajo: bugs que rompen funcionalidad hoy, inconsistencias silenciosas (datos incorrectos que no se ven), y eliminación de hardcodeados.
+> Implementación de fixes de la auditoría Sesión 48.
 
-### 🐛 FASE 1 — Bugs Críticos (funcionalidad rota hoy) ✅ COMPLETADA
+### ✅ FASE 1 — Bugs Críticos (2026-04-23 — COMPLETADO)
 
-- [x] **Dashboard padre mobile — endpoint incorrecto:** `mobile/app/(padre)/index.jsx:94` ✅ cambiado a `/alumnos/mis-hijos`.
-- [x] **Comida desde mobile-maestra no llega al padre:** `mobile/app/(maestra)/bitacora.jsx` ✅ campos reestructurados a array `comidas`.
-- [x] **QR no aparece en perfil de alumno:** `web/src/pages/directora/AlumnoPerfil.jsx:577` ✅ cambiado a `qr_code_url`.
-- [x] **Semáforo de documentación siempre "incompleta":** ✅ nombres unificados `cartilla_vacunacion`, `foto_escolar`.
+- [x] **Dashboard padre mobile — endpoint:** `/alumnos?rol=padre` → `/alumnos/mis-hijos` 
+- [x] **Comida mobile-maestra:** campos sueltos → array `comidas: [{ tiempo, que_comio, ... }]`
+- [x] **QR perfil alumno:** `qr_url` → `qr_code_url`
+- [x] **Semáforo documentación:** `cartilla_vacuna`/`foto_3x4` → `cartilla_vacunacion`/`foto_escolar`
+
+---
+
+## 📍 SESIÓN 51 (PRÓXIMA) — FASE 2 (Inconsistencias Silenciosas)
 
 ### ⚠️ FASE 2 — Inconsistencias Silenciosas (datos que se muestran mal)
 
-- [ ] **Comportamiento vacío en padre mobile:** `mobile/app/(padre)/bitacora.jsx:35-39` usa claves `excelente` y `bueno`. El backend guarda `muy_bien` y `bien` (que escribe la maestra). Fix: alinear claves a `muy_bien`, `bien`, `necesita_mejorar`.
-- [ ] **Ánimo siempre "🤔" en dashboard padre mobile:** `mobile/app/(padre)/index.jsx:21` usa `inquieto` y `energico` como claves, omitiendo `activo` e `irritable` que sí guarda la maestra. Fix: alinear a `feliz`, `activo`, `cansado`, `triste`, `irritable`.
-- [ ] **Emoji ✅ para "No comió" en maestra mobile:** `mobile/app/(maestra)/bitacora.jsx:275-280` usa ✅ para `no_comio` (semánticamente incorrecto) y emojis de comida oriental sin sentido. Fix: alinear con los otros portales: `😋 😊 😐 ❌`.
-- [ ] **Lógica de esfínteres frágil en mobile-maestra:** `mobile/app/(maestra)/bitacora.jsx:124-129` detecta el nivel buscando "kinder 1" como substring del nombre del grupo (frágil). Web-maestra usa el campo estructurado `nivel_codigo`. Fix: pasar `nivel_codigo` como parámetro a la pantalla y usar comparación estructurada.
-- [ ] **Semáforo de pagos con lógica diferente en cada portal:** Directora calcula por días de atraso (≥30=rojo, ≥60=suspendido), Padre por monto (>$1,000=rojo), Semaforo.jsx con otro umbral. Fix: calcular `semaforo` en backend y devolver el campo calculado; eliminar lógica local en los 3 frontends.
+- [ ] **Comportamiento vacío en padre mobile:** `mobile/app/(padre)/bitacora.jsx:35-39` usa claves `excelente` y `bueno`. Backend guarda `muy_bien` y `bien`. Fix: alinear a `muy_bien`, `bien`, `necesita_mejorar`.
+- [ ] **Ánimo siempre "🤔" en dashboard padre mobile:** `mobile/app/(padre)/index.jsx:21` usa `inquieto` y `energico`. Backend guarda `feliz`, `activo`, `cansado`, `triste`, `irritable`. Fix: alinear claves.
+- [ ] **Emoji ✅ para "No comió" en maestra mobile:** `mobile/app/(maestra)/bitacora.jsx:275-280` — semánticamente incorrecto. Fix: alinear con otros portales: `😋 😊 😐 ❌`.
+- [ ] **Lógica de esfínteres frágil:** `mobile/app/(maestra)/bitacora.jsx:124-129` — busca "kinder 1" como substring. Fix: usar `nivel_codigo` estructurado.
+- [ ] **Semáforo de pagos con 3 lógicas distintas:** Directora (días atraso), Padre (monto), Semaforo.jsx (otro umbral). Fix: calcular en backend, devolver campo `semaforo`.
+
+---
+
+## 🎯 SESIÓN 52+ — FASE 3 (Hardcodeados) + Histórico + Notificaciones
 
 ### 🗂️ FASE 3 — Eliminar Hardcodeados (catálogos duplicados)
 
-- [ ] **Backend — endpoint `GET /catalogos/:tipo`:** Crear endpoint que devuelva catálogos dinámicos: `animo`, `comportamiento`, `cuanto-comio`, `tiempos-comida`, `condiciones-panial`, `niveles` (con `nivel_siguiente` y `requiere_control_esfinteres`), `roles-personal` (con `requiere_grupo`), `estados-alumno`, `tipos-documento` (con `requerido: boolean`), `metodos-pago`, `conceptos-pago`, `tipos-parentesco`.
-- [ ] **Web — reemplazar arrays hardcodeados:** `Bitacora.jsx` (maestra), `CiclosEscolares.jsx`, `Grupos.jsx` (fix inconsistencia `kinder_1` vs `kinder1`), `Personal.jsx`, `TurnoPuerta.jsx`, `Alumnos.jsx`, `AlumnoPerfil.jsx`, `Pagos.jsx` (directora y padre), `Dashboard.jsx` (padre).
-- [ ] **Mobile — reemplazar arrays hardcodeados:** `mobile/(padre)/bitacora.jsx`, `mobile/(padre)/index.jsx`, `mobile/(maestra)/bitacora.jsx`.
-- [ ] **IP hardcodeada en mobile:** `mobile/src/services/api.js` tiene `192.168.1.93:3000` fija. Fix: mover a variable de entorno `EXPO_PUBLIC_API_URL` en `mobile/.env` (agregar al `.gitignore`).
+- [ ] **Backend — endpoint `GET /catalogos/:tipo`:** Crear endpoint dinámico para `animo`, `comportamiento`, `cuanto-comio`, `tiempos-comida`, `condiciones-panial`, `niveles`, `roles-personal`, `estados-alumno`, `tipos-documento`, `metodos-pago`, `conceptos-pago`, `tipos-parentesco`.
+- [ ] **Web — reemplazar arrays hardcodeados:** `Bitacora.jsx`, `CiclosEscolares.jsx`, `Grupos.jsx`, `Personal.jsx`, `TurnoPuerta.jsx`, `Alumnos.jsx`, `AlumnoPerfil.jsx`, `Pagos.jsx`, `Dashboard.jsx` (padre).
+- [ ] **Mobile — reemplazar arrays hardcodeados:** `bitacora.jsx` (padre), `index.jsx` (padre), `bitacora.jsx` (maestra).
+- [ ] **IP hardcodeada en mobile:** `mobile/src/services/api.js` → `EXPO_PUBLIC_API_URL` env var en `mobile/.env`.
 
----
-
-## 🎯 SESIÓN 50 — Fixes Auditoría (COMPLETADO) + Histórico + Notificaciones
-
-### ✅ FASE 1 — Bugs Críticos (2026-04-23 — COMPLETADO EN 1 SESIÓN)
-
-Los 4 bugs identificados en auditoría Sesión 48 han sido implementados:
-1. Dashboard padre mobile ahora usa `/alumnos/mis-hijos` → verá ánimo/conducta
-2. Comida mobile-maestra ahora envía estructura `comidas` → padre recibe datos
-3. QR en perfil alumno ahora visible → `qr_code_url` correcto
-4. Semáforo documentación funciona → `cartilla_vacunacion`/`foto_escolar` alineados
-
-**Servidores restarteados:** Web `npm run dev` activo. Frontend cambios listos para validación.
-
----
-
-## 📍 SESIÓN 51 (PRÓXIMA) — Histórico + Notificaciones
-
-### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ (pendiente mover a Sesión 48 si se completa la auditoría antes)
-- [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados.
-- [ ] Aplica a: bitácora histórica, pagos históricos. Endpoint `GET /alumnos/:id/ciclos` ya existe en backend.
-
----
+### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
+- [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados. Endpoint `GET /alumnos/:id/ciclos` ya existe.
+- [ ] Aplica a: bitácora histórica, pagos históricos.
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
 - [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.
-- [ ] **Modal en pantalla completa:** Cuando Miss/Directora crea evento/tarea/cancela comida → notificación modal en papá (obligar cerrar manual para confirmar lectura).
-- [ ] **Triggers multi-evento:**
-  - Evento nuevo de Miss.
-  - Tarea nueva.
-  - Pago atrasado.
-  - Cancelación comida.
-  - Entrega/recogida por tercero (no padre logueado).
+- [ ] **Modal en pantalla completa:** Cuando Miss/Directora crea evento/tarea/cancela comida → notificación modal en papá.
+- [ ] **Triggers multi-evento:** Evento nuevo, Tarea nueva, Pago atrasado, Cancelación comida, Entrega/recogida por tercero.
 
 ---
 

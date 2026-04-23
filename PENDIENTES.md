@@ -1,34 +1,19 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 57 — Bugs + Protocolo
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 58 — Próxima
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 57 — BUGS + PROTOCOLO SÍNTOMAS
+## 📍 SESIÓN 58 (PRÓXIMA) — DASHBOARD PAPÁ + NOTIFICACIONES
 
-### 🔴 BUG CRÍTICO: Rechazo por síntomas vs Retardo
-- [ ] **Santiago Gutierrez Mendoza:** No entró por fiebre + síntomas, pero vista dice "Retardo #1" (imposible)
-  - Revisar: `registro_entrada.puede_entrar`, `motivo_no_entrada`, `es_retardo` — hay inconsistencia
-  - **Impacta:** Todas las vistas (Miss, Papá, Directora) que reportan entrada
-
-### 🟠 ASISTENCIA MISS — Solo muestra un alumno incorrecto
-- [ ] **Dashboard `/maestra/asistencia`:** Mostrar solo alumnos del grupo de la miss
-  - Revisar filtro en endpoint o frontend query de asistencia
-  - Actualmente trae alumnos de otros grupos
-
-### 🟠 PROTOCOLO SÍNTOMAS — Alertas visuales
-- [ ] **Dashboard Directora + Miss (`/asistencia`):** Card ROJO para alumnos rechazados por síntomas/fiebre
-  - Propósito: activar protocolo de salud inmediato
-  - Mostrar: nombre, hora, motivo (fiebre 38.5°C / síntomas: tos, diarrea, etc.)
-
-### 👨‍👩‍👧 DASHBOARD PAPÁ — Visibilidad rechazo
+### 👨‍👩‍👧 DASHBOARD PAPÁ — Visibilidad rechazo de entrada
 - [ ] **Dashboard Papá — Filtro entrada:** Cuando entrada rechazada, mostrar claramente:
-  - ✅ Motivo exacto (fiebre X°C / síntomas / retardos acumulados)
-  - ✅ Retardos acumulados en el mes (ej: "3/3 retardos — próxima entrada bloqueada")
-  - ✅ Advertencia visual roja si ya alcanzó límite
+  - Motivo exacto (fiebre X°C / síntomas / retardos acumulados)
+  - Retardos acumulados en el mes (ej: "3/3 retardos — próxima entrada bloqueada")
+  - Advertencia visual roja si ya alcanzó límite
 - [ ] **Bitácora Papá:** Agregar sección de entrada con motivo (análogo a comida/salud/incidentes)
 
 ### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)

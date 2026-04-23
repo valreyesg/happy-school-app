@@ -1,7 +1,53 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 56
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 57
+
+---
+
+## ✅ SESIÓN 57 — 3 Bugs Entrada: Síntomas vs Retardos + Asistencia Miss + Protocolo Salud
+
+**Fecha:** 2026-04-23 | **Commits:** 1
+
+### Bugs Corregidos
+
+**Bug 1 — Alumno rechazado por fiebre mostraba "Retardo #N" (imposible)**
+- Causa: `es_retardo` se calculaba solo por hora, independiente de síntomas. Frontend mostraba badge sin verificar `puede_entrar`
+- Backend fix (`asistencia.js`):
+  - Reordenar evaluación: síntomas/fiebre primero (máxima prioridad), retardos solo si pasó filtro de salud
+  - Solo marcar `es_retardo = true` si `puedeEntrar === true` (línea 27-60)
+- Frontend fix:
+  - `FiltroEntrada.jsx` línea 248: Agregar `&& alumno.estado_asistencia !== 'no_entrada'`
+  - `Asistencia.jsx` línea 238: Agregar misma condición
+- Resultado: Alumnos rechazados por síntomas nunca muestran "Retardo #N", conteo mensual correcto
+
+**Bug 2 — Asistencia Miss mostraba alumnos de otros grupos**
+- Causa: Fallback para maestra no-titular usaba `ORDER BY ag.created_at DESC LIMIT 1` — retornaba grupo aleatorio
+- Backend fix (`grupos.js` línea 126-142):
+  - Filtrar por `dias_semana` del día actual: `($2 = ANY(ag.dias_semana) OR ag.dias_semana IS NULL)`
+  - Cambiar a `ORDER BY g.nombre LIMIT 1` — determinístico
+- Resultado: Maestra especial ve solo alumnos del grupo asignado a HOY
+
+**Bug 3 — Protocolo síntomas: visualización en rojo (feature nueva)**
+- Backend (`reportes.js`):
+  - Query nueva `rechazados_sintomas`: Filtra `puede_entrar = false AND (sin_fiebre = false OR temperatura > 37.5 OR sin_sintomas = false)`
+  - Incluye: `nombre_completo`, `grupo_nombre`, `temperatura`, `motivo_no_entrada`
+- Frontend Directora (`Dashboard.jsx`):
+  - Card roja "🚨 Rechazados por síntomas hoy" similar a incidentes
+  - Muestra temperatura en badge rojo, motivo en texto rojo
+- Frontend Miss (`Dashboard.jsx`):
+  - Banner rojo derivado de `grupo.alumnos` (sin nueva API call)
+  - Auto-refetch cada 30s junto con datos del grupo
+- Resultado: Alerta visual inmediata en ambos dashboards → protocolo de salud activado
+
+### Archivos Modificados
+- `backend/src/routes/asistencia.js`
+- `backend/src/routes/grupos.js`
+- `backend/src/routes/reportes.js`
+- `web/src/pages/maestra/FiltroEntrada.jsx`
+- `web/src/pages/maestra/Asistencia.jsx`
+- `web/src/pages/maestra/Dashboard.jsx`
+- `web/src/pages/directora/Dashboard.jsx`
 
 ---
 

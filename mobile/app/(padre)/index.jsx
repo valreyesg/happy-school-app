@@ -18,7 +18,7 @@ function proximos3Dias() {
   };
 }
 
-const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
+const EMOJIS_ANIMO = { feliz: '😊', activo: '⚡', cansado: '😴', triste: '😢', irritable: '😤' };
 const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 
 const CONDUCTA_STYLE = {

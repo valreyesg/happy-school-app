@@ -33,8 +33,8 @@ const TIEMPOS_COMIDA = [
 ];
 
 const COMPORTAMIENTO = {
-  excelente:        { emoji: '⭐', label: 'Excelente', color: '#D69E2E' },
-  bueno:            { emoji: '👍', label: 'Bueno',     color: '#38A169' },
+  muy_bien:         { emoji: '⭐', label: 'Excelente', color: '#D69E2E' },
+  bien:             { emoji: '👍', label: 'Bien',      color: '#38A169' },
   necesita_mejorar: { emoji: '⚠️', label: 'A mejorar', color: '#E53E3E' },
 };
 

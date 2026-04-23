@@ -90,7 +90,7 @@ function SelectorAlumno() {
           <TouchableOpacity
             key={alumno.id}
             style={s.alumnoCard}
-            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&grupo=${encodeURIComponent(alumno.grupo_nombre || '')}`)}
+            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&nivelCodigo=${encodeURIComponent(alumno.nivel_codigo || '')}`)}
           >
             <View style={[s.avatarCircle, { backgroundColor: '#805AD5' }]}>
               <Text style={s.avatarTxt}>{alumno.nombre_completo.charAt(0)}</Text>
@@ -116,18 +116,12 @@ function SelectorAlumno() {
 
 // ─── Formulario de bitácora ──────────────────────────────────────────────────
 
-function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
+function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const fecha = new Date().toISOString().split('T')[0];
 
-  const grupoLower = (grupoNombre || '').toLowerCase();
-  const mostrarEsfinteres = !usaPanial && (
-    grupoLower.includes('maternal') ||
-    grupoLower.includes('prekinder') ||
-    grupoLower.includes('kinder 1') ||
-    grupoLower.includes('kinder1')
-  );
+  const mostrarEsfinteres = !usaPanial && ['maternal', 'prekinder', 'kinder1'].includes(nivelCodigo);
 
   // ── Estado del formulario ──
   const [animo, setAnimo] = useState(null);
@@ -279,7 +273,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
     { key: 'todo', emoji: '🍽️', label: 'Todo' },
     { key: 'casi_todo', emoji: '🥢', label: 'Casi todo' },
     { key: 'poco', emoji: '🍱', label: 'Poco' },
-    { key: 'no_comio', emoji: '✅', label: 'No comió' },
+    { key: 'no_comio', emoji: '❌', label: 'No comió' },
   ];
 
   return (
@@ -526,7 +520,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, grupoNombre }) {
 
 export default function BitacoraScreen() {
   const params = useLocalSearchParams();
-  const { alumnoId, nombre, usaPanial, grupo } = params;
+  const { alumnoId, nombre, usaPanial, nivelCodigo } = params;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -535,7 +529,7 @@ export default function BitacoraScreen() {
           alumnoId={alumnoId}
           nombre={decodeURIComponent(nombre || '')}
           usaPanial={usaPanial === 'true'}
-          grupoNombre={decodeURIComponent(grupo || '')}
+          nivelCodigo={decodeURIComponent(nivelCodigo || '')}
         />
       ) : (
         <SelectorAlumno />

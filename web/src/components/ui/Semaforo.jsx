@@ -14,12 +14,11 @@ export const SemaforoBadge = ({ estado, texto, className = '' }) => {
   );
 };
 
-// Indicador para estado de pago
-export const SemaforoPago = ({ diasAtraso, enPeriodo }) => {
-  if (diasAtraso > 30) return <SemaforoBadge estado="gris" texto="Suspendido" />;
-  if (diasAtraso > 0)  return <SemaforoBadge estado="rojo" texto={`${diasAtraso}d de atraso`} />;
-  if (enPeriodo)       return <SemaforoBadge estado="amarillo" texto="En período" />;
-  return <SemaforoBadge estado="verde" texto="Al corriente" />;
+// Indicador para estado de pago — recibe `estado` calculado por backend (verde/amarillo/rojo/suspendido)
+export const SemaforoPago = ({ estado }) => {
+  const textos = { verde: 'Al corriente', amarillo: 'Por vencer', rojo: 'Atrasado', suspendido: 'Suspendido' };
+  const estados = { suspendido: 'gris', rojo: 'rojo', amarillo: 'amarillo', verde: 'verde' };
+  return <SemaforoBadge estado={estados[estado] || 'gris'} texto={textos[estado] || 'Sin info'} />;
 };
 
 // Indicador para documentación

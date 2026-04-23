@@ -409,7 +409,7 @@ export default function PadreBitacora() {
                             <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
                               <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>
                               {c.que_comio && <p className="text-sm font-semibold mb-1">{c.que_comio}</p>}
-                              <FilaInfo label="¿Cuánto?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} />
+                              {c.cuanto_comio && <FilaInfo label="¿Cuánto?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label || c.cuanto_comio} />}
                               {c.observaciones && <p className="text-xs text-gray-600 mt-2 italic">{c.observaciones}</p>}
                             </div>
                           ))}

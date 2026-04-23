@@ -7,26 +7,33 @@
 
 ## ✅ SESIÓN 57 — 3 Bugs Entrada: Síntomas vs Retardos + Asistencia Miss + Protocolo Salud
 
-**Fecha:** 2026-04-23 | **Commits:** 1
+**Fecha:** 2026-04-23 | **Commits:** 2 (implementación + correcciones)
 
 ### Bugs Corregidos
 
-**Bug 1 — Alumno rechazado por fiebre mostraba "Retardo #N" (imposible)**
-- Causa: `es_retardo` se calculaba solo por hora, independiente de síntomas. Frontend mostraba badge sin verificar `puede_entrar`
+**Bug 1 — Alumno rechazado por fiebre mostraba "Retardo #N" (COMPLETAMENTE CORREGIDO)**
+- Causa: `es_retardo` se calculaba solo por hora, independiente de síntomas. Frontend mostraba badge sin verificar `puede_entrar`. Endpoint devolvía `numero_retardo_mes` aunque alumno fuera rechazado.
 - Backend fix (`asistencia.js`):
-  - Reordenar evaluación: síntomas/fiebre primero (máxima prioridad), retardos solo si pasó filtro de salud
-  - Solo marcar `es_retardo = true` si `puedeEntrar === true` (línea 27-60)
+  - Reordenar evaluación: síntomas/fiebre primero (máxima prioridad), retardos solo si pasó filtro de salud (línea 27-60)
+  - Solo marcar `es_retardo = true` si `puedeEntrar === true`
+  - Endpoint `/asistencia/grupo/:id`: `CASE WHEN puede_entrar=false THEN 0 ELSE numero_retardo_mes` (línea 308)
 - Frontend fix:
   - `FiltroEntrada.jsx` línea 248: Agregar `&& alumno.estado_asistencia !== 'no_entrada'`
   - `Asistencia.jsx` línea 238: Agregar misma condición
-- Resultado: Alumnos rechazados por síntomas nunca muestran "Retardo #N", conteo mensual correcto
+  - `Dashboard.jsx Directora`: `ModalRetardosGrupo` filtra `.filter(a => a.estado_asistencia !== 'no_entrada')` + actualiza cálculo de `totalRetardos` y `tieneAlumnosSeveros`
+- Resultado: Alumnos rechazados por síntomas NUNCA muestran retardo en ninguna vista
 
-**Bug 2 — Asistencia Miss mostraba alumnos de otros grupos**
-- Causa: Fallback para maestra no-titular usaba `ORDER BY ag.created_at DESC LIMIT 1` — retornaba grupo aleatorio
+**Bug 2 — Asistencia Miss mostraba alumnos de otros grupos (COMPLETAMENTE CORREGIDO)**
+- Causa: 
+  - Backend fallback usaba `ORDER BY ag.created_at DESC LIMIT 1` — retornaba grupo aleatorio
+  - Frontend cacheaba query sin invalidar al cambiar usuario
 - Backend fix (`grupos.js` línea 126-142):
   - Filtrar por `dias_semana` del día actual: `($2 = ANY(ag.dias_semana) OR ag.dias_semana IS NULL)`
   - Cambiar a `ORDER BY g.nombre LIMIT 1` — determinístico
-- Resultado: Maestra especial ve solo alumnos del grupo asignado a HOY
+- Frontend fix (`Dashboard.jsx` Miss):
+  - Importar `useQueryClient` de React Query
+  - Agregar `useEffect` que invalida caché cuando cambia `usuario.id`: `queryClient.invalidateQueries({ queryKey: ['mi-grupo'] })`
+- Resultado: Maestra especial ve su grupo correcto inmediatamente, sin necesidad de F5
 
 **Bug 3 — Protocolo síntomas: visualización en rojo (feature nueva)**
 - Backend (`reportes.js`):
@@ -40,14 +47,14 @@
   - Auto-refetch cada 30s junto con datos del grupo
 - Resultado: Alerta visual inmediata en ambos dashboards → protocolo de salud activado
 
-### Archivos Modificados
-- `backend/src/routes/asistencia.js`
-- `backend/src/routes/grupos.js`
-- `backend/src/routes/reportes.js`
-- `web/src/pages/maestra/FiltroEntrada.jsx`
-- `web/src/pages/maestra/Asistencia.jsx`
-- `web/src/pages/maestra/Dashboard.jsx`
-- `web/src/pages/directora/Dashboard.jsx`
+### Archivos Modificados (7 archivos)
+- `backend/src/routes/asistencia.js` (línea 27-60: lógica síntomas; línea 308: CASE WHEN)
+- `backend/src/routes/grupos.js` (línea 126-142: filtro dias_semana)
+- `backend/src/routes/reportes.js` (Query rechazados_sintomas)
+- `web/src/pages/maestra/FiltroEntrada.jsx` (línea 248: condición)
+- `web/src/pages/maestra/Asistencia.jsx` (línea 238: condición)
+- `web/src/pages/maestra/Dashboard.jsx` (useQueryClient + useEffect invalidate)
+- `web/src/pages/directora/Dashboard.jsx` (filter + cálculo totalRetardos)
 
 ---
 

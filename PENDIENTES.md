@@ -6,19 +6,6 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 🔴 SESIÓN 50 — Fixes Auditoría (4 Bugs Críticos) ✅ COMPLETADA
-
-> Implementación de fixes de la auditoría Sesión 48.
-
-### ✅ FASE 1 — Bugs Críticos (2026-04-23 — COMPLETADO)
-
-- [x] **Dashboard padre mobile — endpoint:** `/alumnos?rol=padre` → `/alumnos/mis-hijos` 
-- [x] **Comida mobile-maestra:** campos sueltos → array `comidas: [{ tiempo, que_comio, ... }]`
-- [x] **QR perfil alumno:** `qr_url` → `qr_code_url`
-- [x] **Semáforo documentación:** `cartilla_vacuna`/`foto_3x4` → `cartilla_vacunacion`/`foto_escolar`
-
----
-
 ## 📍 SESIÓN 51 (PRÓXIMA) — FASE 2 (Inconsistencias Silenciosas)
 
 ### ⚠️ FASE 2 — Inconsistencias Silenciosas (datos que se muestran mal)
@@ -31,7 +18,7 @@
 
 ---
 
-## 🎯 SESIÓN 52+ — FASE 3 (Hardcodeados) + Histórico + Notificaciones
+## 🎯 SESIÓN 52 (PRÓXIMA DESPUÉS DE 51) — FASE 3 (Hardcodeados) + Histórico + Notificaciones
 
 ### 🗂️ FASE 3 — Eliminar Hardcodeados (catálogos duplicados)
 

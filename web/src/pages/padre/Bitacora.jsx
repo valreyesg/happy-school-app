@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
@@ -57,6 +57,32 @@ function PildoraBool({ label, valor }) {
     }`}>
       {valor ? '✓' : '✗'} {label}
     </span>
+  );
+}
+
+function SelectorCiclo({ ciclos, ciclIdSeleccionado, onChange }) {
+  const ciclActual = ciclos.find(c => c.activo);
+  const ciclDefault = ciclActual || (ciclos.length > 0 ? ciclos[0] : null);
+  const ciclElegido = ciclos.find(c => c.id === ciclIdSeleccionado) || ciclDefault;
+
+  return (
+    <div className="bg-white rounded-2xl border border-red-100 p-3 mb-4">
+      <div className="flex items-center gap-2 mb-2">
+        <Calendar size={16} className="text-red-500" />
+        <p className="text-xs font-black text-gray-500 uppercase tracking-wide">Ciclo escolar</p>
+      </div>
+      <select
+        value={ciclElegido?.id || ''}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+      >
+        {ciclos.map(c => (
+          <option key={c.id} value={c.id}>
+            {c.nombre}{c.activo ? ' (Actual)' : ''}
+          </option>
+        ))}
+      </select>
+    </div>
   );
 }
 
@@ -154,6 +180,7 @@ export default function PadreBitacora() {
   };
 
   const [fecha, setFecha] = useState(getPrimerDiaHabil());
+  const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');
   const [incidenteFirmando, setIncidenteFirmando] = useState(null);
   const tabsRef = useRef(null);
@@ -171,6 +198,20 @@ export default function PadreBitacora() {
     staleTime: 0,
     gcTime: 0,
   });
+
+  const { data: ciclos = [] } = useQuery({
+    queryKey: ['ciclos-alumno', alumnoId],
+    queryFn: () => alumnoId ? api.get(`/alumnos/${alumnoId}/ciclos`).then(r => r.data) : Promise.resolve([]),
+    enabled: !!alumnoId,
+  });
+
+  // Establecer ciclo por defecto al cargar ciclos
+  useEffect(() => {
+    if (ciclos.length > 0 && !cicloId) {
+      const ciclActual = ciclos.find(c => c.activo);
+      setCicloId(ciclActual?.id || ciclos[0].id);
+    }
+  }, [ciclos, cicloId]);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['bitacora-padre', alumnoId, fecha],
@@ -279,10 +320,21 @@ export default function PadreBitacora() {
         <Navigate replace to={`/padre/bitacora?alumnoId=${hijos[0].id}&nombre=${encodeURIComponent(hijos[0].nombre_completo)}`} />
       )}
 
-      {alumnoId && (
+      {alumnoId && ciclos.length > 0 && (
+        <>
+          <SelectorCiclo ciclos={ciclos} ciclIdSeleccionado={cicloId} onChange={setCicloId} />
+          <SelectorFecha fecha={fecha} onChange={setFecha} />
+        </>
+      )}
+
+      {alumnoId && ciclos.length === 0 && (
         <>
           <SelectorFecha fecha={fecha} onChange={setFecha} />
+        </>
+      )}
 
+      {alumnoId && (
+        <>
           {isLoading && (
             <div className="card-hs p-12 flex items-center justify-center">
               <div className="animate-spin w-8 h-8 border-4 border-red-400 border-t-transparent rounded-full" />

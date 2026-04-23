@@ -266,14 +266,27 @@ router.delete('/:id/blacklist/:blId', authorize('directora'), async (req, res, n
   } catch (err) { next(err); }
 });
 
-// ── GET /alumnos/:id/ciclos — ciclos en que estuvo inscrito ──────────────────
+// ── GET /alumnos/:id/ciclos — ciclos en que estuvo inscrito + ciclo actual ──
 router.get('/:id/ciclos', async (req, res, next) => {
   try {
     const result = await query(`
       SELECT DISTINCT ce.id, ce.nombre, ce.fecha_inicio, ce.fecha_fin, ce.activo
-      FROM inscripciones i
-      JOIN ciclos_escolares ce ON ce.id = i.ciclo_id
-      WHERE i.alumno_id = $1
+      FROM (
+        -- Ciclos de inscripciones históricas
+        SELECT DISTINCT ce.id, ce.nombre, ce.fecha_inicio, ce.fecha_fin, ce.activo
+        FROM inscripciones i
+        JOIN ciclos_escolares ce ON ce.id = i.ciclo_id
+        WHERE i.alumno_id = $1
+
+        UNION
+
+        -- Ciclo actual del grupo del alumno (en caso de no tener inscripción formal)
+        SELECT DISTINCT ce.id, ce.nombre, ce.fecha_inicio, ce.fecha_fin, ce.activo
+        FROM alumnos a
+        JOIN grupos g ON a.grupo_id = g.id
+        JOIN ciclos_escolares ce ON g.ciclo_id = ce.id
+        WHERE a.id = $1 AND a.deleted_at IS NULL
+      ) ce
       ORDER BY ce.fecha_inicio DESC
     `, [req.params.id]);
 

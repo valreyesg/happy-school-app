@@ -1,18 +1,25 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 52 COMPLETADA — FASE 3 Hardcodeados implementada
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 53 COMPLETADA — bugs post-FASE 3 corregidos
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 53 (PRÓXIMA) — Histórico + Notificaciones + Pendientes FASE 3
+## 📍 SESIÓN 54 (PRÓXIMA) — Deuda FASE 3 + Dashboard + Histórico
 
 ### 🗂️ FASE 3 — Pendientes (completar)
-- [ ] **Web — `AlumnoPerfil.jsx`:** Migrar `ANIMO_LABEL`, `CUANTO_LABEL`, `COMP_LABEL`, `PANIAL_LABEL` a `useCatalogo` + `toMap()` (deuda directa de sesión 52).
 - [ ] **Web — `Pagos.jsx`:** Migrar `METODOS` y `TIPOS_CONCEPTO` a `useCatalogo`.
 - [ ] **Web — `TurnoPuerta.jsx`:** Migrar `ROL_LABEL` a `useCatalogo('roles-personal')`.
 - [ ] **Bitácora — Precargar menú del día:** Si el alumno tiene servicio de comida contratado y hay menú publicado para esa fecha, precargar el campo `que_comio` de cada tiempo con el platillo del menú. Requiere: verificar servicio contratado del alumno, consultar tabla de menús del día, precargar en `FormBitacora` antes de que la miss edite.
+
+### 📊 DASHBOARD MAESTRA — Card "No entraron por retardos"
+- [ ] **Dashboard Miss — Card faltante:** Agregar card "Sin entrada por retardos acumulados" para que la suma de todas las cards cuadre con el total de alumnos del grupo. Actualmente existen: En escuela, Retardos, Ausentes, Bitácoras guardadas. Falta: alumnos que acumularon retardos suficientes para no poder entrar ese día.
+  - Requiere: definir umbral de retardos (¿cuántos acumulados = no entrada?), consultar alumnos del grupo que superen ese umbral en el ciclo activo.
+
+### 👨‍👩‍👧 DASHBOARD PAPÁ — Ver filtro de entrada del hijo
+- [ ] **Dashboard Papá — Detalle de entrada:** Mostrar cómo entró el hijo en el filtro sanitario: qué trajo completo y qué le faltó (agua, bata, uñas cortadas, etc.). Actualmente el papá no ve el resultado del filtro de entrada.
+  - Requiere: exponer en el endpoint de bitácora del padre los campos del filtro de entrada (`filtro_entrada`), y mostrarlos en la vista de bitácora del día con estilo visual claro (✅ completo / ⚠️ faltante).
 
 ### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ
 - [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados. Endpoint `GET /alumnos/:id/ciclos` ya existe.

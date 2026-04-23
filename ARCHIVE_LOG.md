@@ -1,7 +1,35 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 52
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 53
+
+---
+
+## ✅ SESIÓN 53 — Bugs post-FASE 3: bitácora directora + personal
+
+**Fecha:** 2026-04-23
+
+### Bugs corregidos
+
+- **Personal.jsx — `/directora/personal` no cargaba:**
+  - `ModalPersonal` y `TarjetaPersonal` referenciaban `ROLES` sin recibirla como prop → `ReferenceError`
+  - Fix: prop `roles={ROLES}` pasada desde `DirectoraPersonal` a ambos componentes
+  - Fix adicional: línea 429 usaba `r.value` en lugar de `r.key` en el filtro de roles
+
+- **AlumnoPerfil.jsx — Bitácora directora sin datos:**
+  - `ANIMO_LABEL`, `COMP_LABEL`, `CUANTO_LABEL`, `PANIAL_LABEL` usados pero no definidos (eliminados en FASE 3 de maestra sin actualizar directora)
+  - Fix: agregado `useCatalogo` + `toMap()` en `BitacoraDirectora` para los 4 catálogos dinámicos
+  - Fix: orden de alimentación con `.sort()` explícito (`desayuno→colación→comida→comida_extra`)
+  - Fix: sección de incidentes agregada (estaba omitida — API sí la devolvía)
+  - Fix: hora de medicamentos formateada con `toLocaleTimeString` (antes mostraba ISO completo)
+
+- **personal.js — Tarjetas mostraban grupos de ciclos históricos:**
+  - Query `GET /personal` no filtraba `asignaciones_grupo` por ciclo activo
+  - Fix: subquery con `JOIN ciclos_escolares WHERE activo = true`
+
+### Agregados a PENDIENTES (próximas sesiones)
+- Dashboard maestra: card "Sin entrada por retardos acumulados"
+- Dashboard papá: mostrar resultado del filtro de entrada (qué trajo / qué faltó)
 
 ---
 

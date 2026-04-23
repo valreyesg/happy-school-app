@@ -3,6 +3,8 @@
 **Última actualización:** 2026-04-23 | **Estado:** Sesión 58 — Próxima
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
+**✅ Sesión 57 COMPLETADA:** 3 bugs entrada (síntomas vs retardos + asistencia miss + protocolo salud) — Ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
+
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS

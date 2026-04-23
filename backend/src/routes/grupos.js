@@ -64,6 +64,47 @@ router.post('/', authorize('directora'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Estadísticas del grupo para hoy (Miss dashboard)
+router.get('/mi-grupo/estadisticas/hoy', async (req, res, next) => {
+  try {
+    // Obtener grupo de la maestra
+    const grupoResult = await query(`
+      SELECT g.id FROM grupos g
+      JOIN asignaciones_grupo ag ON ag.grupo_id = g.id
+      JOIN personal p ON ag.personal_id = p.id
+      JOIN ciclos_escolares c ON ag.ciclo_id = c.id
+      WHERE p.usuario_id = $1
+        AND ag.activo = true
+        AND c.activo = true
+        AND ag.es_titular = true
+      LIMIT 1
+    `, [req.user.id]);
+
+    if (grupoResult.rows.length === 0) {
+      return res.status(404).json({ error: 'No tienes grupo asignado' });
+    }
+
+    const grupoId = grupoResult.rows[0].id;
+
+    // Contar alumnos que NO entraron por retardos acumulados
+    const noEntradaRetardosResult = await query(`
+      SELECT COUNT(*) AS count
+      FROM alumnos a
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      WHERE a.grupo_id = $1
+        AND a.deleted_at IS NULL
+        AND a.estado IN ('inscrito', 'reinscrito')
+        AND ast.estado = 'no_entrada'
+        AND re.motivo_no_entrada ILIKE '%retardo%'
+    `, [grupoId]);
+
+    res.json({
+      no_entrada_retardos: parseInt(noEntradaRetardosResult.rows[0].count),
+    });
+  } catch (err) { next(err); }
+});
+
 // Grupo de la maestra autenticada + alumnos con estado del día
 // Usado por el dashboard mobile de la maestra
 router.get('/mi-grupo', async (req, res, next) => {

@@ -81,6 +81,12 @@ export default function MaestraDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: estadisticasHoy } = useQuery({
+    queryKey: ['estadisticas-grupo-hoy'],
+    queryFn: () => api.get('/grupos/mi-grupo/estadisticas/hoy').then(r => r.data),
+    refetchInterval: 30000,
+  });
+
   // Obtener lunes de la semana actual (semana_inicio para comida)
   // El banner se muestra toda la semana (lunes a domingo)
   const getLunesActual = () => {
@@ -119,6 +125,7 @@ export default function MaestraDashboard() {
   const enEscuela = alumnos.filter(a => ['presente', 'retardo'].includes(a.estado_asistencia)).length;
   const retardos = alumnos.filter(a => a.estado_asistencia === 'retardo').length;
   const ausentes = alumnos.filter(a => !a.estado_asistencia || a.estado_asistencia === 'ausente').length;
+  const noEntradaRetardos = estadisticasHoy?.no_entrada_retardos ?? 0;
   const bitacorasGuardadas = alumnos.filter(a => a.estado_animo !== null).length;
 
   const horaSalidaNormal = configHorario?.horarios?.hora_salida_normal || '15:00';
@@ -231,10 +238,11 @@ export default function MaestraDashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy"      color="bg-green-500" />
         <StatCard icon={Clock}      value={retardos}                       label="Retardos"             color="bg-yellow-500" />
         <StatCard icon={UserX}      value={ausentes}                       label="Ausentes"             color="bg-red-400" />
+        <StatCard icon={UserX}      value={noEntradaRetardos}              label="Sin entrada (retardos)" color="bg-orange-500" />
         <StatCard icon={BookOpen}   value={`${bitacorasGuardadas}/${totalAlumnos}`} label="Bitácoras guardadas" color="bg-purple-500" />
       </div>
 

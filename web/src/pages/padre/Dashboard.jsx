@@ -23,8 +23,21 @@ const COMPORTAMIENTO = {
   necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  bg: 'bg-orange-100', text: 'text-orange-700' },
 };
 
+function FiltroEntradaBadge({ item, label }) {
+  if (!item) return null;
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-xs font-bold text-gray-600">{label}:</span>
+      <span className={`text-lg ${item ? '✅ text-green-600' : '⚠️ text-orange-600'}`}>
+        {item ? '✅' : '⚠️'}
+      </span>
+    </div>
+  );
+}
+
 function HijoCard({ hijo }) {
   const bit = hijo.bitacora_hoy;
+  const entrada = hijo.filtro_entrada;
 
   return (
     <Link
@@ -44,6 +57,35 @@ function HijoCard({ hijo }) {
         </div>
         <span className="text-red-400 text-lg">›</span>
       </div>
+
+      {/* Filtro de entrada */}
+      {entrada && entrada.puede_entrar !== null && (
+        <div className={`px-5 py-3 border-b ${
+          entrada.puede_entrar
+            ? 'bg-green-50 border-green-100'
+            : 'bg-red-50 border-red-100'
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xl">{entrada.puede_entrar ? '🚪 ✅' : '🚪 🚫'}</span>
+            <span className={`text-xs font-black uppercase ${entrada.puede_entrar ? 'text-green-700' : 'text-red-700'}`}>
+              {entrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
+            </span>
+          </div>
+          {entrada.motivo_no_entrada && !entrada.puede_entrar && (
+            <p className="text-xs text-red-600 font-semibold mb-2">{entrada.motivo_no_entrada}</p>
+          )}
+          {entrada.puede_entrar && (
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <FiltroEntradaBadge item={entrada.uñas_cortadas} label="Uñas" />
+              <FiltroEntradaBadge item={entrada.trae_uniforme} label="Uniforme" />
+              <FiltroEntradaBadge item={entrada.trae_bata} label="Bata" />
+              <FiltroEntradaBadge item={entrada.agua_suficiente} label="Agua" />
+              <FiltroEntradaBadge item={entrada.trae_termo} label="Termo" />
+              <FiltroEntradaBadge item={entrada.sin_lagañas} label="Ojos" />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Bitácora del día */}
       {bit ? (

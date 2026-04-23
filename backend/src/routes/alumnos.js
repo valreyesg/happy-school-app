@@ -25,13 +25,19 @@ router.get('/mis-hijos', async (req, res, next) => {
         (SELECT COUNT(*) FROM incidentes i
          WHERE i.alumno_id = a.id
            AND i.fecha::date = CURRENT_DATE
-           AND i.firma_padre_url IS NULL) AS incidentes_sin_firmar
+           AND i.firma_padre_url IS NULL) AS incidentes_sin_firmar,
+        -- Filtro de entrada
+        re.hora_entrada, re.es_retardo, re.puede_entrar, re.motivo_no_entrada,
+        re.uñas_cortadas, re.sin_lagañas, re.sin_fiebre, re.temperatura,
+        re.sin_sintomas, re.sintomas_notas, re.panial_limpio, re.trae_uniforme,
+        re.trae_bata, re.trae_termo, re.agua_suficiente
       FROM padres p
       JOIN alumno_padre ap ON ap.padre_id = p.id
       JOIN alumnos a ON ap.alumno_id = a.id
       JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN bitacora_diaria b  ON b.alumno_id  = a.id AND b.fecha  = CURRENT_DATE
       LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
       WHERE p.usuario_id = $1 AND a.deleted_at IS NULL
       ORDER BY a.id, a.nombre_completo
     `, [req.user.id]);
@@ -39,16 +45,52 @@ router.get('/mis-hijos', async (req, res, next) => {
     const rows = result.rows.map(r => {
       const { estado_animo, actividad_realizada, comportamiento, notas, tuvo_fiebre, incidentes_sin_firmar } = r;
       const bitacora_hoy = estado_animo !== null ? { estado_animo, actividad_realizada, comportamiento, notas, tuvo_fiebre, incidentes_sin_firmar: parseInt(incidentes_sin_firmar || 0) } : null;
+
+      // Construir objeto filtro_entrada si existe
+      const filtro_entrada = r.hora_entrada ? {
+        hora_entrada: r.hora_entrada,
+        es_retardo: r.es_retardo,
+        puede_entrar: r.puede_entrar,
+        motivo_no_entrada: r.motivo_no_entrada,
+        uñas_cortadas: r.uñas_cortadas,
+        sin_lagañas: r.sin_lagañas,
+        sin_fiebre: r.sin_fiebre,
+        temperatura: r.temperatura,
+        sin_sintomas: r.sin_sintomas,
+        sintomas_notas: r.sintomas_notas,
+        panial_limpio: r.panial_limpio,
+        trae_uniforme: r.trae_uniforme,
+        trae_bata: r.trae_bata,
+        trae_termo: r.trae_termo,
+        agua_suficiente: r.agua_suficiente,
+      } : null;
+
       return {
         ...r,
         bitacora_hoy,
+        filtro_entrada,
+        // Clean up individual fields
         estado_animo: undefined,
-        cuanto_comio: undefined,
         actividad_realizada: undefined,
         comportamiento: undefined,
         notas: undefined,
         tuvo_fiebre: undefined,
         incidentes_sin_firmar: undefined,
+        hora_entrada: undefined,
+        es_retardo: undefined,
+        puede_entrar: undefined,
+        motivo_no_entrada: undefined,
+        uñas_cortadas: undefined,
+        sin_lagañas: undefined,
+        sin_fiebre: undefined,
+        temperatura: undefined,
+        sin_sintomas: undefined,
+        sintomas_notas: undefined,
+        panial_limpio: undefined,
+        trae_uniforme: undefined,
+        trae_bata: undefined,
+        trae_termo: undefined,
+        agua_suficiente: undefined,
       };
     });
 

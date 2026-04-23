@@ -91,7 +91,7 @@ export default function PadreDashboard() {
 
   const { data: hijos, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
-    queryFn: () => api.get('/alumnos?rol=padre').then(r => r.data.alumnos),
+    queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
 
   const { desde, hasta } = proximos3Dias();

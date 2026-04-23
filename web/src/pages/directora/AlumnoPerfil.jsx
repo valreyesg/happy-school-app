@@ -6,17 +6,17 @@ import api from '../../services/api';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
 const TIPOS_DOC = [
-  { value: 'acta_nacimiento',  label: 'Acta de nacimiento' },
-  { value: 'curp',             label: 'CURP' },
-  { value: 'cartilla_vacuna',  label: 'Cartilla de vacunación' },
-  { value: 'comprobante_dom',  label: 'Comprobante de domicilio' },
-  { value: 'foto_3x4',         label: 'Fotografía 3×4' },
-  { value: 'ine_tutor',        label: 'INE del tutor' },
-  { value: 'contrato',         label: 'Contrato firmado' },
-  { value: 'otro',             label: 'Otro' },
+  { value: 'acta_nacimiento',    label: 'Acta de nacimiento' },
+  { value: 'curp',               label: 'CURP' },
+  { value: 'cartilla_vacunacion', label: 'Cartilla de vacunación' },
+  { value: 'comprobante_dom',    label: 'Comprobante de domicilio' },
+  { value: 'foto_escolar',       label: 'Fotografía 3×4' },
+  { value: 'ine_tutor',          label: 'INE del tutor' },
+  { value: 'contrato',           label: 'Contrato firmado' },
+  { value: 'otro',               label: 'Otro' },
 ];
 
-const DOC_REQUERIDOS = ['acta_nacimiento', 'curp', 'cartilla_vacuna', 'comprobante_dom', 'foto_3x4'];
+const DOC_REQUERIDOS = ['acta_nacimiento', 'curp', 'cartilla_vacunacion', 'comprobante_dom', 'foto_escolar'];
 
 function edad(fecha) {
   if (!fecha) return null;
@@ -574,8 +574,8 @@ export default function DirectoraAlumnoPerfil() {
                   </span>
                 </div>
               </div>
-              {alumno.qr_url && (
-                <img src={alumno.qr_url} alt="QR" className="w-16 h-16 rounded-xl border border-gray-100" />
+              {alumno.qr_code_url && (
+                <img src={alumno.qr_code_url} alt="QR" className="w-16 h-16 rounded-xl border border-gray-100" />
               )}
             </div>
 

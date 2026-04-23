@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-22 | **Estado:** Sesión 48 completada (auditoría) → Sesión 49 próxima: implementar fixes
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 50 en curso — 4 bugs críticos COMPLETADOS ✅
 
 ---
 
@@ -10,12 +10,12 @@
 
 > Resultado de auditoría completa Sesión 47. Tres tipos de trabajo: bugs que rompen funcionalidad hoy, inconsistencias silenciosas (datos incorrectos que no se ven), y eliminación de hardcodeados.
 
-### 🐛 FASE 1 — Bugs Críticos (funcionalidad rota hoy)
+### 🐛 FASE 1 — Bugs Críticos (funcionalidad rota hoy) ✅ COMPLETADA
 
-- [ ] **Dashboard padre mobile — endpoint incorrecto:** `mobile/app/(padre)/index.jsx:94` llama `/alumnos?rol=padre` en vez de `/alumnos/mis-hijos`. El padre mobile nunca ve ánimo, conducta ni alertas del hijo porque el endpoint genérico no devuelve `bitacora_hoy`. Fix: cambiar a `api.get('/alumnos/mis-hijos')`.
-- [ ] **Comida desde mobile-maestra no llega al padre:** `mobile/app/(maestra)/bitacora.jsx:239` envía campos sueltos (`que_comio`, `cuanto_comio`, `observaciones_comida`). El backend solo procesa el array `comidas: [{ tiempo, que_comio, cuanto_comio, observaciones }]`. Fix: reestructurar formulario mobile de comida a modelo de 4 tiempos igual que web-maestra.
-- [ ] **QR no aparece en perfil de alumno:** `web/src/pages/directora/AlumnoPerfil.jsx:577` accede a `alumno.qr_url` pero el backend devuelve `alumno.qr_code_url`. Fix: renombrar a `qr_code_url`.
-- [ ] **Semáforo de documentación siempre "incompleta":** Frontend define `cartilla_vacuna` y `foto_3x4` como requeridos; backend busca `cartilla_vacunacion` y `foto_escolar`. Fix: unificar nombres en ambos lados para que coincidan exactamente.
+- [x] **Dashboard padre mobile — endpoint incorrecto:** `mobile/app/(padre)/index.jsx:94` ✅ cambiado a `/alumnos/mis-hijos`.
+- [x] **Comida desde mobile-maestra no llega al padre:** `mobile/app/(maestra)/bitacora.jsx` ✅ campos reestructurados a array `comidas`.
+- [x] **QR no aparece en perfil de alumno:** `web/src/pages/directora/AlumnoPerfil.jsx:577` ✅ cambiado a `qr_code_url`.
+- [x] **Semáforo de documentación siempre "incompleta":** ✅ nombres unificados `cartilla_vacunacion`, `foto_escolar`.
 
 ### ⚠️ FASE 2 — Inconsistencias Silenciosas (datos que se muestran mal)
 
@@ -34,7 +34,21 @@
 
 ---
 
-## 📍 SESIÓN 50 — Histórico + Notificaciones
+## 🎯 SESIÓN 50 — Fixes Auditoría (COMPLETADO) + Histórico + Notificaciones
+
+### ✅ FASE 1 — Bugs Críticos (2026-04-23 — COMPLETADO EN 1 SESIÓN)
+
+Los 4 bugs identificados en auditoría Sesión 48 han sido implementados:
+1. Dashboard padre mobile ahora usa `/alumnos/mis-hijos` → verá ánimo/conducta
+2. Comida mobile-maestra ahora envía estructura `comidas` → padre recibe datos
+3. QR en perfil alumno ahora visible → `qr_code_url` correcto
+4. Semáforo documentación funciona → `cartilla_vacunacion`/`foto_escolar` alineados
+
+**Servidores restarteados:** Web `npm run dev` activo. Frontend cambios listos para validación.
+
+---
+
+## 📍 SESIÓN 51 (PRÓXIMA) — Histórico + Notificaciones
 
 ### 📂 HISTÓRICO POR CICLO ESCOLAR — PORTAL PAPÁ (pendiente mover a Sesión 48 si se completa la auditoría antes)
 - [ ] **Dashboard padre — Selector de ciclo:** Mostrar ciclo actual por defecto, permitir consultar ciclos pasados.

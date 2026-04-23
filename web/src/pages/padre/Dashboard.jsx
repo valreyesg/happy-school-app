@@ -65,25 +65,24 @@ function HijoCard({ hijo }) {
             ? 'bg-green-50 border-green-100'
             : 'bg-red-50 border-red-100'
         }`}>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <span className="text-xl">{entrada.puede_entrar ? '🚪 ✅' : '🚪 🚫'}</span>
             <span className={`text-xs font-black uppercase ${entrada.puede_entrar ? 'text-green-700' : 'text-red-700'}`}>
               {entrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
             </span>
           </div>
           {entrada.motivo_no_entrada && !entrada.puede_entrar && (
-            <p className="text-xs text-red-600 font-semibold mb-2">{entrada.motivo_no_entrada}</p>
+            <p className="text-xs text-red-600 font-semibold mb-3">{entrada.motivo_no_entrada}</p>
           )}
-          {entrada.puede_entrar && (
-            <div className="grid grid-cols-3 gap-2 text-xs">
-              <FiltroEntradaBadge item={entrada.uñas_cortadas} label="Uñas" />
-              <FiltroEntradaBadge item={entrada.trae_uniforme} label="Uniforme" />
-              <FiltroEntradaBadge item={entrada.trae_bata} label="Bata" />
-              <FiltroEntradaBadge item={entrada.agua_suficiente} label="Agua" />
-              <FiltroEntradaBadge item={entrada.trae_termo} label="Termo" />
-              <FiltroEntradaBadge item={entrada.sin_lagañas} label="Ojos" />
-            </div>
-          )}
+          {/* Checklist siempre visible */}
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            <FiltroEntradaBadge item={entrada.uñas_cortadas} label="Uñas" />
+            <FiltroEntradaBadge item={entrada.trae_uniforme} label="Uniforme" />
+            <FiltroEntradaBadge item={entrada.trae_bata} label="Bata" />
+            <FiltroEntradaBadge item={entrada.agua_suficiente} label="Agua" />
+            <FiltroEntradaBadge item={entrada.trae_termo} label="Termo" />
+            <FiltroEntradaBadge item={entrada.sin_lagañas} label="Ojos" />
+          </div>
         </div>
       )}
 

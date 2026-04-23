@@ -389,7 +389,10 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
           {comidas.length > 0 && (
             <div className="card-hs space-y-2">
               <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🍽️ Alimentación</h3>
-              {comidas.map((c, i) => (
+              {[...comidas].sort((a, b) =>
+                ['desayuno','colacion','comida','comida_extra'].indexOf(a.tiempo) -
+                ['desayuno','colacion','comida','comida_extra'].indexOf(b.tiempo)
+              ).map((c, i) => (
                 <div key={i} className="border-l-4 border-hs-purple pl-3 py-1">
                   <p className="text-xs font-black text-hs-purple mb-1">
                     {{desayuno:'🥐 Desayuno', colacion:'🍎 Colación', comida:'🍽️ Comida', comida_extra:'🍜 Comida Extra'}[c.tiempo]}
@@ -462,6 +465,38 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
                   {m.hora_administracion && <span className="text-gray-400 ml-2">{m.hora_administracion}</span>}
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Incidentes */}
+          {data?.incidentes?.length > 0 && (
+            <div className="card-hs">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">⚠️ Incidentes</h3>
+              <div className="space-y-3">
+                {data.incidentes.map((inc, i) => (
+                  <div key={i} className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3 space-y-1">
+                    <p className="text-sm font-black text-red-800">{inc.descripcion}</p>
+                    {inc.acciones_tomadas && <p className="text-xs text-red-600">Acciones: {inc.acciones_tomadas}</p>}
+                    {inc.fotos_urls?.length > 0 && (
+                      <div className="flex gap-2 flex-wrap mt-1">
+                        {inc.fotos_urls.map((url, j) => (
+                          <a key={j} href={url} target="_blank" rel="noreferrer">
+                            <img src={url} alt="Foto incidente" className="w-16 h-16 object-cover rounded-lg border border-red-200" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-red-400">
+                      {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                    {inc.firma_padre_url && (
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 rounded-lg text-xs font-semibold text-green-700">
+                        ✅ Firmado por padre/tutor el {new Date(inc.firma_fecha).toLocaleDateString('es-MX')}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

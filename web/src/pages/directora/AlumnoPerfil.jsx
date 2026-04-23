@@ -1,8 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
+import { toMap } from '@/utils/catalogos';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
 const TIPOS_DOC = [
@@ -269,12 +271,6 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
   );
 }
 
-// ─── Catálogos bitácora (solo lectura) ───────────────────────────────────────
-const ANIMO_LABEL   = { feliz:'😊 Feliz', activo:'⚡ Activo', cansado:'😴 Cansado', triste:'😢 Triste', irritable:'😤 Irritable' };
-const CUANTO_LABEL  = { todo:'😋 Todo', casi_todo:'😊 Casi todo', poco:'😐 Poco', no_comio:'❌ No comió' };
-const COMP_LABEL    = { muy_bien:'⭐ Muy bien', bien:'👍 Bien', necesita_mejorar:'⚠️ A mejorar' };
-const PANIAL_LABEL  = { limpio:'✅ Limpio', orina:'💧 Pipí', heces:'💩 Popó', mixto:'🔄 Mixto' };
-
 function FilaBit({ label, valor }) {
   if (!valor && valor !== 0 && valor !== false) return null;
   return (
@@ -300,6 +296,17 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
     const nueva = d.toLocaleDateString('en-CA');
     if (nueva <= hoy) setFecha(nueva);
   };
+
+  // Catálogos para la bitácora
+  const { items: animoItems }     = useCatalogo('animo');
+  const { items: compItems }      = useCatalogo('comportamiento');
+  const { items: cuantoItems }    = useCatalogo('cuanto-comio');
+  const { items: panialItems }    = useCatalogo('condiciones-panial');
+
+  const ANIMO_MAP  = useMemo(() => toMap(animoItems), [animoItems]);
+  const COMP_MAP   = useMemo(() => toMap(compItems), [compItems]);
+  const CUANTO_MAP = useMemo(() => toMap(cuantoItems), [cuantoItems]);
+  const PANIAL_MAP = useMemo(() => toMap(panialItems), [panialItems]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['bitacora-dir', alumnoId, fecha],
@@ -343,8 +350,8 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
           {/* Estado general */}
           <div className="card-hs space-y-1">
             <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">Estado general</h3>
-            <FilaBit label="Ánimo"         valor={ANIMO_LABEL[b.estado_animo] ?? b.estado_animo} />
-            <FilaBit label="Comportamiento" valor={COMP_LABEL[b.comportamiento] ?? b.comportamiento} />
+            <FilaBit label="Ánimo"         valor={ANIMO_MAP[b.estado_animo]?.label ?? b.estado_animo} />
+            <FilaBit label="Comportamiento" valor={COMP_MAP[b.comportamiento]?.label ?? b.comportamiento} />
             {b.comportamiento_notas && <FilaBit label="Nota conducta" valor={b.comportamiento_notas} />}
           </div>
 
@@ -387,7 +394,7 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
                   <p className="text-xs font-black text-hs-purple mb-1">
                     {{desayuno:'🥐 Desayuno', colacion:'🍎 Colación', comida:'🍽️ Comida', comida_extra:'🍜 Comida Extra'}[c.tiempo]}
                   </p>
-                  <FilaBit label="¿Cuánto?" valor={CUANTO_LABEL[c.cuanto_comio] ?? c.cuanto_comio} />
+                  <FilaBit label="¿Cuánto?" valor={CUANTO_MAP[c.cuanto_comio]?.label ?? c.cuanto_comio} />
                   {c.que_comio && <FilaBit label="¿Qué?" valor={c.que_comio} />}
                   {c.observaciones && <FilaBit label="Nota" valor={c.observaciones} />}
                 </div>
@@ -406,7 +413,7 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
                       <span className="text-xs font-bold text-purple-600 min-w-14">
                         {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </span>
-                      <span className="text-sm font-semibold text-gray-700">{PANIAL_LABEL[p.condicion] ?? p.condicion}</span>
+                      <span className="text-sm font-semibold text-gray-700">{PANIAL_MAP[p.condicion]?.label ?? p.condicion}</span>
                       {p.tiene_irritacion && <span className="text-xs text-orange-500 font-bold">⚠️ irritación</span>}
                     </div>
                   ))}

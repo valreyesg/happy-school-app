@@ -279,12 +279,32 @@
       "PowerShell(Get-Process node -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 3; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start 2>&1 | Select-Object -First 50)",
       "PowerShell(Get-Process node -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2; Set-Location 'C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend'; npm start)",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"maestra@example.com\",\"password\":\"password123\"}')",
-      "Bash(cd c:\\\\\\\\Users\\\\\\\\vreyesg\\\\\\\\SynologyDrive\\\\\\\\Documentos\\\\\\\\VALERIA\\\\\\\\APP-KINDER)"
+      "Bash(cd c:\\\\\\\\Users\\\\\\\\vreyesg\\\\\\\\SynologyDrive\\\\\\\\Documentos\\\\\\\\VALERIA\\\\\\\\APP-KINDER)",
+      "Bash(grep -E \"\\\\.\\(sql|js|ts\\)$\")",
+      "Bash(curl -s http://localhost:3000/alumnos)",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f /tmp/query.sql)",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -U postgres -d happy_school -c \"SELECT id, nombre_completo FROM alumnos WHERE nombre_completo ILIKE '%emilio%' LIMIT 1;\" | Out-String)",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -U postgres -d happy_school -c \"SELECT tuvo_fiebre, fecha, estado_animo, comportamiento FROM bitacora_diaria WHERE alumno_id = '2ee56308-2835-4924-bc0a-d8a256caa337' AND fecha::date = CURRENT_DATE;\" | Out-String)",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -U postgres -d happy_school -c \"\\\\dt\" | Out-String | Select-String \"incidente\")",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -U postgres -d happy_school -c \"\\\\d incidentes\" | Out-String)",
+      "Bash(curl -s http://localhost:3000/alumnos/mis-hijos -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjJlZTU2MzA4LTI4MzUtNDkyNC1iYzBhLWQ4YTI1NmNhYTMzNyIsImVtYWlsIjoidmFsZS5yZXllcy5nYXJjaWFAZ21haWwuY29tIiwicm9sIjoicGFkcmUiLCJpYXQiOjE3ODI5NTI0ODB9.0IkK2-8xAw5MmMJQH1A1YM_Qm_Bwc0LVqOh5qHpFzsY')",
+      "Bash(curl -s http://localhost:3000/alumnos/1)",
+      "PowerShell(\"Procesos node eliminados\")",
+      "Bash(grep -r \"const.*=.*\\\\[\" /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER --include=\"*.jsx\" --include=\"*.js\" ! -path \"*/node_modules/*\" ! -path \"*/.git/*\")",
+      "Bash(chmod +x /tmp/test_fixes.sh)",
+      "Bash(bash /tmp/test_fixes.sh)",
+      "Bash(curl -s http://localhost:3000/api/catalogos/animo)",
+      "Bash(curl -s http://localhost:5000/health)",
+      "PowerShell(\"Procesos Node.js detenidos\")",
+      "Bash(curl -s \"http://localhost:3000/personal\")",
+      "Bash(curl -s \"http://localhost:3000/api/personal\" -H \"Authorization: Bearer dummy\")",
+      "Bash(curl -s \"http://localhost:5173/directora/personal\")"
     ],
     "additionalDirectories": [
       "\\tmp",
       "c:\\Users\\vreyesg\\.claude\\projects\\c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER\\memory",
-      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend"
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend",
+      "C:\\Users\\vreyesg\\.claude\\plans"
     ]
   }
 }

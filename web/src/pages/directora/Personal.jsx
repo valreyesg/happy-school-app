@@ -7,7 +7,7 @@ import { ROL_COLOR } from '@/utils/catalogos';
 // ─── Catálogos ────────────────────────────────────────────────────────────────
 
 // ─── Modal crear / editar ─────────────────────────────────────────────────────
-function ModalPersonal({ persona, grupos, onClose, onSave }) {
+function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
   const esNuevo = !persona;
   const [form, setForm] = useState({
     nombre_completo: persona?.nombre_completo || '',
@@ -131,7 +131,7 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rol del sistema *</label>
                 <select className="input-hs w-full" value={form.rol_principal} onChange={e => set('rol_principal', e.target.value)}>
-                  {ROLES.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                  {roles.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
                 </select>
               </div>
               <div>
@@ -239,7 +239,7 @@ function ModalPersonal({ persona, grupos, onClose, onSave }) {
 }
 
 // ─── Tarjeta de personal ──────────────────────────────────────────────────────
-function TarjetaPersonal({ persona, onEdit, onReset }) {
+function TarjetaPersonal({ persona, roles, onEdit, onReset }) {
   const rol = persona.rol_principal;
   const grupos = persona.grupos_asignados || [];
 
@@ -262,7 +262,7 @@ function TarjetaPersonal({ persona, onEdit, onReset }) {
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-black text-gray-800 truncate">{persona.nombre_completo}</h3>
           <span className={`inline-block text-xs font-black px-2 py-0.5 rounded-full mt-1 ${ROL_COLOR[rol] || 'bg-gray-100 text-gray-600'}`}>
-            {ROLES.find(r => r.key === rol)?.label || rol}
+            {roles.find(r => r.key === rol)?.label || rol}
           </span>
         </div>
       </div>
@@ -426,7 +426,7 @@ export default function DirectoraPersonal() {
         />
         <select className="input-hs sm:w-52" value={filtroRol} onChange={e => setFiltroRol(e.target.value)}>
           <option value="todos">Todos los roles</option>
-          {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+          {ROLES.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
         </select>
         <label className="flex items-center gap-2 text-sm font-semibold text-gray-600 cursor-pointer whitespace-nowrap">
           <input type="checkbox" className="rounded" checked={soloActivos} onChange={e => setSoloActivos(e.target.checked)} />
@@ -458,6 +458,7 @@ export default function DirectoraPersonal() {
             <TarjetaPersonal
               key={p.id}
               persona={p}
+              roles={ROLES}
               onEdit={setModal}
               onReset={setResetConfirm}
             />
@@ -470,6 +471,7 @@ export default function DirectoraPersonal() {
         <ModalPersonal
           persona={modal === 'nuevo' ? null : modal}
           grupos={grupos}
+          roles={ROLES}
           onClose={() => setModal(null)}
           onSave={handleSave}
         />

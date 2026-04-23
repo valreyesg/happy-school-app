@@ -1,7 +1,30 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 54
+**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 55
+
+---
+
+## ✅ SESIÓN 55 — Bug bitácora + Servicio Comida pagos mejorado
+
+**Fecha:** 2026-04-23
+
+### Completado
+
+- **Bug crítico `Bitacora.jsx` (Maestra):** Bloqueado registro de bitácora para alumnos sin entrada. Validación `tieneEntrada = alumno.hora_entrada && ['presente','retardo'].includes(alumno.estado_asistencia)`. Banner rojo informativo + botón guardar deshabilitado si no hay entrada.
+
+- **`ServicioComida.jsx` (Directora) — Tab Pagos:**
+  - Badge de nivel del alumno (`nivel_nombre`) junto al nombre en cada tarjeta
+  - Tabs de filtro por nivel (Todos, Kinder 1, Kinder 2, etc.) generados dinámicamente
+  - Resumen de totales en pesos (💳 Transferencia / 💵 Efectivo / 💰 Gran total) — se actualiza al filtrar por nivel
+  - Orden: stats contadores → resumen en pesos → filtros por nivel → lista alumnos
+
+- **`comidaController.js` (Backend):** Query `obtenerConfirmaciones` ahora incluye `g.nivel AS nivel_nombre` y `g.nivel_codigo` via `LEFT JOIN grupos`. Orden cambiado a `g.nivel_codigo, a.nombre_completo`.
+
+### Archivos modificados
+- `web/src/pages/maestra/Bitacora.jsx`
+- `web/src/pages/directora/ServicioComida.jsx`
+- `backend/src/controllers/comidaController.js`
 
 ---
 

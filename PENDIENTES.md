@@ -1,19 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 54 COMPLETADA — menú estructurado + catálogos migrados
+**Última actualización:** 2026-04-23 | **Estado:** Sesión 55 COMPLETADA — bug bitácora + comida pagos mejorado
 
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 55 (PRÓXIMA) — Bugs dashboard miss + Servicio Comida
-
-### 🐛 BUG — Dashboard Miss → Bitácora sin entrada registrada
-- [ ] **Bug crítico:** Desde el dashboard de la miss, al entrar a la bitácora de un alumno sin entrada registrada, aparece el formulario de captura de entrada. El fix anterior no está funcionando. **Regla:** Solo se puede registrar bitácora y salida a alumnos que tienen entrada registrada ese día. Si no hay entrada, mostrar mensaje informativo y bloquear el formulario.
-
-### 🍽️ Servicio Comida — Vista Pagos (Directora)
-- [ ] **Nivel en lista de alumnos:** En la tabla de "Pagos del servicio", agregar columna o badge con el nivel del alumno (Maternal, Prekinder, Kinder 1, etc.).
-- [ ] **Totalizados por método de pago:** Agregar resumen al tope o pie de la tabla con: Total recibido por transferencia, Total recibido en efectivo, Gran total.
+## 📍 SESIÓN 56 (PRÓXIMA)
 
 ---
 

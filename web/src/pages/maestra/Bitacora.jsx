@@ -536,6 +536,14 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const guardar = () => {
     if (soloLectura) return;
     if (!animo) { toast.error('Selecciona el estado de ánimo'); return; }
+
+    // Validar que el alumno tenga entrada registrada
+    const tieneEntrada = alumno.hora_entrada && ['presente', 'retardo'].includes(alumno.estado_asistencia);
+    if (!tieneEntrada) {
+      toast.error('❌ Solo puedes registrar bitácora para alumnos con entrada. Este alumno no tiene entrada registrada hoy.');
+      return;
+    }
+
     guardarMutation.mutate({
       alumno_id: alumno.id,
       fecha,
@@ -572,8 +580,23 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     );
   }
 
+  const tieneEntrada = alumno.hora_entrada && ['presente', 'retardo'].includes(alumno.estado_asistencia);
+
   return (
     <div className={`space-y-4 pb-24 ${soloLectura ? 'pointer-events-none select-none opacity-90' : ''}`}>
+      {/* Advertencia si no hay entrada */}
+      {!tieneEntrada && (
+        <div className="bg-red-50 border-2 border-red-300 rounded-2xl p-4 flex items-center gap-3">
+          <span className="text-2xl flex-shrink-0">🚫</span>
+          <div className="flex-1">
+            <p className="font-black text-red-800 text-sm">Sin entrada registrada</p>
+            <p className="text-xs text-red-700 font-semibold mt-0.5">
+              No se puede registrar bitácora ni salida sin una entrada. Registra la entrada primero en el filtro de entrada.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header alumno */}
       <div className="card-hs flex items-center gap-4">
         <AvatarAlumno alumno={alumno} size="md" />
@@ -940,9 +963,10 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         <div className="fixed bottom-0 left-0 right-0 lg:left-64 p-4 bg-white border-t border-gray-100 z-10">
           <button
             onClick={guardar}
-            disabled={guardarMutation.isPending}
+            disabled={guardarMutation.isPending || !tieneEntrada}
+            title={!tieneEntrada ? 'No se puede guardar sin entrada registrada' : ''}
             className="w-full max-w-2xl mx-auto block py-4 rounded-2xl font-black text-white text-lg
-              bg-hs-green hover:bg-green-600 disabled:opacity-50 transition-all"
+              bg-hs-green hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {guardarMutation.isPending ? 'Guardando…' : '💾 Guardar bitácora'}
           </button>

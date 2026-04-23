@@ -237,7 +237,14 @@ function TarjetaConfirmacion({ conf, actualizando, onToggle }) {
       conf.pago_verificado ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300'
     }`}>
       <div className="flex-1">
-        <p className="font-black text-gray-800">{conf.nombre_completo}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-black text-gray-800">{conf.nombre_completo}</p>
+          {conf.nivel_nombre && (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-blue-100 text-blue-700">
+              {conf.nivel_nombre}
+            </span>
+          )}
+        </div>
         <p className="text-sm text-gray-500 font-semibold mt-0.5">
           {diasLabel} · ${conf.monto}
           {' · '}
@@ -264,6 +271,7 @@ function TarjetaConfirmacion({ conf, actualizando, onToggle }) {
 export default function ServicioComida() {
   const [semana, setSemana] = useState(getLunes);
   const [tab, setTab] = useState('pagos'); // 'menu' | 'pagos'
+  const [filtroNivel, setFiltroNivel] = useState('todos');
   const [showFormMenu, setShowFormMenu] = useState(false);
   const [actualizando, setActualizando] = useState(null);
   const qc = useQueryClient();
@@ -280,6 +288,18 @@ export default function ServicioComida() {
   });
 
   const confirmaciones = stats?.confirmaciones || [];
+
+  // Niveles únicos presentes en los datos, ordenados
+  const nivelesDisponibles = useMemo(() => {
+    const vistos = new Set();
+    return confirmaciones
+      .map(c => c.nivel_nombre)
+      .filter(n => n && !vistos.has(n) && vistos.add(n));
+  }, [confirmaciones]);
+
+  const confirmacionesFiltradas = filtroNivel === 'todos'
+    ? confirmaciones
+    : confirmaciones.filter(c => c.nivel_nombre === filtroNivel);
 
   const cambiarSemana = (delta) => {
     const [y, m, d] = semana.split('-');
@@ -306,8 +326,8 @@ export default function ServicioComida() {
     }
   };
 
-  const semanaCompleta = confirmaciones.filter(c => c.modalidad === 'semana_completa');
-  const diasEspecificos = confirmaciones.filter(c => c.modalidad === 'dias_especificos');
+  const semanaCompleta = confirmacionesFiltradas.filter(c => c.modalidad === 'semana_completa');
+  const diasEspecificos = confirmacionesFiltradas.filter(c => c.modalidad === 'dias_especificos');
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -386,6 +406,60 @@ export default function ServicioComida() {
                 <p className="text-3xl font-black text-red-600">{stats.sin_verificar?.total ?? 0}</p>
                 <p className="text-xs font-bold text-gray-500 mt-2">Sin pagar</p>
               </div>
+            </div>
+          )}
+
+          {/* Totalizados en pesos */}
+          {confirmacionesFiltradas.length > 0 && (
+            <div className="card-hs p-4">
+              <p className="text-xs font-black text-gray-500 uppercase tracking-wider mb-3">
+                📊 Resumen de pagos {filtroNivel !== 'todos' ? `— ${filtroNivel}` : ''}
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 text-center">
+                  <p className="text-xl font-black text-blue-600">
+                    ${confirmacionesFiltradas.filter(c => c.pago_verificado && c.metodo_pago === 'transferencia').reduce((s, c) => s + parseFloat(c.monto), 0)}
+                  </p>
+                  <p className="text-xs font-bold text-gray-500 mt-1">💳 Transferencia</p>
+                </div>
+                <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-3 text-center">
+                  <p className="text-xl font-black text-yellow-600">
+                    ${confirmacionesFiltradas.filter(c => c.pago_verificado && c.metodo_pago === 'efectivo').reduce((s, c) => s + parseFloat(c.monto), 0)}
+                  </p>
+                  <p className="text-xs font-bold text-gray-500 mt-1">💵 Efectivo</p>
+                </div>
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-3 text-center">
+                  <p className="text-xl font-black text-green-600">
+                    ${confirmacionesFiltradas.filter(c => c.pago_verificado).reduce((s, c) => s + parseFloat(c.monto), 0)}
+                  </p>
+                  <p className="text-xs font-bold text-gray-500 mt-1">💰 Gran total</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Filtro por nivel */}
+          {nivelesDisponibles.length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setFiltroNivel('todos')}
+                className={`px-4 py-2 rounded-xl font-black text-sm transition-all ${
+                  filtroNivel === 'todos' ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Todos ({confirmaciones.length})
+              </button>
+              {nivelesDisponibles.map(nivel => (
+                <button
+                  key={nivel}
+                  onClick={() => setFiltroNivel(nivel)}
+                  className={`px-4 py-2 rounded-xl font-black text-sm transition-all ${
+                    filtroNivel === nivel ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {nivel} ({confirmaciones.filter(c => c.nivel_nombre === nivel).length})
+                </button>
+              ))}
             </div>
           )}
 

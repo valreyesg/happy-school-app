@@ -116,19 +116,19 @@ const ComidaPagos = () => {
             <div className="text-xs font-bold text-gray-600 mt-2">Total Confirmados</div>
           </div>
           <div className="card-hs bg-green-50 border-2 border-green-200 text-center">
-            <div className="text-3xl font-black text-green-600">✅ {stats.pagado_count}</div>
+            <div className="text-3xl font-black text-green-600">✅ {stats.pagados?.total}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Pagado</div>
           </div>
           <div className="card-hs bg-red-50 border-2 border-red-200 text-center">
-            <div className="text-3xl font-black text-red-600">⚠️ {stats.sin_verificar_count}</div>
+            <div className="text-3xl font-black text-red-600">⚠️ {stats.sin_verificar?.total}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Sin Verificar</div>
           </div>
           <div className="card-hs bg-blue-50 border-2 border-blue-200 text-center">
-            <div className="text-3xl font-black text-blue-600">💳 {stats.transferencia_count}</div>
+            <div className="text-3xl font-black text-blue-600">💳 {stats.pagados?.transferencia}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Transferencia</div>
           </div>
           <div className="card-hs bg-yellow-50 border-2 border-yellow-200 text-center">
-            <div className="text-3xl font-black text-yellow-600">💵 {stats.efectivo_count}</div>
+            <div className="text-3xl font-black text-yellow-600">💵 {stats.pagados?.efectivo}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Efectivo</div>
           </div>
         </div>
@@ -159,7 +159,14 @@ const ComidaPagos = () => {
                 }`}
               >
                 <div className="flex-1">
-                  <h3 className="font-black text-gray-800">{conf.nombre_alumno}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-black text-gray-800">{conf.nombre_alumno}</h3>
+                    {conf.nivel_nombre && (
+                      <span className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-100 text-blue-700">
+                        {conf.nivel_nombre}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-sm text-gray-600 mt-1 font-bold">
                     📋 {conf.modalidad === 'semana_completa' ? 'Semana completa' : `${conf.monto / 50} días`} (${conf.monto})
                     {' | '}
@@ -180,6 +187,44 @@ const ComidaPagos = () => {
                 </button>
               </div>
             ))}
+
+            {/* Resumen de totales por método de pago */}
+            {stats && confirmaciones.length > 0 && (
+              <div className="mt-6 pt-6 border-t-2 border-gray-200">
+                <p className="text-sm font-black text-gray-600 uppercase tracking-wider mb-3">📊 Resumen de Pagos</p>
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Total recibido por transferencia */}
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-blue-600">
+                      ${confirmaciones
+                        .filter(c => c.pago_verificado && c.metodo_pago === 'transferencia')
+                        .reduce((sum, c) => sum + c.monto, 0)}
+                    </p>
+                    <p className="text-xs font-bold text-gray-600 mt-1">💳 Transferencias pagadas</p>
+                  </div>
+
+                  {/* Total recibido en efectivo */}
+                  <div className="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-yellow-600">
+                      ${confirmaciones
+                        .filter(c => c.pago_verificado && c.metodo_pago === 'efectivo')
+                        .reduce((sum, c) => sum + c.monto, 0)}
+                    </p>
+                    <p className="text-xs font-bold text-gray-600 mt-1">💵 Efectivo pagado</p>
+                  </div>
+
+                  {/* Gran total */}
+                  <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-green-600">
+                      ${confirmaciones
+                        .filter(c => c.pago_verificado)
+                        .reduce((sum, c) => sum + c.monto, 0)}
+                    </p>
+                    <p className="text-xs font-bold text-gray-600 mt-1">💰 Gran total recibido</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

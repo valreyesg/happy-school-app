@@ -128,12 +128,14 @@ exports.obtenerConfirmaciones = async (req, res) => {
       params
     );
 
-    // Confirmaciones con todos los campos explícitos
+    // Confirmaciones con todos los campos explícitos + nivel del alumno
     const confirmacionesResult = await query(
       `SELECT
         ccs.id,
         ccs.alumno_id,
         a.nombre_completo,
+        g.nivel AS nivel_nombre,
+        g.nivel_codigo,
         ccs.modalidad,
         ccs.dias_seleccionados,
         ccs.monto,
@@ -144,8 +146,9 @@ exports.obtenerConfirmaciones = async (req, res) => {
         ccs.estado
        FROM control_comida_semanal ccs
        JOIN alumnos a ON a.id = ccs.alumno_id
+       LEFT JOIN grupos g ON a.grupo_id = g.id
        WHERE ccs.semana_inicio = $1 AND ccs.confirmado = true${whereGrupo}
-       ORDER BY a.nombre_completo`,
+       ORDER BY g.nivel_codigo, a.nombre_completo`,
       params
     );
 

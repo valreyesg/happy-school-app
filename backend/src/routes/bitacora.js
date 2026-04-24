@@ -58,7 +58,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -110,6 +110,16 @@ router.get('/:alumnoId', async (req, res, next) => {
           AND ag.fecha = COALESCE($2::date, CURRENT_DATE)
         ORDER BY ag.orden
       `, [alumnoId, fecha]),
+
+      query(`
+        SELECT t.id, t.titulo, t.descripcion, t.fecha_limite, t.foto_url, ta.completada, ta.fecha_completada
+        FROM tareas t
+        LEFT JOIN tarea_alumno ta ON t.id = ta.tarea_id AND ta.alumno_id = $1
+        WHERE t.grupo_id = (SELECT grupo_id FROM alumnos WHERE id = $1)
+          AND t.publicada = true
+          AND t.fecha_limite = COALESCE($2::date, CURRENT_DATE)
+        ORDER BY t.created_at DESC
+      `, [alumnoId, fecha]),
     ]);
 
     res.json({
@@ -123,6 +133,7 @@ router.get('/:alumnoId', async (req, res, next) => {
       medicamentos: medicamentos.rows  || [],
       incidentes:   incidentes.rows    || [],
       actividades:  actividades.rows   || [],
+      tareas:       tareas.rows        || [],
     });
   } catch (err) { next(err); }
 });

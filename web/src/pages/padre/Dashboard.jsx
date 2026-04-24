@@ -314,80 +314,102 @@ function ModalEvento({ ev, onClose }) {
 function TareaRecienteCard({ hijo }) {
   const [fotoModal, setFotoModal] = useState(null);
 
-  const { data: tarea } = useQuery({
-    queryKey: ['tarea-reciente', hijo.id],
-    queryFn: () => api.get(`/tareas/reciente?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
+  const { data: tareasPendientes = [] } = useQuery({
+    queryKey: ['tareas-pendientes-lista', hijo.id],
+    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijo.id}`).then(r => r.data).catch(() => []),
   });
 
-  const { data: pendientesData } = useQuery({
-    queryKey: ['tareas-pendientes', hijo.id],
-    queryFn: () => api.get(`/tareas/pendientes-alumno?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
-  });
-  const numPendientes = pendientesData?.pendientes ?? 0;
+  if (tareasPendientes.length === 0) return null;
 
-  if (!tarea && numPendientes === 0) return null;
+  const formatearFecha = (fechaIso) => {
+    if (!fechaIso) return 'Sin fecha';
+    const parts = fechaIso.substring(0, 10).split('-');
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    const fecha = d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    return fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  };
 
-  const fechaCreacion = tarea.created_at
-    ? (() => {
-        const d = new Date(tarea.created_at.substring(0, 10) + 'T12:00:00');
-        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-      })()
-    : null;
-
-  const fechaFormateada = tarea.fecha_limite
-    ? (() => {
-        const parts = tarea.fecha_limite.substring(0, 10).split('-');
-        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-        return d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
-      })()
-    : 'Sin fecha';
+  const calcularDiasRestantes = (fechaIso) => {
+    if (!fechaIso) return null;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fecha = new Date(fechaIso.substring(0, 10) + 'T12:00:00');
+    const dias = Math.floor((fecha - hoy) / (1000 * 60 * 60 * 24));
+    return dias;
+  };
 
   return (
     <>
-      <div className="card-hs border border-blue-100 p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <p className="text-xs font-bold text-gray-600">{hijo.nombre_completo}</p>
-          {fechaCreacion && (
-            <p className="text-xs text-gray-400">Creada: {fechaCreacion}</p>
-          )}
-        </div>
-        <p className="font-black text-lg text-gray-800">{tarea.titulo}</p>
+      <div className="space-y-2">
+        {tareasPendientes.map((tarea, idx) => {
+          const diasRestantes = calcularDiasRestantes(tarea.fecha_limite);
+          const estaVencida = diasRestantes !== null && diasRestantes < 0;
+          const esHoy = diasRestantes === 0;
+          const esManana = diasRestantes === 1;
 
-        {tarea.descripcion && (
-          <p className="text-sm text-gray-600">{tarea.descripcion}</p>
-        )}
+          return (
+            <div
+              key={tarea.id}
+              className={`card-hs border-l-4 p-3 space-y-2 ${
+                estaVencida ? 'border-l-red-500 bg-red-50' :
+                esHoy ? 'border-l-orange-500 bg-orange-50' :
+                esManana ? 'border-l-yellow-500 bg-yellow-50' :
+                'border-l-blue-500 bg-blue-50'
+              }`}
+            >
+              {/* Encabezado: número y título */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black text-gray-800">{idx + 1}. {tarea.titulo}</p>
+                  {tarea.descripcion && (
+                    <p className="text-xs text-gray-600 mt-1 whitespace-pre-wrap break-words">{tarea.descripcion}</p>
+                  )}
+                </div>
+              </div>
 
-        {tarea.foto_url && (
-          <button
-            onClick={() => setFotoModal(tarea.foto_url)}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm"
-          >
-            <span>📎</span> Ver imagen de referencia
-          </button>
-        )}
+              {/* Fecha de entrega con indicador de urgencia */}
+              <div className="flex items-center gap-2 text-xs">
+                <span>📅</span>
+                <span className="font-semibold text-gray-600">Fecha de entrega:</span>
+                <span className="font-bold text-gray-800">{formatearFecha(tarea.fecha_limite)}</span>
+                {estaVencida && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full bg-red-200 text-red-700 font-bold text-xs">
+                    🔴 Vencida hace {Math.abs(diasRestantes)} día{Math.abs(diasRestantes) !== 1 ? 's' : ''}
+                  </span>
+                )}
+                {esHoy && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full bg-orange-200 text-orange-700 font-bold text-xs">
+                    🔥 Hoy
+                  </span>
+                )}
+                {esManana && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-700 font-bold text-xs">
+                    ⚠️ Mañana
+                  </span>
+                )}
+              </div>
 
-        <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
-          <span className="text-lg">📅</span>
-          <div>
-            <p className="text-xs font-black text-orange-600 uppercase">Fecha de entrega</p>
-            <p className="text-sm font-black text-orange-800 capitalize">{fechaFormateada}</p>
-          </div>
-        </div>
+              {/* Foto si existe */}
+              {tarea.foto_url && (
+                <button
+                  onClick={() => setFotoModal(tarea.foto_url)}
+                  className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold text-xs mt-1"
+                >
+                  <span>📎</span> Ver referencia
+                </button>
+              )}
 
-        <div className="flex items-center justify-between mt-1">
-          {tarea && (
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-              tarea.completada ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-            }`}>
-              {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
-            </span>
-          )}
-          {numPendientes > 0 && (
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
-              📚 {numPendientes} {numPendientes === 1 ? 'tarea por entregar' : 'tareas por entregar'}
-            </span>
-          )}
-        </div>
+              {/* Badge de estado */}
+              <div className="flex justify-end">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
+                  tarea.completada ? 'bg-green-200 text-green-700' : 'bg-yellow-200 text-yellow-700'
+                }`}>
+                  {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                </span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {fotoModal && (

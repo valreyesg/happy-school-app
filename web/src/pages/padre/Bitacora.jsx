@@ -618,9 +618,8 @@ export default function PadreBitacora() {
                   {/* Tareas */}
                   {tabActivo === 'tareas' && (() => {
                     const tareasHoy = (data?.tareas || []).filter(t => {
-                      const fechaLimite = new Date(t.fecha_limite + 'T00:00:00');
-                      const hoyDate = new Date(fecha + 'T00:00:00');
-                      return fechaLimite.getTime() === hoyDate.getTime();
+                      const fechaLimiteStr = t.fecha_limite.substring(0, 10);
+                      return fechaLimiteStr === fecha;
                     });
                     return tareasHoy.length > 0 ? (
                       <div className="space-y-3">

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 67
+**Última actualización:** 2026-04-24 | **Sesión actual:** 68
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -16,19 +16,6 @@
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
-
-### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales) — EN PROGRESO
-**ESTADO:** Sesión 66 — POST + PUT editar + DELETE ✅, Publicar ✅, Notificaciones ✅
-**Sesión 67 — Notificaciones verificadas ✅, Dashboard papá mejorado ✅**
-**SIGUIENTE:** 
-- Dashboard: Indicador tareas por recibir
-- Bitácora: Campo "Trajo Tarea"
-
-**Pendiente:**
-- [ ] **Dashboard:** Indicador "[X] Tareas por recibir"
-- [ ] **Bitácora:** Campo "Trajo Tarea: SÍ/NO"
-- [ ] **Papá — Bitácora:** Vista de tareas (solo lectura)
-- [ ] **Directora — Dashboard:** Alerta alumnos con 3+ tareas sin entregar
 
 ### 📅 INTEGRACIÓN CALENDARIO MEJORADA
 - [ ] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil).

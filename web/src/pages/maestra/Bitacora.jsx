@@ -353,8 +353,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
   // Tarea pendiente en la fecha (si existe)
   const { data: tareasHoy } = useQuery({
-    queryKey: ['tareas-hoy', alumno.grupo_id, fecha],
-    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${alumno.grupo_id}&fecha=${fecha}`).then(r => r.data).catch(() => []),
+    queryKey: ['tareas-hoy', alumno.grupo_id, alumno.id, fecha],
+    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${alumno.grupo_id}&alumno_id=${alumno.id}&fecha=${fecha}`).then(r => r.data).catch(() => []),
   });
 
   useEffect(() => {
@@ -447,6 +447,14 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       setNotasProgreso(data.esfinteres.notas_progreso || '');
     }
   }, [data, alumno.id, menuSemana, confirmacionComida]);
+
+  // Cargar estado de tarea si existe
+  useEffect(() => {
+    if (tareasHoy && tareasHoy.length > 0) {
+      const tarea = tareasHoy[0];
+      setTrajoTarea(tarea.completada ?? null);
+    }
+  }, [tareasHoy]);
 
   // Medicamento
   const [medNombre, setMedNombre] = useState('');
@@ -1051,7 +1059,7 @@ export default function MaestraBitacora() {
     if (alumnoIdAutoselect && !alumnoSeleccionado && grupo?.alumnos) {
       const alumno = grupo.alumnos.find(a => a.id === alumnoIdAutoselect);
       if (alumno) {
-        setAlumnoSeleccionado({ ...alumno, nivel_codigo: grupo.nivel_codigo });
+        setAlumnoSeleccionado({ ...alumno, nivel_codigo: grupo.nivel_codigo, grupo_id: grupo.id });
         setAlumnoIdAutoselect(null);
       }
     }
@@ -1111,7 +1119,7 @@ export default function MaestraBitacora() {
                     Pendientes ({pendientes.length})
                   </p>
                   <ListaAlumnos alumnos={pendientes} seleccionado={alumnoSeleccionado}
-                  onSeleccionar={a => setAlumnoSeleccionado({ ...a, nivel_codigo: grupo.nivel_codigo })} />
+                  onSeleccionar={a => setAlumnoSeleccionado({ ...a, nivel_codigo: grupo.nivel_codigo, grupo_id: grupo.id })} />
                 </div>
               )}
               {guardadas.length > 0 && (
@@ -1120,7 +1128,7 @@ export default function MaestraBitacora() {
                     {soloLectura ? `Registradas (${guardadas.length})` : `Guardadas (${guardadas.length})`}
                   </p>
                   <ListaAlumnos alumnos={guardadas} seleccionado={alumnoSeleccionado}
-                  onSeleccionar={a => setAlumnoSeleccionado({ ...a, nivel_codigo: grupo.nivel_codigo })} />
+                  onSeleccionar={a => setAlumnoSeleccionado({ ...a, nivel_codigo: grupo.nivel_codigo, grupo_id: grupo.id })} />
                 </div>
               )}
               {alumnos.length === 0 && (

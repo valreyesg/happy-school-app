@@ -1,7 +1,75 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 67
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 68
+
+---
+
+## ✅ SESIÓN 68 — Tareas Grupales: "¿Entregó tarea?" + Indicador pendientes + Lista completa
+
+**Fecha:** 2026-04-24 | **Estado:** Completado ✅
+
+### Cambios completados:
+
+**1. Label "¿Entregó tarea?" en Bitácora maestra (web/src/pages/maestra/Bitacora.jsx)**
+- Cambiar label de "¿Trajo la tarea?" → "¿Entregó tarea?" (línea 886)
+- Refleja mejor la intención: registrar si el niño entregó la tarea, no solo si la traía
+
+**2. Endpoint nuevo: GET /api/tareas/pendientes-alumno (backend/src/routes/tareas.js)**
+- Retorna conteo de tareas publicadas no entregadas del alumno
+- Verifica ownership: alumno pertenece al padre en sesión
+- Query usa LEFT JOIN a `tarea_alumno` para captar tareas nunca registradas
+
+**3. Endpoint nuevo: GET /api/tareas/lista-pendientes (backend/src/routes/tareas.js)**
+- Retorna **lista completa** de tareas pendientes (no solo la más reciente)
+- Ordenadas por fecha_limite ASC (más pronto primero)
+- Incluye: id, titulo, descripcion, fecha_limite, foto_url, completada, fecha_completada
+
+**4. Dashboard papá — Cambio radical: TareaRecienteCard → Lista de todas las pendientes**
+- Antes: mostraba solo la tarea más reciente + badge de conteo
+- Ahora: lista numerada de TODAS las tareas pendientes ordenadas por urgencia
+- Indicadores de urgencia por color:
+  - 🔴 Rojo: Vencida (días pasados)
+  - 🔥 Naranja: Hoy
+  - ⚠️ Amarillo: Mañana
+  - 📘 Azul: Más de 1 día
+- Muestra descripción COMPLETA (sin truncar)
+- Fecha formateada: "Lun 27 de Abr" con L mayúscula
+
+**5. Tareas en fechas pasadas — endpoint hoy-pendientes acepta parámetro fecha**
+- Cambio: endpoint `/tareas/hoy-pendientes` ahora acepta `fecha` como query param
+- Antes: siempre filtraba por CURRENT_DATE
+- Ahora: permite buscar tareas de cualquier fecha (para bitácora histórica)
+- Agrega parámetro `alumno_id` al SELECT para retornar estado `completada` del alumno
+
+**6. Bitácora maestra — cargar estado "¿Entregó tarea?" desde BD**
+- Agregar `grupo_id` al objeto alumno cuando se selecciona en lista
+- Crear useEffect que carga `trajoTarea` desde `tareasHoy[0].completada`
+- Permite ver en bitácora de solo lectura si ya está marcada como entregada
+
+**7. Bitácora papá — mostrar tareas en pestaña "Tareas"**
+- Endpoint bitácora ahora retorna `tareas[]` (query a tabla tareas + tarea_alumno)
+- Filter corregido: comparar solo fecha YYYY-MM-DD (sin hora UTC)
+- Muestra: título, descripción, estado (✅ Entregada / ⏳ Pendiente)
+
+**8. Seed de datos de prueba: seed_tarea_ayer_emilio.js**
+- Inserta tarea "Dibujo de la familia" con fecha_limite = ayer
+- Permite validar bitácora de fechas pasadas
+- Ejecutado: tarea creada con ID e40a122a-19a0-4366-85d9-005e00ec6d9b
+
+### Archivos modificados:
+- `web/src/pages/maestra/Bitacora.jsx` — label + grupo_id + useEffect tarea + query fecha
+- `backend/src/routes/tareas.js` — 3 nuevos endpoints/cambios: pendientes-alumno, lista-pendientes, hoy-pendientes
+- `web/src/pages/padre/Dashboard.jsx` — TareaRecienteCard → lista completa, urgencia, descripción completa
+- `web/src/pages/padre/Bitacora.jsx` — filter tareas por fecha YYYY-MM-DD
+- `backend/src/routes/bitacora.js` — agregar tareas[] a endpoint GET /:alumnoId
+- `backend/src/database/seed_tarea_ayer_emilio.js` — nuevo archivo
+
+### Validación completada ✅
+- Dashboard papá: "📚 3 tareas por entregar" → "📚 2 tareas por entregar" (1 marcada como entregada)
+- Bitácora miss: "¿Entregó tarea?" aparece en día de ayer con "Dibujo de la familia"
+- Bitácora papá: tab Tareas muestra "Dibujo de la familia" ✅ Entregada en día ayer
+- Lista Dashboard: todas las tareas pendientes ordenadas por fecha, con urgencia por color
 
 ---
 

@@ -46,7 +46,7 @@ function proximoDiaHabil(fecha = new Date()) {
 // ── GET /tareas/hoy-pendientes — tareas cuya fecha_limite = fecha (hoy por defecto)
 router.get('/hoy-pendientes', async (req, res, next) => {
   try {
-    const { grupo_id, fecha } = req.query;
+    const { grupo_id, fecha, alumno_id } = req.query;
     if (!grupo_id) {
       return res.status(400).json({ error: 'grupo_id is required' });
     }
@@ -54,13 +54,14 @@ router.get('/hoy-pendientes', async (req, res, next) => {
     const fechaQuery = fecha || new Date().toISOString().substring(0, 10);
 
     const result = await query(`
-      SELECT t.id, t.titulo
+      SELECT t.id, t.titulo, ta.completada
       FROM tareas t
+      LEFT JOIN tarea_alumno ta ON t.id = ta.tarea_id AND ta.alumno_id = $3
       WHERE t.grupo_id = $1
         AND t.publicada = true
         AND t.fecha_limite = $2
       ORDER BY t.created_at DESC
-    `, [grupo_id, fechaQuery]);
+    `, [grupo_id, fechaQuery, alumno_id || null]);
 
     res.json(result.rows);
   } catch (err) { next(err); }
@@ -163,6 +164,41 @@ router.get('/alumnos-alerta', async (req, res, next) => {
     sql += ` GROUP BY a.id, a.nombre_completo HAVING COUNT(*) >= 3`;
 
     const result = await query(sql, params);
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── GET /tareas/lista-pendientes — lista de tareas publicadas no entregadas (Papá)
+router.get('/lista-pendientes', async (req, res, next) => {
+  try {
+    const { alumno_id } = req.query;
+    if (!alumno_id) return res.status(400).json({ error: 'alumno_id is required' });
+
+    // Verificar que el alumno pertenece al padre en sesión
+    const authCheck = await query(`
+      SELECT a.id
+      FROM alumnos a
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
+      JOIN padres p ON ap.padre_id = p.id
+      WHERE a.id = $1 AND p.usuario_id = $2 AND a.deleted_at IS NULL
+    `, [alumno_id, req.user.id]);
+
+    if (authCheck.rows.length === 0) return res.status(403).json({ error: 'unauthorized' });
+
+    const alumnoResult = await query(`SELECT grupo_id FROM alumnos WHERE id = $1`, [alumno_id]);
+    const grupo_id = alumnoResult.rows[0].grupo_id;
+
+    const result = await query(`
+      SELECT t.id, t.titulo, t.descripcion, t.fecha_limite, t.foto_url, t.created_at,
+             ta.completada, ta.fecha_completada
+      FROM tareas t
+      LEFT JOIN tarea_alumno ta ON t.id = ta.tarea_id AND ta.alumno_id = $1
+      WHERE t.grupo_id = $2
+        AND t.publicada = true
+        AND (ta.completada IS NULL OR ta.completada = false)
+      ORDER BY t.fecha_limite ASC
+    `, [alumno_id, grupo_id]);
+
     res.json(result.rows);
   } catch (err) { next(err); }
 });

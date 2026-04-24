@@ -141,10 +141,11 @@ function PanelHijo({ alumnoId }) {
 }
 
 export default function PadrePagos() {
-  const { data: hijos = [], isLoading } = useQuery({
+  const { data = {}, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
+  const hijos = data.hijos || [];
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">

@@ -1,10 +1,15 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Estado:** Sesión 58 COMPLETADA
+**Última actualización:** 2026-04-23 | **Sesión actual:** 59
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
-**✅ Sesión 57 COMPLETADA:** 3 bugs entrada (síntomas vs retardos + asistencia miss + protocolo salud) — Ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
-**✅ Sesión 58 COMPLETADA:** Dashboard Papá enriquecido (entrada autorizada/rechazada, retardos, advertencias) — Ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
+---
+
+## 🔁 DEUDA TÉCNICA — Paridad Web ↔ Mobile
+
+> Correcciones aplicadas en web que deben verificarse y corregirse en mobile si aplica.
+
+- [ ] **Verificar paridad web ↔ mobile completa:** Revisar todas las correcciones hechas en web (sesiones anteriores) y confirmar que mobile tiene los mismos cambios aplicados. Hacer grep por función/endpoint afectado en ambos lados.
 
 ---
 

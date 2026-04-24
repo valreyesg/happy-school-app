@@ -192,12 +192,13 @@ export default function PadreBitacora() {
     sessionStorage.clear();
   }, []);
 
-  const { data: hijos = [] } = useQuery({
+  const { data: hijosData = {} } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
     staleTime: 0,
     gcTime: 0,
   });
+  const hijos = hijosData.hijos || [];
 
   // Query para entrada histórica (cualquier fecha, no solo hoy)
   const { data: entradaHistorica = null } = useQuery({

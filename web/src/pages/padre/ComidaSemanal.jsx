@@ -14,10 +14,11 @@ const ComidaSemanal = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { data: hijos = [] } = useQuery({
+  const { data: hijosData = {} } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => API.get('/alumnos/mis-hijos').then(r => r.data),
   });
+  const hijos = hijosData.hijos || [];
 
   const alumnoId = hijos[0]?.id;
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];

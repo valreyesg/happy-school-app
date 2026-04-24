@@ -5,6 +5,25 @@
 
 ---
 
+## ✅ SESIÓN 59 — Bug `mis-hijos`: respuesta objeto vs array en web y mobile
+
+**Fecha:** 2026-04-23
+
+### Problema
+El endpoint `GET /alumnos/mis-hijos` devuelve `{ hijos: [...], horaLimiteEntrada }` (objeto), pero 5 componentes asumían que `r.data` era directamente un array, causando `hijos.find is not a function` y `hijos.map is not a function`.
+
+### Archivos Corregidos
+- `web/src/pages/padre/Bitacora.jsx` — `hijosData.hijos || []` + renombrada variable para evitar colisión con `data` de bitácora
+- `web/src/pages/padre/Pagos.jsx` — `hijosData.hijos || []`
+- `web/src/pages/padre/ComidaSemanal.jsx` — `hijosData.hijos || []`
+- `mobile/app/(padre)/index.jsx` — `hijosData?.hijos || []`
+- `mobile/app/(padre)/pagos.jsx` — `hijosData.hijos || []`
+
+### Reglas Nuevas Guardadas
+- Grep en web **y** mobile antes de corregir cualquier bug; corregir ambos en el mismo turno.
+
+---
+
 ## ✅ SESIÓN 58 — Dashboard Papá Enriquecido: Entrada Autorizada/Rechazada + Retardos + Advertencias
 
 **Fecha:** 2026-04-23 | **Commits:** 2 (implementación + ajuste formato hora)

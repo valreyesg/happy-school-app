@@ -178,10 +178,11 @@ export default function PagosPadreScreen() {
   const user = useAuthStore(s => s.user);
 
   // Obtener hijos del padre
-  const { data: hijos = [], isLoading } = useQuery({
+  const { data: hijosData = {}, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
+  const hijos = hijosData.hijos || [];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F7FAFC' }}>

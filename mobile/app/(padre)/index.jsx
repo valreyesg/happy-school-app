@@ -87,10 +87,11 @@ export default function PadreDashboard() {
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
-  const { data: hijos, isLoading } = useQuery({
+  const { data: hijosData, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
   });
+  const hijos = hijosData?.hijos || [];
 
   const { desde, hasta } = proximos3Dias();
   const { data: eventosProximos = [] } = useQuery({

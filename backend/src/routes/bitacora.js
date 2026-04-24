@@ -353,6 +353,10 @@ router.post('/medicamento', async (req, res, next) => {
           `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
           JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
         ]);
+        await query(
+          'UPDATE medicamentos SET notificacion_enviada = true WHERE id = $1',
+          [result.rows[0].id]
+        );
       }
     }
 

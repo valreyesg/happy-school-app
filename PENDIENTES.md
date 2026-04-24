@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 62
+**Última actualización:** 2026-04-24 | **Sesión actual:** 63
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -15,20 +15,20 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 62 (ACTUAL) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
+## 📍 SESIÓN 62 (COMPLETADA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
 
-### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación)
-- [ ] **Trigger Bitácora Guardada:** Cuando Miss guarda bitácora  → INSERT notificación automática a Papá
-- [ ] **Trigger Medicamento Recibido:** Cuando Miss suministra medicamento → INSERT notificación al padre
-- [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre
-- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket). Definir que notificaciones se mostrarán solo en la campanita y cuales se mostrarán en una modal al centro de la página por su relevancia como: aviso extraordinario, cancelación de comida, falta de pago de colegiatura ya con recargo, tarea, etc.
-- [ ] **Paridad Mobile:** Verificar que mobile porta have campanita + notificaciones
+✅ **COMPLETADO:**
+- ✅ **Trigger Medicamento Suministrado:** Backend actualiza `notificacion_enviada = true` después de insertar notificación
+- ✅ **Refactor Dashboard Papá UI:**
+  - ✅ Remover cards Bitácora + Calendario (acceso directo en nav es suficiente)
+  - ✅ Refactor card Pagos: nueva sección con estado por hijo ("✅ Al día" / "⚠️ Adeudo: $X MXN")
+  - ✅ Corregir saludo: "¡Hola Mamá Alejandra!" (sin comas)
 
-### 🏠 DASHBOARD PAPÁ — Refactor UI (Impacto UX alta)
-- [ ] **Remover card Bitácora:** Está de más en dashboard (acceso directo en nav es suficiente)
-- [ ] **Refactor card Pagos:** Cambiar de "Ver detalles" a mostrar estado claro: "✅ Al día" O "⚠️ Adeudo: $2,500 MXN"
-- [ ] **Remover card Calendario:** Redundante con sección "Próximos eventos" que ya muestra lo relevante
-- [ ] **Corregir saludo:** Remover comas en "¡Hola, Mamá, Alejandra!" → "¡Hola Mamá Alejandra!"
+**PENDIENTE PARA PRÓXIMA SESIÓN:**
+- [ ] **Trigger Bitácora Guardada:** Cuando Miss guarda bitácora → INSERT notificación automática a Papá (ya existe en código, verificar estado)
+- [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre (ya existe en código, verificar estado)
+- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket). Definir que notificaciones se mostrarán solo en la campanita y cuales en modal: aviso extraordinario, cancelación de comida, falta de pago con recargo, tarea, etc.
+- [ ] **Paridad Mobile:** Verificar que mobile tiene campanita + notificaciones
 
 ---
 

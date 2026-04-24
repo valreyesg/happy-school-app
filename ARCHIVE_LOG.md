@@ -1,7 +1,41 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 61
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 62
+
+---
+
+## ✅ SESIÓN 62 — Notificaciones Triggers Automáticos + Refactor Dashboard Papá
+
+**Fecha:** 2026-04-24
+
+### Backend: Bug Fix `notificacion_enviada`
+**Archivo:** `backend/src/routes/bitacora.js` (líneas 357-360)
+
+Al registrar medicamento suministrado (`POST /bitacora/medicamento`):
+- Ya insertaba notificación en `notificaciones` (sesión anterior)
+- **Ahora también actualiza:** `medicamentos.notificacion_enviada = true`
+- Ubicado dentro del `if (usuario_id)` para asegurar solo se marca si la notificación fue exitosa
+
+**Razón:** Campo existía en schema desde sesiones anteriores pero nunca se marcaba. Ahora permite rastrear si notificación fue enviada.
+
+### Frontend: Dashboard Papá Refactor UI
+
+**1. Saludo sin coma extra**
+- `web/src/pages/padre/Dashboard.jsx` línea 228
+- Antes: `"¡Hola, Mamá, Alejandra!"` (coma antes del nombre)
+- Ahora: `"¡Hola Mamá Alejandra!"`
+
+**2. Sección "💳 Pagos" reemplaza grid de accesos rápidos**
+- Removidas cards de Bitácora y Calendario del dashboard (acceso directo en nav aún disponible)
+- Nueva sección con componente `PagoResumenCard` (líneas 231-258)
+- Consulta `GET /pagos/estado/:hijoId` por cada hijo (React Query con staleTime 5min)
+- Muestra estado en tiempo real:
+  - Verde: `"✅ Al día"`
+  - Amarillo/Rojo: `"⚠️ Adeudo: $X,XXX MXN"`
+  - Suspendido: `"🚫 Suspendido: $X,XXX MXN"`
+
+**Beneficio UX:** Padre ve de un vistazo si hay adeudos sin navegar a /padre/pagos.
 
 ---
 

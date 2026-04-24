@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BookOpen, CreditCard, CalendarDays, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
@@ -225,7 +225,36 @@ const SALUDO_PARENTESCO = {
 
 function saludoPadre(parentesco, nombre) {
   const base = SALUDO_PARENTESCO[parentesco?.toLowerCase()] ?? '¡Hola';
-  return `${base}, ${nombre?.split(' ')[0]}!`;
+  return `${base} ${nombre?.split(' ')[0]}!`;
+}
+
+function PagoResumenCard({ hijoId, hijoNombre }) {
+  const { data } = useQuery({
+    queryKey: ['pago-estado', hijoId],
+    queryFn: () => api.get(`/pagos/estado/${hijoId}`).then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const saldo = data?.saldo_pendiente || 0;
+  const semaforo = data?.semaforo || 'verde';
+
+  const estadoLabel = semaforo === 'verde'
+    ? '✅ Al día'
+    : semaforo === 'suspendido'
+      ? `🚫 Suspendido: $${saldo.toLocaleString('es-MX')} MXN`
+      : `⚠️ Adeudo: $${saldo.toLocaleString('es-MX')} MXN`;
+
+  return (
+    <Link to="/padre/pagos" className="card-hs px-4 py-3 flex items-center justify-between border border-green-100 hover:shadow-md transition-shadow">
+      <div>
+        <p className="text-xs font-bold text-gray-500">{hijoNombre.split(' ')[0]}</p>
+        <p className={`text-sm font-black ${semaforo === 'verde' ? 'text-green-600' : 'text-orange-600'}`}>
+          {estadoLabel}
+        </p>
+      </div>
+      <span className="text-gray-300">›</span>
+    </Link>
+  );
 }
 
 function ModalEvento({ ev, onClose }) {
@@ -324,20 +353,14 @@ export default function PadreDashboard() {
         </p>
       </div>
 
-      {/* Accesos rápidos */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { to: '/padre/bitacora',   Icon: BookOpen,    label: 'Bitácora',   bg: 'bg-purple-100', text: 'text-purple-600', hover: 'group-hover:bg-purple-200' },
-          { to: '/padre/pagos',      Icon: CreditCard,  label: 'Pagos',      bg: 'bg-green-100',  text: 'text-green-600',  hover: 'group-hover:bg-green-200'  },
-          { to: '/padre/calendario', Icon: CalendarDays,label: 'Calendario', bg: 'bg-blue-100',   text: 'text-blue-600',   hover: 'group-hover:bg-blue-200'   },
-        ].map(({ to, Icon, label, bg, text, hover }) => (
-          <Link key={to} to={to} className="card-hs p-4 flex flex-col items-center gap-2 hover:shadow-md transition-shadow group">
-            <div className={`w-12 h-12 rounded-2xl ${bg} flex items-center justify-center ${hover} transition-colors`}>
-              <Icon size={22} className={text} />
-            </div>
-            <span className="font-bold text-xs text-gray-600">{label}</span>
-          </Link>
-        ))}
+      {/* Estado de pagos */}
+      <div>
+        <h2 className="text-base font-black text-gray-700 mb-3">💳 Pagos</h2>
+        <div className="space-y-2">
+          {hijos.map(hijo => (
+            <PagoResumenCard key={hijo.id} hijoId={hijo.id} hijoNombre={hijo.nombre_completo} />
+          ))}
+        </div>
       </div>
 
       {/* Próximos 3 días */}

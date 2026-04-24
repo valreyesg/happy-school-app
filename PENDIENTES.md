@@ -30,9 +30,6 @@
 - [ ] **Remover card Calendario:** Redundante con sección "Próximos eventos" que ya muestra lo relevante
 - [ ] **Corregir saludo:** Remover comas en "¡Hola, Mamá, Alejandra!" → "¡Hola Mamá Alejandra!"
 
-### ✅ COMPLETADO EN SESIÓN 58 (NO REPETIR)
-- ✅ **Bitácora Papá — Tab Entrada:** Ya implementado en sesión 58 (Bitacora.jsx con motivo, checklist, hora)
-
 ---
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)

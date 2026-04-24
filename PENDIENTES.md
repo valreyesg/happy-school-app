@@ -15,25 +15,6 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 61 ✅ COMPLETADA — BUGS NOTIFICACIONES MULTI-SESIÓN
-
-### ✅ BUGS NOTIFICACIONES CORREGIDOS
-- [x] **Bug 1 — QueryClient no se limpiaba en logout:** Ahora llama `queryClient.clear()` en logout → impide que siguiente usuario vea caché del anterior
-- [x] **Bug 2 — Endpoint estado aviso filtraba por título:** Cambiado a filtrar por `datos_extra->>'aviso_id'` → conteo de confirmaciones correcto
-- [x] **Bug 3 — staleTime: 30s prevenía re-fetch:** Eliminado `staleTime` en NotificationBell → frescura instantánea de notificaciones
-- [x] **Bug 4 — UTF-8 encoding incorrecto en web:** Agregado `charset=utf-8` a axios header + transformRequest → acentos se muestran correctamente
-- [x] **Data issue — Papa Sofia no era tutor principal:** Actualizado BD para que sea tutor principal de Sofia Reyes Mendoza → ahora recibe notificaciones
-
-**Archivos modificados:**
-- `web/src/services/queryClient.js` (nuevo)
-- `web/src/main.jsx` — importa queryClient desde services
-- `web/src/store/authStore.js` — llama `queryClient.clear()` en logout
-- `web/src/components/NotificationBell.jsx` — eliminó staleTime, reducido refetchInterval
-- `web/src/services/api.js` — agregó charset=utf-8 + transformRequest
-- `backend/src/routes/notificaciones.js` — filtro por aviso_id en lugar de título
-
----
-
 ## 📍 SESIÓN 62 (ACTUAL) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
 
 ### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación)

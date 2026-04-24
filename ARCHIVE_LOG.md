@@ -1,7 +1,69 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 60
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 61
+
+---
+
+## ✅ SESIÓN 61 — Bugs Notificaciones Multi-Sesión: Cache, Filtering, Encoding
+
+**Fecha:** 2026-04-24
+
+### Problema Principal
+Después de sesión 60, usuarios reportaban que notificaciones aparecían:
+- Con estado incorrecto (leída cuando no debería)
+- Conteo de confirmaciones incorrecta en portal directora
+- Caracteres acentuados corruptos (niños → ni�os)
+
+### Bugs Identificados y Corregidos
+
+**Bug 1: QueryClient cache no se limpiaba en logout**
+- **Causa:** React Query singleton vivía en memoria, siguiente usuario heredaba caché
+- **Solución:** 
+  - Creó `web/src/services/queryClient.js` singleton exportable
+  - `authStore.js` llama `queryClient.clear()` en logout
+  - `main.jsx` importa queryClient desde services
+- **Impacto:** Multi-sesión ahora funciona — Papa A logout → Papa B login ve SUS datos
+
+**Bug 2: Endpoint estado aviso filtraba por título (crítico)**
+- **Causa:** `WHERE n.titulo = $1` en lugar de aviso_id → mezcla conteos si dos avisos tienen mismo título
+- **Solución:** 
+  - Cambió a `WHERE n.datos_extra->>'aviso_id' = $1`
+  - Eliminou query intermedia de buscar por título
+- **Impacto:** Directora ve conteo exacto de confirmaciones de lectura
+
+**Bug 3: staleTime: 30s prevenía re-fetch inmediato**
+- **Causa:** React Query mantenía caché por 30s, dentro de esa ventana no re-fetcheaba
+- **Solución:**
+  - Eliminó `staleTime: 30_000` de query notificaciones
+  - Reducido `refetchInterval` en badge de 60s a 30s
+- **Impacto:** Notificaciones siempre frescas al abrir panel
+
+**Bug 4: UTF-8 encoding incorrecto en web**
+- **Causa:** axios no declaraba charset UTF-8, navegador enviaba caracteres acentuados corruptos
+- **Solución:**
+  - `api.js`: agregado `charset=utf-8` a Content-Type header
+  - `api.js`: agregado `transformRequest` explícito para JSON
+- **Impacto:** "Los niños" se guarda y muestra correctamente, no "ni�os"
+
+**Bonus: Papa Sofia no era tutor principal**
+- **Causa:** `papa.sofia.maternal@happyschool.edu.mx` registrado pero `es_tutor_principal = false` para Sofia Reyes Mendoza
+- **Solución:** Actualizar BD — SET `es_tutor_principal = true`
+- **Impacto:** Papa Sofia ahora recibe notificaciones de su hija
+
+### Archivos Modificados
+- `web/src/services/queryClient.js` (nuevo)
+- `web/src/main.jsx`
+- `web/src/store/authStore.js`
+- `web/src/components/NotificationBell.jsx`
+- `web/src/services/api.js`
+- `backend/src/routes/notificaciones.js`
+
+### Validación
+✅ Multi-sesión: Papa A logout → Papa B ve SUS notificaciones, no las de A
+✅ Persistencia: Papa A vuelve → su notificación sigue sin leer (no hereda estado de Papa B)
+✅ Conteo: Directora ve count correcto de confirmaciones
+✅ Encoding: Acentos y caracteres especiales visibles correctamente
 
 ---
 

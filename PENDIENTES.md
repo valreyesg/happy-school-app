@@ -23,12 +23,6 @@
 - Dashboard: Indicador tareas por recibir
 - Bitácora: Campo "Trajo Tarea"
 
-**Completado Sesión 66:**
-- [x] **FormData editar:** Ya funcionaba (fix en api.js línea 10-12)
-- [x] **Endpoint DELETE:** Implementado — permite borrar tareas publicadas + notifica papás
-- [x] **Publicar tarea:** PUT /tareas/:id/publicar OK (corregidas queries padres)
-- [x] **Validado en browser:** Crear → editar foto → publicar → borrar ✅
-
 **Pendiente:**
 - [ ] **Publicar tarea:** Verificar notificaciones llegan correctamente a papás
 - [ ] **Dashboard:** Indicador "[X] Tareas por recibir"

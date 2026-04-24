@@ -351,10 +351,10 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     staleTime: 1000 * 60 * 5,
   });
 
-  // Tarea pendiente hoy (si existe)
+  // Tarea pendiente en la fecha (si existe)
   const { data: tareasHoy } = useQuery({
-    queryKey: ['tareas-hoy', alumno.grupo_id],
-    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${alumno.grupo_id}`).then(r => r.data).catch(() => []),
+    queryKey: ['tareas-hoy', alumno.grupo_id, fecha],
+    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${alumno.grupo_id}&fecha=${fecha}`).then(r => r.data).catch(() => []),
   });
 
   useEffect(() => {
@@ -883,7 +883,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                 <p className="font-black text-blue-800 text-sm">{tarea.titulo}</p>
               </div>
               <SiNo
-                label="¿Trajo la tarea?"
+                label="¿Entregó tarea?"
                 value={trajoTarea}
                 onChange={(v) => setTrajoTarea(v)}
               />

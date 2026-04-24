@@ -319,7 +319,13 @@ function TareaRecienteCard({ hijo }) {
     queryFn: () => api.get(`/tareas/reciente?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
   });
 
-  if (!tarea) return null;
+  const { data: pendientesData } = useQuery({
+    queryKey: ['tareas-pendientes', hijo.id],
+    queryFn: () => api.get(`/tareas/pendientes-alumno?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
+  });
+  const numPendientes = pendientesData?.pendientes ?? 0;
+
+  if (!tarea && numPendientes === 0) return null;
 
   const fechaCreacion = tarea.created_at
     ? (() => {
@@ -368,12 +374,19 @@ function TareaRecienteCard({ hijo }) {
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-            tarea.completada ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-          }`}>
-            {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
-          </span>
+        <div className="flex items-center justify-between mt-1">
+          {tarea && (
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+              tarea.completada ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+            }`}>
+              {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+            </span>
+          )}
+          {numPendientes > 0 && (
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">
+              📚 {numPendientes} {numPendientes === 1 ? 'tarea por entregar' : 'tareas por entregar'}
+            </span>
+          )}
         </div>
       </div>
 

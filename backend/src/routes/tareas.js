@@ -43,22 +43,24 @@ function proximoDiaHabil(fecha = new Date()) {
 // RUTAS ESTÁTICAS (ANTES que las dinámicas)
 // ════════════════════════════════════════════════════════════════════════════
 
-// ── GET /tareas/hoy-pendientes — tareas cuya fecha_limite = hoy
+// ── GET /tareas/hoy-pendientes — tareas cuya fecha_limite = fecha (hoy por defecto)
 router.get('/hoy-pendientes', async (req, res, next) => {
   try {
-    const { grupo_id } = req.query;
+    const { grupo_id, fecha } = req.query;
     if (!grupo_id) {
       return res.status(400).json({ error: 'grupo_id is required' });
     }
+
+    const fechaQuery = fecha || new Date().toISOString().substring(0, 10);
 
     const result = await query(`
       SELECT t.id, t.titulo
       FROM tareas t
       WHERE t.grupo_id = $1
         AND t.publicada = true
-        AND t.fecha_limite = CURRENT_DATE
+        AND t.fecha_limite = $2
       ORDER BY t.created_at DESC
-    `, [grupo_id]);
+    `, [grupo_id, fechaQuery]);
 
     res.json(result.rows);
   } catch (err) { next(err); }
@@ -162,6 +164,39 @@ router.get('/alumnos-alerta', async (req, res, next) => {
 
     const result = await query(sql, params);
     res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── GET /tareas/pendientes-alumno — conteo de tareas publicadas no entregadas (Papá)
+router.get('/pendientes-alumno', async (req, res, next) => {
+  try {
+    const { alumno_id } = req.query;
+    if (!alumno_id) return res.status(400).json({ error: 'alumno_id is required' });
+
+    // Verificar que el alumno pertenece al padre en sesión
+    const authCheck = await query(`
+      SELECT a.id
+      FROM alumnos a
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
+      JOIN padres p ON ap.padre_id = p.id
+      WHERE a.id = $1 AND p.usuario_id = $2 AND a.deleted_at IS NULL
+    `, [alumno_id, req.user.id]);
+
+    if (authCheck.rows.length === 0) return res.status(403).json({ error: 'unauthorized' });
+
+    const alumnoResult = await query(`SELECT grupo_id FROM alumnos WHERE id = $1`, [alumno_id]);
+    const grupo_id = alumnoResult.rows[0].grupo_id;
+
+    const result = await query(`
+      SELECT COUNT(*) AS pendientes
+      FROM tareas t
+      LEFT JOIN tarea_alumno ta ON t.id = ta.tarea_id AND ta.alumno_id = $1
+      WHERE t.grupo_id = $2
+        AND t.publicada = true
+        AND (ta.completada IS NULL OR ta.completada = false)
+    `, [alumno_id, grupo_id]);
+
+    res.json({ pendientes: parseInt(result.rows[0].pendientes) });
   } catch (err) { next(err); }
 });
 

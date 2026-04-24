@@ -15,7 +15,7 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 61 (PRÓXIMA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + TAB ENTRADA BITÁCORA
+## 📍 SESIÓN 61 (PRÓXIMA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
 
 ### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación sesión 60)
 - [ ] **Trigger Bitácora Guardada:** Cuando Miss/Papa guarda bitácora (comida, salud, incidente) → INSERT notificación automática
@@ -24,8 +24,14 @@
 - [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket)
 - [ ] **Paridad Mobile:** Verificar que mobile porta have campanita + notificaciones
 
-### 👨‍👩‍👧 BITÁCORA PAPÁ — Agregar tab Entrada
-- [ ] **Bitácora Papá:** Agregar tab "Entrada" con motivo, checklist, hora (análogo a comida/salud/incidentes)
+### 🏠 DASHBOARD PAPÁ — Refactor UI (Impacto UX alta)
+- [ ] **Remover card Bitácora:** Está de más en dashboard (acceso directo en nav es suficiente)
+- [ ] **Refactor card Pagos:** Cambiar de "Ver detalles" a mostrar estado claro: "✅ Al día" O "⚠️ Adeudo: $2,500 MXN"
+- [ ] **Remover card Calendario:** Redundante con sección "Próximos eventos" que ya muestra lo relevante
+- [ ] **Corregir saludo:** Remover comas en "¡Hola, Mamá, Alejandra!" → "¡Hola Mamá Alejandra!"
+
+### ✅ COMPLETADO EN SESIÓN 58 (NO REPETIR)
+- ✅ **Bitácora Papá — Tab Entrada:** Ya implementado en sesión 58 (Bitacora.jsx con motivo, checklist, hora)
 
 ---
 

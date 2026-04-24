@@ -390,11 +390,12 @@ export default function PadreBitacora() {
 
               {/* ── Tabs ── */}
               <div ref={tabsRef} className="card-hs overflow-hidden">
-                <div className="grid grid-cols-6 border-b border-gray-100">
+                <div className="grid grid-cols-4 lg:grid-cols-7 border-b border-gray-100">
                   {[
                     { key: 'entrada',     emoji: '🚪', label: 'Entrada'     },
                     { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
                     { key: 'actividades', emoji: '🎨', label: 'Actividades' },
+                    { key: 'tareas',      emoji: '📚', label: 'Tareas'      },
                     { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
                     { key: 'salud',       emoji: '🌡️', label: 'Salud'       },
                     { key: 'incidentes',  emoji: '⚠️', label: 'Incidentes'  },
@@ -613,6 +614,34 @@ export default function PadreBitacora() {
                       )}
                     </div>
                   )}
+
+                  {/* Tareas */}
+                  {tabActivo === 'tareas' && (() => {
+                    const tareasHoy = (data?.tareas || []).filter(t => {
+                      const fechaLimite = new Date(t.fecha_limite + 'T00:00:00');
+                      const hoyDate = new Date(fecha + 'T00:00:00');
+                      return fechaLimite.getTime() === hoyDate.getTime();
+                    });
+                    return tareasHoy.length > 0 ? (
+                      <div className="space-y-3">
+                        {tareasHoy.map((t, i) => (
+                          <div key={i} className="bg-blue-50 border-l-4 border-blue-400 rounded-xl p-3 space-y-2">
+                            <p className="text-sm font-black text-blue-800">{t.titulo}</p>
+                            {t.descripcion && <p className="text-xs text-blue-600">{t.descripcion}</p>}
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                t.completada
+                                  ? 'bg-green-100 text-green-700'
+                                  : 'bg-yellow-100 text-yellow-700'
+                              }`}>
+                                {t.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin tareas para hoy 📚</p>;
+                  })()}
 
                   {/* Incidentes */}
                   {tabActivo === 'incidentes' && (

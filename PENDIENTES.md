@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 64
+**Última actualización:** 2026-04-24 | **Sesión actual:** 67
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,14 +17,26 @@
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
-### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales)
-- [ ] **Miss — Crear Tarea Grupal:**
-  - Apartado Miss: Seleccionar grupo → Redactar descripción → Adjuntar foto/PDF.
-  - Fecha entrega: default día hábil siguiente (editable).
-- [ ] **Papá — Bitácora:** Tareas aparecen automáticamente después de publicar. Considero que se realice algun apartado especifico para la tarea.
-- [ ] **Miss — Filtro Entrada (día entrega):** Checklist por alumno "Entregó Tarea: SÍ/NO".
-- [ ] **Miss — Dashboard:** Indicador "[X] Tareas por recibir".
-- [ ] **Miss — Reporte:** Panel resumen "12/15 entregaron hoy".
+### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales) — EN PROGRESO
+**ESTADO:** Sesión 66 — POST + PUT editar + DELETE ✅, Publicar ✅, Notificaciones ✅
+**SIGUIENTE:** 
+- Dashboard: Indicador tareas por recibir
+- Bitácora: Campo "Trajo Tarea"
+
+**Completado Sesión 66:**
+- [x] **FormData editar:** Ya funcionaba (fix en api.js línea 10-12)
+- [x] **Endpoint DELETE:** Implementado — permite borrar tareas publicadas + notifica papás
+- [x] **Publicar tarea:** PUT /tareas/:id/publicar OK (corregidas queries padres)
+- [x] **Validado en browser:** Crear → editar foto → publicar → borrar ✅
+
+**Pendiente:**
+- [ ] **Publicar tarea:** Verificar notificaciones llegan correctamente a papás
+- [ ] **Dashboard:** Indicador "[X] Tareas por recibir"
+- [ ] **Bitácora:** Campo "Trajo Tarea: SÍ/NO"
+- [ ] **Papá — Dashboard:** Card tarea reciente + modal notificación
+- [ ] **Papá — Bitácora:** Vista de tareas (solo lectura)
+- [ ] **Directora — Dashboard:** Alerta alumnos con 3+ tareas sin entregar
+- [ ] **Configuración:** Tipo notificación 'tarea_nueva' habilitado
 
 ### 📅 INTEGRACIÓN CALENDARIO MEJORADA
 - [ ] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil).

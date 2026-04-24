@@ -6,6 +6,11 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
   transformRequest: [
     (data, headers) => {
+      // No transformar FormData — dejar que axios lo maneje como multipart
+      if (data instanceof FormData) {
+        delete headers['Content-Type'];
+        return data;
+      }
       if (data && typeof data === 'object') {
         return JSON.stringify(data);
       }

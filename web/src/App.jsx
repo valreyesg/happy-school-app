@@ -41,6 +41,7 @@ import MaestraFiltroEntrada from '@/pages/maestra/FiltroEntrada';
 import MaestraFiltroSalida from '@/pages/maestra/FiltroSalida';
 import MaestraBitacora from '@/pages/maestra/Bitacora';
 import MaestraGaleria from '@/pages/maestra/Galeria';
+import MaestraTareas from '@/pages/maestra/Tareas';
 
 // Páginas de padre
 import PadreDashboard from '@/pages/padre/Dashboard';
@@ -134,6 +135,7 @@ export default function App() {
         <Route path="asistencia" element={<MaestraAsistencia />} />
         <Route path="bitacora" element={<MaestraBitacora />} />
         <Route path="galeria" element={<MaestraGaleria />} />
+        <Route path="tareas" element={<MaestraTareas />} />
       </Route>
 
       {/* Padre */}

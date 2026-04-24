@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle } from 'lucide-react';
+import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 
@@ -91,6 +91,20 @@ export default function MaestraDashboard() {
     queryKey: ['estadisticas-grupo-hoy'],
     queryFn: () => api.get('/grupos/mi-grupo/estadisticas/hoy').then(r => r.data),
     refetchInterval: 30000,
+  });
+
+  const { data: tareasHoy } = useQuery({
+    queryKey: ['tareas-hoy', grupo?.id],
+    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${grupo.id}`).then(r => r.data),
+    enabled: !!grupo?.id,
+    refetchInterval: 30000,
+  });
+
+  const { data: alumnosEnAlerta } = useQuery({
+    queryKey: ['alumnos-alerta-tareas', grupo?.id],
+    queryFn: () => api.get(`/tareas/alumnos-alerta?grupo_id=${grupo.id}`).then(r => r.data),
+    enabled: !!grupo?.id,
+    refetchInterval: 60000,
   });
 
   // Obtener lunes de la semana actual (semana_inicio para comida)
@@ -241,6 +255,39 @@ export default function MaestraDashboard() {
           </div>
           <span className="text-2xl font-black text-orange-500">{salidasAnticipadas.length}</span>
         </Link>
+      )}
+
+      {/* Banner tareas hoy */}
+      {tareasHoy && tareasHoy.length > 0 && (
+        <Link to="/maestra/tareas"
+          className="block bg-blue-50 border-2 border-blue-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-blue-100 transition-colors">
+          <span className="text-2xl">📋</span>
+          <div className="flex-1">
+            <p className="font-black text-blue-800 text-sm">
+              {tareasHoy.length} tarea{tareasHoy.length > 1 ? 's' : ''} por recibir hoy
+            </p>
+            <p className="text-xs text-blue-600 font-semibold">
+              {tareasHoy.map(t => t.titulo).join(', ')} — ver detalle →
+            </p>
+          </div>
+          <span className="text-2xl font-black text-blue-500">{tareasHoy.length}</span>
+        </Link>
+      )}
+
+      {/* Banner alumnos en alerta — tareas sin entregar */}
+      {alumnosEnAlerta && alumnosEnAlerta.length > 0 && (
+        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-4">
+          <p className="font-black text-red-800 text-sm flex items-center gap-2">
+            <AlertCircle size={18} /> {alumnosEnAlerta.length} alumno{alumnosEnAlerta.length > 1 ? 's' : ''} en seguimiento — 3+ tareas sin entregar
+          </p>
+          <div className="mt-2 space-y-1">
+            {alumnosEnAlerta.map(a => (
+              <p key={a.id} className="text-xs font-semibold text-red-700">
+                · {a.nombre_completo} ({a.tareas_sin_entregar} tareas)
+              </p>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Banner rechazados por síntomas — alumnos del grupo */}

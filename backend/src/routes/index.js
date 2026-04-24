@@ -19,6 +19,7 @@ const turnosPuertaRoutes = require('./turnos-puerta');
 const comidaRoutes = require('./comida');
 const ciclosRoutes = require('./ciclos');
 const catalogosRoutes = require('./catalogos');
+const tareasRoutes = require('./tareas');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -38,5 +39,6 @@ router.use('/turnos-puerta', turnosPuertaRoutes);
 router.use('/comida', comidaRoutes);
 router.use('/ciclos', ciclosRoutes);
 router.use('/catalogos', catalogosRoutes);
+router.use('/tareas', tareasRoutes);
 
 module.exports = router;

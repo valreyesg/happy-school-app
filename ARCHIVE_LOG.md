@@ -1,7 +1,83 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 64
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 66
+
+---
+
+## ✅ SESIÓN 66 — Revisión Completa de Proceso + Finalizar Módulo Tareas
+
+**Fecha:** 2026-04-24 | **Estado:** Completado
+
+### 1. Revisión y Depuración de Memory (Protocolo + Skills)
+
+**Archivos eliminados (duplicados y obsoletos):**
+- `feedback_cierre_sesion.md` (duplicado)
+- `feedback_backend_restart.md`, `feedback_servidor_restart.md`, `feedback_cleanup_procesos.md`, `feedback_dev_server.md` (consolidados)
+- `bugs_sesion_27.md`, `bugs_sesion_33plus.md`, `bugs_sesion_36.md` (históricos)
+- `sesion_38_pendientes_reorganizacion.md`, `sesion_58_dashboard_entrada.md`, `sesion_60_notificaciones_errores.md`, `sesion_61_notificaciones_bugs.md`, `sesion_62_triggers_refactor.md`, `sesion_63_modal_notificaciones.md`, `sesion_64_historial_egresados.md` (históricos)
+
+**Archivos creados:**
+- `feedback_servidores.md` — Protocolo unificado Windows (PowerShell para matar, Bash para iniciar, curl para validar)
+
+**Archivos actualizados:**
+- `MEMORY.md` — Índice reorganizado: contexto + protocolos + reglas + proyectos activos (de 33 a 8 referencias activas)
+- `feedback_schema_errores.md` — Agregada regla sobre relación padres: `alumnos → alumno_padre → padres → usuarios`
+
+### 2. Finalizar Módulo Tareas — 3 Bugs Backend Corregidos
+
+**Archivo:** `backend/src/routes/tareas.js`
+
+**Bug 1: Query de padres incorrecto (usuario_padre1_id inexistente)**
+- Afectaba: DELETE /tareas/:id (línea 352-357) + PUT /tareas/:id/publicar (línea 425-431)
+- Columnas inventadas: `usuario_padre1_id`, `usuario_padre2_id`, `usuario_encargado_id` (no existen en schema)
+- Solución: JOIN correcto `alumnos → alumno_padre → padres → usuarios` (igual a bitacora.js y asistencia.js)
+
+**Bug 2: INSERT notificaciones con columnas inexistentes**
+- Afectaba: DELETE (línea 362-365) + PUT publicar (línea 445-447)
+- Columnas inventadas: `descripcion`, `urgente`, `referencia_id` (no existen en schema)
+- Schema real: `usuario_id, tipo, titulo, cuerpo, datos_extra, leida, enviada_push, created_at`
+- Solución: INSERT correcto usando `titulo`, `cuerpo`, `datos_extra` (JSONB con metadatos)
+
+**Bug 3: DELETE notificaciones con referencia_id**
+- Línea 376: columna `referencia_id` no existe
+- Solución: Usar `datos_extra->>'tarea_id'` para encontrar notificaciones de una tarea específica
+
+**Endpoint DELETE /tareas/:id — Funcionalidad:**
+- Permite eliminar tareas publicadas (sin restricción anterior)
+- Si estaba publicada: notifica a cada papá + envía WhatsApp
+- Limpia `tarea_alumno` y `notificaciones` relacionadas antes de borrar
+- Validado en browser: crear → publicar → borrar ✅
+
+### 3. Aprendizajes y Protocolo
+
+**Lecciones clave de esta sesión:**
+1. NUNCA asumir columnas por intuición — verificar schema ANTES de escribir queries (leer `001_schema_inicial.sql`)
+2. Usar el patrón existente en code — cuando no sabes un JOIN, grep un módulo similar (bitacora.js, asistencia.js)
+3. Validar con curl DESPUÉS de cada cambio backend (no solo log files)
+4. Levantar ambos servidores ANTES de pedir validación (backend + web, verificados con curl)
+5. El error es siempre error real — si dice "columna no existe", esa columna no existe (no es typo)
+
+**Protocolo de inicio de sesión establecido:**
+1. Leer MEMORY.md + PENDIENTES.md + archivos memory del sprint
+2. PowerShell: matar procesos viejos
+3. Bash: levantar backend (sleep 4, curl health)
+4. Bash: levantar web (sleep 8, curl http://localhost:5173)
+5. Solo entonces: leer código/planificar
+
+**Protocolo de cierre de sesión establecido:**
+1. Checklist 6 puntos (archivo correcto, código correcto, backend OK, campos API, Vite actualizado, puerto 5173)
+2. PENDIENTES.md: marcar completadas + actualizar estado
+3. ARCHIVE_LOG.md: crear entrada con fecha + archivos + bugs + aprendizajes
+4. Memory: guardar nuevas reglas de feedback, eliminar duplicados, consolidar
+5. Git commit OBLIGATORIO (no esperar que Valeria lo pida)
+
+**Archivos modificados (Sesión 66):**
+- `backend/src/routes/tareas.js` — 3 queries corregidas, DELETE + PUT publicar validados
+- `PENDIENTES.md` — removida sesión 66, actualizado estado tareas
+- `MEMORY.md` — reorganizado índice, 15 duplicados eliminados
+- `feedback_schema_errores.md` — agregar regla alumno_padre JOIN
+- `feedback_servidores.md` — nuevo archivo protocolo unificado
 
 ---
 

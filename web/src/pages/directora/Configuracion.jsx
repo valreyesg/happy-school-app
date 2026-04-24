@@ -44,6 +44,7 @@ const TIPOS_NOTIFICACION = [
   { tipo: 'aviso_extraordinario', label: 'Aviso extraordinario',      icono: '📢' },
   { tipo: 'bitacora_lista',       label: 'Bitácora del día lista',     icono: '📝' },
   { tipo: 'medicamento',          label: 'Medicamento administrado',   icono: '💊' },
+  { tipo: 'tarea_nueva',          label: 'Tarea nueva publicada',      icono: '📚' },
 ];
 
 const COLOR_MAP = {

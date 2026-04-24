@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 
+const multer = require('multer');
 const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 const { iniciarJobComida } = require('./jobs/comidaJobs');
@@ -36,6 +37,11 @@ app.use(rateLimit({
   message: { error: 'Demasiadas solicitudes, intenta más tarde.' },
 }));
 
+// Multipart formdata PRIMERO (para tareas con foto)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+app.use(upload.any());
+
+// Luego parsers JSON y URL-encoded
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

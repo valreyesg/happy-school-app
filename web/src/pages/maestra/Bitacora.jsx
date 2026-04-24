@@ -305,6 +305,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const [actividadRealizada,  setActividadRealizada]  = useState(null);
   const [actividadFotos,      setActividadFotos]      = useState([]);
   const actFileRef = useRef();
+  const [trajoTarea,          setTrajoTarea]          = useState(null);
   const [comportamiento,      setComportamiento]      = useState(null);
   const [comportamientoNotas, setComportamientoNotas] = useState('');
   const [tuvoFiebre,          setTuvoFiebre]          = useState(false);
@@ -348,6 +349,12 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     queryKey: ['confirmacion-comida', alumno.id, semanaLunes],
     queryFn: () => api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaLunes}`).then(r => r.data).catch(() => null),
     staleTime: 1000 * 60 * 5,
+  });
+
+  // Tarea pendiente hoy (si existe)
+  const { data: tareasHoy } = useQuery({
+    queryKey: ['tareas-hoy', alumno.grupo_id],
+    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${alumno.grupo_id}`).then(r => r.data).catch(() => []),
   });
 
   useEffect(() => {
@@ -536,6 +543,15 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     if (!tieneEntrada) {
       toast.error('❌ Solo puedes registrar bitácora para alumnos con entrada. Este alumno no tiene entrada registrada hoy.');
       return;
+    }
+
+    // Si hay tarea hoy y se registró, guardar en tareas también
+    if (tareasHoy && tareasHoy.length > 0 && trajoTarea !== null) {
+      const tarea = tareasHoy[0];
+      api.put(`/tareas/${tarea.id}/alumnos/${alumno.id}`, {
+        completada: trajoTarea,
+        registrado_en_bitacora: true
+      }).catch(() => {});
     }
 
     guardarMutation.mutate({
@@ -857,6 +873,24 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             className="w-full border-2 border-red-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-500 resize-none" />
         )}
       </Seccion>
+
+      {/* Tareas — si hay tarea hoy para este grupo */}
+      {tareasHoy && tareasHoy.length > 0 && (
+        <Seccion titulo="📚 Tarea encargada">
+          {tareasHoy.map(tarea => (
+            <div key={tarea.id} className="space-y-3">
+              <div className="px-3 py-2 bg-blue-50 rounded-xl">
+                <p className="font-black text-blue-800 text-sm">{tarea.titulo}</p>
+              </div>
+              <SiNo
+                label="¿Trajo la tarea?"
+                value={trajoTarea}
+                onChange={(v) => setTrajoTarea(v)}
+              />
+            </div>
+          ))}
+        </Seccion>
+      )}
 
       {/* Notas generales */}
       <Seccion titulo="📝 Notas generales">

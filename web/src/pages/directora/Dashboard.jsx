@@ -356,6 +356,12 @@ export default function DirectoraDashboard() {
     ),
   });
 
+  const { data: alumnosEnAlertaTareas = [] } = useQuery({
+    queryKey: ['alumnos-alerta-tareas'],
+    queryFn: () => api.get('/tareas/alumnos-alerta').then(r => r.data).catch(() => []),
+    refetchInterval: 60000,
+  });
+
   const [modalGrupo, setModalGrupo] = useState(null);
   const [modalSalidas, setModalSalidas] = useState(null);
   const [modalDocumentacion, setModalDocumentacion] = useState(null);
@@ -385,6 +391,24 @@ export default function DirectoraDashboard() {
               ¡Hoy cumplen años: {cumpleanosHoy.map(a => `${a.nombre_completo.split(' ')[0]} (${a.grupo_nombre})`).join(', ')}!
             </p>
             <p className="text-xs text-yellow-600 font-semibold">No olvides festejarlos 🎈</p>
+          </div>
+        </div>
+      )}
+
+      {/* Banner alumnos en alerta — tareas sin entregar */}
+      {alumnosEnAlertaTareas.length > 0 && (
+        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-4">
+          <p className="font-black text-red-800 text-sm flex items-center gap-2 mb-3">
+            <AlertTriangle size={18} /> {alumnosEnAlertaTareas.length} alumno{alumnosEnAlertaTareas.length > 1 ? 's' : ''} en seguimiento — 3+ tareas sin entregar
+          </p>
+          <div className="space-y-2">
+            {alumnosEnAlertaTareas.map((a, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs font-semibold text-red-700 bg-red-100 px-3 py-2 rounded-lg">
+                <span>📚</span>
+                <span>{a.nombre_completo}</span>
+                <span className="ml-auto bg-red-200 px-2 py-1 rounded">{a.tareas_sin_entregar} tareas</span>
+              </div>
+            ))}
           </div>
         </div>
       )}

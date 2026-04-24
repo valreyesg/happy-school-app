@@ -336,6 +336,15 @@ export default function PadreDashboard() {
     queryFn: () => api.get(`/calendario?desde=${desde}&hasta=${hasta}`).then(r => r.data),
   });
 
+  // Tareas recientes por hijo
+  const tareasQuery = hijos.reduce((acc, hijo) => {
+    acc[hijo.id] = useQuery({
+      queryKey: ['tarea-reciente', hijo.id],
+      queryFn: () => api.get(`/tareas/reciente?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
+    });
+    return acc;
+  }, {});
+
   return (
     <div className="space-y-6 animate-fade-in">
       <ModalEvento ev={eventoSeleccionado} onClose={() => setEventoSeleccionado(null)} />
@@ -360,6 +369,39 @@ export default function PadreDashboard() {
           {hijos.map(hijo => (
             <PagoResumenCard key={hijo.id} hijoId={hijo.id} hijoNombre={hijo.nombre_completo} />
           ))}
+        </div>
+      </div>
+
+      {/* Tareas recientes */}
+      <div>
+        <h2 className="text-base font-black text-gray-700 mb-3">📚 Tareas encargadas</h2>
+        <div className="space-y-2">
+          {hijos.map(hijo => {
+            const tarea = tareasQuery[hijo.id]?.data;
+            return tarea ? (
+              <div key={hijo.id} className="card-hs border border-blue-100 p-4">
+                <div className="mb-2">
+                  <p className="text-xs font-bold text-gray-600">{hijo.nombre_completo}</p>
+                  <p className="font-black text-sm text-gray-800 mt-1">{tarea.titulo}</p>
+                </div>
+                {tarea.descripcion && (
+                  <p className="text-xs text-gray-600 mb-2">{tarea.descripcion.substring(0, 80)}...</p>
+                )}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-500">
+                    📅 {new Date(tarea.fecha_limite + 'T00:00:00').toLocaleDateString('es-MX')}
+                  </p>
+                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                    tarea.completada
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                  </span>
+                </div>
+              </div>
+            ) : null;
+          })}
         </div>
       </div>
 

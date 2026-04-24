@@ -17,14 +17,6 @@
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
-## ✅ SPRINT 3 — CICLOS ESCOLARES (COMPLETADO SESIÓN 64)
-
-Panel Historial Egresados + Excel Export movido a [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
-
----
-
-## 🎯 SPRINTS PENDIENTES
-
 ### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales)
 - [ ] **Miss — Crear Tarea Grupal:**
   - Apartado Miss: Seleccionar grupo → Redactar descripción → Adjuntar foto/PDF.

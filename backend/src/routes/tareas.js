@@ -196,6 +196,7 @@ router.get('/lista-pendientes', async (req, res, next) => {
       WHERE t.grupo_id = $2
         AND t.publicada = true
         AND (ta.completada IS NULL OR ta.completada = false)
+        AND (t.fecha_limite IS NULL OR t.fecha_limite >= CURRENT_DATE - INTERVAL '2 days')
       ORDER BY t.fecha_limite ASC
     `, [alumno_id, grupo_id]);
 
@@ -230,6 +231,7 @@ router.get('/pendientes-alumno', async (req, res, next) => {
       WHERE t.grupo_id = $2
         AND t.publicada = true
         AND (ta.completada IS NULL OR ta.completada = false)
+        AND (t.fecha_limite IS NULL OR t.fecha_limite >= CURRENT_DATE - INTERVAL '2 days')
     `, [alumno_id, grupo_id]);
 
     res.json({ pendientes: parseInt(result.rows[0].pendientes) });

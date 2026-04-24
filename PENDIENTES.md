@@ -1,7 +1,16 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 68
+**Última actualización:** 2026-04-24 | **Sesión actual:** 69
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
+
+---
+
+## 📋 SESIÓN 70 — PRÓXIMAS TAREAS
+
+- [ ] **Agrupar tareas por semana** en página Tareas de la miss (Tareas.jsx)
+  - Problema: lista crece sin límite
+  - Solución: agrupar por semana ISO, mantener vencidas colapsadas
+  - Complejidad: ⭐⭐
 
 ---
 

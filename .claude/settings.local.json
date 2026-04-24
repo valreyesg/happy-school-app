@@ -448,7 +448,21 @@
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT id, titulo, created_at, fecha_limite FROM tareas WHERE publicada = true ORDER BY created_at DESC LIMIT 1;\")",
       "Bash(taskkill /F /PID 47296)",
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school)",
-      "Bash(psql -h localhost -U postgres -d happy_school -c ' *)"
+      "Bash(psql -h localhost -U postgres -d happy_school -c ' *)",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -c \"SELECT a.id, a.nombre_completo, g.nombre AS grupo, ce.nombre AS ciclo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id JOIN ciclos_escolares ce ON g.ciclo_id = ce.id WHERE a.nombre_completo ILIKE '%emilio%' AND ce.activo = true;\")",
+      "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -h localhost -U postgres -d happy_school -c \"SELECT a.id, a.nombre_completo, g.nombre AS grupo, ce.nombre AS ciclo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id JOIN ciclos_escolares ce ON g.ciclo_id = ce.id WHERE a.nombre_completo ILIKE '%emilio%' AND ce.activo = true;\")",
+      "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -h localhost -U postgres -d happy_school -c \"SELECT t.id, t.titulo, t.publicada, t.fecha_limite, t.grupo_id FROM tareas t JOIN grupos g ON t.grupo_id = g.id WHERE g.nombre = 'Prekinder' ORDER BY t.created_at DESC LIMIT 10;\")",
+      "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -h localhost -U postgres -d happy_school -c \"SELECT ta.tarea_id, t.titulo, ta.completada, ta.registrado_en_bitacora FROM tarea_alumno ta JOIN tareas t ON ta.tarea_id = t.id WHERE ta.alumno_id = '2ee56308-2835-4924-bc0a-d8a256caa337';\")",
+      "Bash(node backend/src/database/seed_tarea_ayer_emilio.js)",
+      "Bash(curl -s -X POST http://localhost:3000/login -H 'Content-Type: application/json' -d '{\\\\\"email\\\\\":\\\\\"mama.emilio@happyschool.edu.mx\\\\\",\\\\\"password\\\\\":\\\\\"HappySchool2026!\\\\\"}')",
+      "Bash(curl -s -X GET 'http://localhost:3000/tareas/pendientes-alumno?alumno_id=2ee56308-2835-4924-bc0a-d8a256caa337' -H 'Authorization: Bearer __CMDSUB_OUTPUT__')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"mama.emilio@happyschool.edu.mx\",\"password\":\"HappySchool2026!\"}' -w '\\\\n')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"mama.emilio@happyschool.edu.mx\",\"password\":\"HappySchool2026!\"}')",
+      "Bash(node backend/src/database/seed_tareas_validacion_emilio.js)",
+      "Bash(psql -U postgres -h localhost -c \"SELECT version\\(\\);\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_validacion_emilio.js'\\);\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_alerta_dashboard.js'\\);\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_alerta_prekinder.js'\\);\")"
     ],
     "additionalDirectories": [
       "\\tmp",

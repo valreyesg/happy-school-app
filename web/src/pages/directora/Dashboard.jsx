@@ -395,24 +395,6 @@ export default function DirectoraDashboard() {
         </div>
       )}
 
-      {/* Banner alumnos en alerta — tareas sin entregar */}
-      {alumnosEnAlertaTareas.length > 0 && (
-        <div className="bg-red-50 border-2 border-red-400 rounded-2xl p-4">
-          <p className="font-black text-red-800 text-sm flex items-center gap-2 mb-3">
-            <AlertTriangle size={18} /> {alumnosEnAlertaTareas.length} alumno{alumnosEnAlertaTareas.length > 1 ? 's' : ''} en seguimiento — 3+ tareas sin entregar
-          </p>
-          <div className="space-y-2">
-            {alumnosEnAlertaTareas.map((a, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs font-semibold text-red-700 bg-red-100 px-3 py-2 rounded-lg">
-                <span>📚</span>
-                <span>{a.nombre_completo}</span>
-                <span className="ml-auto bg-red-200 px-2 py-1 rounded">{a.tareas_sin_entregar} tareas</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Banner comida */}
       <BannerComidaHoy />
 
@@ -579,6 +561,28 @@ export default function DirectoraDashboard() {
           onCardClick={setModalRetardos}
         />
       </div>
+
+      {/* Sección colapsable: Alumnos en alerta de tareas — al fondo */}
+      {alumnosEnAlertaTareas.length > 0 && (
+        <div className="card-hs border border-red-200 overflow-hidden">
+          <details className="w-full">
+            <summary className="px-4 py-3 bg-red-50 cursor-pointer hover:bg-red-100 transition flex items-center gap-2 font-black text-red-800 text-sm">
+              <span>📚</span>
+              <span>{alumnosEnAlertaTareas.length} alumno{alumnosEnAlertaTareas.length > 1 ? 's' : ''} en seguimiento de tareas</span>
+              <span className="ml-auto text-red-600">▼</span>
+            </summary>
+            <div className="px-4 py-3 space-y-2 bg-white">
+              {alumnosEnAlertaTareas.map((a, i) => (
+                <div key={i} className="flex items-center gap-3 text-xs font-semibold text-gray-700 py-2 border-b border-red-100 last:border-b-0">
+                  <span className="text-sm">📌</span>
+                  <span className="flex-1">{a.nombre_completo}</span>
+                  <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">{a.tareas_sin_entregar} tareas</span>
+                </div>
+              ))}
+            </div>
+          </details>
+        </div>
+      )}
 
     </div>
   );

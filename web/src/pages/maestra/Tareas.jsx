@@ -360,6 +360,7 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
 export default function MaestraTareas() {
   const { usuario } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
+  const [vencidasColapsadas, setVencidasColapsadas] = useState(true);
   const queryClient = useQueryClient();
 
   const { data: grupo } = useQuery({
@@ -379,6 +380,22 @@ export default function MaestraTareas() {
 
   if (isLoading || !grupo) return <div className="p-6 text-center">Cargando...</div>;
 
+  const borradores = tareas?.filter(t => !t.publicada) || [];
+  const publicadas = tareas?.filter(t => t.publicada) || [];
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const porRecibir = publicadas.filter(t => {
+    const fechaTarea = new Date(t.fecha_limite.substring(0, 10) + 'T12:00:00');
+    return fechaTarea >= hoy;
+  });
+  const vencidas = publicadas.filter(t => {
+    const fechaTarea = new Date(t.fecha_limite.substring(0, 10) + 'T12:00:00');
+    return fechaTarea < hoy;
+  });
+
+  const totalTareas = (tareas?.length) || 0;
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -395,22 +412,96 @@ export default function MaestraTareas() {
         </button>
       </div>
 
-      {tareas && tareas.length === 0 ? (
+      {totalTareas === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <Clock size={48} className="mx-auto mb-3 opacity-30" />
           <p>No hay tareas aún</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {tareas?.map(t => (
-            <TareaCard
-              key={t.id}
-              tarea={t}
-              onPublicar={handleSuccess}
-              onDelete={handleSuccess}
-              onEdit={handleSuccess}
-            />
-          ))}
+        <div className="space-y-6">
+          {/* Borradores */}
+          {borradores.length > 0 && (
+            <div>
+              <h2 className="text-lg font-black text-yellow-700 mb-3 flex items-center gap-2">
+                <span>📤</span> Por publicar
+                <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-200 text-xs font-bold">
+                  {borradores.length}
+                </span>
+              </h2>
+              <div className="space-y-3">
+                {borradores.map(t => (
+                  <TareaCard
+                    key={t.id}
+                    tarea={t}
+                    onPublicar={handleSuccess}
+                    onDelete={handleSuccess}
+                    onEdit={handleSuccess}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Publicadas */}
+          {publicadas.length > 0 && (
+            <div>
+              <h2 className="text-lg font-black text-green-700 mb-4 flex items-center gap-2">
+                <span>✅</span> Publicadas
+                <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-200 text-xs font-bold">
+                  {publicadas.length}
+                </span>
+              </h2>
+
+              <div className="space-y-6">
+                {/* Por recibir */}
+                {porRecibir.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-600 mb-2 flex items-center gap-2">
+                      <span>📬</span> Por recibir
+                      <span className="ml-auto inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-xs font-bold text-blue-800">
+                        {porRecibir.length}
+                      </span>
+                    </h3>
+                    <div className="space-y-3 ml-4">
+                      {porRecibir.map(t => (
+                        <TareaCard
+                          key={t.id}
+                          tarea={t}
+                          onPublicar={handleSuccess}
+                          onDelete={handleSuccess}
+                          onEdit={handleSuccess}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Vencidas — Colapsadas por defecto */}
+                {vencidas.length > 0 && (
+                  <details>
+                    <summary className="text-sm font-bold text-red-600 mb-2 flex items-center gap-2 cursor-pointer hover:text-red-700 transition list-none">
+                      <span>{vencidasColapsadas ? '▶' : '▼'}</span>
+                      <span>🗂️</span> Vencidas
+                      <span className="ml-auto inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-xs font-bold text-red-800">
+                        {vencidas.length}
+                      </span>
+                    </summary>
+                    <div className="space-y-3 ml-4 mt-2">
+                      {vencidas.map(t => (
+                        <TareaCard
+                          key={t.id}
+                          tarea={t}
+                          onPublicar={handleSuccess}
+                          onDelete={handleSuccess}
+                          onEdit={handleSuccess}
+                        />
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

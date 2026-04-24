@@ -313,6 +313,7 @@ function ModalEvento({ ev, onClose }) {
 
 function TareaRecienteCard({ hijo }) {
   const [fotoModal, setFotoModal] = useState(null);
+  const [expandidas, setExpandidas] = useState({});
 
   const { data: tareasPendientes = [] } = useQuery({
     queryKey: ['tareas-pendientes-lista', hijo.id],
@@ -338,79 +339,72 @@ function TareaRecienteCard({ hijo }) {
     return dias;
   };
 
+  const getColorEmoji = (diasRestantes) => {
+    if (diasRestantes !== null && diasRestantes < 0) return '🔴';
+    if (diasRestantes === 0) return '🔥';
+    if (diasRestantes === 1) return '⚠️';
+    return '📘';
+  };
+
   return (
     <>
-      <div className="space-y-2">
-        {tareasPendientes.map((tarea, idx) => {
-          const diasRestantes = calcularDiasRestantes(tarea.fecha_limite);
-          const estaVencida = diasRestantes !== null && diasRestantes < 0;
-          const esHoy = diasRestantes === 0;
-          const esManana = diasRestantes === 1;
+      <details className="card-hs overflow-hidden">
+        <summary className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-3 border-b border-blue-200 cursor-pointer hover:from-blue-100 hover:to-blue-150 transition flex items-center gap-2 font-black text-sm text-blue-800 list-none">
+          <span>▶</span>
+          <span>📚 Tareas pendientes — {hijo.nombre_completo}</span>
+          <span className="ml-auto inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-200 text-xs font-bold text-blue-800">
+            {tareasPendientes.length}
+          </span>
+        </summary>
 
-          return (
-            <div
-              key={tarea.id}
-              className={`card-hs border-l-4 p-3 space-y-2 ${
-                estaVencida ? 'border-l-red-500 bg-red-50' :
-                esHoy ? 'border-l-orange-500 bg-orange-50' :
-                esManana ? 'border-l-yellow-500 bg-yellow-50' :
-                'border-l-blue-500 bg-blue-50'
-              }`}
-            >
-              {/* Encabezado: número y título */}
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-black text-gray-800">{idx + 1}. {tarea.titulo}</p>
-                  {tarea.descripcion && (
-                    <p className="text-xs text-gray-600 mt-1 whitespace-pre-wrap break-words">{tarea.descripcion}</p>
-                  )}
-                </div>
-              </div>
+        <div className="divide-y divide-blue-100">
+          {tareasPendientes.map((tarea) => {
+            const diasRestantes = calcularDiasRestantes(tarea.fecha_limite);
+            const isExpanded = expandidas[tarea.id];
 
-              {/* Fecha de entrega con indicador de urgencia */}
-              <div className="flex items-center gap-2 text-xs">
-                <span>📅</span>
-                <span className="font-semibold text-gray-600">Fecha de entrega:</span>
-                <span className="font-bold text-gray-800">{formatearFecha(tarea.fecha_limite)}</span>
-                {estaVencida && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full bg-red-200 text-red-700 font-bold text-xs">
-                    🔴 Vencida hace {Math.abs(diasRestantes)} día{Math.abs(diasRestantes) !== 1 ? 's' : ''}
-                  </span>
-                )}
-                {esHoy && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full bg-orange-200 text-orange-700 font-bold text-xs">
-                    🔥 Hoy
-                  </span>
-                )}
-                {esManana && (
-                  <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-200 text-yellow-700 font-bold text-xs">
-                    ⚠️ Mañana
-                  </span>
-                )}
-              </div>
-
-              {/* Foto si existe */}
-              {tarea.foto_url && (
+            return (
+              <div key={tarea.id} className="overflow-hidden">
+                {/* Fila compacta */}
                 <button
-                  onClick={() => setFotoModal(tarea.foto_url)}
-                  className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold text-xs mt-1"
+                  onClick={() => setExpandidas(p => ({ ...p, [tarea.id]: !p[tarea.id] }))}
+                  className="w-full px-4 py-3 hover:bg-gray-50 transition flex items-center gap-2 text-left"
                 >
-                  <span>📎</span> Ver referencia
+                  <span className="text-base shrink-0">{getColorEmoji(diasRestantes)}</span>
+                  <span className="text-sm font-bold text-gray-800 flex-1 truncate">{tarea.titulo}</span>
+                  <span className="text-xs font-semibold text-gray-600 whitespace-nowrap">{formatearFecha(tarea.fecha_limite)}</span>
+                  <span className="text-lg text-gray-400">{isExpanded ? '▼' : '▶'}</span>
                 </button>
-              )}
 
-              {/* Badge de estado */}
-              <div className="flex justify-end">
-                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                  tarea.completada ? 'bg-green-200 text-green-700' : 'bg-yellow-200 text-yellow-700'
-                }`}>
-                  {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
-                </span>
+                {/* Contenido expandido */}
+                {isExpanded && (
+                  <div className="px-4 py-3 bg-gray-50 border-t border-blue-100 space-y-2">
+                    {tarea.descripcion && (
+                      <p className="text-xs text-gray-700 whitespace-pre-wrap break-words">{tarea.descripcion}</p>
+                    )}
+
+                    {tarea.foto_url && (
+                      <button
+                        onClick={() => setFotoModal(tarea.foto_url)}
+                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold text-xs"
+                      >
+                        <span>📎</span> Ver referencia
+                      </button>
+                    )}
+
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+                        tarea.completada ? 'bg-green-200 text-green-700' : 'bg-yellow-200 text-yellow-700'
+                      }`}>
+                        {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      </details>
 
       {fotoModal && (
         <div

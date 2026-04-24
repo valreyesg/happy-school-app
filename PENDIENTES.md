@@ -17,9 +17,13 @@
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
-### 🔄 CICLOS ESCOLARES — COMPLETAR SPRINT 3
-- [x] **Panel "Historial Egresados":** Endpoint `GET /ciclos/:id/egresados` + tabla Directora. ✅ COMPLETADO Sesión 64
-- [x] **Excel Export + validación:** Descargar/revisar formato antes de cierre de ciclo. ✅ COMPLETADO Sesión 64 (botón en Modal Promoción paso 1)
+## ✅ SPRINT 3 — CICLOS ESCOLARES (COMPLETADO SESIÓN 64)
+
+Panel Historial Egresados + Excel Export movido a [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
+
+---
+
+## 🎯 SPRINTS PENDIENTES
 
 ### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales)
 - [ ] **Miss — Crear Tarea Grupal:**

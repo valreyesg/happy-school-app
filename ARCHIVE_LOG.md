@@ -1,7 +1,7 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 63
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 64
 
 ---
 
@@ -1342,6 +1342,47 @@ APP-KINDER/
 - Web: paleta Happy School, CSS utilitario, 4 layouts, router completo.
 - Web: authStore (Zustand + persist), api.js (axios + refresh auto).
 - Mobile: authStore (SecureStore), Splash, Login, redirect por rol, QR Scanner completo.
+
+---
+
+## ✅ SESIÓN 64 — Panel Historial Egresados + Excel Export (Sprint 3)
+
+**Fecha:** 2026-04-24 | **Estado:** Completado y validado
+
+### 1. Backend: Endpoint de Egresados por Ciclo
+
+**Archivo:** `backend/src/routes/ciclos.js` (líneas 444-474)
+- `GET /ciclos/:id/egresados` — obtener alumnos egresados de un ciclo
+- Query con JOINs: `inscripciones` → `alumnos` → `grupos` → `asignaciones_grupo` → `personal` (maestra) + `padres`
+- Devuelve: id, nombre_completo, foto_url, fecha_nacimiento, grupo_nombre, nivel, maestra_nombre, padres (JSON array)
+- Autorización: directora, administrativo
+- Agrupa por alumno para evitar duplicados con múltiples padres
+
+### 2. Frontend: Tab "Egresados" en CiclosEscolares
+
+**Archivo:** `web/src/pages/directora/CiclosEscolares.jsx`
+- Nuevo componente `TabEgresados` (líneas 590-691)
+- Selector de ciclo (solo ciclos cerrados con `!c.activo`)
+- Query lazy que se ejecuta solo cuando se selecciona ciclo (`enabled: !!cicloSeleccionado`)
+- Tabla con 6 columnas: Foto+Nombre | Grupo | Nivel | Maestra | Fecha nacimiento | Tutor principal
+- Muestra contador "X egresados en ciclo Y"
+- Estado vacío si no hay registros
+- 2 tabs en la página: "Ciclos Escolares" (original) | "Egresados" (nuevo)
+
+### 3. Validación & Fixes
+
+**Problema encontrado:** `exceljs` no estaba instalado en `backend/package.json`
+- Ejecutar `npm install exceljs` en `backend/`
+- El endpoint `GET /ciclos/:id/export` ya existía pero no funcionaba
+- Tras instalar, Excel export funciona correctamente (2 hojas: Grupos/Maestras + Alumnos)
+
+**Validación en browser:** Login → Directora → Ciclos → Tab Egresados (selector ciclo + tabla) ✅
+
+### 4. Commits
+
+- `474ec66` — feat: Sesión 64 — Panel Historial Egresados (Sprint 3)
+- `f62ef09` — chore: Sesión 64 — Sprint 3 COMPLETADO
+- `268f475` — chore: Instalar exceljs para exportación de ciclos en Excel
 
 ---
 

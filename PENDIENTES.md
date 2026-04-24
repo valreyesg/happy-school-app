@@ -39,6 +39,13 @@
   - **Tareas:**
     - [ ] Auditoría UX/UI web (padre, miss, directora)
     - [ ] Auditoría UX/UI mobile
+    - [ ] **Consistency check: Formato y estilo de texto homogéneo**
+      - Fechas: formato CONSISTENTE (ej: "Lun, 24 de abr" en todos lados)
+      - Saludos: mismo tono y estructura en cada portal
+      - Capitalización: CONSISTENTE mayúsculas/minúsculas/CamelCase
+      - Iconografía: mismo emoji para mismo concepto
+      - Espaciado y tamaño fuente en elementos similares
+      - **Objetivo:** No parecer que lo hicieron diferentes personas
     - [ ] Consistency check: colores, tipografía, spacing
     - [ ] Validar flujos por rol (¿cada usuario encuentra lo que busca en <3 clicks?)
     - [ ] Accesibilidad (contraste, tamaño texto, navegación)

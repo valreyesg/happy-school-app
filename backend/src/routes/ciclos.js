@@ -440,4 +440,38 @@ router.post('/:id/copiar-grupos-del-anterior', authorize('directora'), async (re
   }
 });
 
+// GET /ciclos/:id/egresados — obtener alumnos egresados de un ciclo con padres y maestra
+router.get('/:id/egresados', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT
+        a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
+        g.nombre AS grupo_nombre, g.nivel,
+        p_tit.nombre_completo AS maestra_nombre,
+        COALESCE(
+          json_agg(DISTINCT jsonb_build_object(
+            'nombre', p.nombre_completo,
+            'telefono', p.telefono,
+            'es_tutor_principal', ap.es_tutor_principal
+          )) FILTER (WHERE p.id IS NOT NULL),
+          '[]'
+        ) AS padres
+      FROM inscripciones i
+      JOIN alumnos a ON a.id = i.alumno_id AND a.deleted_at IS NULL
+      LEFT JOIN grupos g ON g.id = i.grupo_id
+      LEFT JOIN asignaciones_grupo ag_tit
+        ON ag_tit.grupo_id = g.id AND ag_tit.es_titular = true AND ag_tit.activo = true
+      LEFT JOIN personal p_tit ON p_tit.id = ag_tit.personal_id
+      LEFT JOIN alumno_padre ap ON ap.alumno_id = a.id
+      LEFT JOIN padres p ON p.id = ap.padre_id
+      WHERE i.ciclo_id = $1 AND a.estado = 'egresado'
+      GROUP BY a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
+               g.nombre, g.nivel, p_tit.nombre_completo
+      ORDER BY a.nombre_completo
+    `, [req.params.id]);
+
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

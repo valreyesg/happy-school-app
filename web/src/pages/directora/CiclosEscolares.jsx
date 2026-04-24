@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
+import { Clock } from 'lucide-react';
 
 // ─── Modal Nuevo Ciclo ────────────────────────────────────────────────────────
 function ModalNuevoCiclo({ onClose, onSave }) {
@@ -586,9 +587,120 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
   );
 }
 
+// ─── Tab Egresados ────────────────────────────────────────────────────────────
+function TabEgresados({ ciclos }) {
+  const [cicloSeleccionado, setCicloSeleccionado] = useState(null);
+
+  const { data: egresados = [], isLoading: loadingEgresados } = useQuery({
+    queryKey: ['egresados', cicloSeleccionado?.id],
+    queryFn: async () => {
+      const res = await api.get(`/ciclos/${cicloSeleccionado.id}/egresados`);
+      return res.data;
+    },
+    enabled: !!cicloSeleccionado,
+  });
+
+  const ciclosCerrados = ciclos.filter(c => !c.activo);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <label className="block text-sm font-bold text-gray-700 mb-2">Seleccionar ciclo:</label>
+        <select
+          value={cicloSeleccionado?.id || ''}
+          onChange={(e) => {
+            const ciclo = ciclos.find(c => c.id === e.target.value);
+            setCicloSeleccionado(ciclo || null);
+          }}
+          className="input-hs w-full"
+        >
+          <option value="">-- Elige un ciclo --</option>
+          {ciclosCerrados.map(ciclo => (
+            <option key={ciclo.id} value={ciclo.id}>
+              {ciclo.nombre} ({new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX')})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {cicloSeleccionado && (
+        <>
+          {loadingEgresados ? (
+            <div className="text-center py-12 text-gray-400">Cargando egresados...</div>
+          ) : egresados.length === 0 ? (
+            <div className="text-center py-12 text-gray-400">
+              <p>No hay egresados registrados en este ciclo.</p>
+            </div>
+          ) : (
+            <div>
+              <div className="mb-4 text-sm text-gray-600">
+                <strong>{egresados.length}</strong> egresado{egresados.length !== 1 ? 's' : ''} en <strong>{cicloSeleccionado.nombre}</strong>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                      <tr>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Alumno</th>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Grupo</th>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Nivel</th>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Maestra</th>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Fecha nacimiento</th>
+                        <th className="text-left py-4 px-6 font-black text-gray-700">Tutor principal</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {egresados.map((alumno) => {
+                        const tutorPrincipal = alumno.padres?.find(p => p.es_tutor_principal);
+                        return (
+                          <tr key={alumno.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-3">
+                                {alumno.foto_url && (
+                                  <img
+                                    src={alumno.foto_url}
+                                    alt={alumno.nombre_completo}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                )}
+                                <span className="font-semibold text-gray-800">{alumno.nombre_completo}</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6 text-gray-600">{alumno.grupo_nombre || '—'}</td>
+                            <td className="py-4 px-6 text-gray-600">{alumno.nivel || '—'}</td>
+                            <td className="py-4 px-6 text-gray-600">{alumno.maestra_nombre || '—'}</td>
+                            <td className="py-4 px-6 text-gray-600 text-sm">{new Date(alumno.fecha_nacimiento).toLocaleDateString('es-MX')}</td>
+                            <td className="py-4 px-6">
+                              {tutorPrincipal ? (
+                                <div className="text-sm">
+                                  <div className="font-semibold text-gray-800">{tutorPrincipal.nombre}</div>
+                                  {tutorPrincipal.telefono && (
+                                    <div className="text-gray-500 text-xs">{tutorPrincipal.telefono}</div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="text-gray-400 italic">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ─── Componente Principal ─────────────────────────────────────────────────────
 export default function CiclosEscolares() {
   const queryClient = useQueryClient();
+  const [tab, setTab] = useState('ciclos'); // 'ciclos' | 'egresados'
   const [mostrarModalNuevo, setMostrarModalNuevo] = useState(false);
   const [mostrarModalPromocion, setMostrarModalPromocion] = useState(false);
   const [cicloSeleccionado, setCicloSeleccionado] = useState(null);
@@ -681,60 +793,85 @@ export default function CiclosEscolares() {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="card-hs p-1 flex gap-1 mb-6">
+        {[
+          { key: 'ciclos',    label: 'Ciclos Escolares', icon: Clock },
+          { key: 'egresados', label: 'Egresados',        icon: Clock },
+        ].map(({ key, label, icon: Icon }) => (
+          <button key={key} onClick={() => setTab(key)}
+            className={`flex-1 py-2 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 ${
+              tab === key ? 'bg-hs-purple text-white' : 'text-gray-500 hover:bg-hs-purple/10'
+            }`}
+          >
+            <Icon size={16} />{label}
+          </button>
+        ))}
+      </div>
+
       {/* Tabla de ciclos */}
-      {loadingCiclos ? (
-        <div className="text-center py-12 text-gray-400">Cargando ciclos...</div>
-      ) : (
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
-                <tr>
-                  <th className="text-left py-4 px-6 font-black text-gray-700">Ciclo</th>
-                  <th className="text-left py-4 px-6 font-black text-gray-700">Período</th>
-                  <th className="text-left py-4 px-6 font-black text-gray-700">Estado</th>
-                  <th className="text-center py-4 px-6 font-black text-gray-700">Alumnos</th>
-                  <th className="text-center py-4 px-6 font-black text-gray-700">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ciclos.map((ciclo) => {
-                  const esActivo = ciclo.activo;
-                  return (
-                    <tr key={ciclo.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                      <td className="py-4 px-6 font-bold text-gray-800">{ciclo.nombre}</td>
-                      <td className="py-4 px-6 text-gray-600 text-sm">
-                        {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX')} → {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX')}
-                      </td>
-                      <td className="py-4 px-6">
-                        {esActivo ? (
-                          <span className="inline-block py-1 px-3 rounded-full bg-green-100 text-green-700 text-xs font-bold">
-                            ✓ ACTIVO
-                          </span>
-                        ) : (
-                          <span className="inline-block py-1 px-3 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">
-                            Cerrado
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-4 px-6 text-center font-semibold text-gray-700">{ciclo.total_alumnos}</td>
-                      <td className="py-4 px-6 text-center space-x-2">
-                        {esActivo && (
-                          <button
-                            onClick={() => handleAbrirPromocion(ciclo)}
-                            disabled={previewMutation.isPending}
-                            className="inline-block py-2 px-4 rounded-lg text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition"
-                          >
-                            Iniciar cierre →
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {tab === 'ciclos' && (
+        loadingCiclos ? (
+          <div className="text-center py-12 text-gray-400">Cargando ciclos...</div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left py-4 px-6 font-black text-gray-700">Ciclo</th>
+                    <th className="text-left py-4 px-6 font-black text-gray-700">Período</th>
+                    <th className="text-left py-4 px-6 font-black text-gray-700">Estado</th>
+                    <th className="text-center py-4 px-6 font-black text-gray-700">Alumnos</th>
+                    <th className="text-center py-4 px-6 font-black text-gray-700">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ciclos.map((ciclo) => {
+                    const esActivo = ciclo.activo;
+                    return (
+                      <tr key={ciclo.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
+                        <td className="py-4 px-6 font-bold text-gray-800">{ciclo.nombre}</td>
+                        <td className="py-4 px-6 text-gray-600 text-sm">
+                          {new Date(ciclo.fecha_inicio).toLocaleDateString('es-MX')} → {new Date(ciclo.fecha_fin).toLocaleDateString('es-MX')}
+                        </td>
+                        <td className="py-4 px-6">
+                          {esActivo ? (
+                            <span className="inline-block py-1 px-3 rounded-full bg-green-100 text-green-700 text-xs font-bold">
+                              ✓ ACTIVO
+                            </span>
+                          ) : (
+                            <span className="inline-block py-1 px-3 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">
+                              Cerrado
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-4 px-6 text-center font-semibold text-gray-700">{ciclo.total_alumnos}</td>
+                        <td className="py-4 px-6 text-center space-x-2">
+                          {esActivo && (
+                            <button
+                              onClick={() => handleAbrirPromocion(ciclo)}
+                              disabled={previewMutation.isPending}
+                              className="inline-block py-2 px-4 rounded-lg text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition"
+                            >
+                              Iniciar cierre →
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
+        )
+      )}
+
+      {/* Tab Egresados */}
+      {tab === 'egresados' && (
+        <div className="bg-white rounded-2xl shadow-sm p-6">
+          <TabEgresados ciclos={ciclos} />
         </div>
       )}
 

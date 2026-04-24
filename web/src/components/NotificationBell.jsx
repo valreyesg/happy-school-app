@@ -8,11 +8,11 @@ export default function NotificationBell() {
   const dropdownRef = useRef(null);
   const queryClient = useQueryClient();
 
-  // Count de no leídas — polling cada 60 s
+  // Count de no leídas — polling cada 30 s
   const { data: badgeData } = useQuery({
     queryKey: ['notif-count'],
     queryFn: () => api.get('/notificaciones/no-leidas').then(r => r.data),
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
   const count = badgeData?.count || 0;
 
@@ -21,7 +21,6 @@ export default function NotificationBell() {
     queryKey: ['notificaciones'],
     queryFn: () => api.get('/notificaciones').then(r => r.data),
     enabled: open,
-    staleTime: 30_000,
   });
 
   const marcarTodas = useMutation({

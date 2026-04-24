@@ -364,7 +364,18 @@
       "Bash(curl -s -X GET http://localhost:3000/api/notificaciones/aviso-extraordinario/estado/9be16d22-5f57-4889-8741-271705951f31 -H \"Authorization: Bearer dummy\")",
       "Bash(psql -h localhost -U postgres -d happyschool -c \"SELECT id, titulo FROM avisos WHERE id = '9be16d22-5f57-4889-8741-271705951f31';\")",
       "Bash(pkill -f \"node.*server.js\")",
-      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }; echo \"✅ Port 3000 released\")"
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }; echo \"✅ Port 3000 released\")",
+      "Bash(pkill -f \"vite|node.*web\")",
+      "Bash(npm --prefix web run dev)",
+      "PowerShell(Stop-Process -Id 3676 -Force -ErrorAction SilentlyContinue)",
+      "Bash(npm --prefix backend run dev)",
+      "Bash(chmod +x /tmp/test_notifications.sh)",
+      "Bash(bash /tmp/test_notifications.sh)",
+      "Bash(curl -s -X POST http://localhost:3000/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"valeria@happyschool.test\",\"password\":\"test123\"}')",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"valeria@happyschool.test\",\"password\":\"test123\"}')",
+      "Bash(sqlite3 backend/data/happy_school.db)",
+      "Bash(psql \"postgresql://valeria:hs_password@localhost:5432/happy_school_db\" -f /tmp/query_sofia.sql)",
+      "Bash(xargs cat *)"
     ],
     "additionalDirectories": [
       "\\tmp",

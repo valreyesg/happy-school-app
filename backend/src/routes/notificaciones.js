@@ -115,18 +115,7 @@ router.get('/aviso-extraordinario/estado/:avisoId', authorize('directora'), asyn
   try {
     const { avisoId } = req.params;
 
-    // Obtener el título del aviso desde la tabla avisos
-    const avisoInfo = await query(`
-      SELECT titulo FROM avisos WHERE id = $1::uuid
-    `, [avisoId]);
-
-    if (avisoInfo.rows.length === 0) {
-      return res.json({ total: 0, leidas: 0, pendientes: 0, detalle: [] });
-    }
-
-    const titulo = avisoInfo.rows[0].titulo;
-
-    // Buscar todas las notificaciones con ese título tipo 'aviso_extraordinario'
+    // Buscar todas las notificaciones del aviso específico filtrando por aviso_id en datos_extra
     const result = await query(`
       SELECT
         n.id,
@@ -141,9 +130,9 @@ router.get('/aviso-extraordinario/estado/:avisoId', authorize('directora'), asyn
       JOIN alumno_padre ap ON ap.padre_id = p.id AND ap.es_tutor_principal = true
       JOIN alumnos a ON ap.alumno_id = a.id AND a.deleted_at IS NULL
       JOIN grupos g ON a.grupo_id = g.id
-      WHERE n.tipo = 'aviso_extraordinario' AND n.titulo = $1
+      WHERE n.tipo = 'aviso_extraordinario' AND n.datos_extra->>'aviso_id' = $1
       ORDER BY n.leida ASC, p.nombre_completo ASC
-    `, [titulo]);
+    `, [avisoId]);
 
     const total = result.rows.length;
     const leidas = result.rows.filter(r => r.leida).length;

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import api from '@/services/api';
+import { queryClient } from '@/services/queryClient';
 
 export const useAuthStore = create(
   persist(
@@ -25,6 +26,7 @@ export const useAuthStore = create(
         try {
           await api.post('/auth/logout', { refreshToken });
         } catch { /* silencioso */ }
+        queryClient.clear();
         set({ token: null, refreshToken: null, usuario: null });
         delete api.defaults.headers.common['Authorization'];
       },

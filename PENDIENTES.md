@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 61
+**Última actualización:** 2026-04-24 | **Sesión actual:** 62
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -15,13 +15,32 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 61 (PRÓXIMA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
+## 📍 SESIÓN 61 ✅ COMPLETADA — BUGS NOTIFICACIONES MULTI-SESIÓN
 
-### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación sesión 60)
-- [ ] **Trigger Bitácora Guardada:** Cuando Miss/Papa guarda bitácora (comida, salud, incidente) → INSERT notificación automática
-- [ ] **Trigger Medicamento Recibido:** Cuando Miss recibe medicamento → INSERT notificación al padre
+### ✅ BUGS NOTIFICACIONES CORREGIDOS
+- [x] **Bug 1 — QueryClient no se limpiaba en logout:** Ahora llama `queryClient.clear()` en logout → impide que siguiente usuario vea caché del anterior
+- [x] **Bug 2 — Endpoint estado aviso filtraba por título:** Cambiado a filtrar por `datos_extra->>'aviso_id'` → conteo de confirmaciones correcto
+- [x] **Bug 3 — staleTime: 30s prevenía re-fetch:** Eliminado `staleTime` en NotificationBell → frescura instantánea de notificaciones
+- [x] **Bug 4 — UTF-8 encoding incorrecto en web:** Agregado `charset=utf-8` a axios header + transformRequest → acentos se muestran correctamente
+- [x] **Data issue — Papa Sofia no era tutor principal:** Actualizado BD para que sea tutor principal de Sofia Reyes Mendoza → ahora recibe notificaciones
+
+**Archivos modificados:**
+- `web/src/services/queryClient.js` (nuevo)
+- `web/src/main.jsx` — importa queryClient desde services
+- `web/src/store/authStore.js` — llama `queryClient.clear()` en logout
+- `web/src/components/NotificationBell.jsx` — eliminó staleTime, reducido refetchInterval
+- `web/src/services/api.js` — agregó charset=utf-8 + transformRequest
+- `backend/src/routes/notificaciones.js` — filtro por aviso_id en lugar de título
+
+---
+
+## 📍 SESIÓN 62 (ACTUAL) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
+
+### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación)
+- [ ] **Trigger Bitácora Guardada:** Cuando Miss guarda bitácora  → INSERT notificación automática a Papá
+- [ ] **Trigger Medicamento Recibido:** Cuando Miss suministra medicamento → INSERT notificación al padre
 - [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre
-- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket)
+- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket). Definir que notificaciones se mostrarán solo en la campanita y cuales se mostrarán en una modal al centro de la página por su relevancia como: aviso extraordinario, cancelación de comida, falta de pago de colegiatura ya con recargo, tarea, etc.
 - [ ] **Paridad Mobile:** Verificar que mobile porta have campanita + notificaciones
 
 ### 🏠 DASHBOARD PAPÁ — Refactor UI (Impacto UX alta)
@@ -42,7 +61,7 @@
 - [ ] **Miss — Crear Tarea Grupal:**
   - Apartado Miss: Seleccionar grupo → Redactar descripción → Adjuntar foto/PDF.
   - Fecha entrega: default día hábil siguiente (editable).
-- [ ] **Papá — Bitácora:** Tareas aparecen automáticamente después de publicar.
+- [ ] **Papá — Bitácora:** Tareas aparecen automáticamente después de publicar. Considero que se realice algun apartado especifico para la tarea.
 - [ ] **Miss — Filtro Entrada (día entrega):** Checklist por alumno "Entregó Tarea: SÍ/NO".
 - [ ] **Miss — Dashboard:** Indicador "[X] Tareas por recibir".
 - [ ] **Miss — Reporte:** Panel resumen "12/15 entregaron hoy".
@@ -50,10 +69,9 @@
 ### 📅 INTEGRACIÓN CALENDARIO MEJORADA
 - [ ] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil).
 - [ ] **Eventos Enriquecidos:** Color + Emoji por categoría, ubicación, recordatorios.
-- [ ] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por familia).
+- [ ] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo).
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
-- [ ] **Bitácora Miss:** Desayuno, Colación, Comida, Comida Extra (visible según horario alumno).
 - [ ] **"Comida Extra"** habilitada solo para Extensión/Estancia >3:06 PM.
 - [ ] **Tabla `historial_servicios`:** Rastrear altas/bajas extensión por mes.
 
@@ -63,12 +81,12 @@
 - [ ] **Justificantes Inasistencia:** Endpoint Directora marcar falta "Justificada" → excluir de contador suspensión.
 - [ ] **Depósición especial:** Marcar "Diarrea" en bitácora salud.
 - [ ] **Filtro Sanitario Salida:** Checklist (pañal, pertenencias, estado físico) + botón "Entrega Conforme".
-- [ ] **Control de Insumos (Maternal/Prekinder):** Contador stock pañales → alerta padre WhatsApp cuando <5.
+- [ ] **Control de Insumos (Maternal/Prekinder):** Contador stock pañales → alerta padre WhatsApp y notificación cuando <5.
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
 - [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
 - [ ] **Protocolo Salida Anticipada:** Formulario motivo + hora + quién retira + firma digital tutor + notificación al otro padre.
-- [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp a tercero.
+- [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
 ### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA
 - [ ] **Perfil 360°:** Padre + Madre + 2 autorizados (fotos + INE).
@@ -87,7 +105,7 @@
 - [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
 - [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
 - [ ] **Exportación Contable:** Excel filtrable para admin.
-- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp papá.
+- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp o Correo papá. Ideal tener dentro del panel de pagos el recibo correspondiente a cada pago.
 
 ---
 
@@ -115,7 +133,7 @@
 - [ ] **Álbumes fotos:** Por evento/mes con compresión.
 - [ ] **Privacidad:** Fotos individuales vs. grupales.
 - [ ] **Chat Grupo Miss + Papás:** Por grupo.
-- [ ] **Chat Individual:** Papá-Directora, Papá-Miss.
+- [ ] **Chat Familiar:** Papás-Directora-Miss.
 
 ### 🔔 NOTIFICACIONES AVANZADAS (FASE 9)
 - [ ] **Firebase Cloud Messaging:** Registrar tokens, enviar push.

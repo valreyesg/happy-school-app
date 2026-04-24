@@ -14,6 +14,40 @@
 
 ---
 
+## 🏗️ ARQUITECTURA Y ESTRUCTURA
+
+- [ ] **Organizar estructura de carpetas del proyecto**
+  - Problema: archivos de texto, seeds, validaciones, resúmenes dispersos sin orden
+  - Propuesta:
+    - `/backend/scripts/` — seeds, migraciones, utilidades
+    - `/docs/` — README, guías, resúmenes, CHANGELOG
+    - `/tests/` — validaciones, tests unitarios
+    - `/config/` — configuración centralizada
+  - Beneficio: Mantenibilidad, onboarding más rápido
+  - Complejidad: ⭐⭐⭐
+
+---
+
+## 🎨 UX/UI AUDIT Y MEJORA
+
+- [ ] **Revisar y mejorar UX/UI completa (web + mobile)**
+  - **Contexto:** Identificar usuarios finales por rol:
+    - Papá: necesita información clara de hijo, tareas, pagos
+    - Miss: herramienta de trabajo diario, eficiencia crítica
+    - Directora: visión ejecutiva, reportes, alertas
+    - Mobile: interfaz simplificada para papá en movimiento
+  - **Tareas:**
+    - [ ] Auditoría UX/UI web (padre, miss, directora)
+    - [ ] Auditoría UX/UI mobile
+    - [ ] Consistency check: colores, tipografía, spacing
+    - [ ] Validar flujos por rol (¿cada usuario encuentra lo que busca en <3 clicks?)
+    - [ ] Accesibilidad (contraste, tamaño texto, navegación)
+    - [ ] Responsive design validation (mobile, tablet, desktop)
+  - **Herramientas:** Figma, accesibilidad tools, device testing
+  - **Complejidad:** ⭐⭐⭐⭐ (2-3 sesiones)
+
+---
+
 ## 🔁 DEUDA TÉCNICA — Paridad Web ↔ Mobile
 
 > Correcciones aplicadas en web que deben verificarse y corregirse en mobile si aplica.

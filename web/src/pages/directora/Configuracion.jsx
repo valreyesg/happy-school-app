@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, Clock, DollarSign, Calendar, Save, Bell } from 'lucide-react';
+import { Settings, Save, Bell, Clock } from 'lucide-react';
 import api from '../../services/api';
 
 const CAMPOS = [
@@ -54,8 +54,14 @@ const COLOR_MAP = {
   purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800' },
 };
 
+const TABS = [
+  { id: 'horarios',       label: 'Horarios y reglas', icon: Clock },
+  { id: 'notificaciones', label: 'Notificaciones',    icon: Bell  },
+];
+
 export default function Configuracion() {
   const qc = useQueryClient();
+  const [tab, setTab] = useState('horarios');
   const [valores, setValores] = useState(null);
   const [guardado, setGuardado] = useState(false);
   const [notifActivos, setNotifActivos] = useState(null);
@@ -106,9 +112,6 @@ export default function Configuracion() {
     setNotifActivos(nuevos);
   };
 
-  const handleGuardar = () => mutation.mutate(valoresActivos);
-  const handleGuardarNotif = () => mutationNotif.mutate(tiposActivos);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
@@ -126,84 +129,110 @@ export default function Configuracion() {
         </div>
         <div>
           <h1 className="text-2xl font-black text-gray-800">Configuración ⚙️</h1>
-          <p className="text-sm font-semibold text-gray-500">Horarios y reglas de la escuela</p>
+          <p className="text-sm font-semibold text-gray-500">Ajustes generales de la escuela</p>
         </div>
       </div>
 
-      {/* Secciones */}
-      {CAMPOS.map(({ seccion, color, campos }) => {
-        const c = COLOR_MAP[color];
-        return (
-          <div key={seccion} className={`rounded-2xl border-2 ${c.bg} ${c.border} p-5 space-y-4`}>
-            <h2 className={`font-black text-base ${c.title}`}>{seccion}</h2>
-            {campos.map(({ clave, label, tipo, desc }) => (
-              <div key={clave}>
-                <label className="block text-sm font-bold text-gray-700 mb-1">{label}</label>
-                <input
-                  type={tipo}
-                  value={valoresActivos[clave] ?? ''}
-                  onChange={e => handleChange(clave, e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-purple-400 bg-white"
-                  min={tipo === 'number' ? 0 : undefined}
-                />
-                <p className="text-xs text-gray-400 mt-1">{desc}</p>
+      {/* Tabs */}
+      <div className="flex gap-2 border-b-2 border-gray-100">
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-t-xl transition-colors ${
+              tab === id
+                ? 'bg-white border-2 border-b-white border-gray-200 text-purple-700 -mb-[2px]'
+                : 'text-gray-400 hover:text-gray-600'
+            }`}
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab: Horarios */}
+      {tab === 'horarios' && (
+        <div className="space-y-6">
+          {CAMPOS.map(({ seccion, color, campos }) => {
+            const c = COLOR_MAP[color];
+            return (
+              <div key={seccion} className={`rounded-2xl border-2 ${c.bg} ${c.border} p-5 space-y-4`}>
+                <h2 className={`font-black text-base ${c.title}`}>{seccion}</h2>
+                {campos.map(({ clave, label, tipo, desc }) => (
+                  <div key={clave}>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">{label}</label>
+                    <input
+                      type={tipo}
+                      value={valoresActivos[clave] ?? ''}
+                      onChange={e => handleChange(clave, e.target.value)}
+                      className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-purple-400 bg-white"
+                      min={tipo === 'number' ? 0 : undefined}
+                    />
+                    <p className="text-xs text-gray-400 mt-1">{desc}</p>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        );
-      })}
+            );
+          })}
 
-      {/* Sección Notificaciones a padres */}
-      <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
-        <h2 className="font-black text-base text-red-800 flex items-center gap-2">
-          <Bell size={18} /> 🔔 Notificaciones a padres
-        </h2>
-        <p className="text-xs text-gray-600">
-          Los tipos marcados aparecerán como ventana emergente en el portal del papá.
-        </p>
-        <div className="space-y-3">
-          {TIPOS_NOTIFICACION.map(({ tipo, label, icono }) => (
-            <div key={tipo} className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id={`notif-${tipo}`}
-                checked={tiposActivos.includes(tipo)}
-                onChange={() => handleToggleNotif(tipo)}
-                className="w-5 h-5 cursor-pointer"
-              />
-              <label htmlFor={`notif-${tipo}`} className="flex items-center gap-2 cursor-pointer flex-1">
-                <span className="text-xl">{icono}</span>
-                <span className="text-sm font-semibold text-gray-800">{label}</span>
-              </label>
-            </div>
-          ))}
+          <button
+            onClick={() => mutation.mutate(valoresActivos)}
+            disabled={mutation.isLoading}
+            className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+          >
+            <Save size={18} />
+            {mutation.isLoading ? 'Guardando…' : guardado ? '¡Guardado! ✅' : 'Guardar horarios'}
+          </button>
+
+          {mutation.isError && (
+            <p className="text-center text-red-500 text-sm font-semibold">Error al guardar. Intenta de nuevo.</p>
+          )}
         </div>
-      </div>
+      )}
 
-      {/* Botones guardar */}
-      <div className="grid grid-cols-2 gap-4">
-        <button
-          onClick={handleGuardar}
-          disabled={mutation.isLoading}
-          className="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
-        >
-          <Save size={18} />
-          {mutation.isLoading ? 'Guardando…' : guardado ? '¡Guardado! ✅' : 'Guardar'}
-        </button>
-        <button
-          onClick={handleGuardarNotif}
-          disabled={mutationNotif.isLoading}
-          className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
-        >
-          <Save size={18} />
-          {mutationNotif.isLoading ? 'Guardando…' : notifGuardado ? '¡Guardado! ✅' : 'Guardar notif'}
-        </button>
-      </div>
+      {/* Tab: Notificaciones */}
+      {tab === 'notificaciones' && (
+        <div className="space-y-6">
+          <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
+            <h2 className="font-black text-base text-red-800 flex items-center gap-2">
+              <Bell size={18} /> Notificaciones a padres
+            </h2>
+            <p className="text-xs text-gray-600">
+              Los tipos marcados aparecerán como ventana emergente en el portal del papá.
+            </p>
+            <div className="space-y-3">
+              {TIPOS_NOTIFICACION.map(({ tipo, label, icono }) => (
+                <div key={tipo} className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id={`notif-${tipo}`}
+                    checked={tiposActivos.includes(tipo)}
+                    onChange={() => handleToggleNotif(tipo)}
+                    className="w-5 h-5 cursor-pointer"
+                  />
+                  <label htmlFor={`notif-${tipo}`} className="flex items-center gap-2 cursor-pointer flex-1">
+                    <span className="text-xl">{icono}</span>
+                    <span className="text-sm font-semibold text-gray-800">{label}</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      {(mutation.isError || mutationNotif.isError) && (
-        <p className="text-center text-red-500 text-sm font-semibold">
-          Error al guardar. Intenta de nuevo.
-        </p>
+          <button
+            onClick={() => mutationNotif.mutate(tiposActivos)}
+            disabled={mutationNotif.isLoading}
+            className="w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+          >
+            <Save size={18} />
+            {mutationNotif.isLoading ? 'Guardando…' : notifGuardado ? '¡Guardado! ✅' : 'Guardar notificaciones'}
+          </button>
+
+          {mutationNotif.isError && (
+            <p className="text-center text-red-500 text-sm font-semibold">Error al guardar. Intenta de nuevo.</p>
+          )}
+        </div>
       )}
     </div>
   );

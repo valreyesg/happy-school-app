@@ -311,6 +311,92 @@ function ModalEvento({ ev, onClose }) {
   );
 }
 
+function TareaRecienteCard({ hijo }) {
+  const [fotoModal, setFotoModal] = useState(null);
+
+  const { data: tarea } = useQuery({
+    queryKey: ['tarea-reciente', hijo.id],
+    queryFn: () => api.get(`/tareas/reciente?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
+  });
+
+  if (!tarea) return null;
+
+  const fechaCreacion = tarea.created_at
+    ? (() => {
+        const d = new Date(tarea.created_at.substring(0, 10) + 'T12:00:00');
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+      })()
+    : null;
+
+  const fechaFormateada = tarea.fecha_limite
+    ? (() => {
+        const parts = tarea.fecha_limite.substring(0, 10).split('-');
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        return d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+      })()
+    : 'Sin fecha';
+
+  return (
+    <>
+      <div className="card-hs border border-blue-100 p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold text-gray-600">{hijo.nombre_completo}</p>
+          {fechaCreacion && (
+            <p className="text-xs text-gray-400">Creada: {fechaCreacion}</p>
+          )}
+        </div>
+        <p className="font-black text-lg text-gray-800">{tarea.titulo}</p>
+
+        {tarea.descripcion && (
+          <p className="text-sm text-gray-600">{tarea.descripcion}</p>
+        )}
+
+        {tarea.foto_url && (
+          <button
+            onClick={() => setFotoModal(tarea.foto_url)}
+            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold text-sm"
+          >
+            <span>📎</span> Ver imagen de referencia
+          </button>
+        )}
+
+        <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
+          <span className="text-lg">📅</span>
+          <div>
+            <p className="text-xs font-black text-orange-600 uppercase">Fecha de entrega</p>
+            <p className="text-sm font-black text-orange-800 capitalize">{fechaFormateada}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+            tarea.completada ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+          }`}>
+            {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+          </span>
+        </div>
+      </div>
+
+      {fotoModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setFotoModal(null)}
+        >
+          <div className="relative bg-white rounded-3xl p-4 max-w-lg max-h-[80vh] flex items-center justify-center" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setFotoModal(null)}
+              className="absolute top-3 right-3 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition"
+            >
+              <X size={20} className="text-gray-600" />
+            </button>
+            <img src={fotoModal} alt="Imagen de tarea" className="max-w-full max-h-[70vh] object-contain rounded-2xl" />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function PadreDashboard() {
   const { usuario } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
@@ -335,15 +421,6 @@ export default function PadreDashboard() {
     queryKey: ['eventos-proximos', desde],
     queryFn: () => api.get(`/calendario?desde=${desde}&hasta=${hasta}`).then(r => r.data),
   });
-
-  // Tareas recientes por hijo
-  const tareasQuery = hijos.reduce((acc, hijo) => {
-    acc[hijo.id] = useQuery({
-      queryKey: ['tarea-reciente', hijo.id],
-      queryFn: () => api.get(`/tareas/reciente?alumno_id=${hijo.id}`).then(r => r.data).catch(() => null),
-    });
-    return acc;
-  }, {});
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -372,36 +449,13 @@ export default function PadreDashboard() {
         </div>
       </div>
 
-      {/* Tareas recientes */}
+      {/* Tareas pendientes */}
       <div>
-        <h2 className="text-base font-black text-gray-700 mb-3">📚 Tareas encargadas</h2>
+        <h2 className="text-base font-black text-gray-700 mb-3">📚 Tareas pendientes</h2>
         <div className="space-y-2">
-          {hijos.map(hijo => {
-            const tarea = tareasQuery[hijo.id]?.data;
-            return tarea ? (
-              <div key={hijo.id} className="card-hs border border-blue-100 p-4">
-                <div className="mb-2">
-                  <p className="text-xs font-bold text-gray-600">{hijo.nombre_completo}</p>
-                  <p className="font-black text-sm text-gray-800 mt-1">{tarea.titulo}</p>
-                </div>
-                {tarea.descripcion && (
-                  <p className="text-xs text-gray-600 mb-2">{tarea.descripcion.substring(0, 80)}...</p>
-                )}
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500">
-                    📅 {new Date(tarea.fecha_limite + 'T00:00:00').toLocaleDateString('es-MX')}
-                  </p>
-                  <span className={`px-2 py-1 rounded-full text-xs font-bold ${
-                    tarea.completada
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
-                  </span>
-                </div>
-              </div>
-            ) : null;
-          })}
+          {hijos.map(hijo => (
+            <TareaRecienteCard key={hijo.id} hijo={hijo} />
+          ))}
         </div>
       </div>
 

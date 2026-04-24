@@ -85,7 +85,7 @@ router.get('/reciente', async (req, res, next) => {
 
     // Obtener tarea más reciente publicada del grupo
     const result = await query(`
-      SELECT t.id, t.titulo, t.descripcion, t.fecha_limite, t.foto_url,
+      SELECT t.id, t.titulo, t.descripcion, t.fecha_limite, t.foto_url, t.created_at,
              ta.completada, ta.fecha_completada
       FROM tareas t
       LEFT JOIN tarea_alumno ta ON t.id = ta.tarea_id AND ta.alumno_id = $1

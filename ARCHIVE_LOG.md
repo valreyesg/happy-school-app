@@ -1,7 +1,63 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 66
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 67
+
+---
+
+## ✅ SESIÓN 67 — Verificación Notificaciones Tareas + UI/UX Dashboard Papá
+
+**Fecha:** 2026-04-24 | **Estado:** Completado
+
+### Cambios completados:
+
+**1. UX Configuración Directora (web/src/pages/directora/Configuracion.jsx)**
+- Separar en tabs: "Horarios y reglas" vs "Notificaciones"
+- Cada tab con su propio botón Guardar independiente
+- Reduce confusión de usuario (antes: 2 botones "Guardar" + "Guardar notif")
+
+**2. Verificación Notificaciones de Tarea (backend + BD)**
+- Confirmado: endpoint `PUT /tareas/:id/publicar` inserta notificaciones
+- Requería activar tipo `'tarea_nueva'` en `configuracion_general.notificaciones_modal_tipos`
+- Solución: panel Configuración ya tenía checkbox, solo necesitaba activarlo
+- Validado: notificaciones llegan a papás en tiempo real (campanita)
+
+**3. Fix Dashboard Papá — Hooks Error (web/src/pages/padre/Dashboard.jsx)**
+- Bug: `useQuery` dentro de `.reduce()` violaba reglas de Hooks
+- Solución: extraer a componente `TareaRecienteCard` (mismo patrón que `PagoResumenCard`)
+- Resultado: sin errores de Hooks, Dashboard papá carga limpiamente
+
+**4. Mejora Card Tarea Reciente (web/src/pages/padre/Dashboard.jsx)**
+- ✅ Título de sección: "Tareas encargadas" → "Tareas pendientes"
+- ✅ Mostrar fecha de creación (Creada: 24/04/2026) — top right, discreta
+- ✅ Título más grande (text-lg font-black) — mejor jerarquía visual
+- ✅ Descripción completa (sin truncar a 80 chars)
+- ✅ Botón "📎 Ver imagen de referencia" + modal si existe foto
+- ✅ Badge naranja "Fecha de entrega" prominente con formato corto (lun, 27 abr)
+- ✅ Badge estado entrega (Entregada/Pendiente) al final
+
+**5. Fix Fechas (backend + frontend)**
+- Backend: agregar `t.created_at` a SELECT endpoint `/tareas/reciente`
+- Frontend: `created_at` y `fecha_limite` vienen en ISO 8601 con timestamp
+- Solución: `.substring(0, 10)` + manual date parsing para evitar off-by-one por zona horaria
+- Formato homologado: mismo que "Próximos eventos" (ej: "lun, 27 abr")
+
+**Archivos modificados:**
+- `backend/src/routes/tareas.js` — agregar created_at a query
+- `web/src/pages/directora/Configuracion.jsx` — tabs + botones separados
+- `web/src/pages/padre/Dashboard.jsx` — 3 cambios: componente TareaRecienteCard, mejoras card, fix fechas
+
+**Validación en browser:**
+- ✅ Directora: tabs funcionan, guardar horarios y notificaciones independiente
+- ✅ Miss: puede crear/publicar/borrar tareas
+- ✅ Papá: ve Dashboard sin errores, tarea con fecha creada + entrega formateadas, modal foto funciona
+- ✅ Notificaciones: llegan a papá en campanita al publicar tarea (si `tarea_nueva` activado)
+
+### Pendientes para próxima sesión:
+- Dashboard directora: Indicador "[X] Tareas por recibir"
+- Bitácora: Campo "Trajo Tarea: SÍ/NO"
+- Papá bitácora: Vista de tareas (solo lectura)
+- Directora dashboard: Alerta alumnos 3+ tareas sin entregar
 
 ---
 

@@ -19,18 +19,16 @@
 
 ### 📊 GESTIÓN DE TAREAS GRUPALES (Requiere BD + 3 portales) — EN PROGRESO
 **ESTADO:** Sesión 66 — POST + PUT editar + DELETE ✅, Publicar ✅, Notificaciones ✅
+**Sesión 67 — Notificaciones verificadas ✅, Dashboard papá mejorado ✅**
 **SIGUIENTE:** 
 - Dashboard: Indicador tareas por recibir
 - Bitácora: Campo "Trajo Tarea"
 
 **Pendiente:**
-- [ ] **Publicar tarea:** Verificar notificaciones llegan correctamente a papás
 - [ ] **Dashboard:** Indicador "[X] Tareas por recibir"
 - [ ] **Bitácora:** Campo "Trajo Tarea: SÍ/NO"
-- [ ] **Papá — Dashboard:** Card tarea reciente + modal notificación
 - [ ] **Papá — Bitácora:** Vista de tareas (solo lectura)
 - [ ] **Directora — Dashboard:** Alerta alumnos con 3+ tareas sin entregar
-- [ ] **Configuración:** Tipo notificación 'tarea_nueva' habilitado
 
 ### 📅 INTEGRACIÓN CALENDARIO MEJORADA
 - [ ] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil).

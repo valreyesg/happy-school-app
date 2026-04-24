@@ -437,7 +437,18 @@
       "Bash(rm /c/Users/vreyesg/.claude/projects/c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER/memory/sesion_58_dashboard_entrada.md)",
       "PowerShell(\"Node process killed\")",
       "PowerShell(\"Killed all node processes\")",
-      "PowerShell(\"Killed\")"
+      "PowerShell(\"Killed\")",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(curl -s http://localhost:3000/api/tareas)",
+      "Bash(PGPASSWORD=postgres psql -h localhost -U postgres -d kinder_db -c \"SELECT clave, valor FROM configuracion_general WHERE clave = 'notificaciones_modal_tipos';\")",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT clave, valor FROM configuracion_general WHERE clave = 'notificaciones_modal_tipos';\")",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT valor FROM configuracion_general WHERE clave = 'notificaciones_modal_tipos';\")",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT id, titulo, descripcion, fecha_limite, foto_url, publicada FROM tareas ORDER BY created_at DESC LIMIT 3;\")",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT id, titulo, created_at, fecha_limite FROM tareas LIMIT 1;\")",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT id, titulo, created_at, fecha_limite FROM tareas WHERE publicada = true ORDER BY created_at DESC LIMIT 1;\")",
+      "Bash(taskkill /F /PID 47296)",
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school)",
+      "Bash(psql -h localhost -U postgres -d happy_school -c ' *)"
     ],
     "additionalDirectories": [
       "\\tmp",

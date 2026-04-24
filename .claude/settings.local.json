@@ -375,7 +375,15 @@
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"valeria@happyschool.test\",\"password\":\"test123\"}')",
       "Bash(sqlite3 backend/data/happy_school.db)",
       "Bash(psql \"postgresql://valeria:hs_password@localhost:5432/happy_school_db\" -f /tmp/query_sofia.sql)",
-      "Bash(xargs cat *)"
+      "Bash(xargs cat *)",
+      "Bash(lsof -i:3000)",
+      "Bash(curl -s http://localhost:3000/api/salud)",
+      "Bash(curl -s -X POST http://localhost:3000/api/bitacora/medicamento -H 'Content-Type: application/json' -H 'Authorization: Bearer test-token' -d '{\"alumno_id\": \"test\", \"nombre\": \"paracetamol\", \"dosis\": \"250mg\"}')",
+      "Bash(pkill -f \"npm start\")",
+      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -f migrations/025_notificaciones_modal_config.sql)",
+      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -c \"SELECT clave, valor FROM configuracion_general WHERE clave = 'notificaciones_modal_tipos';\")",
+      "Bash(curl -s http://localhost:3000/config/notificaciones)",
+      "Bash(pkill -f nodemon)"
     ],
     "additionalDirectories": [
       "\\tmp",

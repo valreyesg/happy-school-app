@@ -17,10 +17,14 @@
 
 ## 📍 SESIÓN 63 (ACTUAL) — NOTIFICACIONES: TRIGGERS BITÁCORA + INCIDENTE + MODAL REAL-TIME
 
-### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación)
-- [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre (ya existe en código, verificar estado)
-- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket). Definir que notificaciones se mostrarán solo en la campanita y cuales en modal: aviso extraordinario, cancelación de comida, falta de pago con recargo, tarea, etc.
-- [ ] **Paridad Mobile:** Verificar que mobile tiene campanita + notificaciones
+✅ **COMPLETADO:**
+- ✅ Trigger Incidente verificado (funciona en backend, genera notificaciones)
+- ✅ Modal Real-time implementado (polling 15s, cola de urgentes, sessionStorage para evitar repetir)
+- ✅ Configuración de tipos: Directora puede elegir qué notificaciones disparan modal
+- ✅ Campanita mobile implementada (React Native, bottom-sheet, badge numérico)
+- ✅ Paridad web ↔ mobile completada (ambos consumen `/notificaciones` y `/notificaciones/no-leidas`)
+
+**Validación:** Ver [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md)
 
 ---
 

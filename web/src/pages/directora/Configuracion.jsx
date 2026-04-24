@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, Clock, DollarSign, Calendar, Save } from 'lucide-react';
+import { Settings, Clock, DollarSign, Calendar, Save, Bell } from 'lucide-react';
 import api from '../../services/api';
 
 const CAMPOS = [
@@ -39,6 +39,13 @@ const CAMPOS = [
   },
 ];
 
+const TIPOS_NOTIFICACION = [
+  { tipo: 'incidente',            label: 'Incidente escolar',         icono: '🚨' },
+  { tipo: 'aviso_extraordinario', label: 'Aviso extraordinario',      icono: '📢' },
+  { tipo: 'bitacora_lista',       label: 'Bitácora del día lista',     icono: '📝' },
+  { tipo: 'medicamento',          label: 'Medicamento administrado',   icono: '💊' },
+];
+
 const COLOR_MAP = {
   blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800'   },
   green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800'  },
@@ -50,13 +57,22 @@ export default function Configuracion() {
   const qc = useQueryClient();
   const [valores, setValores] = useState(null);
   const [guardado, setGuardado] = useState(false);
+  const [notifActivos, setNotifActivos] = useState(null);
+  const [notifGuardado, setNotifGuardado] = useState(false);
 
   const { isLoading, data: configData } = useQuery({
     queryKey: ['config-horarios'],
     queryFn: () => api.get('/config/horarios').then(r => r.data),
   });
 
+  const { data: configNotif } = useQuery({
+    queryKey: ['config-notificaciones'],
+    queryFn: () => api.get('/config/notificaciones').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const valoresActivos = valores ?? configData?.horarios ?? {};
+  const tiposActivos = notifActivos ?? (configNotif?.notificaciones_modal_tipos || []);
 
   const mutation = useMutation({
     mutationFn: (data) => api.put('/config/horarios', data),
@@ -68,11 +84,29 @@ export default function Configuracion() {
     },
   });
 
+  const mutationNotif = useMutation({
+    mutationFn: (tipos) => api.put('/config/notificaciones', { notificaciones_modal_tipos: tipos }),
+    onSuccess: () => {
+      setNotifActivos(null);
+      qc.invalidateQueries(['config-notificaciones']);
+      setNotifGuardado(true);
+      setTimeout(() => setNotifGuardado(false), 3000);
+    },
+  });
+
   const handleChange = (clave, val) => {
     setValores(prev => ({ ...(prev ?? configData?.horarios ?? {}), [clave]: val }));
   };
 
+  const handleToggleNotif = (tipo) => {
+    const nuevos = tiposActivos.includes(tipo)
+      ? tiposActivos.filter(t => t !== tipo)
+      : [...tiposActivos, tipo];
+    setNotifActivos(nuevos);
+  };
+
   const handleGuardar = () => mutation.mutate(valoresActivos);
+  const handleGuardarNotif = () => mutationNotif.mutate(tiposActivos);
 
   if (isLoading) {
     return (
@@ -118,17 +152,54 @@ export default function Configuracion() {
         );
       })}
 
-      {/* Botón guardar */}
-      <button
-        onClick={handleGuardar}
-        disabled={mutation.isLoading}
-        className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
-      >
-        <Save size={18} />
-        {mutation.isLoading ? 'Guardando…' : guardado ? '¡Guardado! ✅' : 'Guardar cambios'}
-      </button>
+      {/* Sección Notificaciones a padres */}
+      <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
+        <h2 className="font-black text-base text-red-800 flex items-center gap-2">
+          <Bell size={18} /> 🔔 Notificaciones a padres
+        </h2>
+        <p className="text-xs text-gray-600">
+          Los tipos marcados aparecerán como ventana emergente en el portal del papá.
+        </p>
+        <div className="space-y-3">
+          {TIPOS_NOTIFICACION.map(({ tipo, label, icono }) => (
+            <div key={tipo} className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id={`notif-${tipo}`}
+                checked={tiposActivos.includes(tipo)}
+                onChange={() => handleToggleNotif(tipo)}
+                className="w-5 h-5 cursor-pointer"
+              />
+              <label htmlFor={`notif-${tipo}`} className="flex items-center gap-2 cursor-pointer flex-1">
+                <span className="text-xl">{icono}</span>
+                <span className="text-sm font-semibold text-gray-800">{label}</span>
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {mutation.isError && (
+      {/* Botones guardar */}
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          onClick={handleGuardar}
+          disabled={mutation.isLoading}
+          className="flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+        >
+          <Save size={18} />
+          {mutation.isLoading ? 'Guardando…' : guardado ? '¡Guardado! ✅' : 'Guardar'}
+        </button>
+        <button
+          onClick={handleGuardarNotif}
+          disabled={mutationNotif.isLoading}
+          className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+        >
+          <Save size={18} />
+          {mutationNotif.isLoading ? 'Guardando…' : notifGuardado ? '¡Guardado! ✅' : 'Guardar notif'}
+        </button>
+      </div>
+
+      {(mutation.isError || mutationNotif.isError) && (
         <p className="text-center text-red-500 text-sm font-semibold">
           Error al guardar. Intenta de nuevo.
         </p>

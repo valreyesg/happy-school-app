@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { ANIMO, CUANTO, COMPORTAMIENTO } from '@/constants/catalogos';
+import NotificationBell from '@/src/components/NotificationBell';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -111,7 +112,10 @@ export default function PadreDashboard() {
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <Text style={{ fontSize: 36 }}>👨🏻‍👩🏻‍👧🏻</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <NotificationBell />
+            <Text style={{ fontSize: 36 }}>👨🏻‍👩🏻‍👧🏻</Text>
+          </View>
         </View>
 
         {/* Mis hijos */}

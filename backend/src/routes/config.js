@@ -18,6 +18,10 @@ const CLAVES_HORARIO = [
   'alerta_minutos_sin_recoger',
 ];
 
+const CLAVES_NOTIFICACIONES = [
+  'notificaciones_modal_tipos',
+];
+
 // GET /api/config/horarios — público para todos los roles (lectura)
 router.get('/horarios', async (req, res) => {
   try {
@@ -58,6 +62,43 @@ router.put('/horarios', authorize('directora'), async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al guardar configuración' });
+  }
+});
+
+// GET /api/config/notificaciones — público para todos los roles (lectura)
+router.get('/notificaciones', async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT valor FROM configuracion_general WHERE clave = 'notificaciones_modal_tipos'`
+    );
+    if (result.rows.length === 0) {
+      return res.json({ notificaciones_modal_tipos: [] });
+    }
+    const tipos = JSON.parse(result.rows[0].valor || '[]');
+    res.json({ notificaciones_modal_tipos: tipos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener configuración de notificaciones' });
+  }
+});
+
+// PUT /api/config/notificaciones — solo directora
+router.put('/notificaciones', authorize('directora'), async (req, res) => {
+  const { notificaciones_modal_tipos } = req.body;
+
+  if (!Array.isArray(notificaciones_modal_tipos)) {
+    return res.status(400).json({ error: 'notificaciones_modal_tipos debe ser un array' });
+  }
+
+  try {
+    await query(
+      `UPDATE configuracion_general SET valor = $1, updated_at = NOW() WHERE clave = 'notificaciones_modal_tipos'`,
+      [JSON.stringify(notificaciones_modal_tipos)]
+    );
+    res.json({ ok: true, notificaciones_modal_tipos });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar configuración de notificaciones' });
   }
 });
 

@@ -1,7 +1,77 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 62
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 63
+
+---
+
+## ✅ SESIÓN 63 — Notificaciones Modal Real-time + Configuración Directora + Mobile Campanita
+
+**Fecha:** 2026-04-24
+
+### 1. Backend: Configuración de Tipos de Notificación
+
+**Migración:** `backend/migrations/025_notificaciones_modal_config.sql`
+- Inserta clave `'notificaciones_modal_tipos'` en tabla `configuracion_general`
+- Valor por defecto: `["incidente","aviso_extraordinario"]` (JSON array)
+
+**API Endpoints:** `backend/src/routes/config.js`
+- `GET /config/notificaciones` — retorna `{ notificaciones_modal_tipos: [...] }`
+- `PUT /config/notificaciones` — solo directora, actualiza tipos que disparan modal
+- Ambos autenticados (admitir cualquier rol en GET, solo directora en PUT)
+
+### 2. Frontend Directora: Panel de Configuración de Notificaciones
+
+**Archivo:** `web/src/pages/directora/Configuracion.jsx`
+- Nueva sección "🔔 Notificaciones a padres"
+- 4 tipos disponibles (hardcodeados): incidente, aviso_extraordinario, bitacora_lista, medicamento
+- Checkboxes para activar/desactivar cada tipo
+- Botón "Guardar notif" que hace PUT a `/config/notificaciones`
+- Query separada que cachea 5 minutos la configuración
+
+**UI:** Sección con fondo rojo (#FFF5F5), checkboxes estilizados, icono por tipo
+
+### 3. Frontend Papá: Modal Urgente + Polling Mejorado
+
+**Archivo:** `web/src/components/NotificacionModal.jsx` (nuevo)
+- Componente presentacional puro
+- Modal overlay fijo con `position: fixed inset-0 z-50`
+- Borde superior de color según tipo (rojo incidente, naranja aviso)
+- Icono grande, badge tipo, título, cuerpo, botón "Entendido"
+- No cierra con click en overlay (fuerza lectura)
+
+**Archivo:** `web/src/components/NotificationBell.jsx` (modificado)
+- Polling aumentado de 30s → 15s (refetchInterval)
+- Query paralela `notif-urgentes` que filtra por config de tipos y leída=false
+- Sistema de cola: `colaModal` (array) y `modalActual` (objeto)
+- `sessionStorage` con clave `notif-modal-${id}` para evitar repetir modales en misma sesión
+- `useRef yaMostradas` para rastrear en memoria durante la sesión
+- `useEffect` que encola nuevas urgentes detectadas
+- `useEffect` que muestra de la cola cuando no hay modal activo
+- Handler `handleEntendido` que marca leída y cierra el modal
+
+**Flujo:** Padre ve modal automático cuando llega notificación de tipo configurado como urgente. Al hacer "Entendido", se marca como leída y se muestra la siguiente de la cola.
+
+### 4. Mobile: Campanita de Notificaciones (React Native)
+
+**Archivo:** `mobile/src/components/NotificationBell.jsx` (nuevo)
+- Componente React Native autónomo
+- `TouchableOpacity` con emoji 🔔
+- Badge numérico rojo encima (muestra 9+ si >9 notificaciones)
+- `Modal` con `animationType="slide"` (bottom-sheet)
+- Lista de notificaciones con scroll
+- Íconos por tipo (🚨/📢/💊/📝/🔔)
+- No-leídas con fondo #FFF5F5 y punto rojo
+- Tap en notificación marca como leída (mutation)
+- Queries: `/notificaciones/no-leidas` (polling 30s) + `/notificaciones` (enabled cuando modal abierto)
+
+**Integración:** `mobile/app/(padre)/index.jsx` — MontoedComponent en header del dashboard, al lado del emoji familia
+
+### 5. Validación
+
+- Documento de validación manual: [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md)
+- Pasos paso-a-paso para Directora (config), Papá (modal), Mobile (campanita)
+- Checklist final con 10+ puntos de validación
 
 ---
 

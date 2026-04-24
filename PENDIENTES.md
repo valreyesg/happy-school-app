@@ -15,16 +15,18 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 63 (ACTUAL) — NOTIFICACIONES: TRIGGERS BITÁCORA + INCIDENTE + MODAL REAL-TIME
+## 📍 SESIÓN 63 — NOTIFICACIONES: TRIGGERS BITÁCORA + INCIDENTE + MODAL REAL-TIME
 
 ✅ **COMPLETADO:**
-- ✅ Trigger Incidente verificado (funciona en backend, genera notificaciones)
-- ✅ Modal Real-time implementado (polling 15s, cola de urgentes, sessionStorage para evitar repetir)
-- ✅ Configuración de tipos: Directora puede elegir qué notificaciones disparan modal
-- ✅ Campanita mobile implementada (React Native, bottom-sheet, badge numérico)
-- ✅ Paridad web ↔ mobile completada (ambos consumen `/notificaciones` y `/notificaciones/no-leidas`)
+- ✅ Trigger Incidente implementado y funcionando (Miss registra → notificación al papá)
+- ✅ Modal Real-time en papá (polling 15s, cola de urgentes, sessionStorage)
+- ✅ Configuración de tipos en panel Directora (`/directora/config`)
+- ✅ Campanita mobile con bottom-sheet de notificaciones
+- ✅ Paridad web ↔ mobile (ambos consumen endpoints de notificaciones)
 
-**Validación:** Ver [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md)
+**Nota:** Incidente sin fotos por ahora (FormData causa issues con multer). Fotos se agregarán en sesión futura.
+
+**Documentos:** [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md) | [RESUMEN_SESION_63.md](RESUMEN_SESION_63.md)
 
 ---
 

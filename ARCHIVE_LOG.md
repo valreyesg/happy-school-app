@@ -7,7 +7,7 @@
 
 ## ✅ SESIÓN 63 — Notificaciones Modal Real-time + Configuración Directora + Mobile Campanita
 
-**Fecha:** 2026-04-24
+**Fecha:** 2026-04-24 | **Estado:** Completado (sin fotos por ahora)
 
 ### 1. Backend: Configuración de Tipos de Notificación
 
@@ -72,6 +72,17 @@
 - Documento de validación manual: [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md)
 - Pasos paso-a-paso para Directora (config), Papá (modal), Mobile (campanita)
 - Checklist final con 10+ puntos de validación
+
+### 6. Fix: Incidente sin FormData (mitad de sesión)
+
+**Problema:** FormData multipart con multer causaba errores de boundary. Alumno_id llegaba undefined.
+
+**Solución:** 
+- Backend: `POST /bitacora/incidente` sin multer, JSON directo
+- Frontend: cambiar de FormData a JSON
+- Quitar UI de fotos (se agregarán después con approach correcto)
+
+**Resultado:** Incidente funciona, registra en BD, dispara notificación, modal urgente aparece en portal papá ✅
 
 ---
 

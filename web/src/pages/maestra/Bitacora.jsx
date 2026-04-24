@@ -129,9 +129,7 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
   }, [actividadesGrupo]);
 
   const guardarMutation = useMutation({
-    mutationFn: (fd) => api.post('/bitacora/actividades-grupo', fd, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(r => r.data),
+    mutationFn: (fd) => api.post('/bitacora/actividades-grupo', fd).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['actividades-grupo'] });
       toast.success('✅ Actividades del día guardadas');
@@ -467,9 +465,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const [incFotos,    setIncFotos]    = useState([]);
   const incFileRef = useRef();
   const incMutation = useMutation({
-    mutationFn: (formData) => api.post('/bitacora/incidente', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(r => r.data),
+    mutationFn: (body) => api.post('/bitacora/incidente', body).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       setIncDesc(''); setIncAcciones(''); setIncFotos([]);
@@ -479,19 +475,17 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   });
   const registrarInc = () => {
     if (!incDesc) { toast.error('Describe el incidente'); return; }
-    const fd = new FormData();
-    fd.append('alumno_id', alumno.id);
-    fd.append('descripcion', incDesc);
-    fd.append('acciones_tomadas', incAcciones);
-    incFotos.forEach(f => fd.append('fotos', f));
-    incMutation.mutate(fd);
+    if (!alumno?.id) { toast.error('Error: alumno no cargado'); return; }
+    incMutation.mutate({
+      alumno_id: alumno.id,
+      descripcion: incDesc,
+      acciones_tomadas: incAcciones,
+    });
   };
 
   // Actividades fotos
   const actFotosMutation = useMutation({
-    mutationFn: (formData) => api.post('/bitacora/actividades/fotos', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(r => r.data),
+    mutationFn: (formData) => api.post('/bitacora/actividades/fotos', formData).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       setActividadFotos([]);
@@ -942,14 +936,6 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             <textarea rows={2} placeholder="Acciones tomadas (opcional)"
               value={incAcciones} onChange={e => setIncAcciones(e.target.value)}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-400 resize-none" />
-            <div>
-              <input type="file" accept="image/*" multiple ref={incFileRef} className="hidden"
-                onChange={e => setIncFotos(Array.from(e.target.files))} />
-              <button onClick={() => incFileRef.current?.click()}
-                className="w-full py-2 rounded-xl font-bold text-sm border-2 border-dashed border-red-300 text-red-500 hover:bg-red-50 transition-all">
-                {incFotos.length > 0 ? `📷 ${incFotos.length} foto(s) seleccionada(s)` : '📷 Agregar fotos (opcional)'}
-              </button>
-            </div>
             <button onClick={registrarInc} disabled={incMutation.isPending}
               className="w-full py-3 rounded-xl font-black text-sm bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-all">
               {incMutation.isPending ? 'Registrando…' : '⚠️ Registrar incidente'}

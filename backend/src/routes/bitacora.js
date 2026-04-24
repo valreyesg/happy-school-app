@@ -366,28 +366,23 @@ router.post('/medicamento', async (req, res, next) => {
 
 // ── POST /bitacora/incidente ──────────────────────────────────────────────
 // Registrar incidente/accidente (Miss sube descripción + fotos opcionales)
-router.post('/incidente', upload.array('fotos', 5), async (req, res, next) => {
+router.post('/incidente', async (req, res, next) => {
   try {
     const { alumno_id, descripcion, acciones_tomadas } = req.body;
+
+    if (!alumno_id) {
+      return res.status(400).json({ error: 'alumno_id es requerido' });
+    }
 
     const personalResult = await query(
       'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
     );
     const maestraId = personalResult.rows[0]?.id || null;
 
-    // Subir fotos a Cloudinary si las hay
-    let fotosUrls = [];
-    if (req.files && req.files.length > 0) {
-      const uploads = await Promise.all(
-        req.files.map(f => uploadToCloudinary(f.buffer, { folder: 'happyschool/incidentes' }))
-      );
-      fotosUrls = uploads.map(u => u.url);
-    }
-
     const result = await query(`
       INSERT INTO incidentes (alumno_id, descripcion, acciones_tomadas, fotos_urls, reportado_por)
-      VALUES ($1, $2, $3, $4, $5) RETURNING *
-    `, [alumno_id, descripcion, acciones_tomadas, fotosUrls, maestraId]);
+      VALUES ($1, $2, $3, NULL, $4) RETURNING *
+    `, [alumno_id, descripcion, acciones_tomadas, maestraId]);
 
     // Notificar al padre
     const padreResult = await query(`

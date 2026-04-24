@@ -15,16 +15,9 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 62 (COMPLETADA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + REFACTOR DASHBOARD PAPÁ
+## 📍 SESIÓN 63 (ACTUAL) — NOTIFICACIONES: TRIGGERS BITÁCORA + INCIDENTE + MODAL REAL-TIME
 
-✅ **COMPLETADO:**
-- ✅ **Trigger Medicamento Suministrado:** Backend actualiza `notificacion_enviada = true` después de insertar notificación
-- ✅ **Refactor Dashboard Papá UI:**
-  - ✅ Remover cards Bitácora + Calendario (acceso directo en nav es suficiente)
-  - ✅ Refactor card Pagos: nueva sección con estado por hijo ("✅ Al día" / "⚠️ Adeudo: $X MXN")
-  - ✅ Corregir saludo: "¡Hola Mamá Alejandra!" (sin comas)
-
-**PENDIENTE PARA PRÓXIMA SESIÓN:**
+### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación)
 - [ ] **Trigger Bitácora Guardada:** Cuando Miss guarda bitácora → INSERT notificación automática a Papá (ya existe en código, verificar estado)
 - [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre (ya existe en código, verificar estado)
 - [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket). Definir que notificaciones se mostrarán solo en la campanita y cuales en modal: aviso extraordinario, cancelación de comida, falta de pago con recargo, tarea, etc.

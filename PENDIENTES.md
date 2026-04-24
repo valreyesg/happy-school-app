@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 63
+**Última actualización:** 2026-04-24 | **Sesión actual:** 64
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -14,21 +14,6 @@
 ---
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
-
-## 📍 SESIÓN 63 — NOTIFICACIONES: TRIGGERS BITÁCORA + INCIDENTE + MODAL REAL-TIME
-
-✅ **COMPLETADO:**
-- ✅ Trigger Incidente implementado y funcionando (Miss registra → notificación al papá)
-- ✅ Modal Real-time en papá (polling 15s, cola de urgentes, sessionStorage)
-- ✅ Configuración de tipos en panel Directora (`/directora/config`)
-- ✅ Campanita mobile con bottom-sheet de notificaciones
-- ✅ Paridad web ↔ mobile (ambos consumen endpoints de notificaciones)
-
-**Nota:** Incidente sin fotos por ahora (FormData causa issues con multer). Fotos se agregarán en sesión futura.
-
-**Documentos:** [VALIDACION_SESION_63.md](VALIDACION_SESION_63.md) | [RESUMEN_SESION_63.md](RESUMEN_SESION_63.md)
-
----
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 

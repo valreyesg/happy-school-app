@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
   LayoutDashboard, Users, UserCheck, CreditCard, ClipboardList,
-  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed, Clock,
+  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed, Clock, Megaphone,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
@@ -20,6 +20,7 @@ const NAV_ITEMS = [
   { to: '/directora/calendario',  icon: Calendar,        label: 'Calendario' },
   { to: '/directora/ciclos',      icon: Clock,           label: 'Ciclos' },
   { to: '/directora/evaluaciones',icon: Star,            label: 'Evaluaciones' },
+  { to: '/directora/aviso',       icon: Megaphone,       label: 'Aviso Extraordinario' },
   { to: '/directora/config',      icon: Settings,        label: 'Configuración' },
 ];
 

@@ -1,7 +1,86 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-23 | Sesiones documentadas: 7 → 58
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 60
+
+---
+
+## ✅ SESIÓN 60 — Notificaciones Globales: Backend Endpoints + Frontend UI
+
+**Fecha:** 2026-04-24
+
+### Problema Principal
+Sesión 59 había planeado notificaciones pero se descubrió que faltaba auditoría legal: timestamps de envío Y de lectura para evidencia si padre dice "no me llegó" o "yo sí lo leí".
+
+### Funcionalidades Completadas
+
+**Backend — Endpoints Notificaciones (`backend/src/routes/notificaciones.js`)**
+- `GET /` — Últimas 20 notificaciones del usuario autenticado
+- `GET /no-leidas` — Contador de notificaciones no leídas
+- `PUT /leer-todas` — Marcar todas como leídas (para botón "Marcar todo como leído")
+- `PUT /:id/leer` — Marcar una notificación como leída (para clic individual)
+- `POST /aviso-extraordinario` — Directora envía aviso urgente a padres (todos o grupos seleccionados)
+  - Inserta en tabla `avisos` para persistencia histórica
+  - Crea notificación para cada padre tutor principal
+  - Retorna `{ ok, enviadas, aviso_id }`
+- `GET /aviso-extraordinario/estado/:avisoId` — Estado de lectura de un aviso (tab "Sin leer" vs "Vieron")
+  - Query por título para encontrar notificaciones originales
+  - Retorna count total, leídas, pendientes + detalle con padre_nombre, alumno_nombre, grupo_nombre, estado lectura
+- `GET /avisos-extraordinarios` — Historial de todos los avisos enviados (visible para Directora)
+
+**Frontend — Directora: AvisoExtraordinario (`web/src/pages/directora/AvisoExtraordinario.jsx`)**
+- Componente `EnviarAvisoForm`: Input título + textarea cuerpo + multi-select grupos + botón enviar
+- Componente `EstadoAviso`: Tabs "Sin leer" (naranja) y "Vieron" (verde)
+- Componente `GrupoCard`: Colapsable por grupo, muestra padres y alumnos en cada grupo
+- Estado local: `historialLocal` (recién enviados) + query `avisos-extraordinarios` (histórico BD)
+- Manejo `expandidosSet` para tracking de qué grupos están desplegados
+- Toast notifications de éxito/error
+
+**Frontend — Papá: Notificaciones en Dashboard**
+- Campanita en navbar con contador de no leídas
+- Click abre modal con listado de notificaciones
+- Click en notificación marca como leída (PUT /:id/leer)
+- Botón "Marcar todo como leído"
+
+### Error Crítico Detectado y Resuelto
+
+**Raíz:** Migración 023 (`backend/migrations/023_avisos_extraordinarios.sql`) creada pero NUNCA aplicada a BD. Columnas `leida_at`, `tipo`, `grupo_ids` no existían en el schema real.
+
+**Síntomas:** 500 errors en endpoints:
+- `PUT /leer` → "column leida_at does not exist"
+- `GET /avisos-extraordinarios` → "column grupo_ids does not exist"
+- `POST /aviso-extraordinario` → "column tipo does not exist"
+
+**Impacto:** Usuario validó 5+ veces sin solución porque el backend compilaba pero fallaba en runtime.
+
+**Solución:**
+- Removidas referencias a columnas no existentes (`leida_at`, `tipo`, `grupo_ids`)
+- Backend usa SOLO columnas que ya existen: `leida`, `created_at`, `titulo`, `contenido`, `creado_por`
+- Endpoints funcionan con schema actual sin migración
+
+**Lección Guardada en Memoria:** Verificar que columnas existen ANTES de escribir queries. No asumir que migración creada = aplicada.
+
+### Archivos Modificados
+1. `backend/migrations/023_avisos_extraordinarios.sql` (creado, no aplicado)
+2. `backend/src/routes/notificaciones.js` (endpoints para avisos)
+3. `web/src/pages/directora/AvisoExtraordinario.jsx` (nueva, UI completa)
+4. `web/src/layouts/DirectoraLayout.jsx` (agregado nav item)
+5. `web/src/App.jsx` (agregada ruta)
+
+### Verificación en Browser
+- ✅ Campanita en navbar papá muestra contador
+- ✅ Click abre modal con notificaciones
+- ✅ Click notificación marca como leída (PUT funciona)
+- ✅ Directora envía aviso a grupos seleccionados
+- ✅ Aviso persiste en histórico
+- ✅ Estado actualiza en tiempo real (Sin leer → Vieron)
+- ✅ Grupos se expanden/contraen correctamente
+
+### Tareas Pendientes para Sesión 61
+- Implementar triggers automáticos en bitácora, medicamento, incidente (INSERT notificaciones)
+- Agregar `leida_at` columna a BD cuando sea posible (aplicar migración 023)
+- Implementar notificaciones modales en tiempo real (WebSocket o polling)
+- Paridad mobile: revisar si mobile necesita notificaciones
 
 ---
 

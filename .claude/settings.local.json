@@ -352,7 +352,19 @@
       "Bash(curl -s http://localhost:3001/api/health)",
       "Bash(curl -s http://localhost:3000/api/notificaciones -H \"Authorization: Bearer invalid\")",
       "PowerShell(Get-NetTCPConnection -LocalPort 5173,5174 -ErrorAction SilentlyContinue)",
-      "Bash(curl -s http://localhost:3000/api/alumnos/mis-hijos -H \"Authorization: Bearer test\")"
+      "Bash(curl -s http://localhost:3000/api/alumnos/mis-hijos -H \"Authorization: Bearer test\")",
+      "Bash(lsof -ti:5173)",
+      "Bash(curl -s http://localhost:5173/padre/bitacora)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5173,5174,5175 -State Listen 2>$null | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }; Write-Host \"Puertos liberados\")",
+      "Bash(npx kill-port *)",
+      "Bash(node src/server.js)",
+      "Bash(curl -s http://localhost:3000/api/notificaciones/aviso-extraordinario -X POST -H \"Content-Type: application/json\" -d '{\"titulo\":\"test\",\"cuerpo\":\"test\"}')",
+      "Bash(psql -h localhost -U postgres -d happyschool -f backend/migrations/023_avisos_extraordinarios.sql)",
+      "Bash(psql -h localhost -U postgres -d happyschool -c \"SELECT column_name FROM information_schema.columns WHERE table_name='notificaciones' AND column_name='leida_at';\")",
+      "Bash(curl -s -X GET http://localhost:3000/api/notificaciones/aviso-extraordinario/estado/9be16d22-5f57-4889-8741-271705951f31 -H \"Authorization: Bearer dummy\")",
+      "Bash(psql -h localhost -U postgres -d happyschool -c \"SELECT id, titulo FROM avisos WHERE id = '9be16d22-5f57-4889-8741-271705951f31';\")",
+      "Bash(pkill -f \"node.*server.js\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }; echo \"✅ Port 3000 released\")"
     ],
     "additionalDirectories": [
       "\\tmp",

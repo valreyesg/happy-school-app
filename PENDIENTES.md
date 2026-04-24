@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-23 | **Sesión actual:** 59
+**Última actualización:** 2026-04-24 | **Sesión actual:** 61
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -15,12 +15,14 @@
 
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
-## 📍 SESIÓN 59 (PRÓXIMA) — NOTIFICACIONES GLOBALES + BITÁCORA ENTRADA
+## 📍 SESIÓN 61 (PRÓXIMA) — NOTIFICACIONES: TRIGGERS AUTOMÁTICOS + TAB ENTRADA BITÁCORA
 
-### 📢 NOTIFICACIONES GLOBALES (Impacto alto — afecta 3 portales)
-- [ ] **Barra de notificaciones (campanita):** Mostrar nueva notificación, marcar como leída, contador.
-- [ ] **Modal en pantalla completa:** Cuando Miss/Directora crea evento/tarea/cancela comida → notificación modal en papá.
-- [ ] **Triggers multi-evento:** Evento nuevo, Tarea nueva, Pago atrasado, Cancelación comida, Entrega/recogida por tercero.
+### 📢 NOTIFICACIONES GLOBALES — Triggers Automáticos (Continuación sesión 60)
+- [ ] **Trigger Bitácora Guardada:** Cuando Miss/Papa guarda bitácora (comida, salud, incidente) → INSERT notificación automática
+- [ ] **Trigger Medicamento Recibido:** Cuando Miss recibe medicamento → INSERT notificación al padre
+- [ ] **Trigger Incidente:** Cuando Miss registra incidente → INSERT notificación al padre
+- [ ] **Trigger Modal Real-time:** Notificación debe aparecer como modal en tiempo real (polling o WebSocket)
+- [ ] **Paridad Mobile:** Verificar que mobile porta have campanita + notificaciones
 
 ### 👨‍👩‍👧 BITÁCORA PAPÁ — Agregar tab Entrada
 - [ ] **Bitácora Papá:** Agregar tab "Entrada" con motivo, checklist, hora (análogo a comida/salud/incidentes)

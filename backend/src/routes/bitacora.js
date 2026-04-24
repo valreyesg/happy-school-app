@@ -247,15 +247,17 @@ router.post('/guardar', async (req, res, next) => {
       const padreResult = await query(`
         SELECT a.nombre_completo AS alumno_nombre,
                COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-               p.nombre_completo AS padre_nombre
+               p.nombre_completo AS padre_nombre,
+               u.id AS usuario_id
         FROM alumnos a
         JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
         JOIN padres p ON ap.padre_id = p.id
+        JOIN usuarios u ON p.usuario_id = u.id
         WHERE a.id = $1 LIMIT 1
       `, [alumno_id]);
 
       if (padreResult.rows.length > 0) {
-        const { alumno_nombre, telefono, padre_nombre } = padreResult.rows[0];
+        const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
         await enviarMensaje({
           telefono,
           clave: 'bitacora_lista',
@@ -265,6 +267,17 @@ router.post('/guardar', async (req, res, next) => {
           },
           alumnoId: alumno_id,
         });
+        if (usuario_id) {
+          await query(`
+            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+            VALUES ($1, $2, $3, 'bitacora_lista', $4)
+          `, [
+            usuario_id,
+            `Bitácora lista — ${alumno_nombre}`,
+            `La maestra registró la bitácora de hoy de ${alumno_nombre}.`,
+            JSON.stringify({ alumno_id }),
+          ]);
+        }
       }
     }
 
@@ -307,15 +320,17 @@ router.post('/medicamento', async (req, res, next) => {
     const padreResult = await query(`
       SELECT a.nombre_completo AS alumno_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-             p.nombre_completo AS padre_nombre
+             p.nombre_completo AS padre_nombre,
+             u.id AS usuario_id
       FROM alumnos a
       JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
       JOIN padres p ON ap.padre_id = p.id
+      JOIN usuarios u ON p.usuario_id = u.id
       WHERE a.id = $1 LIMIT 1
     `, [alumno_id]);
 
     if (padreResult.rows.length > 0) {
-      const { alumno_nombre, telefono, padre_nombre } = padreResult.rows[0];
+      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
       await enviarMensaje({
         telefono,
         clave: 'medicamento',
@@ -328,6 +343,17 @@ router.post('/medicamento', async (req, res, next) => {
         },
         alumnoId: alumno_id,
       });
+      if (usuario_id) {
+        await query(`
+          INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+          VALUES ($1, $2, $3, 'medicamento', $4)
+        `, [
+          usuario_id,
+          `Medicamento administrado — ${alumno_nombre}`,
+          `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
+          JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
+        ]);
+      }
     }
 
     res.status(201).json(result.rows[0]);
@@ -363,15 +389,17 @@ router.post('/incidente', upload.array('fotos', 5), async (req, res, next) => {
     const padreResult = await query(`
       SELECT a.nombre_completo AS alumno_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-             p.nombre_completo AS padre_nombre
+             p.nombre_completo AS padre_nombre,
+             u.id AS usuario_id
       FROM alumnos a
       JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
       JOIN padres p ON ap.padre_id = p.id
+      JOIN usuarios u ON p.usuario_id = u.id
       WHERE a.id = $1 LIMIT 1
     `, [alumno_id]);
 
     if (padreResult.rows.length > 0) {
-      const { alumno_nombre, telefono, padre_nombre } = padreResult.rows[0];
+      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
       await enviarMensaje({
         telefono,
         clave: 'incidente',
@@ -381,6 +409,17 @@ router.post('/incidente', upload.array('fotos', 5), async (req, res, next) => {
         },
         alumnoId: alumno_id,
       });
+      if (usuario_id) {
+        await query(`
+          INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+          VALUES ($1, $2, $3, 'incidente', $4)
+        `, [
+          usuario_id,
+          `Incidente registrado — ${alumno_nombre}`,
+          descripcion || `Se registró un incidente de ${alumno_nombre}.`,
+          JSON.stringify({ alumno_id, incidente_id: result.rows[0].id }),
+        ]);
+      }
     }
 
     res.status(201).json(result.rows[0]);

@@ -462,7 +462,13 @@
       "Bash(psql -U postgres -h localhost -c \"SELECT version\\(\\);\")",
       "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_validacion_emilio.js'\\);\")",
       "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_alerta_dashboard.js'\\);\")",
-      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_alerta_prekinder.js'\\);\")"
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const seed = require\\('./src/database/seed_tareas_alerta_prekinder.js'\\);\")",
+      "Bash(npx tsc *)",
+      "Bash(node -c \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\web\\\\src\\\\utils\\\\googleCalendar.js\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"C:/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/027_eventos_enriquecidos.sql\")",
+      "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -U postgres -h localhost -d happy_school -f \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\migrations\\\\027_eventos_enriquecidos.sql\")",
+      "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -U postgres -h localhost -d happy_school -c \"\\\\d eventos\" | Select-String \"ubicacion|recordatorio\")",
+      "Bash(curl -s http://localhost:3000/api/calendario/categorias)"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -69,6 +69,23 @@ function ModalEvento({ ev, onClose }) {
             <Text style={styles.modalGrupo}>👥 {ev.grupo_nombre}</Text>
           )}
 
+          {ev.ubicacion && (
+            <TouchableOpacity
+              onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(ev.ubicacion)}`)}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.modalGrupo, { color: '#3182CE' }]}>📍 {ev.ubicacion}</Text>
+            </TouchableOpacity>
+          )}
+
+          {ev.recordatorio_horas && (
+            <Text style={styles.modalGrupo}>
+              🔔 {ev.recordatorio_horas < 24
+                ? `${ev.recordatorio_horas}h antes`
+                : `${ev.recordatorio_horas / 24}d antes`}
+            </Text>
+          )}
+
           {ev.descripcion && (
             <View style={styles.modalDescBox}>
               <Text style={styles.modalDesc}>{ev.descripcion}</Text>

@@ -32,14 +32,16 @@ function ModalEvento({ evento, categorias, grupos, fechaInicial, onClose, onSave
   const toInputDate = (iso) => iso ? iso.slice(0, 16) : '';
 
   const [form, setForm] = useState({
-    titulo:        evento?.titulo || '',
-    descripcion:   evento?.descripcion || '',
-    categoria_id:  evento?.categoria_id || '',
-    fecha_inicio:  toInputDate(evento?.fecha_inicio) || (fechaInicial ? `${fechaInicial}T08:00` : ''),
-    fecha_fin:     toInputDate(evento?.fecha_fin) || '',
-    es_todo_el_dia: evento?.es_todo_el_dia ?? false,
-    grupo_id:      evento?.grupo_id || '',
-    publicado:     evento?.publicado ?? true,
+    titulo:             evento?.titulo || '',
+    descripcion:        evento?.descripcion || '',
+    categoria_id:       evento?.categoria_id || '',
+    fecha_inicio:       toInputDate(evento?.fecha_inicio) || (fechaInicial ? `${fechaInicial}T08:00` : ''),
+    fecha_fin:          toInputDate(evento?.fecha_fin) || '',
+    es_todo_el_dia:     evento?.es_todo_el_dia ?? false,
+    grupo_id:           evento?.grupo_id || '',
+    publicado:          evento?.publicado ?? true,
+    ubicacion:          evento?.ubicacion || '',
+    recordatorio_horas: evento?.recordatorio_horas ?? '',
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -54,9 +56,11 @@ function ModalEvento({ evento, categorias, grupos, fechaInicial, onClose, onSave
     try {
       await onSave({
         ...form,
-        categoria_id: form.categoria_id || null,
-        grupo_id: form.grupo_id || null,
-        fecha_fin: form.fecha_fin || null,
+        categoria_id:       form.categoria_id || null,
+        grupo_id:           form.grupo_id || null,
+        fecha_fin:          form.fecha_fin || null,
+        ubicacion:          form.ubicacion.trim() || null,
+        recordatorio_horas: form.recordatorio_horas === '' ? null : Number(form.recordatorio_horas),
       });
       onClose();
     } catch {
@@ -83,6 +87,32 @@ function ModalEvento({ evento, categorias, grupos, fechaInicial, onClose, onSave
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Descripción</label>
             <textarea className="input-hs w-full" rows={2} value={form.descripcion} onChange={e => set('descripcion', e.target.value)} />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ubicación</label>
+            <input
+              className="input-hs w-full"
+              placeholder="Ej: Auditorio principal, Patio trasero…"
+              value={form.ubicacion}
+              onChange={e => set('ubicacion', e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Recordatorio</label>
+            <select
+              className="input-hs w-full"
+              value={form.recordatorio_horas}
+              onChange={e => set('recordatorio_horas', e.target.value)}
+            >
+              <option value="">Sin recordatorio</option>
+              <option value="1">1 hora antes</option>
+              <option value="2">2 horas antes</option>
+              <option value="24">24 horas antes (1 día)</option>
+              <option value="48">48 horas antes (2 días)</option>
+              <option value="72">72 horas antes (3 días)</option>
+            </select>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -197,6 +227,22 @@ function DetalleEvento({ evento, onEdit, onDelete, onClose }) {
               <span>🏫</span>
               <span className="font-semibold">{evento.grupo_nombre || 'Toda la escuela'}</span>
             </div>
+            {evento.ubicacion && (
+              <div className="flex items-center gap-2 text-gray-600">
+                <span>📍</span>
+                <span className="font-semibold">{evento.ubicacion}</span>
+              </div>
+            )}
+            {evento.recordatorio_horas && (
+              <div className="flex items-center gap-2 text-gray-500">
+                <span>🔔</span>
+                <span className="font-semibold">
+                  {evento.recordatorio_horas < 24
+                    ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
+                    : `${evento.recordatorio_horas / 24} día${evento.recordatorio_horas / 24 > 1 ? 's' : ''} antes`}
+                </span>
+              </div>
+            )}
           </div>
 
           {confirmando ? (

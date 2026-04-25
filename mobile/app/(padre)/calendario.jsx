@@ -83,6 +83,28 @@ function ModalDetalle({ evento, onClose }) {
               <Text style={m.infoTxt}>{evento.grupo_nombre || 'Toda la escuela'}</Text>
             </View>
 
+            {evento.ubicacion && (
+              <TouchableOpacity
+                style={m.infoRow}
+                onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(evento.ubicacion)}`)}
+                activeOpacity={0.7}
+              >
+                <Text style={m.infoIcon}>📍</Text>
+                <Text style={[m.infoTxt, m.infoLink]}>{evento.ubicacion}</Text>
+              </TouchableOpacity>
+            )}
+
+            {evento.recordatorio_horas && (
+              <View style={m.infoRow}>
+                <Text style={m.infoIcon}>🔔</Text>
+                <Text style={m.infoTxt}>
+                  {evento.recordatorio_horas < 24
+                    ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
+                    : `${evento.recordatorio_horas / 24} día${evento.recordatorio_horas / 24 > 1 ? 's' : ''} antes`}
+                </Text>
+              </View>
+            )}
+
             <TouchableOpacity
               style={m.gcalBtn}
               onPress={() => Linking.openURL(buildGoogleCalendarUrl(evento))}
@@ -307,6 +329,7 @@ const m = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6, borderTopWidth: 1, borderTopColor: '#F7FAFC' },
   infoIcon: { fontSize: 18, width: 28 },
   infoTxt: { fontSize: 14, fontWeight: '600', color: '#4A5568', flex: 1, textTransform: 'capitalize' },
+  infoLink: { color: '#3182CE', textDecorationLine: 'underline', textTransform: 'none' },
   cerrarBtn: { marginTop: 20, backgroundColor: '#805AD5', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   cerrarTxt: { color: '#fff', fontSize: 15, fontWeight: '900' },
   gcalBtn: {

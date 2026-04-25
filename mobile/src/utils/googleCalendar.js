@@ -1,7 +1,7 @@
 export function buildGoogleCalendarUrl(evento) {
   const {
     titulo, descripcion, fecha_inicio, fecha_fin,
-    es_todo_el_dia, categoria_nombre, categoria_icono,
+    es_todo_el_dia, categoria_nombre, categoria_icono, ubicacion,
   } = evento;
 
   let datesStr;
@@ -33,6 +33,7 @@ export function buildGoogleCalendarUrl(evento) {
     text: titulo,
     dates: datesStr,
     details: details.trim(),
+    ...(ubicacion ? { location: ubicacion } : {}),
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }

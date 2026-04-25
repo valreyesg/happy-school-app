@@ -69,6 +69,24 @@ function ModalEvento({ evento, onClose }) {
           <p className="text-xs text-gray-400 font-semibold mb-4">Grupo: {evento.grupo_nombre}</p>
         )}
 
+        {evento.ubicacion && (
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+            <span>📍</span>
+            <span className="font-semibold">{evento.ubicacion}</span>
+          </div>
+        )}
+
+        {evento.recordatorio_horas && (
+          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+            <span>🔔</span>
+            <span className="font-semibold">
+              {evento.recordatorio_horas < 24
+                ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
+                : `${evento.recordatorio_horas / 24} día${evento.recordatorio_horas / 24 > 1 ? 's' : ''} antes`}
+            </span>
+          </div>
+        )}
+
         <a
           href={buildGoogleCalendarUrl(evento)}
           target="_blank"

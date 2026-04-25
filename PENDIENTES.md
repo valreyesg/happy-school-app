@@ -68,7 +68,12 @@
   - Web: botón en modal Calendario + Dashboard ModalEvento + widget próximos
   - Mobile: botón en modal calendario + Dashboard ModalEvento + widget próximos
   - Abre Google Calendar TEMPLATE URL en nueva pestaña/browser sin cerrar modal
-- [ ] **Eventos Enriquecidos:** Color + Emoji por categoría, ubicación, recordatorios.
+- [x] **Eventos Enriquecidos:** Color + Emoji por categoría, ubicación, recordatorios. ✅ Sesión 71
+  - Campo `ubicacion` + `recordatorio_horas` en BD (migración 027)
+  - Formulario directora: inputs ubicación + select recordatorio
+  - Vista padre web (Calendario + Dashboard): muestra 📍 y 🔔 si existen
+  - Vista padre mobile (calendario + index): 📍 abre Google Maps, 🔔 muestra tiempo
+  - buildGoogleCalendarUrl: incluye `location` en URL si hay ubicación
 - [ ] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo).
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)

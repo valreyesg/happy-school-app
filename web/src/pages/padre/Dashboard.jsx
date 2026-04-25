@@ -298,7 +298,19 @@ function ModalEvento({ ev, onClose }) {
 
         {/* Grupo */}
         {ev.grupo_nombre && (
-          <p className="text-sm font-semibold text-gray-500 mb-3">👥 {ev.grupo_nombre}</p>
+          <p className="text-sm font-semibold text-gray-500 mb-1">👥 {ev.grupo_nombre}</p>
+        )}
+
+        {ev.ubicacion && (
+          <p className="text-sm font-semibold text-gray-600 mb-1">📍 {ev.ubicacion}</p>
+        )}
+
+        {ev.recordatorio_horas && (
+          <p className="text-sm font-semibold text-gray-500 mb-3">
+            🔔 {ev.recordatorio_horas < 24
+              ? `${ev.recordatorio_horas}h antes`
+              : `${ev.recordatorio_horas / 24}d antes`}
+          </p>
         )}
 
         {/* Descripción */}

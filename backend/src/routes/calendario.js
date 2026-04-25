@@ -103,14 +103,15 @@ router.get('/:id', async (req, res, next) => {
 // ── POST /calendario ──────────────────────────────────────────────────────────
 router.post('/', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
-    const { titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado } = req.body;
+    const { titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado, ubicacion, recordatorio_horas } = req.body;
     if (!titulo || !fecha_inicio) return res.status(400).json({ error: 'titulo y fecha_inicio son obligatorios' });
 
     const result = await query(`
-      INSERT INTO eventos (titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado, creado_por)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *
+      INSERT INTO eventos (titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado, ubicacion, recordatorio_horas, creado_por)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *
     `, [titulo, descripcion || null, categoria_id || null, fecha_inicio,
-        fecha_fin || null, es_todo_el_dia || false, grupo_id || null, publicado ?? true, req.user.id]);
+        fecha_fin || null, es_todo_el_dia || false, grupo_id || null, publicado ?? true,
+        ubicacion || null, recordatorio_horas || null, req.user.id]);
 
     res.status(201).json(result.rows[0]);
   } catch (err) { next(err); }
@@ -119,21 +120,23 @@ router.post('/', authorize('directora', 'administrativo'), async (req, res, next
 // ── PUT /calendario/:id ───────────────────────────────────────────────────────
 router.put('/:id', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
-    const { titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado } = req.body;
+    const { titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id, publicado, ubicacion, recordatorio_horas } = req.body;
 
     await query(`
       UPDATE eventos SET
-        titulo         = COALESCE($1, titulo),
-        descripcion    = COALESCE($2, descripcion),
-        categoria_id   = COALESCE($3, categoria_id),
-        fecha_inicio   = COALESCE($4, fecha_inicio),
-        fecha_fin      = COALESCE($5, fecha_fin),
-        es_todo_el_dia = COALESCE($6, es_todo_el_dia),
-        grupo_id       = $7,
-        publicado      = COALESCE($8, publicado),
-        updated_at     = NOW()
-      WHERE id = $9
-    `, [titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id ?? null, publicado, req.params.id]);
+        titulo             = COALESCE($1, titulo),
+        descripcion        = COALESCE($2, descripcion),
+        categoria_id       = COALESCE($3, categoria_id),
+        fecha_inicio       = COALESCE($4, fecha_inicio),
+        fecha_fin          = COALESCE($5, fecha_fin),
+        es_todo_el_dia     = COALESCE($6, es_todo_el_dia),
+        grupo_id           = $7,
+        publicado          = COALESCE($8, publicado),
+        ubicacion          = $9,
+        recordatorio_horas = COALESCE($10, recordatorio_horas),
+        updated_at         = NOW()
+      WHERE id = $11
+    `, [titulo, descripcion, categoria_id, fecha_inicio, fecha_fin, es_todo_el_dia, grupo_id ?? null, publicado, ubicacion || null, recordatorio_horas, req.params.id]);
 
     res.json({ ok: true });
   } catch (err) { next(err); }

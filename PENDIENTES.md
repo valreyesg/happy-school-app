@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 70
+**Última actualización:** 2026-04-24 | **Sesión actual:** 72
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -61,28 +61,6 @@
 # 🎯 PRIORIZACIÓN POR SPRINTS
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
-
-### 📅 INTEGRACIÓN CALENDARIO MEJORADA
-- [x] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil). ✅ Sesión 71
-  - Función utilitaria buildGoogleCalendarUrl (maneja todo/parte del día, encoding)
-  - Web: botón en modal Calendario + Dashboard ModalEvento + widget próximos
-  - Mobile: botón en modal calendario + Dashboard ModalEvento + widget próximos
-  - Abre Google Calendar TEMPLATE URL en nueva pestaña/browser sin cerrar modal
-- [x] **Eventos Enriquecidos:** Color + Emoji por categoría, ubicación, recordatorios. ✅ Sesión 71
-  - Campo `ubicacion` + `recordatorio_horas` en BD (migración 027)
-  - Formulario directora: inputs ubicación + select recordatorio
-  - Vista padre web (Calendario + Dashboard): muestra 📍 y 🔔 si existen
-  - Vista padre mobile (calendario + index): 📍 abre Google Maps, 🔔 muestra tiempo
-  - buildGoogleCalendarUrl: incluye `location` en URL si hay ubicación
-- [x] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo). ✅ Sesión 71
-  - Backend: GET /calendario/export-pdf?mes=YYYY-MM con pdf-lib (A4 landscape)
-  - Grilla mensual con chips de color por categoría, leyenda de categorías al pie
-  - Botón PDF en Calendario web padre + Calendario web directora
-  - ⚠️ **PENDIENTE MEJORAS PDF (Sesión 72+):**
-    - Agregar sección debajo de la grilla con lista detallada de eventos del mes
-      (fecha, título, categoría con emoji, descripción, ubicación si existe)
-    - Mejorar diseño visual — estilo infantil acorde a Happy School
-      (colores vibrantes, tipografía redondeada, ilustraciones o bordes decorativos)
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
 - [ ] **"Comida Extra"** habilitada solo para Extensión/Estancia >3:06 PM.

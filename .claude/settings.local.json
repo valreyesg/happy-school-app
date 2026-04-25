@@ -471,7 +471,20 @@
       "Bash(curl -s http://localhost:3000/api/calendario/categorias)",
       "Bash(echo \"EXIT:$?\")",
       "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\")",
-      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, CPU, @{N='CMD';E={$_.MainWindowTitle}} | Format-Table)"
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, CPU, @{N='CMD';E={$_.MainWindowTitle}} | Format-Table)",
+      "Read(//c/Users/vreyesg/node_modules/pdf-lib/**)",
+      "Bash(curl -s \"http://localhost:3001/calendario?mes=2026-04&grupo_id=\" -H \"Authorization: Bearer test-padre-token\")",
+      "Bash(curl -s \"http://localhost:3000/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/calendario-abril-2026.pdf)",
+      "Bash(curl -s \"http://localhost:3000/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\")",
+      "Bash(node -c \"c:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\src\\\\routes\\\\calendario.js\")",
+      "Bash(curl -s \"http://localhost:3000/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/test.pdf)",
+      "Bash(node -e \"require\\('c:\\\\\\\\Users\\\\\\\\vreyesg\\\\\\\\SynologyDrive\\\\\\\\Documentos\\\\\\\\VALERIA\\\\\\\\APP-KINDER\\\\\\\\backend\\\\\\\\src\\\\\\\\routes\\\\\\\\calendario.js'\\); console.log\\('✅ Sintaxis correcta'\\)\")",
+      "Bash(node -c src/routes/calendario.js)",
+      "Bash(tee /tmp/backend_fresh.log)",
+      "Bash(curl -s \"http://localhost:3000/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/final_test.pdf)",
+      "Bash(node -e \"const cal = require\\('./src/routes/calendario'\\); console.log\\(typeof cal, cal._router ? '✅ Router existe' : '❌ No es un router'\\)\")",
+      "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/api_test.pdf)",
+      "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\" -o /tmp/noauth_test.pdf)"
     ],
     "additionalDirectories": [
       "\\tmp",

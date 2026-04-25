@@ -1,7 +1,72 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 71
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 72
+
+---
+
+## ✅ SESIÓN 72 — Mejoras PDF Calendario (diseño infantil + lista detallada)
+
+**Fecha:** 2026-04-24 | **Estado:** Completado ✅
+
+### Cambios completados:
+
+**1. Nueva paleta de colores vibrante e infantil**
+- Púrpura más saturado: `rgb(0.408, 0.216, 0.780)` (antes: `0.502, 0.353, 0.816`)
+- Púrpura oscuro: `rgb(0.271, 0.133, 0.545)` para encabezado
+- Acentos infantiles: coral, mint, yellow, sky
+- Gris border con tinte púrpura: `rgb(0.859, 0.839, 0.902)`
+
+**2. Encabezado mejorado (Página 1)**
+- Fondo `purpleDark` en lugar de púrpura plano
+- Banda coral de 4 pt decorativa al fondo del encabezado
+- Círculos decorativos en esquinas (gris claro, 10-14 pt)
+- "Happy School" subido a `size: 20` (era 18)
+- Título mes subido a `size: 24` (era 22)
+- Contador eventos: color yellow en lugar de purpleLight
+
+**3. Geometría de grilla optimizada**
+- `headerH`: 22 → 26 pt (más respiración en cabecera de días)
+- `rowH`: 68 → 76 pt (más espacio visual por celda)
+- Cabecera días con colores alternados: Dom/Sab más intenso, semana purpleLight
+- Línea separadora de 1.5 pt en púrpura al fondo de cabecera
+
+**4. Visuales mejorados en celdas y chips**
+- Celdas fin de semana: fondo con tinte púrpura sutil (`rgb(0.980, 0.976, 0.988)`)
+- Celda "hoy": borde 1.5 pt en púrpura (era 0.5 pt)
+- Número día: `size` 8 → 9, círculo radio 9 → 11
+- Chips eventos: altura 12 → 13 pt, `borderRadius` 2 → 3
+- **Barra lateral de color 3 pt a la izquierda de cada chip** (NUEVO)
+- Fuente chip: 6.5 → 7.5 pt
+- Separación entre chips: 14 → 16 pt
+- Indicador +N: fondo `purpleLight` pequeño, color `purple`
+
+**5. Leyenda mejorada**
+- Posición y=10 → y=14
+- Cuadrado color: 8x8 → 10x10 pt
+- Línea separadora decorativa con puntos antes de leyenda (loop de círculos)
+
+**6. Segunda página: Lista detallada de eventos (NUEVA)**
+- A4 vertical `[595, 842]` con encabezado estilo página 1
+- Por cada evento: tarjeta con barra lateral del color de categoría
+- Contenido tarjeta:
+  - Fecha formateada ("Lun 7 Abr") + hora o "Todo el día"
+  - Título + grupo (si existe)
+  - Descripción (máx 2 líneas, truncada)
+  - Ubicación (si existe, en color sky)
+  - Chip de categoría con color
+- Filas alternas blanco/grayLight para legibilidad
+- Paginación automática: crea páginas adicionales si hay >15-20 eventos
+- Pie de página con "Happy School | Generado el DD/MM/YYYY" + número página
+
+### Archivo modificado:
+- `backend/src/routes/calendario.js` — endpoint `GET /api/calendario/export-pdf?mes=YYYY-MM`
+
+### Validación técnica:
+- ✅ Sintaxis JavaScript válida
+- ✅ Router y 8 rutas registradas correctamente
+- ✅ 7/7 checks de estructura de código pasaron
+- ✅ Backend corriendo, endpoint accesible en `/api/calendario/export-pdf`
 
 ---
 

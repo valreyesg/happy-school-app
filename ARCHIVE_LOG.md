@@ -1,7 +1,47 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 70
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 71
+
+---
+
+## ✅ SESIÓN 71 — Integración Calendario Mejorada (3 subtareas)
+
+**Fecha:** 2026-04-24 | **Estado:** Completado ✅
+
+### Cambios completados:
+
+**1. Botón "Añadir a Google Calendar" — web padre + mobile**
+- `web/src/utils/googleCalendar.js` + `mobile/src/utils/googleCalendar.js` — función `buildGoogleCalendarUrl(evento)`
+- URL directa sin OAuth: abre Google Calendar pre-llenado en nueva pestaña/browser
+- Maneja todo el día (`YYYYMMDD`) y con hora (`YYYYMMDDTHHmmssZ`)
+- Botón en: modal Calendario web, modal Dashboard web, widget próximos web
+- Botón en: modal calendario mobile, modal Dashboard mobile, widget próximos mobile
+
+**2. Eventos Enriquecidos — ubicación + recordatorio**
+- Migración `027_eventos_enriquecidos.sql`: columnas `ubicacion TEXT` y `recordatorio_horas INT`
+- Backend `calendario.js`: POST y PUT actualizados con nuevos campos
+- Formulario directora: input ubicación + select recordatorio (1h/2h/24h/48h/72h)
+- Vista padre web: muestra 📍 ubicación y 🔔 recordatorio en modales
+- Vista padre mobile: 📍 tappable abre Google Maps, 🔔 muestra tiempo
+- `buildGoogleCalendarUrl`: incluye `location` si hay ubicación
+
+**3. PDF Calendario Mensual**
+- Ruta `GET /calendario/export-pdf?mes=YYYY-MM` con `pdf-lib` (A4 landscape)
+- Grilla mensual 7 columnas, chips de color por categoría, hoy resaltado en morado
+- Leyenda de categorías al pie de página
+- Botón "PDF" en Calendario padre + Calendario directora (descarga blob)
+- ⚠️ Pendiente Sesión 72+: lista detallada de eventos bajo la grilla + diseño infantil completo
+
+### Nota técnica:
+- `pdf-lib` StandardFonts (Helvetica) = WinAnsi únicamente. Emojis eliminados con `.replace(/[^\x00-\xFF]/g, '')`. Tildes funcionan (Latin-1).
+- Para emojis en PDF futuro: embeber fuente TTF Unicode (ej: Noto Emoji)
+
+### Commits:
+- `7e06676` — Google Calendar botón web + mobile
+- `c6e781e` — PENDIENTES Google Calendar
+- `1db319f` — Eventos Enriquecidos
+- (cierre sesión) — PDF + PENDIENTES + ARCHIVE_LOG
 
 ---
 

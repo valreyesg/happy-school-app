@@ -468,7 +468,10 @@
       "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"C:/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/027_eventos_enriquecidos.sql\")",
       "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -U postgres -h localhost -d happy_school -f \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\migrations\\\\027_eventos_enriquecidos.sql\")",
       "PowerShell($env:PGPASSWORD = \"happy2026\"; psql -U postgres -h localhost -d happy_school -c \"\\\\d eventos\" | Select-String \"ubicacion|recordatorio\")",
-      "Bash(curl -s http://localhost:3000/api/calendario/categorias)"
+      "Bash(curl -s http://localhost:3000/api/calendario/categorias)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\")",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue | Select-Object Id, CPU, @{N='CMD';E={$_.MainWindowTitle}} | Format-Table)"
     ],
     "additionalDirectories": [
       "\\tmp",

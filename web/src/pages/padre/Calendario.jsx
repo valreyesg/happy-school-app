@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, CalendarPlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarPlus, Download } from 'lucide-react';
 import api from '../../services/api';
 import { buildGoogleCalendarUrl } from '../../utils/googleCalendar';
 
@@ -144,9 +144,35 @@ export default function PadreCalendario() {
   // Lista de eventos del mes ordenada
   const eventosOrdenados = [...eventos].sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio));
 
+  const [descargando, setDescargando] = useState(false);
+  const descargarPDF = async () => {
+    setDescargando(true);
+    try {
+      const resp = await api.get('/calendario/export-pdf', { params: { mes }, responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([resp.data], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `calendario-${mes}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDescargando(false);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-black text-gray-800">Calendario 📅</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-black text-gray-800">Calendario 📅</h1>
+        <button
+          onClick={descargarPDF}
+          disabled={descargando}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors disabled:opacity-50"
+        >
+          <Download size={15} />
+          {descargando ? 'Generando…' : 'PDF'}
+        </button>
+      </div>
 
       {/* Navegación de mes */}
       <div className="flex items-center justify-between card-hs p-4">

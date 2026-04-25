@@ -74,7 +74,15 @@
   - Vista padre web (Calendario + Dashboard): muestra 📍 y 🔔 si existen
   - Vista padre mobile (calendario + index): 📍 abre Google Maps, 🔔 muestra tiempo
   - buildGoogleCalendarUrl: incluye `location` en URL si hay ubicación
-- [ ] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo).
+- [x] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo). ✅ Sesión 71
+  - Backend: GET /calendario/export-pdf?mes=YYYY-MM con pdf-lib (A4 landscape)
+  - Grilla mensual con chips de color por categoría, leyenda de categorías al pie
+  - Botón PDF en Calendario web padre + Calendario web directora
+  - ⚠️ **PENDIENTE MEJORAS PDF (Sesión 72+):**
+    - Agregar sección debajo de la grilla con lista detallada de eventos del mes
+      (fecha, título, categoría con emoji, descripción, ubicación si existe)
+    - Mejorar diseño visual — estilo infantil acorde a Happy School
+      (colores vibrantes, tipografía redondeada, ilustraciones o bordes decorativos)
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
 - [ ] **"Comida Extra"** habilitada solo para Extensión/Estancia >3:06 PM.

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Download } from 'lucide-react';
 import api from '../../services/api';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -333,6 +334,22 @@ export default function DirectoraCalendario() {
 
   const esHoy = (dia) => dia && year === hoy.getFullYear() && month === hoy.getMonth() && dia === hoy.getDate();
 
+  const [descargando, setDescargando] = useState(false);
+  const descargarPDF = async () => {
+    setDescargando(true);
+    try {
+      const resp = await api.get('/calendario/export-pdf', { params: { mes }, responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([resp.data], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `calendario-${mes}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDescargando(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       {/* Encabezado */}
@@ -341,9 +358,19 @@ export default function DirectoraCalendario() {
           <h1 className="text-3xl font-black text-gray-800">Calendario 📅</h1>
           <p className="text-gray-500 text-sm font-semibold mt-1">{eventos.length} evento{eventos.length !== 1 ? 's' : ''} este mes</p>
         </div>
-        <button className="btn-hs btn-hs-primary" onClick={() => { setFechaClick(''); setModal('nuevo'); }}>
-          + Nuevo evento
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={descargarPDF}
+            disabled={descargando}
+            className="flex items-center gap-2 btn-hs btn-hs-ghost disabled:opacity-50"
+          >
+            <Download size={15} />
+            {descargando ? 'Generando…' : 'PDF'}
+          </button>
+          <button className="btn-hs btn-hs-primary" onClick={() => { setFechaClick(''); setModal('nuevo'); }}>
+            + Nuevo evento
+          </button>
+        </div>
       </div>
 
       {/* Navegación de mes */}

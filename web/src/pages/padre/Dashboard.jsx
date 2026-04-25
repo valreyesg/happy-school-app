@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import { X, CalendarPlus } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
+import { buildGoogleCalendarUrl } from '../../utils/googleCalendar';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -306,6 +307,16 @@ function ModalEvento({ ev, onClose }) {
             {ev.descripcion}
           </p>
         )}
+
+        <a
+          href={buildGoogleCalendarUrl(ev)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+        >
+          <CalendarPlus size={15} />
+          Añadir a Google Calendar
+        </a>
       </div>
     </div>
   );
@@ -507,7 +518,19 @@ export default function PadreDashboard() {
                     <p className="text-sm font-black text-gray-800 truncate">{ev.titulo}</p>
                     <p className="text-xs font-semibold text-blue-500 capitalize">{etiqueta}</p>
                   </div>
-                  <span className="text-gray-300 text-lg">›</span>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <a
+                      href={buildGoogleCalendarUrl(ev)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      title="Añadir a Google Calendar"
+                    >
+                      <CalendarPlus size={16} />
+                    </a>
+                    <span className="text-gray-300 text-lg">›</span>
+                  </div>
                 </button>
               );
             })}

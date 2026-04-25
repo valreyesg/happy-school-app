@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity, Linking,
   StyleSheet, ActivityIndicator, Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../src/services/api';
+import { buildGoogleCalendarUrl } from '../../src/utils/googleCalendar';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -81,6 +82,14 @@ function ModalDetalle({ evento, onClose }) {
               <Text style={m.infoIcon}>🏫</Text>
               <Text style={m.infoTxt}>{evento.grupo_nombre || 'Toda la escuela'}</Text>
             </View>
+
+            <TouchableOpacity
+              style={m.gcalBtn}
+              onPress={() => Linking.openURL(buildGoogleCalendarUrl(evento))}
+              activeOpacity={0.8}
+            >
+              <Text style={m.gcalTxt}>📅 Añadir a Google Calendar</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity style={m.cerrarBtn} onPress={onClose}>
               <Text style={m.cerrarTxt}>Cerrar</Text>
@@ -300,4 +309,18 @@ const m = StyleSheet.create({
   infoTxt: { fontSize: 14, fontWeight: '600', color: '#4A5568', flex: 1, textTransform: 'capitalize' },
   cerrarBtn: { marginTop: 20, backgroundColor: '#805AD5', borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
   cerrarTxt: { color: '#fff', fontSize: 15, fontWeight: '900' },
+  gcalBtn: {
+    marginTop: 12,
+    backgroundColor: '#EBF8FF',
+    borderRadius: 14,
+    paddingVertical: 13,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BEE3F8',
+  },
+  gcalTxt: {
+    color: '#2B6CB0',
+    fontSize: 14,
+    fontWeight: '800',
+  },
 });

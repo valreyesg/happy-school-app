@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarPlus } from 'lucide-react';
 import api from '../../services/api';
+import { buildGoogleCalendarUrl } from '../../utils/googleCalendar';
 
 const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -68,6 +69,15 @@ function ModalEvento({ evento, onClose }) {
           <p className="text-xs text-gray-400 font-semibold mb-4">Grupo: {evento.grupo_nombre}</p>
         )}
 
+        <a
+          href={buildGoogleCalendarUrl(evento)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors mb-2"
+        >
+          <CalendarPlus size={15} />
+          Añadir a Google Calendar
+        </a>
         <button
           onClick={onClose}
           className="w-full py-2.5 rounded-xl font-bold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"

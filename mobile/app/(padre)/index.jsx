@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { ANIMO, CUANTO, COMPORTAMIENTO } from '@/constants/catalogos';
 import NotificationBell from '@/src/components/NotificationBell';
+import { buildGoogleCalendarUrl } from '@/src/utils/googleCalendar';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -73,6 +74,14 @@ function ModalEvento({ ev, onClose }) {
               <Text style={styles.modalDesc}>{ev.descripcion}</Text>
             </View>
           )}
+
+          <TouchableOpacity
+            style={styles.modalGcalBtn}
+            onPress={() => Linking.openURL(buildGoogleCalendarUrl(ev))}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.modalGcalTxt}>📅 Añadir a Google Calendar</Text>
+          </TouchableOpacity>
 
           <TouchableOpacity style={styles.modalCerrarBtn} onPress={onClose}>
             <Text style={styles.modalCerrarTxt}>Cerrar</Text>
@@ -144,7 +153,16 @@ export default function PadreDashboard() {
                     <Text style={styles.eventoTitulo} numberOfLines={1}>{ev.titulo}</Text>
                     <Text style={styles.eventoFecha}>{etiqueta}</Text>
                   </View>
-                  <Text style={{ color: '#A0AEC0', fontSize: 18 }}>›</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <TouchableOpacity
+                      onPress={() => Linking.openURL(buildGoogleCalendarUrl(ev))}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                      style={{ padding: 4 }}
+                    >
+                      <Text style={{ fontSize: 16 }}>🗓️</Text>
+                    </TouchableOpacity>
+                    <Text style={{ color: '#A0AEC0', fontSize: 18 }}>›</Text>
+                  </View>
                 </TouchableOpacity>
               );
             })}
@@ -361,4 +379,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12, alignItems: 'center',
   },
   modalCerrarTxt: { fontWeight: '800', color: '#4A5568', fontSize: 15 },
+  modalGcalBtn: {
+    marginTop: 12,
+    backgroundColor: '#EBF8FF',
+    borderRadius: 14,
+    paddingVertical: 13,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#BEE3F8',
+  },
+  modalGcalTxt: {
+    color: '#2B6CB0',
+    fontSize: 14,
+    fontWeight: '800',
+  },
 });

@@ -63,7 +63,11 @@
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 📅 INTEGRACIÓN CALENDARIO MEJORADA
-- [ ] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil).
+- [x] **Google Calendar API:** Botón "Añadir a Google Calendar" en eventos (web papá + móvil). ✅ Sesión 71
+  - Función utilitaria buildGoogleCalendarUrl (maneja todo/parte del día, encoding)
+  - Web: botón en modal Calendario + Dashboard ModalEvento + widget próximos
+  - Mobile: botón en modal calendario + Dashboard ModalEvento + widget próximos
+  - Abre Google Calendar TEMPLATE URL en nueva pestaña/browser sin cerrar modal
 - [ ] **Eventos Enriquecidos:** Color + Emoji por categoría, ubicación, recordatorios.
 - [ ] **PDF Calendario Mensual:** Exportar con diseño infantil (general o por grupo).
 

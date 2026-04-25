@@ -1,9 +1,55 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Upload, CheckCircle2, Clock, AlertCircle, Trash2, X, Edit } from 'lucide-react';
+import { Plus, Upload, Clock, Trash2, X, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+
+function getISOWeek(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const thursday = new Date(d);
+  thursday.setDate(d.getDate() + (4 - (d.getDay() || 7)));
+  const yearStart = new Date(thursday.getFullYear(), 0, 1);
+  return Math.ceil(((thursday - yearStart) / 86400000 + 1) / 7);
+}
+
+function getSemanaKey(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  const thursday = new Date(d);
+  thursday.setDate(d.getDate() + (4 - (d.getDay() || 7)));
+  const anioISO = thursday.getFullYear();
+  const semana = getISOWeek(dateStr);
+  return `${anioISO}-W${String(semana).padStart(2, '0')}`;
+}
+
+function getLunesToDomingo(dateStr) {
+  const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const d = new Date(dateStr + 'T12:00:00');
+  const diaSemana = (d.getDay() + 6) % 7;
+  const lunes = new Date(d);
+  lunes.setDate(d.getDate() - diaSemana);
+  const domingo = new Date(lunes);
+  domingo.setDate(lunes.getDate() + 6);
+  const fmt = (f) => `${f.getDate()} ${MESES[f.getMonth()]}`;
+  return `${fmt(lunes)} – ${fmt(domingo)}`;
+}
+
+function agruparPorSemana(tareas, orden = 'asc') {
+  const mapa = {};
+  for (const t of tareas) {
+    const dateStr = t.fecha_limite.substring(0, 10);
+    const semanaKey = getSemanaKey(dateStr);
+    if (!mapa[semanaKey]) {
+      mapa[semanaKey] = { semanaKey, label: getLunesToDomingo(dateStr), tareas: [] };
+    }
+    mapa[semanaKey].tareas.push(t);
+  }
+  const grupos = Object.values(mapa);
+  grupos.sort((a, b) =>
+    orden === 'asc' ? a.semanaKey.localeCompare(b.semanaKey) : b.semanaKey.localeCompare(a.semanaKey)
+  );
+  return grupos;
+}
 
 function proximoDiaHabil(fecha = new Date()) {
   const d = new Date(fecha);
@@ -265,8 +311,82 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
   );
 }
 
+function ModalEntregas({ tareaId, titulo, onClose }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['alumnos-tarea', tareaId],
+    queryFn: () => api.get(`/tareas/${tareaId}/alumnos`).then(r => r.data),
+  });
+
+  const entregaron = data?.alumnos.filter(a => a.completada) || [];
+  const faltan = data?.alumnos.filter(a => !a.completada) || [];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-base font-black text-gray-800">📊 Entregas</h2>
+          <button onClick={onClose}><X size={22} /></button>
+        </div>
+        <p className="text-xs text-gray-500 mb-4 truncate">{titulo}</p>
+
+        {isLoading ? (
+          <div className="text-center py-6 text-gray-400">Cargando...</div>
+        ) : (
+          <div className="space-y-4">
+            {/* Entregaron */}
+            <div>
+              <p className="text-xs font-black text-green-700 uppercase tracking-wide mb-2">
+                ✅ Entregaron ({entregaron.length})
+              </p>
+              {entregaron.length === 0 ? (
+                <p className="text-xs text-gray-400 ml-2">Ninguno aún</p>
+              ) : (
+                <ul className="space-y-1">
+                  {entregaron.map(a => (
+                    <li key={a.id} className="flex items-center gap-2 text-sm text-gray-700">
+                      <span className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0" />
+                      {a.nombre_completo}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Faltan */}
+            <div>
+              <p className="text-xs font-black text-red-600 uppercase tracking-wide mb-2">
+                ❌ Faltan ({faltan.length})
+              </p>
+              {faltan.length === 0 ? (
+                <p className="text-xs text-gray-400 ml-2">¡Todos entregaron!</p>
+              ) : (
+                <ul className="space-y-1">
+                  {faltan.map(a => (
+                    <li key={a.id} className="flex items-center gap-2 text-sm text-gray-700">
+                      <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
+                      {a.nombre_completo}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="w-full mt-5 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showEntregas, setShowEntregas] = useState(false);
   const { data: entregas } = useQuery({
     queryKey: ['entregas', tarea.id],
     queryFn: () => api.get(`/tareas/${tarea.id}/entregas`).then(r => r.data),
@@ -338,6 +458,14 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
             onSuccess={() => onEdit?.()}
           />
         )}
+
+        {showEntregas && (
+          <ModalEntregas
+            tareaId={tarea.id}
+            titulo={tarea.titulo}
+            onClose={() => setShowEntregas(false)}
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -348,10 +476,64 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
         </span>
 
         {tarea.publicada && entregas && (
-          <span className="inline-flex items-center gap-1 text-sm font-bold text-blue-700">
+          <button
+            onClick={() => setShowEntregas(true)}
+            className="inline-flex items-center gap-1 text-sm font-bold text-blue-700 hover:underline"
+          >
             📊 {entregas.entregadas}/{entregas.total} entregaron
-          </span>
+          </button>
         )}
+      </div>
+    </div>
+  );
+}
+
+function NavegadorSemana({ grupos, indice, setIndice, colorClass, emptyMsg, onSuccess }) {
+  if (grupos.length === 0) {
+    return (
+      <div className="text-center py-8 text-gray-400 text-sm">{emptyMsg}</div>
+    );
+  }
+
+  const grupo = grupos[indice];
+  const hasPrev = indice > 0;
+  const hasNext = indice < grupos.length - 1;
+
+  return (
+    <div>
+      {/* Navegador */}
+      <div className="flex items-center justify-between mb-3">
+        <button
+          onClick={() => setIndice(i => i - 1)}
+          disabled={!hasPrev}
+          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+        >
+          <ChevronLeft size={20} className="text-gray-600" />
+        </button>
+
+        <div className="text-center">
+          <p className={`text-sm font-black ${colorClass}`}>
+            Semana del {grupo.label}
+          </p>
+          <p className="text-xs text-gray-400 mt-0.5">
+            {indice + 1} de {grupos.length} semanas · {grupo.tareas.length} tarea{grupo.tareas.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIndice(i => i + 1)}
+          disabled={!hasNext}
+          className="p-1.5 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition"
+        >
+          <ChevronRight size={20} className="text-gray-600" />
+        </button>
+      </div>
+
+      {/* Tareas de la semana */}
+      <div className="space-y-3">
+        {grupo.tareas.map(t => (
+          <TareaCard key={t.id} tarea={t} onPublicar={onSuccess} onDelete={onSuccess} onEdit={onSuccess} />
+        ))}
       </div>
     </div>
   );
@@ -360,7 +542,9 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
 export default function MaestraTareas() {
   const { usuario } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
-  const [vencidasColapsadas, setVencidasColapsadas] = useState(true);
+  const [tab, setTab] = useState('proximas');
+  const [indicePorRecibir, setIndicePorRecibir] = useState(0);
+  const [indiceVencidas, setIndiceVencidas] = useState(0);
   const queryClient = useQueryClient();
 
   const { data: grupo } = useQuery({
@@ -385,6 +569,7 @@ export default function MaestraTareas() {
 
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
+
   const porRecibir = publicadas.filter(t => {
     const fechaTarea = new Date(t.fecha_limite.substring(0, 10) + 'T12:00:00');
     return fechaTarea >= hoy;
@@ -394,10 +579,21 @@ export default function MaestraTareas() {
     return fechaTarea < hoy;
   });
 
+  // Semana actual para centrar el índice inicial de porRecibir
+  const gruposPorRecibir = agruparPorSemana(porRecibir, 'asc');
+  const gruposVencidas = agruparPorSemana(vencidas, 'desc');
+
   const totalTareas = (tareas?.length) || 0;
+
+  const TABS = [
+    { key: 'proximas', label: '📬 Próximas', count: porRecibir.length, color: 'text-blue-700' },
+    { key: 'vencidas', label: '🗂️ Vencidas', count: vencidas.length, color: 'text-red-600' },
+    { key: 'borradores', label: '📤 Borradores', count: borradores.length, color: 'text-yellow-700' },
+  ];
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-black text-gray-800">📋 Tareas Grupales</h1>
@@ -418,88 +614,73 @@ export default function MaestraTareas() {
           <p>No hay tareas aún</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Borradores */}
-          {borradores.length > 0 && (
-            <div>
-              <h2 className="text-lg font-black text-yellow-700 mb-3 flex items-center gap-2">
-                <span>📤</span> Por publicar
-                <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-200 text-xs font-bold">
-                  {borradores.length}
-                </span>
-              </h2>
-              <div className="space-y-3">
-                {borradores.map(t => (
-                  <TareaCard
-                    key={t.id}
-                    tarea={t}
-                    onPublicar={handleSuccess}
-                    onDelete={handleSuccess}
-                    onEdit={handleSuccess}
-                  />
-                ))}
-              </div>
-            </div>
+        <div>
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 mb-5">
+            {TABS.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold border-b-2 transition ${
+                  tab === t.key
+                    ? `border-current ${t.color}`
+                    : 'border-transparent text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                {t.label}
+                {t.count > 0 && (
+                  <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-black ${
+                    tab === t.key ? 'bg-current/10' : 'bg-gray-100 text-gray-500'
+                  }`}>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab: Próximas */}
+          {tab === 'proximas' && (
+            <NavegadorSemana
+              grupos={gruposPorRecibir}
+              indice={indicePorRecibir}
+              setIndice={setIndicePorRecibir}
+              colorClass="text-blue-700"
+              emptyMsg="No hay tareas próximas"
+              onSuccess={handleSuccess}
+            />
           )}
 
-          {/* Publicadas */}
-          {publicadas.length > 0 && (
+          {/* Tab: Vencidas */}
+          {tab === 'vencidas' && (
+            <NavegadorSemana
+              grupos={gruposVencidas}
+              indice={indiceVencidas}
+              setIndice={setIndiceVencidas}
+              colorClass="text-red-600"
+              emptyMsg="No hay tareas vencidas"
+              onSuccess={handleSuccess}
+            />
+          )}
+
+          {/* Tab: Borradores */}
+          {tab === 'borradores' && (
             <div>
-              <h2 className="text-lg font-black text-green-700 mb-4 flex items-center gap-2">
-                <span>✅</span> Publicadas
-                <span className="ml-2 inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-200 text-xs font-bold">
-                  {publicadas.length}
-                </span>
-              </h2>
-
-              <div className="space-y-6">
-                {/* Por recibir */}
-                {porRecibir.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-bold text-gray-600 mb-2 flex items-center gap-2">
-                      <span>📬</span> Por recibir
-                      <span className="ml-auto inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 text-xs font-bold text-blue-800">
-                        {porRecibir.length}
-                      </span>
-                    </h3>
-                    <div className="space-y-3 ml-4">
-                      {porRecibir.map(t => (
-                        <TareaCard
-                          key={t.id}
-                          tarea={t}
-                          onPublicar={handleSuccess}
-                          onDelete={handleSuccess}
-                          onEdit={handleSuccess}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Vencidas — Colapsadas por defecto */}
-                {vencidas.length > 0 && (
-                  <details>
-                    <summary className="text-sm font-bold text-red-600 mb-2 flex items-center gap-2 cursor-pointer hover:text-red-700 transition list-none">
-                      <span>{vencidasColapsadas ? '▶' : '▼'}</span>
-                      <span>🗂️</span> Vencidas
-                      <span className="ml-auto inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-xs font-bold text-red-800">
-                        {vencidas.length}
-                      </span>
-                    </summary>
-                    <div className="space-y-3 ml-4 mt-2">
-                      {vencidas.map(t => (
-                        <TareaCard
-                          key={t.id}
-                          tarea={t}
-                          onPublicar={handleSuccess}
-                          onDelete={handleSuccess}
-                          onEdit={handleSuccess}
-                        />
-                      ))}
-                    </div>
-                  </details>
-                )}
-              </div>
+              {borradores.length === 0 ? (
+                <div className="text-center py-8 text-gray-400 text-sm">No hay borradores</div>
+              ) : (
+                <div className="space-y-3">
+                  {borradores.map(t => (
+                    <TareaCard
+                      key={t.id}
+                      tarea={t}
+                      onPublicar={handleSuccess}
+                      onDelete={handleSuccess}
+                      onEdit={handleSuccess}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

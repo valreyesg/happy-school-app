@@ -1,16 +1,11 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-24 | **Sesión actual:** 69
+**Última actualización:** 2026-04-24 | **Sesión actual:** 70
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📋 SESIÓN 70 — PRÓXIMAS TAREAS
-
-- [ ] **Agrupar tareas por semana** en página Tareas de la miss (Tareas.jsx)
-  - Problema: lista crece sin límite
-  - Solución: agrupar por semana ISO, mantener vencidas colapsadas
-  - Complejidad: ⭐⭐
+## 📋 SESIÓN 71 — PRÓXIMAS TAREAS
 
 ---
 
@@ -40,7 +35,7 @@
     - [ ] Auditoría UX/UI web (padre, miss, directora)
     - [ ] Auditoría UX/UI mobile
     - [ ] **Consistency check: Formato y estilo de texto homogéneo**
-      - Fechas: formato CONSISTENTE (ej: "Lun, 24 de abr" en todos lados)
+      - Fechas: formato CONSISTENTE (ej: "Lun 24 de Abr" en todos lados)
       - Saludos: mismo tono y estructura en cada portal
       - Capitalización: CONSISTENTE mayúsculas/minúsculas/CamelCase
       - Iconografía: mismo emoji para mismo concepto

@@ -1,7 +1,48 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 68
+**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 70
+
+---
+
+## ✅ SESIÓN 70 — Agrupación por semana ISO + Navegación por tabs + Modal entregas
+
+**Fecha:** 2026-04-24 | **Estado:** Completado ✅
+
+### Cambios completados:
+
+**1. Página Tareas (maestra) — Restructuración radical con tabs + navegación por semana**
+- Archivo: `web/src/pages/maestra/Tareas.jsx`
+- Helpers nuevos:
+  - `getISOWeek(dateStr)` — calcula semana ISO (1-53) con corrección año ISO
+  - `getSemanaKey(dateStr)` — retorna clave `YYYY-WNN` para ordenamiento lexicográfico
+  - `getLunesToDomingo(dateStr)` — formatea rango semana en español ("28 abr – 4 may")
+  - `agruparPorSemana(tareas, orden)` — agrupa por semana ISO, ordena ASC o DESC
+- **3 tabs principales:**
+  - 📬 **Próximas** — tareas no vencidas, navegación por semana (semana actual primero)
+  - 🗂️ **Vencidas** — tareas vencidas, navegación por semana (más reciente primero)
+  - 📤 **Borradores** — tareas sin publicar (lista simple, sin paginación)
+- Componente `NavegadorSemana` — reutilizable para tabs "Próximas" y "Vencidas"
+  - Botones ‹ › para navegación con estado disabled en límites
+  - Header: "Semana del 28 abr – 4 may · 2 tareas · semana 1 de 3"
+  - Previene el problema de listas enormes (50+ tareas por ciclo escolar)
+
+**2. Modal "¿Quién entregó?" — desglose por alumno**
+- Componente `ModalEntregas` nuevo
+- Query a `GET /tareas/:id/alumnos` (endpoint backend ya existía)
+- Dos secciones:
+  - ✅ **Entregaron** — lista verde de nombres
+  - ❌ **Faltan** — lista roja de nombres
+- Badge `📊 X/Y entregaron` ahora es botón clickeable en TareaCard
+- Se abre modal al hacer clic, muestra detalle completo de entregas
+
+### Archivos modificados:
+- `web/src/pages/maestra/Tareas.jsx` — único archivo frontend
+
+### Backend:
+- Sin cambios — endpoints existentes:
+  - `GET /tareas/:id/entregas` (conteos)
+  - `GET /tareas/:id/alumnos` (lista con nombres y completadas)
 
 ---
 

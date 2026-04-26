@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Megaphone, Send, Users, CheckCircle, Clock, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 import toast from 'react-hot-toast';
-import api from '../../services/api';
+import api from '@/services/api';
 
 function formatearFecha(isoDate) {
   if (!isoDate) return '—';

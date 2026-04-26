@@ -3,9 +3,9 @@ import { useSearchParams, Link, Navigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useAuthStore } from '../../store/authStore';
-import api from '../../services/api';
-import SignaturePad from '../../components/ui/SignaturePad';
+import { useAuthStore } from '@/store/authStore';
+import api from '@/services/api';
+import SignaturePad from '@/components/ui/SignaturePad';
 
 const ANIMO = {
   feliz:     { emoji: '😊', label: 'Feliz'     },

@@ -2,7 +2,7 @@ import { useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import api from '../../services/api';
+import api from '@/services/api';
 import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';

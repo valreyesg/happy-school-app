@@ -19,27 +19,54 @@ Aplicación multiplataforma para la escuela Happy School - Comunidad Infantil.
 - **WhatsApp:** Twilio WhatsApp Business API
 - **Calendario:** Google Calendar API
 
+## Estructura del Proyecto
+
+```
+APP-KINDER/
+├── backend/        # API Express (puerto 3000)
+├── web/            # React + Vite (puerto 5173)
+├── mobile/         # Expo / React Native
+└── tests/
+    └── smoke/      # Tests de humo (health + auth)
+```
+
 ## Inicio Rápido
 
 ```bash
-# Instalar dependencias
+# 1. Instalar dependencias (web, backend y mobile)
 npm run install:all
 
-# Variables de entorno
+# 2. Configurar variables de entorno
 cp backend/.env.example backend/.env
-# Editar backend/.env con tus credenciales
+# Editar backend/.env con tus credenciales de BD, JWT, Cloudinary, etc.
 
-# Correr migraciones
+# 3. Migrar base de datos
 npm run db:migrate
 
-# Iniciar backend
-npm run backend
+# 4. Arrancar en desarrollo
+npm run dev          # backend + web en paralelo
+npm run dev:full     # backend + web + mobile Expo
+```
 
-# Iniciar web
-npm run web
+## Scripts disponibles
 
-# Iniciar mobile (en otra terminal)
-cd mobile && npx expo start
+| Comando | Descripción |
+|---------|-------------|
+| `npm run dev` | Backend + Web en paralelo (con logs de color) |
+| `npm run dev:full` | Backend + Web + Mobile Expo |
+| `npm run backend` | Solo backend |
+| `npm run web` | Solo web |
+| `npm run test:smoke` | Tests de humo (requiere BD activa) |
+| `npm run db:migrate` | Ejecutar migraciones |
+| `npm run db:seed` | Cargar datos iniciales |
+
+## Tests de humo
+
+Los tests validan que el backend arranca y que auth responde correctamente.
+Para el test de login válido, definir en el entorno:
+
+```bash
+SMOKE_TEST_EMAIL=tu@email.com SMOKE_TEST_PASSWORD=tupassword npm run test:smoke
 ```
 
 ## Licencia

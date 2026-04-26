@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, CalendarPlus, Download } from 'lucide-react';
-import api from '../../services/api';
-import { buildGoogleCalendarUrl } from '../../utils/googleCalendar';
+import api from '@/services/api';
+import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 
 const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];

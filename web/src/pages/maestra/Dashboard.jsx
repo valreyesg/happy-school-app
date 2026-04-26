@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle, AlertCircle } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
-import api from '../../services/api';
+import { useAuthStore } from '@/store/authStore';
+import api from '@/services/api';
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
 

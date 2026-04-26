@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Upload, Clock, Trash2, X, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
-import api from '../../services/api';
+import { useAuthStore } from '@/store/authStore';
+import api from '@/services/api';
 import toast from 'react-hot-toast';
 
 function getISOWeek(dateStr) {

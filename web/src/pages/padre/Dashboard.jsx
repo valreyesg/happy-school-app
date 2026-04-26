@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { X, CalendarPlus } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
-import api from '../../services/api';
-import { buildGoogleCalendarUrl } from '../../utils/googleCalendar';
+import { useAuthStore } from '@/store/authStore';
+import api from '@/services/api';
+import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 
 function proximos3Dias() {
   const hoy = new Date();

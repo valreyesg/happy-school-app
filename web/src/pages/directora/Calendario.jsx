@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
-import api from '../../services/api';
+import api from '@/services/api';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

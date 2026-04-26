@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import API from '../../services/api';
+import API from '@/services/api';
 
 const ComidaSemanal = () => {
   const [menu, setMenu] = useState(null);

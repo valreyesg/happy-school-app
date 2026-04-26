@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../../services/api';
-import SelectorCiclo from '../../components/ui/SelectorCiclo';
+import api from '@/services/api';
+import SelectorCiclo from '@/components/ui/SelectorCiclo';
 import { useCatalogo } from '@/hooks/useCatalogo';
 
 // ─── Colores por nivel ────────────────────────────────────────────────────────

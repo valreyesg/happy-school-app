@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import api from '../../services/api';
+import api from '@/services/api';
 
 const SEMAFORO = {
   verde:      { bg: 'bg-green-100',  text: 'text-green-700',  border: 'border-green-300',  label: 'Al corriente',  emoji: '✅' },

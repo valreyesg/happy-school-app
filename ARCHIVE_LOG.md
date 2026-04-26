@@ -1,7 +1,35 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-24 | Sesiones documentadas: 7 → 72
+**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 73
+
+---
+
+## ✅ SESIÓN 73 — Módulo Extensión de Horario
+
+**Fecha:** 2026-04-26 | **Estado:** Completado ✅
+
+**Lo que se hizo:**
+- Migrations 028 + 029: tabla `historial_servicios` con vigencia por rango (mes_inicio/anio_inicio → mes_fin/anio_fin)
+- Alta de extensión: modalidad rango o indefinido, genera cargos pendientes automáticamente en `pagos`
+- Baja de extensión: selector limitado al rango activo, cancela cargos futuros pendientes
+- Estado actual informativo: muestra alta futura con rango efectivo corregido por bajas registradas
+- Rutas movidas de `/comida/historial-servicios` → `/alumnos/:id/historial-servicios`
+- FiltroSalida (maestra): badge ⏳ extensión en tarjeta, alerta salida anticipada respeta `hora_salida_extension`
+- Bitácoras (directora/maestra/papá): comida_extra visible según extensión en fecha histórica del rango
+- GET historial-servicios abierto a maestra y padre para consulta de comida_extra histórica
+
+**Archivos modificados:**
+- `backend/migrations/028_historial_servicios.sql` (nuevo)
+- `backend/migrations/029_historial_servicios_vigencia.sql` (nuevo)
+- `backend/src/controllers/alumnosController.js`
+- `backend/src/controllers/comidaController.js`
+- `backend/src/routes/alumnos.js`
+- `backend/src/routes/asistencia.js`
+- `web/src/pages/directora/AlumnoPerfil.jsx`
+- `web/src/pages/maestra/Bitacora.jsx`
+- `web/src/pages/maestra/FiltroSalida.jsx`
+- `web/src/pages/padre/Bitacora.jsx`
 
 ---
 

@@ -63,8 +63,6 @@
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
-- [x] **"Comida Extra"** habilitada solo para alumnos con extensión (bitácoras directora/maestra/papá, con soporte histórico por fecha). ✅ Sesión 73
-- [x] **Tabla `historial_servicios`:** Alta/baja extensión por rango de meses + generación automática de cargos. ✅ Sesión 73
 
 ### 🏥 SALUD Y MEDICACIÓN (Bloque completo)
 - [ ] **Recepción de Medicamento:** Campo Filtro Entrada → foto receta + foto envase → habilitar administración.
@@ -83,7 +81,7 @@
 - [ ] **Perfil 360°:** Padre + Madre + 2 autorizados (fotos + INE).
 - [ ] **No-Duplicidad Inclusiva:** Validar por email/ID (permitir homoparentales: 2 Mamás/Papás).
 - [ ] **`familia_id` — Vínculo Hermanos:** Detección automática, navegación rápida, descuentos futuros.
-- [x] **`tiene_extension`:** Badge visual ⏳ en FiltroSalida + omitir alerta "salida anticipada" hasta hora_salida_extension. ✅ Sesión 73
+
 - [ ] **Modalidad "Solo Extensión":** 3:00-6:00 PM, check-in desde 2:45 PM.
 - [ ] **Niños Visitantes:** Registro rápido foto + distintivo 🌟.
 - [ ] **Automatización de Vistas:** A las 3:06 PM, Dashboard filtra y muestra *únicamente* niños de Extensión o Estancia.

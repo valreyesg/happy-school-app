@@ -12,11 +12,21 @@
     "web": "npm run dev --workspace=web",
     "install:all": "npm install && cd mobile && npx expo install",
     "db:migrate": "npm run migrate --workspace=backend",
-    "db:seed": "npm run seed --workspace=backend"
+    "db:seed": "npm run seed --workspace=backend",
+    "test:smoke": "jest tests/smoke --runInBand --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 15000,
+    "setupFiles": ["./tests/setup.js"]
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
+  }
 }

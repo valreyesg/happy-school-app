@@ -1,0 +1,46 @@
+# Expo
+.expo/
+.expo-shared/
+expo-env.d.ts
+
+# Build outputs
+dist/
+web-build/
+android/
+ios/
+.eas-build/
+
+# Metro bundler cache
+.metro-bundler-cache/
+.metro-health-check*
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Test output
+coverage/
+
+# Logs
+*.log
+app.log
+
+# Editor/IDE
+.vscode/*.log
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# React Native generated
+*.orig.*
+*.patch
+
+# EAS / OTA builds
+.eas/
+eas-update/
+
+# Node modules (inherited from root, but explicit here)
+node_modules/

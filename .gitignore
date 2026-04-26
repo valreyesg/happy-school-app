@@ -1,11 +1,62 @@
+# Dependencies
 node_modules/
+
+# Environment variables
 .env
 .env.local
 .env.production
+.env.test
+.env.staging
+
+# Build outputs
 dist/
 build/
+dist-ssr/
+web-build/
+
+# Platform-specific builds
 .expo/
+.expo-shared/
+android/
+ios/
+
+# Logs
 *.log
+
+# Test coverage
 coverage/
+
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Editor junk
+*.swp
+*~
+.vscode/*.log
+
+# npm/yarn temporaries
+.npm
+*.tgz
+
+# Certificates & secrets
+*.pem
+*.key
+*.p12
+*.p8
+
+# Vite cache
+.vite/
+vite.config.js.timestamp-*
+
+# Metro bundler cache
+.metro-bundler-cache/
+.metro-health-check*
+
+# EAS / OTA builds
+.eas/
+eas-update/
+
+# React Native
+*.orig.*

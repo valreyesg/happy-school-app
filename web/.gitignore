@@ -1,0 +1,34 @@
+# Vite build output
+dist/
+dist-ssr/
+
+# Vite cache
+.vite/
+vite.config.js.timestamp-*
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Test output
+coverage/
+
+# Logs
+*.log
+web-dev.log
+web.log
+
+# Editor/IDE
+.vscode/*.log
+*.swp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional: Storybook (if added later)
+storybook-static/
+
+# Node modules (inherited from root, but explicit here)
+node_modules/

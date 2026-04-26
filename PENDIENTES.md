@@ -1,29 +1,17 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-25 | **Sesión actual:** 76
+**Última actualización:** 2026-04-26 | **Sesión actual:** 77
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📋 SESIÓN 76 — REORGANIZACIÓN ARQUITECTÓNICA (FASES 3+4)
+## 📋 SESIÓN 77 — REORGANIZACIÓN ARQUITECTÓNICA (FASES 4+5)
 
 ---
 
 ## 🏗️ ARQUITECTURA Y ESTRUCTURA — PLAN MULTI-SESIÓN
 
-**Estado:** En progreso (FASE 1+2 completadas en sesión 75 — ver ARCHIVE_LOG)
-
-### ✅ FASE 3 — Reorganización de archivos (Sesión 76, COMPLETADA)
-- [x] Mover `backend/src/database/` → `backend/scripts/`
-  - [x] `seeds/` — 11 seeds movidos ✓
-  - [x] `setup/` — 6 setups movidos ✓
-  - [x] `fixes/` — 5 fixes movidos ✓
-  - [x] `checks/` — 1 check movido ✓
-  - [x] Actualizar imports en todos los scripts ✓
-- [x] Consolidar migration runners: `migrate-runner.js` creado ✓
-- [x] Mover docs de Claude: `RESUMEN_SESION_63.md` → `/docs/` ✓
-- [x] Eliminar archivos temporales: 5 archivos eliminados ✓
-- [x] Eliminar `backend/src/database/`, `migrate.js`, `run-migration.js` ✓
+**Estado:** FASE 3 completada ✅ (ver ARCHIVE_LOG). FASES 4-7 pendientes
 
 ### FASE 4 — .gitignore y builds (Sesión 76, ~20 min)
 - [ ] Actualizar `.gitignore` raíz: logs, builds, temp files

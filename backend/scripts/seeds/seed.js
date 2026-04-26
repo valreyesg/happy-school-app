@@ -1,6 +1,6 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 async function seed() {
   console.log('🌱 Iniciando seed de la base de datos...');

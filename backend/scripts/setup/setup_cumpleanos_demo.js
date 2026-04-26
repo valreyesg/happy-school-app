@@ -1,5 +1,5 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 async function setup() {
   try {

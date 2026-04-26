@@ -1,6 +1,6 @@
 // Seed para probar la bitácora de 4 tiempos
-require('dotenv').config();
-const { query } = require('../config/database');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+const { query } = require('../../src/config/database');
 
 async function seedComida4Tiempos() {
   try {

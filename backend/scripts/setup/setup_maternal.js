@@ -3,11 +3,11 @@
  * vinculada al Grupo Maternal del ciclo activo y que la alumna
  * de prueba exista en ese grupo con estado 'inscrito'.
  *
- * Uso: node src/database/setup_maternal.js
+ * Uso: node scripts/setup/setup_maternal.js
  */
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 async function main() {
   const PASSWORD = 'HappySchool2026!';

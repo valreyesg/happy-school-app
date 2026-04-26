@@ -1,6 +1,6 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 const FOTO_PH = 'https://res.cloudinary.com/demo/image/upload/w_200,h_200,c_fill/samples/people/smiling-man.jpg';
 const INE_PH  = 'https://res.cloudinary.com/demo/image/upload/v1/samples/imagecon-group.jpg';

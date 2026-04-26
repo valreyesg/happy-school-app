@@ -1,5 +1,5 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 // Hoy: 2026-04-18
 // Maternal  6-18 meses  → nacidos 2024-10-18 a 2025-10-18

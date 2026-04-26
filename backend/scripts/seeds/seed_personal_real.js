@@ -1,6 +1,6 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 const PASS = 'HappySchool2026!';
 

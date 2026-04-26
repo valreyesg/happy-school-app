@@ -1,7 +1,62 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 75
+**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 76
+
+---
+
+## ✅ SESIÓN 76 — Reorganización Arquitectónica FASE 3 (Backend Scripts)
+
+**Fecha:** 2026-04-26 | **Estado:** Completado ✅ | **Duración:** ~75 min
+
+**Lo que se hizo:**
+
+### FASE 3 — Reorganización de archivos backend
+- Mover `backend/src/database/` → `backend/scripts/` con subcarpetas:
+  - `seeds/` — 11 archivos: seed.js + 10 seeds específicos
+  - `setup/` — 6 archivos: 6 setups de inicialización
+  - `fixes/` — 5 archivos: fixes de datos históricos
+  - `checks/` — 1 archivo: validador de datos
+- Actualizar todos los imports:
+  - `require('../config/database')` → `require('../../src/config/database')` (2 niveles)
+  - `require('dotenv').config()` bare → con path explícito `../../.env`
+  - Actualizar comentarios de uso en setup_maternal.js y setup_padre_demo.js
+- Consolidar migration runners:
+  - Eliminar `backend/migrate.js` (hardcoded 014+015)
+  - Eliminar `backend/run-migration.js` 
+  - Crear `backend/scripts/migrate-runner.js` (genérico, acepta múltiples migraciones)
+- Actualizar `backend/package.json`:
+  - `"seed": "node src/database/seed.js"` → `"node scripts/seeds/seed.js"`
+- Mover docs:
+  - `RESUMEN_SESION_63.md` → `/docs/`
+  - También movidos VALIDACION_SESION_63.md, VALIDACION_SESION_71.md, SCHEMA_SHORTCUT.md, MEMORY.md a `/docs/`
+- Eliminar archivos temporales del root (5 archivos):
+  - fix_emojis_skin.js, temp_seed_ana.sql, verify_endpoint.js, test_api.js, test_grupos.js
+- Verificaciones:
+  - `npm run seed` funciona ✓ (seed completa sin errores de módulo)
+  - Backend arranca sin errores ✓
+  - Cero referencias a `src/database` en código ✓
+
+**Patrones de import aplicados:**
+- Patrón A (sin dotenv): 6 archivos — solo cambiar db require
+- Patrón B (bare dotenv): 3 archivos — agregar path explícito + db require
+- Patrón C (dotenv con path): 9 archivos — mantener path + db require
+- Patrón D (bare dotenv + Pool directo): 3 archivos — agregar path, sin cambio db
+- Patrón E (dotenv + Pool directo): 2 archivos — mantener path, sin cambio db
+
+**Archivos modificados:**
+- `backend/package.json`
+- `backend/scripts/migrate-runner.js` (nuevo)
+- 23 archivos en `backend/scripts/` (copiados y editados)
+
+**Archivos eliminados:**
+- `backend/src/database/` (directorio completo)
+- `backend/migrate.js`
+- `backend/run-migration.js`
+- 5 temporales del root
+
+**Commits:** 1
+- refactor: FASE 3 — Reorganización backend/scripts/
 
 ---
 

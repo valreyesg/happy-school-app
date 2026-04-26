@@ -495,14 +495,27 @@
       "PowerShell(\"All node killed\")",
       "Bash(curl -s -X GET \"http://localhost:3000/api/comida/historial-servicios?alumno_id=56fc4561-6b30-4031-8228-33c3d8e4372e&anio=2026\" -H \"Authorization: Bearer test\")",
       "Bash(curl -s http://localhost:3000/api/pagos/conceptos -H \"Authorization: Bearer test\")",
-      "Bash(curl -s http://localhost:3000/api/test-status)"
+      "Bash(curl -s http://localhost:3000/api/test-status)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER status --short)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER ls-files)",
+      "Bash(grep -E \"test_schema|dist/|\\\\.log$|temp_seed|verify_endpoint|test_api|test_grupos|fix_emojis\")",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER log --oneline -10)",
+      "Bash(git rm *)",
+      "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node\"} | ForEach-Object {Stop-Process -Id $_.Id -Force})",
+      "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"noexiste@test.com\",\"password\":\"wrong\"}')",
+      "Bash(curl -s -X GET http://localhost:3000/api/alumnos)",
+      "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node\"} | ForEach-Object {Stop-Process -Id $_.Id -Force}; Start-Sleep -Seconds 1)",
+      "Bash([ -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/$f\" ])",
+      "Bash([ -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/$f\" ])",
+      "Bash(node scripts/checks/check_panial.js)"
     ],
     "additionalDirectories": [
       "\\tmp",
       "c:\\Users\\vreyesg\\.claude\\projects\\c--Users-vreyesg-SynologyDrive-Documentos-VALERIA-APP-KINDER\\memory",
       "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend",
       "C:\\Users\\vreyesg\\.claude\\plans",
-      "c:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\web\\node_modules\\.vite"
+      "c:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\web\\node_modules\\.vite",
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend\\src\\database"
     ]
   }
 }

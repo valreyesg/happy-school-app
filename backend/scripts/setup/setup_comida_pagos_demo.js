@@ -1,6 +1,6 @@
 // Setup: Crear registro de comida con comprobante para probar pagos
-require('dotenv').config();
-const { query } = require('../config/database');
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
+const { query } = require('../../src/config/database');
 
 async function setupComidaPagosDemo() {
   try {

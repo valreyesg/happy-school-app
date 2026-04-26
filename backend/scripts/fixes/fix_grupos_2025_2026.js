@@ -1,6 +1,6 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
 const bcrypt = require('bcryptjs');
-const { query, getClient } = require('../config/database');
+const { query, getClient } = require('../../src/config/database');
 
 async function fixGrupos() {
   const client = await getClient();

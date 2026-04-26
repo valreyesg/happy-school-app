@@ -3,10 +3,10 @@
  * en las 4 vistas: Dashboard, Bitácora, Pagos, Calendario.
  *
  * Idempotente: usa ON CONFLICT DO NOTHING o DO UPDATE donde aplica.
- * Uso: node src/database/setup_padre_demo.js
+ * Uso: node scripts/setup/setup_padre_demo.js
  */
 require('dotenv').config({ path: require('path').resolve(__dirname, '../../.env') });
-const { query } = require('../config/database');
+const { query } = require('../../src/config/database');
 
 async function main() {
   // ── IDs conocidos ──────────────────────────────────────────────────────────

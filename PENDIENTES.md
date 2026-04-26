@@ -13,16 +13,17 @@
 
 **Estado:** En progreso (FASE 1+2 completadas en sesión 75 — ver ARCHIVE_LOG)
 
-### FASE 3 — Reorganización de archivos (Sesión 76, ~80 min)
-- [ ] Mover `backend/src/database/` → `backend/scripts/`
-  - `seeds/` — todos los seed_*.js (11 archivos)
-  - `setup/` — todos los setup_*.js (8 archivos)
-  - `fixes/` — todos los fix_*.js (5 archivos)
-  - `checks/` — check_*.js, apply_fix.js, check_db.js
-  - Actualizar imports: `require('../config/database')` → `require('../../src/config/database')`
-- [ ] Consolidar migration runners: `migrate.js` + `run-migration.js` → `backend/scripts/migrate-runner.js`
-- [ ] Mover docs de Claude: `RESUMEN_SESION_*.md` → `/docs/`
-- [ ] Eliminar archivos temporales: fix_emojis_skin.js, temp_seed_ana.sql, verify_endpoint.js, test_api.js, test_grupos.js
+### ✅ FASE 3 — Reorganización de archivos (Sesión 76, COMPLETADA)
+- [x] Mover `backend/src/database/` → `backend/scripts/`
+  - [x] `seeds/` — 11 seeds movidos ✓
+  - [x] `setup/` — 6 setups movidos ✓
+  - [x] `fixes/` — 5 fixes movidos ✓
+  - [x] `checks/` — 1 check movido ✓
+  - [x] Actualizar imports en todos los scripts ✓
+- [x] Consolidar migration runners: `migrate-runner.js` creado ✓
+- [x] Mover docs de Claude: `RESUMEN_SESION_63.md` → `/docs/` ✓
+- [x] Eliminar archivos temporales: 5 archivos eliminados ✓
+- [x] Eliminar `backend/src/database/`, `migrate.js`, `run-migration.js` ✓
 
 ### FASE 4 — .gitignore y builds (Sesión 76, ~20 min)
 - [ ] Actualizar `.gitignore` raíz: logs, builds, temp files

@@ -1,29 +1,17 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-25 | **Sesión actual:** 75
+**Última actualización:** 2026-04-25 | **Sesión actual:** 76
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📋 SESIÓN 75 — REORGANIZACIÓN ARQUITECTÓNICA (COMPLETADA)
-
-✅ **FASE 1 — Seguridad (Crítico)**
-- [x] Eliminar backend/test_schema.js (credenciales postgres en git)
-- [x] Password por defecto → `DEFAULT_USER_PASSWORD` en .env
-- [x] CORS: leer `MOBILE_URL` desde variables de entorno
-- [x] mobile/.env no versionado, .env.example con placeholders
-
-✅ **FASE 2 — Imports móvil (Alto)**
-- [x] Corregir double-src bug: `@/src/...` → `@/...` en (padre)/
-- [x] Eliminar alias `@hooks` muerto en babel.config.js
-
-📋 **FASES FALTANTES (para sesión 76+)**
+## 📋 SESIÓN 76 — REORGANIZACIÓN ARQUITECTÓNICA (FASES 3+4)
 
 ---
 
 ## 🏗️ ARQUITECTURA Y ESTRUCTURA — PLAN MULTI-SESIÓN
 
-**Estado:** En progreso (FASE 1+2 completadas en sesión 75)
+**Estado:** En progreso (FASE 1+2 completadas en sesión 75 — ver ARCHIVE_LOG)
 
 ### FASE 3 — Reorganización de archivos (Sesión 76, ~80 min)
 - [ ] Mover `backend/src/database/` → `backend/scripts/`

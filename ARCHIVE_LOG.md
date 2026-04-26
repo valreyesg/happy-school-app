@@ -1,7 +1,51 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 74
+**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 75
+
+---
+
+## ✅ SESIÓN 75 — Reorganización Arquitectónica FASE 1+2 (Seguridad + Mobile)
+
+**Fecha:** 2026-04-25 | **Estado:** Completado ✅
+
+**Lo que se hizo:**
+
+### FASE 1 — Eliminación de Credenciales (CRÍTICO)
+- Eliminar `backend/test_schema.js` (credenciales postgres:happy2026 en git)
+- Mover password por defecto a variable `DEFAULT_USER_PASSWORD`
+  - `backend/src/routes/personal.js` líneas 108, 178, 184 → usar `process.env.DEFAULT_USER_PASSWORD`
+  - Agregar a `.env` y `.env.example` con guías claras
+- CORS dinámico: `backend/src/index.js` lee `MOBILE_URL` desde `.env`
+- `mobile/.env.example` → placeholder genérico `192.168.1.X` (era IP real `192.168.1.93`)
+
+### FASE 2 — Corregir Imports Rotos Mobile (ALTO)
+- Double-src bug: `@/src/...` → `@/...` en `mobile/app/(padre)/`
+  - `index.jsx`: NotificationBell, buildGoogleCalendarUrl
+  - `comida.jsx`: api, useAuthStore
+  - **Causa:** alias `@` apunta a `./src`, por lo que `/src` generaba `./src/src/` (roto)
+- Eliminar alias `@hooks` muerto de `mobile/babel.config.js` (directorio no existe)
+
+**Archivos modificados:**
+- `backend/src/routes/personal.js`
+- `backend/.env` + `.env.example`
+- `backend/src/index.js`
+- `mobile/.env.example`
+- `mobile/app/(padre)/index.jsx`
+- `mobile/app/(padre)/comida.jsx`
+- `mobile/babel.config.js`
+
+**Archivos eliminados del repo:**
+- `backend/test_schema.js` (git rm)
+
+**Commits:** 2
+1. refactor: FASE 1+2 — Seguridad + Imports móvil
+2. chore: Sesión 75 — Cierre (PENDIENTES + ARCHIVE_LOG + memory)
+
+**Plan completo:** 7 fases de reorganización (FASE 1+2 completadas, FASE 3-7 pendientes para sesiones 76-78)
+- **FASE 3+4 (sesión 76):** Reorganizar backend/scripts/ + .gitignore
+- **FASE 5+6 (sesión 77):** Tests smoke + script dev unificado
+- **FASE 7 (sesión 78):** Normalizar imports web
 
 ---
 

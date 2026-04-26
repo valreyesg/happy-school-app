@@ -7,15 +7,26 @@
 
 ## 🎯 SESIÓN 74 COMPLETADA — SINCRONIZACIÓN MOBILE
 
-✅ **Todas las prioridades completadas (1-5):**
+✅ **Todas las prioridades completadas (1-5) + Extensión de Horario:**
+
+**Módulo Tareas:**
 1. Crear `mobile/app/(maestra)/tareas.jsx` — módulo completo con 3 tabs, modales, entregas
 2. Agregar banners de tareas al Dashboard maestra (tareas hoy + alumnos en alerta)
 3. Agregar tareas pendientes por hijo en Dashboard padre (expandibles con emojis de urgencia)
+
+**Mejoras Navegación & Extensión:**
 4. Agregar SelectorCiclo a Bitácora padre (navegación por ciclos escolares)
 5. Agregar indicador de Extensión de Horario en QR Scanner modo salida
+6. Sincronizar Comida Extra en Bitácoras padre/maestra (visible si hay extensión activa en fecha)
 
 **Regla nueva:** Cada cambio funcional que aplique a roles móviles (maestra, padre, directora) 
-se sincroniza en mobile en la misma sesión. No hay más deuda de paridad web↔mobile.
+se sincroniza en mobile en la misma sesión. **No hay más deuda de paridad web↔mobile.**
+
+**Commits de S74:** 4
+- feat: Sincronización Mobile — Módulo Tareas + Dashboard Padre
+- feat: Sincronización Mobile — Bitácoras + QR Scanner
+- feat: Sincronizar comida_extra en Bitácoras mobile
+- chore: Sesión 74 — Actualizar PENDIENTES
 
 ---
 

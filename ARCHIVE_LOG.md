@@ -1,7 +1,49 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 76
+**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 77
+
+---
+
+## ✅ SESIÓN 77 — Reorganización Arquitectónica FASES 4-7
+
+**Fecha:** 2026-04-25 | **Estado:** Completado ✅ | **Duración:** ~90 min
+
+**Lo que se hizo:**
+
+### FASE 4 — .gitignore y builds (~20 min)
+- Actualizar `.gitignore` raíz: secciones organizadas, agregar `.npm`, `*.tgz`, `.pem`, `.key`, vite cache, metro bundler, EAS
+- Crear `web/.gitignore`: Vite-específico (`dist-ssr/`, `.vite/`, timestamps)
+- Crear `mobile/.gitignore`: Expo-específico (`android/`, `ios/`, `.eas/`, metro cache)
+- Verificar: `web/dist/`, `mobile/.expo/`, `*.log` — ninguno rastreado por git
+
+### FASE 5 — Tests de smoke (~45 min)
+- Extraer `backend/src/app.js` (Express puro sin `listen()`) — necesario para testabilidad
+- Simplificar `backend/src/index.js` a arranque puro (PORT + jobs)
+- Crear `tests/smoke/health.test.js` — GET /health → 200
+- Crear `tests/smoke/auth.test.js` — 401 credenciales inválidas, 400 sin campos, login real opcional
+- Crear `tests/setup.js` — carga `backend/.env` antes de los tests
+- Instalar `jest@30` + `supertest@7` como devDependencies
+- Agregar `npm run test:smoke` + config jest en `package.json` raíz
+- Resultado: 4/4 tests pasan ✓
+
+### FASE 6 — Script dev unificado (~10 min)
+- Instalar `concurrently@9`
+- `npm run dev` → backend + web en paralelo (cyan/magenta)
+- `npm run dev:full` → backend + web + mobile Expo (cyan/magenta/yellow)
+- README actualizado con tabla de scripts, estructura del proyecto, instrucciones smoke test
+
+### FASE 7 — Normalizar imports web (~10 min)
+- Migrar 24 imports relativos (`../../`) → alias `@/` en 15 archivos de `web/src/`
+  - `pages/directora/` (7 archivos), `pages/maestra/` (2), `pages/padre/` (5), `components/ui/` (1)
+- Crear `web/jsconfig.json` — VSCode resuelve `@/` con autocomplete
+- Build Vite verificado: ✓ 1651 módulos, sin errores
+
+**Commits:** 4
+- `chore: FASE 4 — .gitignore y builds`
+- `feat: FASE 5 — Tests de smoke (health + auth)`
+- `feat: FASE 6 — Script dev unificado con concurrently`
+- `refactor: FASE 7 — Normalizar imports web + README + jsconfig`
 
 ---
 

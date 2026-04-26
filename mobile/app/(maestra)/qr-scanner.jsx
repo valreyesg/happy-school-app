@@ -128,7 +128,7 @@ export default function QRScannerScreen() {
       )}
 
       {/* Panel del alumno detectado */}
-      {alumnoDetectado && !alumnoDetectado.resultado && (
+      {alumnoDetectado && !alumnoDetectado.resultado && modo === 'entrada' && (
         <ChecklistEntrada
           alumno={alumnoDetectado}
           onConfirmar={confirmarEntrada}
@@ -142,6 +142,7 @@ export default function QRScannerScreen() {
         <ResultadoEntrada
           alumno={alumnoDetectado}
           resultado={alumnoDetectado.resultado}
+          modo={modo}
           onSiguiente={resetScanner}
         />
       )}
@@ -243,26 +244,56 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
   );
 }
 
-// Resultado visual de la entrada
-function ResultadoEntrada({ alumno, resultado, onSiguiente }) {
+// Resultado visual de la entrada/salida
+function ResultadoEntrada({ alumno, resultado, modo, onSiguiente }) {
   const puede = resultado.puede_entrar;
+  const tieneExtension = alumno.tiene_extension;
+
   return (
-    <View style={[styles.resultadoContainer, { backgroundColor: puede ? '#F0FFF4' : '#FFF5F5' }]}>
-      <Text style={{ fontSize: 80 }}>{puede ? '✅' : '❌'}</Text>
-      <Text style={[styles.resultadoTitle, { color: puede ? '#276749' : '#C53030' }]}>
-        {puede ? '¡Puede entrar!' : 'No puede entrar'}
+    <View style={[styles.resultadoContainer, {
+      backgroundColor: modo === 'entrada'
+        ? (puede ? '#F0FFF4' : '#FFF5F5')
+        : '#F3E8FF'
+    }]}>
+      {/* Banner de extensión en modo salida */}
+      {modo === 'salida' && tieneExtension && (
+        <View style={styles.extensionBanner}>
+          <Text style={{ fontSize: 28 }}>⏱️</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.extensionTitle}>Extensión de horario activa</Text>
+            <Text style={styles.extensionSubtitle}>
+              Salida hasta las {alumno.hora_salida_extension || '18:00'}
+            </Text>
+          </View>
+        </View>
+      )}
+
+      <Text style={{ fontSize: 80 }}>
+        {modo === 'entrada' ? (puede ? '✅' : '❌') : '👋'}
+      </Text>
+      <Text style={[styles.resultadoTitle, {
+        color: modo === 'entrada'
+          ? (puede ? '#276749' : '#C53030')
+          : '#7C3AED'
+      }]}>
+        {modo === 'entrada'
+          ? (puede ? '¡Puede entrar!' : 'No puede entrar')
+          : 'Salida registrada'}
       </Text>
       <Text style={styles.resultadoNombre}>{alumno.nombre_completo}</Text>
-      {!puede && resultado.motivo && (
+
+      {modo === 'entrada' && !puede && resultado.motivo && (
         <Text style={styles.resultadoMotivo}>⚠️ {resultado.motivo}</Text>
       )}
-      {resultado.es_retardo && (
+
+      {modo === 'entrada' && resultado.es_retardo && (
         <View style={styles.retardoBadge}>
           <Text style={styles.retardoText}>
             ⏰ Retardo #{resultado.numero_retardo} del mes
           </Text>
         </View>
       )}
+
       <TouchableOpacity style={styles.siguienteBtn} onPress={onSiguiente}>
         <Text style={styles.siguienteText}>→ Siguiente alumno</Text>
       </TouchableOpacity>
@@ -332,6 +363,12 @@ const styles = StyleSheet.create({
     flex: 1, alignItems: 'center', justifyContent: 'center',
     padding: 24, gap: 12,
   },
+  extensionBanner: {
+    width: '100%', backgroundColor: '#FBD38D', borderRadius: 16, padding: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16,
+  },
+  extensionTitle: { fontSize: 14, fontWeight: '900', color: '#744210' },
+  extensionSubtitle: { fontSize: 12, fontWeight: '600', color: '#975A16', marginTop: 2 },
   resultadoTitle: { fontSize: 32, fontWeight: '900' },
   resultadoNombre: { fontSize: 20, fontWeight: '800', color: '#2D3748' },
   resultadoMotivo: { fontSize: 15, fontWeight: '600', color: '#C53030', textAlign: 'center' },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator,
@@ -39,6 +39,45 @@ function PildoraBool({ label, valor }) {
       <Text style={[s.pildoraTxt, { color: valor ? '#276749' : '#718096' }]}>
         {valor ? '✓' : '✗'} {label}
       </Text>
+    </View>
+  );
+}
+
+// ─── Selector de ciclo ────────────────────────────────────────────────────────
+
+function SelectorCiclo({ alumnoId, cicloId, onChangeCiclo }) {
+  const { data: ciclos = [] } = useQuery({
+    queryKey: ['ciclos-alumno', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/ciclos`).then(r => r.data),
+    enabled: !!alumnoId,
+  });
+
+  if (ciclos.length === 0) return null;
+
+  return (
+    <View style={s.cicloRow}>
+      <Text style={s.cicloLabel}>Ciclo:</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', gap: 8, paddingHorizontal: 16 }}>
+          {ciclos.map(c => (
+            <TouchableOpacity
+              key={c.id}
+              style={[
+                s.cicloChip,
+                cicloId === c.id && s.cicloChipActivo
+              ]}
+              onPress={() => onChangeCiclo(c.id)}
+            >
+              <Text style={[
+                s.cicloChipTxt,
+                cicloId === c.id && s.cicloChipTxtActivo
+              ]}>
+                {c.nombre}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -86,11 +125,26 @@ export default function BitacoraPadreScreen() {
   const router = useRouter();
   const hoy = new Date().toISOString().split('T')[0];
   const [fecha, setFecha] = useState(hoy);
+  const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');
 
+  // Obtener ciclos para establecer el activo por defecto
+  const { data: ciclos = [] } = useQuery({
+    queryKey: ['ciclos-alumno', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/ciclos`).then(r => r.data),
+    enabled: !!alumnoId,
+  });
+
+  useEffect(() => {
+    if (ciclos.length > 0 && !cicloId) {
+      const cicloActivo = ciclos.find(c => c.activo) || ciclos[0];
+      setCicloId(cicloActivo.id);
+    }
+  }, [ciclos, cicloId]);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['bitacora-padre', alumnoId, fecha],
-    queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
+    queryKey: ['bitacora-padre', alumnoId, fecha, cicloId],
+    queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}${cicloId ? `&ciclo_id=${cicloId}` : ''}`).then(r => r.data),
     enabled: !!alumnoId,
     retry: 1,
   });
@@ -112,6 +166,9 @@ export default function BitacoraPadreScreen() {
         <Text style={s.headerTitulo}>{decodeURIComponent(nombre || 'Mi hijo')}</Text>
         <Text style={s.headerSub}>Bitácora del día</Text>
       </View>
+
+      {/* Selector de ciclo */}
+      <SelectorCiclo alumnoId={alumnoId} cicloId={cicloId} onChangeCiclo={setCicloId} />
 
       {/* Selector de fecha */}
       <SelectorFecha fecha={fecha} onChange={setFecha} />
@@ -370,6 +427,14 @@ const s = StyleSheet.create({
   backTxt: { color: '#E53E3E', fontSize: 14, fontWeight: '700' },
   headerTitulo: { fontSize: 22, fontWeight: '900', color: '#2D3748' },
   headerSub: { fontSize: 13, color: '#718096', marginTop: 1, fontWeight: '600' },
+
+  // Ciclo
+  cicloRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },
+  cicloLabel: { fontSize: 12, fontWeight: '800', color: '#4A5568', paddingHorizontal: 16 },
+  cicloChip: { backgroundColor: '#FFF5F5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: '#FED7D7' },
+  cicloChipActivo: { backgroundColor: '#E53E3E', borderColor: '#E53E3E' },
+  cicloChipTxt: { fontSize: 11, fontWeight: '800', color: '#E53E3E' },
+  cicloChipTxtActivo: { color: '#fff' },
 
   // Fecha
   fechaRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },

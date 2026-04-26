@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Image, ActivityIndicator,
+  StyleSheet, Image, ActivityIndicator, FlatList,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -20,6 +20,18 @@ export default function MaestraDashboard() {
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo'],
     queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+  });
+
+  const { data: tareasHoy } = useQuery({
+    queryKey: ['tareas-hoy', grupo?.id],
+    queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${grupo.id}`).then(r => r.data),
+    enabled: !!grupo?.id,
+  });
+
+  const { data: alumnosEnAlerta } = useQuery({
+    queryKey: ['alumnos-alerta-tareas', grupo?.id],
+    queryFn: () => api.get(`/tareas/alumnos-alerta?grupo_id=${grupo.id}`).then(r => r.data),
+    enabled: !!grupo?.id,
   });
 
   return (
@@ -54,12 +66,55 @@ export default function MaestraDashboard() {
           </TouchableOpacity>
         )}
 
+        {/* Banner Tareas por recibir hoy */}
+        {tareasHoy && tareasHoy.length > 0 && (
+          <TouchableOpacity
+            style={styles.tareasHoyBanner}
+            onPress={() => router.push('/(maestra)/tareas')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.bannerEmoji}>📋</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.bannerTitle}>
+                {tareasHoy.length} tarea{tareasHoy.length > 1 ? 's' : ''} por recibir hoy
+              </Text>
+              <Text style={styles.bannerSub} numberOfLines={1}>
+                {tareasHoy.map(t => t.titulo).join(', ')}
+              </Text>
+            </View>
+            <Text style={styles.bannerCount}>{tareasHoy.length}</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Banner Alumnos en alerta */}
+        {alumnosEnAlerta && alumnosEnAlerta.length > 0 && (
+          <View style={styles.alertaBanner}>
+            <Text style={styles.bannerEmoji}>🚨</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.alertaTitle}>
+                {alumnosEnAlerta.length} alumno{alumnosEnAlerta.length > 1 ? 's' : ''} en seguimiento
+              </Text>
+              <Text style={styles.alertaSub}>3+ tareas sin entregar</Text>
+            </View>
+          </View>
+        )}
+        {alumnosEnAlerta && alumnosEnAlerta.length > 0 && (
+          <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
+            {alumnosEnAlerta.map(a => (
+              <Text key={a.id} style={styles.alertaItem}>
+                · {a.nombre_completo} ({a.tareas_sin_entregar} tareas)
+              </Text>
+            ))}
+          </View>
+        )}
+
         {/* Acciones rápidas */}
         <Text style={styles.sectionTitle}>Acciones rápidas</Text>
         <View style={styles.accionesGrid}>
           {[
             { emoji: '✅', label: 'Asistencia', route: '/(maestra)/asistencia', color: '#38A169' },
             { emoji: '📋', label: 'Bitácora', route: '/(maestra)/bitacora', color: '#805AD5' },
+            { emoji: '📬', label: 'Tareas', route: '/(maestra)/tareas', color: '#3B82F6' },
             { emoji: '📷', label: 'Escanear QR', route: '/(maestra)/qr-scanner', color: '#E53E3E' },
             { emoji: '📸', label: 'Galería', route: '/(maestra)/galeria', color: '#D69E2E' },
           ].map(({ emoji, label, route, color }) => (
@@ -159,6 +214,23 @@ const styles = StyleSheet.create({
   qrBannerEmoji: { fontSize: 32 },
   qrBannerTitle: { color: '#fff', fontWeight: '900', fontSize: 16 },
   qrBannerSub: { color: '#E9D5FF', fontWeight: '600', fontSize: 12, marginTop: 2 },
+  tareasHoyBanner: {
+    marginHorizontal: 16, marginTop: 12,
+    backgroundColor: '#DBEAFE', borderRadius: 20, padding: 16, borderLeftWidth: 4, borderLeftColor: '#3B82F6',
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  alertaBanner: {
+    marginHorizontal: 16, marginTop: 12,
+    backgroundColor: '#FEE2E2', borderRadius: 20, padding: 16, borderLeftWidth: 4, borderLeftColor: '#EF4444',
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  bannerEmoji: { fontSize: 28 },
+  bannerTitle: { color: '#1E40AF', fontWeight: '900', fontSize: 14 },
+  bannerSub: { color: '#1E3A8A', fontWeight: '600', fontSize: 12, marginTop: 2 },
+  bannerCount: { fontSize: 24, fontWeight: '900', color: '#3B82F6' },
+  alertaTitle: { color: '#DC2626', fontWeight: '900', fontSize: 14 },
+  alertaSub: { color: '#991B1B', fontWeight: '600', fontSize: 12, marginTop: 2 },
+  alertaItem: { fontSize: 12, color: '#7F1D1D', fontWeight: '600', marginBottom: 4 },
   sectionTitle: {
     fontSize: 18, fontWeight: '900', color: '#2D3748',
     marginHorizontal: 16, marginTop: 20, marginBottom: 12,

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -211,6 +211,119 @@ export default function PadreDashboard() {
   );
 }
 
+function HijoTareasPendientes({ hijoId, hijoNombre }) {
+  const [expandidas, setExpandidas] = useState({});
+  const [fotoModal, setFotoModal] = useState(null);
+
+  const { data: tareasPendientes = [] } = useQuery({
+    queryKey: ['tareas-pendientes-lista', hijoId],
+    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijoId}`).then(r => r.data).catch(() => []),
+  });
+
+  if (tareasPendientes.length === 0) return null;
+
+  const calcularDiasRestantes = (fechaIso) => {
+    if (!fechaIso) return null;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fecha = new Date(fechaIso.substring(0, 10) + 'T12:00:00');
+    const dias = Math.floor((fecha - hoy) / (1000 * 60 * 60 * 24));
+    return dias;
+  };
+
+  const getColorEmoji = (diasRestantes) => {
+    if (diasRestantes !== null && diasRestantes < 0) return '🔴';
+    if (diasRestantes === 0) return '🔥';
+    if (diasRestantes === 1) return '⚠️';
+    return '📘';
+  };
+
+  const formatearFecha = (fechaIso) => {
+    if (!fechaIso) return 'Sin fecha';
+    const parts = fechaIso.substring(0, 10).split('-');
+    const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    const fecha = d.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    return fecha.charAt(0).toUpperCase() + fecha.slice(1);
+  };
+
+  return (
+    <View style={styles.tareasPendientesBox}>
+      <View style={styles.tareasPendientesHeader}>
+        <Text style={styles.tareasPendientesTitle}>📚 Tareas pendientes</Text>
+        <View style={styles.tareasPendientesCount}>
+          <Text style={{ fontWeight: '800', fontSize: 12, color: '#1E40AF' }}>
+            {tareasPendientes.length}
+          </Text>
+        </View>
+      </View>
+
+      {tareasPendientes.map((tarea) => {
+        const diasRestantes = calcularDiasRestantes(tarea.fecha_limite);
+        const isExpanded = expandidas[tarea.id];
+
+        return (
+          <View key={tarea.id}>
+            <TouchableOpacity
+              style={styles.tareaItem}
+              onPress={() => setExpandidas(p => ({ ...p, [tarea.id]: !p[tarea.id] }))}
+              activeOpacity={0.8}
+            >
+              <Text style={{ fontSize: 18 }}>{getColorEmoji(diasRestantes)}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.tarea Titulo} numberOfLines={1}>{tarea.titulo}</Text>
+                <Text style={styles.tareaFecha}>{formatearFecha(tarea.fecha_limite)}</Text>
+              </View>
+              <Text style={{ fontSize: 14, color: '#A0AEC0' }}>{isExpanded ? '▼' : '▶'}</Text>
+            </TouchableOpacity>
+
+            {isExpanded && (
+              <View style={styles.tareaExpandida}>
+                {tarea.descripcion && (
+                  <Text style={styles.tareaDesc}>{tarea.descripcion}</Text>
+                )}
+                {tarea.foto_url && (
+                  <TouchableOpacity
+                    style={styles.tareaFotoBtn}
+                    onPress={() => setFotoModal(tarea.foto_url)}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#3B82F6' }}>📎 Ver referencia</Text>
+                  </TouchableOpacity>
+                )}
+                <View style={styles.tareaEstado}>
+                  <View style={[
+                    styles.tareaEstadoBadge,
+                    { backgroundColor: tarea.completada ? '#D1FAE5' : '#FEF3C7' }
+                  ]}>
+                    <Text style={{
+                      fontWeight: '800', fontSize: 11,
+                      color: tarea.completada ? '#047857' : '#D97706'
+                    }}>
+                      {tarea.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          </View>
+        );
+      })}
+
+      {fotoModal && (
+        <Modal visible={!!fotoModal} transparent animationType="fade" onRequestClose={() => setFotoModal(null)}>
+          <Pressable style={styles.fotoModalOverlay} onPress={() => setFotoModal(null)}>
+            <View style={styles.fotoModalContent}>
+              <Image source={{ uri: fotoModal }} style={styles.fotoModalImg} resizeMode="contain" />
+              <TouchableOpacity style={styles.fotoModalClose} onPress={() => setFotoModal(null)}>
+                <Text style={{ fontSize: 24, color: '#fff' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Modal>
+      )}
+    </View>
+  );
+}
+
 function HijoCard({ hijo }) {
   return (
     <TouchableOpacity
@@ -296,6 +409,9 @@ function HijoCard({ hijo }) {
       {!hijo.bitacora_hoy && (
         <Text style={styles.sinBitacora}>La bitácora de hoy aún no está lista 📝</Text>
       )}
+
+      {/* Tareas pendientes */}
+      <HijoTareasPendientes hijoId={hijo.id} hijoNombre={hijo.nombre_completo} />
 
     </TouchableOpacity>
   );
@@ -409,5 +525,55 @@ const styles = StyleSheet.create({
     color: '#2B6CB0',
     fontSize: 14,
     fontWeight: '800',
+  },
+  tareasPendientesBox: {
+    borderTopWidth: 1, borderTopColor: '#DBEAFE', paddingVertical: 12, paddingHorizontal: 16,
+  },
+  tareasPendientesHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12,
+  },
+  tareasPendientesTitle: {
+    fontSize: 14, fontWeight: '900', color: '#1E40AF',
+  },
+  tareasPendientesCount: {
+    backgroundColor: '#DBEAFE', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8,
+  },
+  tareaItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 8,
+    borderBottomWidth: 1, borderBottomColor: '#DBEAFE',
+  },
+  tarea Titulo: {
+    fontSize: 14, fontWeight: '800', color: '#2D3748',
+  },
+  tareaFecha: {
+    fontSize: 11, fontWeight: '600', color: '#718096', marginTop: 2,
+  },
+  tareaExpandida: {
+    paddingHorizontal: 18, paddingVertical: 10, backgroundColor: '#F0F9FF', gap: 8,
+  },
+  tareaDesc: {
+    fontSize: 12, fontWeight: '600', color: '#4A5568', lineHeight: 18,
+  },
+  tareaFotoBtn: {
+    paddingVertical: 6,
+  },
+  tareaEstado: {
+    flexDirection: 'row',
+  },
+  tareaEstadoBadge: {
+    paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6,
+  },
+  fotoModalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center',
+  },
+  fotoModalContent: {
+    position: 'relative', width: '90%', maxHeight: '80%',
+  },
+  fotoModalImg: {
+    width: '100%', height: 300,
+  },
+  fotoModalClose: {
+    position: 'absolute', top: -40, right: 0, width: 36, height: 36,
+    backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 18, alignItems: 'center', justifyContent: 'center',
   },
 });

@@ -53,6 +53,13 @@ export default function MaestraTabLayout() {
         }}
       />
       <Tabs.Screen
+        name="tareas"
+        options={{
+          title: 'Tareas',
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📬" label="Tareas" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="galeria"
         options={{
           title: 'Galería',

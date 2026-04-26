@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';
 
@@ -308,6 +309,23 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
   const CUANTO_MAP = useMemo(() => toMap(cuantoItems), [cuantoItems]);
   const PANIAL_MAP = useMemo(() => toMap(panialItems), [panialItems]);
 
+  const { data: historialExt = [] } = useQuery({
+    queryKey: ['historial-servicios', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/historial-servicios`).then(r => r.data),
+    staleTime: 60000,
+  });
+  const tuvExtensionEnFecha = (() => {
+    const [anioF, mesF] = fecha.split('-').map(Number);
+    return historialExt.some(h => {
+      if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+      const mIni = parseInt(h.mes_inicio), aIni = parseInt(h.anio_inicio);
+      const mFin = h.mes_fin ? parseInt(h.mes_fin) : mIni;
+      const aFin = h.anio_fin ? parseInt(h.anio_fin) : aIni;
+      return (aIni < anioF || (aIni === anioF && mIni <= mesF)) &&
+             (aFin > anioF || (aFin === anioF && mFin >= mesF));
+    });
+  })();
+
   const { data, isLoading } = useQuery({
     queryKey: ['bitacora-dir', alumnoId, fecha],
     queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
@@ -389,7 +407,7 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
           {comidas.length > 0 && (
             <div className="card-hs space-y-2">
               <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🍽️ Alimentación</h3>
-              {[...comidas].sort((a, b) =>
+              {[...comidas].filter(c => c.tiempo !== 'comida_extra' || tuvExtensionEnFecha).sort((a, b) =>
                 ['desayuno','colacion','comida','comida_extra'].indexOf(a.tiempo) -
                 ['desayuno','colacion','comida','comida_extra'].indexOf(b.tiempo)
               ).map((c, i) => (
@@ -505,6 +523,350 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Tab Extensión ────────────────────────────────────────────────────────────
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+function TabExtension({ alumnoId }) {
+  const qc = useQueryClient();
+  const hoy = new Date();
+  const mesHoy = hoy.getMonth() + 1;
+  const anioHoy = hoy.getFullYear();
+
+  const [accion, setAccion] = useState('alta');
+  const [modalidad, setModalidad] = useState('rango');
+  const [mesInicio, setMesInicio] = useState(mesHoy);
+  const [mesFin, setMesFin] = useState(mesHoy + 3);
+  const [anioInicio, setAnioInicio] = useState(anioHoy);
+  const [generaCargos, setGeneraCargos] = useState(true);
+  const [notas, setNotas] = useState('');
+
+  // Al cambiar a baja, posicionar en el primer mes futuro cancelable
+  const handleSetAccion = (nuevaAccion) => {
+    setAccion(nuevaAccion);
+    if (nuevaAccion === 'baja') {
+      const ultimo = historial.find(h => h.tipo_servicio === 'extension');
+      if (ultimo?.accion === 'alta') {
+        // Buscar primer mes futuro del rango
+        let m = parseInt(ultimo.mes_inicio), a = parseInt(ultimo.anio_inicio);
+        const mFin = ultimo.mes_fin ? parseInt(ultimo.mes_fin) : m;
+        const aFin = ultimo.anio_fin ? parseInt(ultimo.anio_fin) : a;
+        while (a < aFin || (a === aFin && m <= mFin)) {
+          if (a > anioHoy || (a === anioHoy && m > mesHoy)) {
+            setMesInicio(m);
+            setAnioInicio(a);
+            break;
+          }
+          m++; if (m > 12) { m = 1; a++; }
+        }
+      }
+    }
+  };
+
+  const { data: alumnoActual, refetch: refetchAlumno } = useQuery({
+    queryKey: ['alumno-perfil', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}`).then(r => r.data),
+    staleTime: 0,
+  });
+
+  const { data: historial = [], refetch: refetchHistorial } = useQuery({
+    queryKey: ['historial-servicios', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/historial-servicios`, {
+      params: { anio: anioHoy }
+    }).then(r => r.data),
+  });
+
+  const registrar = useMutation({
+    mutationFn: () => {
+      let mesF = mesFin, anioF = anioInicio;
+      if (mesFin > 12) { anioF++; mesF = mesFin - 12; }
+
+      return api.post(`/alumnos/${alumnoId}/historial-servicios`, {
+        tipo_servicio: 'extension',
+        accion,
+        mes_inicio: accion === 'alta' ? mesInicio : mesInicio,
+        anio_inicio: anioInicio,
+        mes_fin: accion === 'alta' ? mesF : null,
+        anio_fin: accion === 'alta' ? anioF : null,
+        genera_cargos: accion === 'alta' ? generaCargos : false,
+        notas: notas || null,
+      }).then(r => r.data);
+    },
+    onSuccess: () => {
+      toast.success(`✅ ${accion === 'alta' ? 'Alta' : 'Baja'} de extensión registrada`);
+      setNotas('');
+      refetchHistorial();
+      refetchAlumno();
+    },
+    onError: e => {
+      toast.error(e.response?.data?.error || e.message);
+    },
+  });
+
+  const tieneExtension = alumnoActual?.tiene_extension;
+  const mesesGenerados = accion === 'alta' && generaCargos
+    ? Math.max(1, mesFin > 12 ? (12 - mesInicio + 1) + (mesFin - 12) : mesFin - mesInicio + 1)
+    : 0;
+
+  // El historial viene DESC por fecha. El primer registro es el más reciente.
+  // Alta vigente: la alta más reciente, solo si no hay una baja posterior a ella.
+  const ultimoRegistro = historial.find(h => h.tipo_servicio === 'extension');
+  const altaVigente = ultimoRegistro?.accion === 'alta' ? ultimoRegistro : null;
+  // Baja que canceló el rango anterior (el registro más reciente si es baja)
+  const bajaRegistrada = ultimoRegistro?.accion === 'baja' ? ultimoRegistro : null;
+
+  // Meses futuros cancelables: dentro del rango del alta vigente, estrictamente futuros (> mes actual)
+  const mesesBaja = (() => {
+    if (!altaVigente) return [];
+    const lista = [];
+    let m = parseInt(altaVigente.mes_inicio), a = parseInt(altaVigente.anio_inicio);
+    const mFin = altaVigente.mes_fin ? parseInt(altaVigente.mes_fin) : m;
+    const aFin = altaVigente.anio_fin ? parseInt(altaVigente.anio_fin) : a;
+    while (a < aFin || (a === aFin && m <= mFin)) {
+      const esFuturo = a > anioHoy || (a === anioHoy && m > mesHoy);
+      if (esFuturo) lista.push({ mes: m, anio: a, label: `${MESES[m - 1]} ${a}` });
+      m++;
+      if (m > 12) { m = 1; a++; }
+    }
+    return lista;
+  })();
+
+  // Texto informativo para la baja: "cancelará de MesX a MesFin"
+  const infoBaja = (() => {
+    if (mesesBaja.length === 0) return null;
+    const primero = mesesBaja[0];
+    const ultimo = mesesBaja[mesesBaja.length - 1];
+    const selIdx = mesesBaja.findIndex(mb => mb.mes === mesInicio && mb.anio === anioInicio);
+    const desde = selIdx >= 0 ? mesesBaja[selIdx] : primero;
+    if (desde.mes === ultimo.mes && desde.anio === ultimo.anio) return `${desde.label}`;
+    return `${desde.label} a ${ultimo.label}`;
+  })();
+
+  // Alta futura: hay un alta cuyo mes_inicio es posterior al mes actual
+  const altaFutura = !tieneExtension && historial.find(h => {
+    if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+    const a = parseInt(h.anio_inicio), m = parseInt(h.mes_inicio);
+    return a > anioHoy || (a === anioHoy && m > mesHoy);
+  });
+
+  // Fin efectivo del alta futura: mes anterior a la baja registrada (si existe)
+  const finEfectivo = (() => {
+    if (!altaFutura) return null;
+    // Buscar la baja más reciente posterior al alta futura
+    const bajaAsociada = historial.find(h =>
+      h.tipo_servicio === 'extension' && h.accion === 'baja' &&
+      new Date(h.created_at) > new Date(altaFutura.created_at)
+    );
+    if (!bajaAsociada) {
+      return altaFutura.mes_fin
+        ? { mes: parseInt(altaFutura.mes_fin), anio: parseInt(altaFutura.anio_fin) }
+        : null;
+    }
+    // Mes anterior a la baja
+    let m = parseInt(bajaAsociada.mes_inicio) - 1;
+    let a = parseInt(bajaAsociada.anio_inicio);
+    if (m === 0) { m = 12; a--; }
+    return { mes: m, anio: a };
+  })();
+
+  return (
+    <div className="space-y-4">
+      {/* Estado actual */}
+      <div className={`card-hs p-4 border-l-4 ${tieneExtension ? 'border-green-500' : altaFutura ? 'border-blue-400' : 'border-gray-300'}`}>
+        <div>
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Estado actual</p>
+          {tieneExtension ? (
+            <>
+              <p className="text-xl font-black text-green-600">⏳ Con Servicio de Extensión</p>
+              {altaVigente && (
+                <p className="text-xs text-gray-500 font-semibold mt-1">
+                  Vigente: {MESES[parseInt(altaVigente.mes_inicio) - 1]} {altaVigente.anio_inicio}
+                  {altaVigente.mes_fin ? ` — ${MESES[parseInt(altaVigente.mes_fin) - 1]} ${altaVigente.anio_fin}` : ' (indefinido)'}
+                </p>
+              )}
+              {alumnoActual?.hora_salida_extension && (
+                <p className="text-xs text-gray-500 font-semibold mt-0.5">
+                  Salida hasta: {alumnoActual.hora_salida_extension}
+                </p>
+              )}
+            </>
+          ) : altaFutura ? (
+            <>
+              <p className="text-xl font-black text-blue-500">📅 Sin servicio actualmente</p>
+              <p className="text-xs text-blue-600 font-semibold mt-1">
+                Inicia en {MESES[parseInt(altaFutura.mes_inicio) - 1]} {altaFutura.anio_inicio}
+                {finEfectivo ? ` hasta ${MESES[finEfectivo.mes - 1]} ${finEfectivo.anio}` : ''}
+              </p>
+            </>
+          ) : (
+            <p className="text-xl font-black text-gray-400">— Sin Servicio de Extensión</p>
+          )}
+        </div>
+      </div>
+
+      {/* Formulario */}
+      <div className="card-hs p-4 space-y-4">
+        <p className="text-xs font-black text-gray-500 uppercase tracking-wider">
+          {accion === 'alta' ? 'Dar de Alta' : 'Dar de Baja'}
+        </p>
+
+        {/* Acción */}
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-2">Acción</label>
+          <div className="flex gap-2">
+            {[{ key: 'alta', label: '➕ Alta' }, { key: 'baja', label: '➖ Baja' }].map(opt => (
+              <button key={opt.key} onClick={() => handleSetAccion(opt.key)}
+                className={`flex-1 py-2 rounded-lg font-bold text-sm transition-all ${
+                  accion === opt.key ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}>
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {accion === 'alta' && (
+          <>
+            {/* Modalidad */}
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-2">Modalidad</label>
+              <div className="space-y-1">
+                {[
+                  { key: 'rango', label: '📅 Por rango de meses' },
+                  { key: 'indefinido', label: '♾️ Indefinido (hasta baja manual)' },
+                ].map(opt => (
+                  <label key={opt.key} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="modalidad" value={opt.key} checked={modalidad === opt.key}
+                      onChange={e => setModalidad(e.target.value)} className="w-4 h-4" />
+                    <span className="text-sm font-semibold text-gray-600">{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Mes Inicio */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-1">Mes inicio</label>
+                <select value={mesInicio} onChange={e => setMesInicio(parseInt(e.target.value))}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-semibold focus:outline-none focus:border-hs-purple">
+                  {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-600 mb-1">Año</label>
+                <input type="number" min="2020" max="2099" value={anioInicio}
+                  onChange={e => setAnioInicio(parseInt(e.target.value))}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-semibold focus:outline-none focus:border-hs-purple" />
+              </div>
+            </div>
+
+            {/* Mes Fin (solo para rango) */}
+            {modalidad === 'rango' && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Mes fin</label>
+                  <select value={mesFin} onChange={e => setMesFin(parseInt(e.target.value))}
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-semibold focus:outline-none focus:border-hs-purple">
+                    {MESES.map((m, i) => <option key={i} value={i + 1}>{m}</option>)}
+                    <option value={13}>Ene (próx.)</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <p className="text-sm font-bold text-hs-purple bg-purple-50 rounded px-3 py-2 w-full text-center">
+                    {mesesGenerados} mes{mesesGenerados !== 1 ? 'es' : ''}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Generar cargos */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={generaCargos} onChange={e => setGeneraCargos(e.target.checked)} className="w-4 h-4" />
+              <span className="text-sm font-semibold text-gray-600">Generar cargos de pago automáticos</span>
+            </label>
+            {generaCargos && mesesGenerados > 0 && (
+              <p className="text-xs text-gray-500 bg-yellow-50 border-l-2 border-yellow-300 p-2 rounded">
+                ℹ️ Se crearán {mesesGenerados} cargo{mesesGenerados !== 1 ? 's' : ''} pendiente{mesesGenerados !== 1 ? 's' : ''} en el sistema de pagos
+              </p>
+            )}
+          </>
+        )}
+
+        {accion === 'baja' && (
+          <>
+            {!altaVigente ? (
+              <p className="text-sm text-gray-400 text-center py-2">No hay un alta vigente de extensión</p>
+            ) : mesesBaja.length === 0 ? (
+              <p className="text-sm text-amber-600 bg-amber-50 border-l-2 border-amber-300 p-2 rounded text-xs">
+                No hay meses futuros cancelables — el servicio solo cubre el mes en curso
+              </p>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-gray-600 mb-1">Cancelar a partir de</label>
+                  <select
+                    value={`${mesInicio}-${anioInicio}`}
+                    onChange={e => {
+                      const [m, a] = e.target.value.split('-').map(Number);
+                      setMesInicio(m);
+                      setAnioInicio(a);
+                    }}
+                    className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 font-semibold focus:outline-none focus:border-hs-purple"
+                  >
+                    {mesesBaja.map(({ mes, anio, label }) => (
+                      <option key={`${mes}-${anio}`} value={`${mes}-${anio}`}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                {infoBaja && (
+                  <p className="text-xs bg-red-50 border-l-2 border-red-300 p-2 rounded text-red-700">
+                    ⚠️ Se cancelará el servicio de extensión de <strong>{infoBaja}</strong> y los cargos pendientes de esos meses
+                  </p>
+                )}
+              </>
+            )}
+          </>
+        )}
+
+        {/* Notas */}
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-1">Notas (opcional)</label>
+          <textarea value={notas} onChange={e => setNotas(e.target.value)} rows={2}
+            placeholder="Ej: solicitud de la familia, etc."
+            className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+        </div>
+
+        <button onClick={() => registrar.mutate()} disabled={registrar.isPending}
+          className="w-full py-2 bg-hs-purple text-white rounded-lg font-black hover:bg-purple-700 transition-all disabled:opacity-50">
+          {registrar.isPending ? '…' : accion === 'alta' ? '✅ Dar de Alta' : '❌ Dar de Baja'}
+        </button>
+      </div>
+
+      {/* Historial */}
+      <div className="card-hs p-4 space-y-3">
+        <p className="text-xs font-black text-gray-500 uppercase tracking-wider">Historial</p>
+        {historial.length === 0 ? (
+          <p className="text-sm text-gray-400 text-center py-4">Sin movimientos</p>
+        ) : (
+          <div className="space-y-2">
+            {historial.map(h => (
+              <div key={h.id} className={`border-l-4 rounded-lg p-3 ${h.accion === 'alta' ? 'border-green-500 bg-green-50' : 'border-red-400 bg-red-50'}`}>
+                <p className="font-bold text-gray-800">
+                  {h.accion === 'alta' ? '➕ Alta' : '➖ Baja'}
+                  {h.mes_inicio && ` — ${MESES[h.mes_inicio - 1]} ${h.anio_inicio}`}
+                  {h.mes_fin && ` a ${MESES[h.mes_fin - 1]} ${h.anio_fin}`}
+                </p>
+                {h.notas && <p className="text-xs text-gray-600 mt-1">{h.notas}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -653,17 +1015,25 @@ export default function DirectoraAlumnoPerfil() {
 
       {/* ── Tabs ── */}
       <div className="flex gap-2 mb-4">
-        {['perfil', 'bitacora'].map(t => (
-          <button key={t} onClick={() => setPestaña(t)}
-            className={`px-5 py-2 rounded-xl font-black text-sm capitalize transition-all
-              ${pestaña === t ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-            {t === 'perfil' ? '👤 Perfil' : '📋 Bitácora'}
+        {[
+          { key: 'perfil',    label: '👤 Perfil' },
+          { key: 'bitacora',  label: '📋 Bitácora' },
+          { key: 'extension', label: '⏳ Extensión' },
+        ].map(({ key, label }) => (
+          <button key={key} onClick={() => setPestaña(key)}
+            className={`px-5 py-2 rounded-xl font-black text-sm transition-all
+              ${pestaña === key ? 'bg-hs-purple text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
+            {label}
           </button>
         ))}
       </div>
 
       {pestaña === 'bitacora' && (
         <BitacoraDirectora alumnoId={id} usaPanial={alumno.usa_panial} />
+      )}
+
+      {pestaña === 'extension' && (
+        <TabExtension alumnoId={id} />
       )}
 
       {pestaña === 'perfil' && (<>

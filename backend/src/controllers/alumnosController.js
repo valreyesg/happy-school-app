@@ -145,10 +145,13 @@ const obtener = async (req, res, next) => {
       SELECT
         a.*,
         g.nombre AS grupo_nombre, g.nivel, g.nivel_codigo, g.color_hex,
-        c.nombre AS ciclo_nombre
+        c.nombre AS ciclo_nombre,
+        COALESCE(cha.tiene_extension, false) AS tiene_extension,
+        cha.hora_salida_extension
       FROM alumnos a
       LEFT JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN ciclos_escolares c ON a.ciclo_id = c.id
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       WHERE a.id = $1 AND a.deleted_at IS NULL
     `, [id]);
 
@@ -394,4 +397,136 @@ const buscarPorQR = async (req, res, next) => {
   }
 };
 
-module.exports = { listar, obtener, buscarPorQR, crear, actualizar, eliminar, subirFoto, regenerarQR };
+const obtenerHistorialServicios = async (req, res, next) => {
+  try {
+    const { id: alumno_id } = req.params;
+    const { anio } = req.query;
+
+    let sql = `
+      SELECT id, alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, notas, registrado_por, created_at
+      FROM historial_servicios
+      WHERE alumno_id = $1
+    `;
+    const params = [alumno_id];
+
+    if (anio) {
+      sql += ` AND (anio_inicio = $2 OR anio_fin = $2)`;
+      params.push(anio);
+    }
+
+    sql += ` ORDER BY anio_inicio DESC, mes_inicio DESC, created_at DESC`;
+
+    const result = await query(sql, params);
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const registrarHistorialServicio = async (req, res, next) => {
+  try {
+    const { id: alumno_id } = req.params;
+    const { tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, ciclo_id, genera_cargos, notas } = req.body;
+    const usuario_id = req.user.id;
+
+    if (!tipo_servicio || !accion || !mes_inicio || !anio_inicio) {
+      return res.status(400).json({ error: 'faltan campos: tipo_servicio, accion, mes_inicio, anio_inicio' });
+    }
+
+    if (!['alta', 'baja'].includes(accion)) {
+      return res.status(400).json({ error: "accion debe ser 'alta' o 'baja'" });
+    }
+
+    const result = await query(`
+      INSERT INTO historial_servicios (alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, ciclo_id, genera_cargos, notas, registrado_por)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *
+    `, [alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin || null, anio_fin || null, ciclo_id || null, genera_cargos !== false, notas || null, usuario_id]);
+
+    const registro = result.rows[0];
+
+    if (tipo_servicio === 'extension') {
+      if (accion === 'alta') {
+        // Upsert manual: actualizar si existe, insertar si no
+        const existeConfig = await query(
+          'SELECT id FROM config_horario_alumno WHERE alumno_id = $1', [alumno_id]
+        );
+        if (existeConfig.rows.length > 0) {
+          await query(
+            'UPDATE config_horario_alumno SET tiene_extension = true, updated_at = NOW() WHERE alumno_id = $1',
+            [alumno_id]
+          );
+        } else {
+          await query(
+            'INSERT INTO config_horario_alumno (alumno_id, tiene_extension, ciclo_id) VALUES ($1, true, $2)',
+            [alumno_id, ciclo_id || null]
+          );
+        }
+
+        if (genera_cargos) {
+          const conceptoRes = await query(`
+            SELECT id, monto FROM conceptos_pago WHERE tipo = 'extension' AND activo = true LIMIT 1
+          `);
+
+          if (conceptoRes.rows.length === 0) {
+            return res.status(400).json({ error: 'No hay un concepto de extensión activo. Créalo en la sección de Pagos.' });
+          }
+
+          const { id: concepto_id, monto } = conceptoRes.rows[0];
+          const months = [];
+          let m = mes_inicio, a = anio_inicio;
+          const endMonth = mes_fin || mes_inicio;
+          const endYear = anio_fin || anio_inicio;
+
+          while (a < endYear || (a === endYear && m <= endMonth)) {
+            months.push({ mes: m, anio: a });
+            m++;
+            if (m > 12) { m = 1; a++; }
+          }
+
+          for (const { mes, anio } of months) {
+            await query(`
+              INSERT INTO pagos (alumno_id, concepto_id, monto_base, monto_total, estado, mes_correspondiente, anio_correspondiente, registrado_por)
+              SELECT $1, $2, $3, $3, 'pendiente', $4, $5, $6
+              WHERE NOT EXISTS (
+                SELECT 1 FROM pagos
+                WHERE alumno_id = $1 AND concepto_id = $2
+                  AND mes_correspondiente = $4 AND anio_correspondiente = $5
+              )
+            `, [alumno_id, concepto_id, monto, mes, anio, usuario_id]);
+          }
+        }
+      } else if (accion === 'baja') {
+        const existeConfig2 = await query(
+          'SELECT id FROM config_horario_alumno WHERE alumno_id = $1', [alumno_id]
+        );
+        if (existeConfig2.rows.length > 0) {
+          await query(
+            'UPDATE config_horario_alumno SET tiene_extension = false, updated_at = NOW() WHERE alumno_id = $1',
+            [alumno_id]
+          );
+        } else {
+          await query(
+            'INSERT INTO config_horario_alumno (alumno_id, tiene_extension) VALUES ($1, false)',
+            [alumno_id]
+          );
+        }
+
+        const conceptoRes = await query(`SELECT id FROM conceptos_pago WHERE tipo = 'extension' AND activo = true LIMIT 1`);
+        if (conceptoRes.rows.length > 0) {
+          await query(`
+            UPDATE pagos SET estado = 'cancelado', updated_at = NOW()
+            WHERE alumno_id = $1 AND concepto_id = $2 AND estado = 'pendiente'
+              AND (anio_correspondiente > $3 OR (anio_correspondiente = $3 AND mes_correspondiente >= $4))
+          `, [alumno_id, conceptoRes.rows[0].id, anio_inicio, mes_inicio]);
+        }
+      }
+    }
+
+    res.json(registro);
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { listar, obtener, buscarPorQR, crear, actualizar, eliminar, subirFoto, regenerarQR, obtenerHistorialServicios, registrarHistorialServicio };

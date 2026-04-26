@@ -37,7 +37,12 @@ function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
 
   const [seleccion, setSeleccion] = useState(opciones[0]?.id || 'otro');
   const [nombreOtro, setNombreOtro] = useState('');
-  const anticipada = esSalidaAnticipada(horaSalidaNormal);
+
+  // Alumnos con extensión tienen horario hasta hora_salida_extension (ej 18:00), no la normal
+  const horaLimite = alumno.tiene_extension && alumno.hora_salida_extension
+    ? alumno.hora_salida_extension
+    : horaSalidaNormal;
+  const anticipada = esSalidaAnticipada(horaLimite);
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/salida', data).then(r => r.data),
@@ -91,6 +96,16 @@ function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
         </div>
 
         <div className="p-5 space-y-4">
+          {/* Badge extensión */}
+          {alumno.tiene_extension && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl">
+              <span className="text-sm">⏳</span>
+              <p className="text-xs font-bold text-blue-700">
+                Extensión de horario · Salida hasta {alumno.hora_salida_extension || '18:00'}
+              </p>
+            </div>
+          )}
+
           {/* Alerta salida anticipada */}
           {anticipada && (
             <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
@@ -98,7 +113,7 @@ function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
               <div>
                 <p className="font-black text-amber-700 text-sm">⚠️ SALIDA ANTICIPADA</p>
                 <p className="text-xs text-amber-600 font-semibold">
-                  El horario normal de salida es a las {horaSalidaNormal}. ¿Confirmar salida anticipada?
+                  El horario de salida es a las {horaLimite}. ¿Confirmar salida anticipada?
                 </p>
               </div>
             </div>
@@ -178,6 +193,9 @@ function TarjetaAlumno({ alumno, onTap }) {
         <p className="text-xs text-gray-400 font-semibold flex items-center gap-1 mt-0.5">
           {alumno.hora_entrada && (
             <><Clock size={11} /> Entró {horaTexto(alumno.hora_entrada)}</>
+          )}
+          {alumno.tiene_extension && (
+            <span className="ml-1 text-blue-500 font-bold">⏳ Ext.</span>
           )}
         </p>
       </div>

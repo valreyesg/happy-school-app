@@ -281,6 +281,12 @@ router.delete('/:id/blacklist/:blId', authorize('directora'), async (req, res, n
   } catch (err) { next(err); }
 });
 
+// ── GET /alumnos/:id/historial-servicios ─────────────────────────────────────
+router.get('/:id/historial-servicios', authorize('directora', 'administrativo', 'maestra_titular', 'maestra_auxiliar', 'maestra_especial', 'padre'), ctrl.obtenerHistorialServicios);
+
+// ── POST /alumnos/:id/historial-servicios ────────────────────────────────────
+router.post('/:id/historial-servicios', authorize('directora', 'administrativo'), ctrl.registrarHistorialServicio);
+
 // ── GET /alumnos/:id/ciclos — ciclos en que estuvo inscrito + ciclo actual ──
 router.get('/:id/ciclos', async (req, res, next) => {
   try {

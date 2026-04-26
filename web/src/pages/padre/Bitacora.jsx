@@ -233,6 +233,25 @@ export default function PadreBitacora() {
     retry: 1,
   });
 
+  const { data: historialExt = [] } = useQuery({
+    queryKey: ['historial-servicios', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/historial-servicios`).then(r => r.data),
+    enabled: !!alumnoId,
+    staleTime: 60000,
+  });
+  const tuvExtensionEnFecha = (() => {
+    if (!fecha) return false;
+    const [anioF, mesF] = fecha.split('-').map(Number);
+    return historialExt.some(h => {
+      if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+      const mIni = parseInt(h.mes_inicio), aIni = parseInt(h.anio_inicio);
+      const mFin = h.mes_fin ? parseInt(h.mes_fin) : mIni;
+      const aFin = h.anio_fin ? parseInt(h.anio_fin) : aIni;
+      return (aIni < anioF || (aIni === anioF && mIni <= mesF)) &&
+             (aFin > anioF || (aFin === anioF && mFin >= mesF));
+    });
+  })();
+
   const firmaMutation = useMutation({
     mutationFn: (formData) => api.patch(`/bitacora/incidente/${incidenteFirmando.id}/firma`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -480,7 +499,7 @@ export default function PadreBitacora() {
                       <div className="space-y-3">
                         {[...comidas]
                           .sort((a, b) => ['desayuno','colacion','comida','comida_extra'].indexOf(a.tiempo) - ['desayuno','colacion','comida','comida_extra'].indexOf(b.tiempo))
-                          .filter(c => c.tiempo !== 'comida_extra' || hijoActual?.tiene_extension)
+                          .filter(c => c.tiempo !== 'comida_extra' || tuvExtensionEnFecha)
                           .map((c, i) => (
                             <div key={i} className={`border rounded-lg p-3 ${TIEMPOS[c.tiempo]?.color || 'bg-gray-50 border-gray-200 text-gray-700'}`}>
                               <p className="text-xs font-black uppercase mb-2">{TIEMPOS[c.tiempo]?.emoji} {TIEMPOS[c.tiempo]?.label}</p>

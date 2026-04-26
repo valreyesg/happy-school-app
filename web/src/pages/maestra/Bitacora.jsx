@@ -288,6 +288,26 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     ['maternal', 'prekinder', 'kinder1'].includes(grupoNivel)
   );
 
+  // Verificar si el alumno tenía extensión en la fecha de esta bitácora
+  // (puede ser fecha histórica aunque hoy ya no tenga extensión)
+  const { data: historialExt = [] } = useQuery({
+    queryKey: ['historial-servicios', alumno.id],
+    queryFn: () => api.get(`/alumnos/${alumno.id}/historial-servicios`).then(r => r.data),
+    staleTime: 60000,
+  });
+  const tuvExtensionEnFecha = (() => {
+    const [anioF, mesF] = fecha.split('-').map(Number);
+    return historialExt.some(h => {
+      if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+      const mIni = parseInt(h.mes_inicio), aIni = parseInt(h.anio_inicio);
+      const mFin = h.mes_fin ? parseInt(h.mes_fin) : mIni;
+      const aFin = h.anio_fin ? parseInt(h.anio_fin) : aIni;
+      const despuesInicio = aIni < anioF || (aIni === anioF && mIni <= mesF);
+      const antesOfin = aFin > anioF || (aFin === anioF && mFin >= mesF);
+      return despuesInicio && antesOfin;
+    });
+  })();
+
   // Participación en actividades del grupo (por actividad_grupo_id)
   const [actividadesParticipacion, setActividadesParticipacion] = useState({});
 
@@ -720,7 +740,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       {comidas && (
         <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
           <div className="space-y-4">
-            {TIEMPOS_COMIDA.map(tiempoInfo => (
+            {(TIEMPOS_COMIDA || []).filter(t => t.key !== 'comida_extra' || tuvExtensionEnFecha).map(tiempoInfo => (
               <div key={tiempoInfo.key} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>

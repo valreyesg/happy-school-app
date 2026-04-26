@@ -391,12 +391,15 @@ router.get('/filtro-salida', async (req, res, next) => {
         COALESCE(ast.estado, 'ausente') AS estado_asistencia,
         re.hora_entrada,
         rs.id AS salida_id, rs.hora_salida, rs.autorizado AS salida_autorizada,
-        rs.nombre_quien_recoge
+        rs.nombre_quien_recoge,
+        COALESCE(cha.tiene_extension, false) AS tiene_extension,
+        cha.hora_salida_extension
       FROM alumnos a
       JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = $1::date
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = $1::date
       LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = $1::date
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       WHERE a.deleted_at IS NULL AND a.estado IN ('inscrito','reinscrito')
         AND g.deleted_at IS NULL AND g.activo = true
         AND ast.estado IN ('presente','retardo')

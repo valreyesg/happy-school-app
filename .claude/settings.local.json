@@ -484,7 +484,18 @@
       "Bash(curl -s \"http://localhost:3000/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/final_test.pdf)",
       "Bash(node -e \"const cal = require\\('./src/routes/calendario'\\); console.log\\(typeof cal, cal._router ? '✅ Router existe' : '❌ No es un router'\\)\")",
       "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\" -H \"Authorization: Bearer test-token\" -o /tmp/api_test.pdf)",
-      "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\" -o /tmp/noauth_test.pdf)"
+      "Bash(curl -s \"http://localhost:3000/api/calendario/export-pdf?mes=2026-04\" -o /tmp/noauth_test.pdf)",
+      "Bash(psql -U postgres -d happyschool -f migrations/028_historial_servicios.sql)",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -eq \"node\" } | ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }; Write-Host \"Node processes terminated\")",
+      "Bash(curl -s http://localhost:3000/api/ping)",
+      "Bash(curl -s http://localhost:3000/api/catalogos)",
+      "PowerShell($processes = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($processes\\) { foreach \\($proc in $processes\\) { Stop-Process -Id $proc.OwningProcess -Force -ErrorAction SilentlyContinue } }; Start-Sleep -Seconds 2; \"Port 3000 freed\")",
+      "PowerShell($conns = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($conns\\) { $conns | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Write-Host \"Killed PID\\(s\\): $\\($conns.OwningProcess -join ', '\\)\" } else { Write-Host \"Port 3000 is free\" }; Start-Sleep 2)",
+      "PowerShell($conns = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; if \\($conns\\) { $conns | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }; Start-Sleep 2; \"Port 3000 freed\")",
+      "PowerShell(\"All node killed\")",
+      "Bash(curl -s -X GET \"http://localhost:3000/api/comida/historial-servicios?alumno_id=56fc4561-6b30-4031-8228-33c3d8e4372e&anio=2026\" -H \"Authorization: Bearer test\")",
+      "Bash(curl -s http://localhost:3000/api/pagos/conceptos -H \"Authorization: Bearer test\")",
+      "Bash(curl -s http://localhost:3000/api/test-status)"
     ],
     "additionalDirectories": [
       "\\tmp",

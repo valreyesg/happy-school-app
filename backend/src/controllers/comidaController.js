@@ -345,3 +345,141 @@ exports.procesarComidaNoPagada = async () => {
     console.error('❌ Error en procesarComidaNoPagada:', e.message);
   }
 };
+
+// Obtener historial de servicios (alta/baja extensión por mes)
+exports.obtenerHistorialServicios = async (req, res) => {
+  try {
+    const { alumno_id, anio } = req.query;
+    if (!alumno_id) return res.status(400).json({ error: 'alumno_id requerido' });
+
+    let sql = `
+      SELECT id, alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, notas, registrado_por, created_at
+      FROM historial_servicios
+      WHERE alumno_id = $1
+    `;
+    const params = [alumno_id];
+
+    if (anio) {
+      sql += ` AND (anio_inicio = $2 OR anio_fin = $2)`;
+      params.push(anio);
+    }
+
+    sql += ` ORDER BY anio_inicio DESC, mes_inicio DESC, created_at DESC`;
+
+    const result = await query(sql, params);
+    res.json(result.rows);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+// Registrar alta o baja de servicio (extensión/estancia)
+exports.registrarHistorialServicio = async (req, res) => {
+  try {
+    const { alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, ciclo_id, genera_cargos, notas } = req.body;
+    const usuario_id = req.user.id;
+
+    if (!alumno_id || !tipo_servicio || !accion || !mes_inicio || !anio_inicio) {
+      return res.status(400).json({
+        error: 'faltan campos: alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio'
+      });
+    }
+
+    if (!['alta', 'baja'].includes(accion)) {
+      return res.status(400).json({ error: "accion debe ser 'alta' o 'baja'" });
+    }
+
+    // Registrar en historial_servicios
+    const result = await query(`
+      INSERT INTO historial_servicios (alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin, anio_fin, ciclo_id, genera_cargos, notas, registrado_por)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      RETURNING *
+    `, [alumno_id, tipo_servicio, accion, mes_inicio, anio_inicio, mes_fin || null, anio_fin || null, ciclo_id || null, genera_cargos !== false, notas || null, usuario_id]);
+
+    const registro = result.rows[0];
+
+    // Si es extensión
+    if (tipo_servicio === 'extension') {
+      if (accion === 'alta') {
+        // Activar extensión
+        await query(`
+          INSERT INTO config_horario_alumno (alumno_id, tiene_extension, ciclo_id)
+          VALUES ($1, true, $2)
+          ON CONFLICT (alumno_id) DO UPDATE
+            SET tiene_extension = true, updated_at = NOW()
+        `, [alumno_id, ciclo_id || null]);
+
+        // Generar cargos automáticos si está habilitado
+        if (genera_cargos) {
+          const conceptoRes = await query(`
+            SELECT id, monto FROM conceptos_pago
+            WHERE tipo = 'extension' AND activo = true LIMIT 1
+          `);
+
+          if (conceptoRes.rows.length === 0) {
+            return res.status(400).json({
+              error: 'No hay un concepto de extensión activo. Créalo en la sección de Pagos.'
+            });
+          }
+
+          const { id: concepto_id, monto } = conceptoRes.rows[0];
+
+          // Generar cargos para cada mes del rango
+          const months = [];
+          let m = mes_inicio, a = anio_inicio;
+          const endMonth = mes_fin || mes_inicio; // Si no hay fin, solo 1 mes
+          const endYear = anio_fin || anio_inicio;
+
+          while (a < endYear || (a === endYear && m <= endMonth)) {
+            months.push({ mes: m, anio: a });
+            m++;
+            if (m > 12) { m = 1; a++; }
+          }
+
+          // Insertar pagos pendientes (evitar duplicados con WHERE NOT EXISTS)
+          for (const { mes, anio } of months) {
+            await query(`
+              INSERT INTO pagos (alumno_id, concepto_id, monto_base, monto_total, estado, mes_correspondiente, anio_correspondiente, registrado_por)
+              SELECT $1, $2, $3, $3, 'pendiente', $4, $5, $6
+              WHERE NOT EXISTS (
+                SELECT 1 FROM pagos
+                WHERE alumno_id = $1 AND concepto_id = $2
+                  AND mes_correspondiente = $4 AND anio_correspondiente = $5
+              )
+            `, [alumno_id, concepto_id, monto, mes, anio, usuario_id]);
+          }
+        }
+      } else if (accion === 'baja') {
+        // Desactivar extensión
+        await query(`
+          INSERT INTO config_horario_alumno (alumno_id, tiene_extension)
+          VALUES ($1, false)
+          ON CONFLICT (alumno_id) DO UPDATE
+            SET tiene_extension = false, updated_at = NOW()
+        `, [alumno_id]);
+
+        // Cancelar cargos pendientes futuros de extensión
+        const conceptoRes = await query(`
+          SELECT id FROM conceptos_pago
+          WHERE tipo = 'extension' AND activo = true LIMIT 1
+        `);
+
+        if (conceptoRes.rows.length > 0) {
+          const concepto_id = conceptoRes.rows[0].id;
+          await query(`
+            UPDATE pagos
+            SET estado = 'cancelado', updated_at = NOW()
+            WHERE alumno_id = $1
+              AND concepto_id = $2
+              AND estado = 'pendiente'
+              AND (anio_correspondiente > $3 OR (anio_correspondiente = $3 AND mes_correspondiente >= $4))
+          `, [alumno_id, concepto_id, anio_inicio, mes_inicio]);
+        }
+      }
+    }
+
+    res.json(registro);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};

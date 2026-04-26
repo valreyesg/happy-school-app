@@ -1,7 +1,41 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 73
+**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 74
+
+---
+
+## ✅ SESIÓN 74 — Sincronización Web ↔ Mobile (Paridad Completa)
+
+**Fecha:** 2026-04-25 | **Estado:** Completado ✅
+
+**Lo que se hizo:**
+- **Módulo Tareas Maestra mobile:** `mobile/app/(maestra)/tareas.jsx` con 3 tabs (Próximas/Vencidas/Borradores), navegador semanas ISO, modales Nueva/Editar/Entregas con `expo-image-picker`
+- **Dashboard Maestra mobile:** Agregados banners "Tareas por recibir hoy" (azul) + "Alumnos en alerta" (rojo), botón acceso rápido
+- **Dashboard Padre mobile:** Nuevo componente HijoTareasPendientes — tareas expandibles por hijo con emojis urgencia (🔴/🔥/⚠️/📘)
+- **Bitácora Padre mobile:** SelectorCiclo con chips horizontales para navegar ciclos, restricción fechas al rango
+- **QR Scanner mobile:** Indicador Extensión de Horario en modo salida — banner naranja si `tiene_extension === true` con hora de salida
+- **Bitácoras mobile:** Sincronización comida_extra — visible en tab Comida (padre) y sección separada (maestra) si hay extensión activa en fecha
+
+**Archivos creados:**
+- `mobile/app/(maestra)/tareas.jsx`
+
+**Archivos modificados:**
+- `mobile/app/(maestra)/_layout.jsx` — agregar ruta Tareas a tabs
+- `mobile/app/(maestra)/index.jsx` — banners + botón Tareas
+- `mobile/app/(padre)/index.jsx` — componente HijoTareasPendientes
+- `mobile/app/(padre)/bitacora.jsx` — SelectorCiclo + comida_extra
+- `mobile/app/(maestra)/bitacora.jsx` — comida_extra visible si extensión activa
+- `mobile/app/(maestra)/qr-scanner.jsx` — indicador extensión en modo salida
+
+**Commits:** 5
+1. Sincronización Mobile — Módulo Tareas + Dashboard Padre
+2. Sincronización Mobile — Bitácoras + QR Scanner
+3. Sincronizar comida_extra en Bitácoras mobile
+4. Cierre de sesión (PENDIENTES)
+5. Cierre de sesión (ARCHIVE_LOG + MEMORY)
+
+**Regla nueva:** Cada cambio funcional que aplique a roles móviles se sincroniza en mobile en la misma sesión. **No hay más deuda de paridad web↔mobile.**
 
 ---
 

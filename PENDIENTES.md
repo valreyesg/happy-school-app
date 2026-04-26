@@ -1,50 +1,59 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-25 | **Sesión actual:** 74
+**Última actualización:** 2026-04-25 | **Sesión actual:** 75
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🎯 SESIÓN 74 COMPLETADA — SINCRONIZACIÓN MOBILE
+## 📋 SESIÓN 75 — REORGANIZACIÓN ARQUITECTÓNICA (COMPLETADA)
 
-✅ **Todas las prioridades completadas (1-5) + Extensión de Horario:**
+✅ **FASE 1 — Seguridad (Crítico)**
+- [x] Eliminar backend/test_schema.js (credenciales postgres en git)
+- [x] Password por defecto → `DEFAULT_USER_PASSWORD` en .env
+- [x] CORS: leer `MOBILE_URL` desde variables de entorno
+- [x] mobile/.env no versionado, .env.example con placeholders
 
-**Módulo Tareas:**
-1. Crear `mobile/app/(maestra)/tareas.jsx` — módulo completo con 3 tabs, modales, entregas
-2. Agregar banners de tareas al Dashboard maestra (tareas hoy + alumnos en alerta)
-3. Agregar tareas pendientes por hijo en Dashboard padre (expandibles con emojis de urgencia)
+✅ **FASE 2 — Imports móvil (Alto)**
+- [x] Corregir double-src bug: `@/src/...` → `@/...` en (padre)/
+- [x] Eliminar alias `@hooks` muerto en babel.config.js
 
-**Mejoras Navegación & Extensión:**
-4. Agregar SelectorCiclo a Bitácora padre (navegación por ciclos escolares)
-5. Agregar indicador de Extensión de Horario en QR Scanner modo salida
-6. Sincronizar Comida Extra en Bitácoras padre/maestra (visible si hay extensión activa en fecha)
-
-**Regla nueva:** Cada cambio funcional que aplique a roles móviles (maestra, padre, directora) 
-se sincroniza en mobile en la misma sesión. **No hay más deuda de paridad web↔mobile.**
-
-**Commits de S74:** 4
-- feat: Sincronización Mobile — Módulo Tareas + Dashboard Padre
-- feat: Sincronización Mobile — Bitácoras + QR Scanner
-- feat: Sincronizar comida_extra en Bitácoras mobile
-- chore: Sesión 74 — Actualizar PENDIENTES
+📋 **FASES FALTANTES (para sesión 76+)**
 
 ---
 
-## 📋 SESIÓN 75 — PRÓXIMAS TAREAS
+## 🏗️ ARQUITECTURA Y ESTRUCTURA — PLAN MULTI-SESIÓN
 
----
+**Estado:** En progreso (FASE 1+2 completadas en sesión 75)
 
-## 🏗️ ARQUITECTURA Y ESTRUCTURA
+### FASE 3 — Reorganización de archivos (Sesión 76, ~80 min)
+- [ ] Mover `backend/src/database/` → `backend/scripts/`
+  - `seeds/` — todos los seed_*.js (11 archivos)
+  - `setup/` — todos los setup_*.js (8 archivos)
+  - `fixes/` — todos los fix_*.js (5 archivos)
+  - `checks/` — check_*.js, apply_fix.js, check_db.js
+  - Actualizar imports: `require('../config/database')` → `require('../../src/config/database')`
+- [ ] Consolidar migration runners: `migrate.js` + `run-migration.js` → `backend/scripts/migrate-runner.js`
+- [ ] Mover docs de Claude: `RESUMEN_SESION_*.md` → `/docs/`
+- [ ] Eliminar archivos temporales: fix_emojis_skin.js, temp_seed_ana.sql, verify_endpoint.js, test_api.js, test_grupos.js
 
-- [ ] **Organizar estructura de carpetas del proyecto**
-  - Problema: archivos de texto, seeds, validaciones, resúmenes dispersos sin orden
-  - Propuesta:
-    - `/backend/scripts/` — seeds, migraciones, utilidades
-    - `/docs/` — README, guías, resúmenes, CHANGELOG
-    - `/tests/` — validaciones, tests unitarios
-    - `/config/` — configuración centralizada
-  - Beneficio: Mantenibilidad, onboarding más rápido
-  - Complejidad: ⭐⭐⭐
+### FASE 4 — .gitignore y builds (Sesión 76, ~20 min)
+- [ ] Actualizar `.gitignore` raíz: logs, builds, temp files
+- [ ] Crear `web/.gitignore` y `mobile/.gitignore`
+- [ ] Verificar que `dist/` y `.expo/` no estén versionados
+
+### FASE 5 — Tests de smoke (Sesión 77, ~45 min)
+- [ ] Crear `tests/smoke/health.test.js` (GET /health)
+- [ ] Crear `tests/smoke/auth.test.js` (login, autorización)
+- [ ] Agregar script `npm run test:smoke` a package.json raíz
+
+### FASE 6 — Script dev unificado (Sesión 77, ~15 min)
+- [ ] Instalar `concurrently`
+- [ ] Agregar scripts: `npm run dev` (backend + web), `npm run dev:full` (+ mobile)
+- [ ] Documentar uso en README.md
+
+### FASE 7 — Normalizar imports web (Sesión 78, baja urgencia)
+- [ ] Migrar 24 archivos: paths relativos (`../../`) → alias (`@/`)
+- [ ] Enfoque: componentes de `pages/` que importan de `services/` y `store/`
 
 ---
 

@@ -13,12 +13,16 @@
     "install:all": "npm install && cd mobile && npx expo install",
     "db:migrate": "npm run migrate --workspace=backend",
     "db:seed": "npm run seed --workspace=backend",
-    "test:smoke": "jest tests/smoke --runInBand --forceExit"
+    "test:smoke": "jest tests/smoke --runInBand --forceExit",
+    "dev": "concurrently -n backend,web -c cyan,magenta \"npm run backend\" \"npm run web\"",
+    "dev:full": "concurrently -n backend,web,mobile -c cyan,magenta,yellow \"npm run backend\" \"npm run web\" \"cd mobile && npx expo start\""
   },
   "jest": {
     "testEnvironment": "node",
     "testTimeout": 15000,
-    "setupFiles": ["./tests/setup.js"]
+    "setupFiles": [
+      "./tests/setup.js"
+    ]
   },
   "engines": {
     "node": ">=18.0.0",
@@ -26,6 +30,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "jest": "^30.3.0",
     "supertest": "^7.2.2"
   }

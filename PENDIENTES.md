@@ -1,11 +1,25 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-26 | **Sesión actual:** 73
+**Última actualización:** 2026-04-25 | **Sesión actual:** 74
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📋 SESIÓN 71 — PRÓXIMAS TAREAS
+## 🎯 SESIÓN 74 COMPLETADA — SINCRONIZACIÓN MOBILE
+
+✅ **Todas las prioridades completadas (1-5):**
+1. Crear `mobile/app/(maestra)/tareas.jsx` — módulo completo con 3 tabs, modales, entregas
+2. Agregar banners de tareas al Dashboard maestra (tareas hoy + alumnos en alerta)
+3. Agregar tareas pendientes por hijo en Dashboard padre (expandibles con emojis de urgencia)
+4. Agregar SelectorCiclo a Bitácora padre (navegación por ciclos escolares)
+5. Agregar indicador de Extensión de Horario en QR Scanner modo salida
+
+**Regla nueva:** Cada cambio funcional que aplique a roles móviles (maestra, padre, directora) 
+se sincroniza en mobile en la misma sesión. No hay más deuda de paridad web↔mobile.
+
+---
+
+## 📋 SESIÓN 75 — PRÓXIMAS TAREAS
 
 ---
 

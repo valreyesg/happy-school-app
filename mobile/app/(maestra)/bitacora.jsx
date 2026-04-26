@@ -153,6 +153,26 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
   });
 
+  const { data: historialExt = [] } = useQuery({
+    queryKey: ['historial-servicios', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/historial-servicios`).then(r => r.data),
+    enabled: !!alumnoId,
+    staleTime: 60000,
+  });
+
+  const tuvExtensionEnFecha = (() => {
+    if (!fecha) return false;
+    const [anioF, mesF] = fecha.split('-').map(Number);
+    return historialExt.some(h => {
+      if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+      const mIni = parseInt(h.mes_inicio), aIni = parseInt(h.anio_inicio);
+      const mFin = h.mes_fin ? parseInt(h.mes_fin) : mIni;
+      const aFin = h.anio_fin ? parseInt(h.anio_fin) : aIni;
+      return (aIni < anioF || (aIni === anioF && mIni <= mesF)) &&
+             (aFin > anioF || (aFin === anioF && mFin >= mesF));
+    });
+  })();
+
   useEffect(() => {
     if (!bitacoraExistente) return;
     const data = bitacoraExistente;
@@ -387,6 +407,40 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
           />
         </Seccion>
 
+        {/* Comida Extra (si hay extensión) */}
+        {tuvExtensionEnFecha && (
+          <Seccion titulo="🍜 Comida Extra">
+            <Text style={s.extensionSubText}>El alumno tiene extensión de horario activa</Text>
+            <TextInput
+              style={s.input}
+              placeholder="¿Qué comió en comida extra?"
+              value={queComio}
+              onChangeText={setQueComio}
+              multiline
+            />
+            <Text style={s.subLabel}>¿Cuánto comió?</Text>
+            <View style={s.cuantoRow}>
+              {CUANTO.map(c => (
+                <TouchableOpacity
+                  key={c.key}
+                  style={[s.cuantoBtn, cuantoComio === c.key && s.cuantoBtnOn]}
+                  onPress={() => setCuantoComio(c.key)}
+                >
+                  <Text style={s.cuantoEmoji}>{c.emoji}</Text>
+                  <Text style={[s.cuantoLabel, cuantoComio === c.key && s.cuantoLabelOn]}>{c.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput
+              style={s.input}
+              placeholder="Observaciones de comida extra (opcional)…"
+              value={observacionesComida}
+              onChangeText={setObservacionesComida}
+              multiline
+            />
+          </Seccion>
+        )}
+
         {/* Tarea */}
         <Seccion titulo="Tarea">
           <View style={s.siNoRow}>
@@ -549,6 +603,7 @@ const s = StyleSheet.create({
   // Sección
   seccion: { marginTop: 20, marginHorizontal: 16, backgroundColor: '#F7FAFC', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E2E8F0' },
   seccionTitulo: { fontSize: 14, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
+  extensionSubText: { fontSize: 12, fontWeight: '600', color: '#7C3AED', marginBottom: 12, fontStyle: 'italic' },
 
   // Ánimo
   animoRow: { flexDirection: 'row', justifyContent: 'space-around' },

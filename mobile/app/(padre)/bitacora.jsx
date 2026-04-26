@@ -149,6 +149,26 @@ export default function BitacoraPadreScreen() {
     retry: 1,
   });
 
+  const { data: historialExt = [] } = useQuery({
+    queryKey: ['historial-servicios', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/historial-servicios`).then(r => r.data),
+    enabled: !!alumnoId,
+    staleTime: 60000,
+  });
+
+  const tuvExtensionEnFecha = (() => {
+    if (!fecha) return false;
+    const [anioF, mesF] = fecha.split('-').map(Number);
+    return historialExt.some(h => {
+      if (h.tipo_servicio !== 'extension' || h.accion !== 'alta') return false;
+      const mIni = parseInt(h.mes_inicio), aIni = parseInt(h.anio_inicio);
+      const mFin = h.mes_fin ? parseInt(h.mes_fin) : mIni;
+      const aFin = h.anio_fin ? parseInt(h.anio_fin) : aIni;
+      return (aIni < anioF || (aIni === anioF && mIni <= mesF)) &&
+             (aFin > anioF || (aFin === anioF && mFin >= mesF));
+    });
+  })();
+
   const bit = data?.bitacora;
   const banio = data?.banio;
   const comidas = Array.isArray(data?.comida) ? data.comida : (data?.comida ? [data.comida] : []);
@@ -235,18 +255,36 @@ export default function BitacoraPadreScreen() {
               {/* Tab: Comida */}
               {tabActivo === 'comida' && (
                 comidas.length > 0 ? (
-                  TIEMPOS_COMIDA.map(({ key, emoji, label }) => {
-                    const c = comidas.find(x => x.tiempo === key);
-                    if (!c) return null;
-                    return (
-                      <View key={key} style={s.tiempoComida}>
-                        <Text style={s.tiempoTitulo}>{emoji} {label}</Text>
-                        {c.que_comio ? <Text style={s.textoNormal}>{c.que_comio}</Text> : null}
-                        <FilaInfo label="¿Cuánto comió?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} negrita />
-                        <FilaInfo label="Observaciones" valor={c.observaciones} />
+                  <>
+                    {TIEMPOS_COMIDA.map(({ key, emoji, label }) => {
+                      const c = comidas.find(x => x.tiempo === key);
+                      if (!c) return null;
+                      return (
+                        <View key={key} style={s.tiempoComida}>
+                          <Text style={s.tiempoTitulo}>{emoji} {label}</Text>
+                          {c.que_comio ? <Text style={s.textoNormal}>{c.que_comio}</Text> : null}
+                          <FilaInfo label="¿Cuánto comió?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} negrita />
+                          <FilaInfo label="Observaciones" valor={c.observaciones} />
+                        </View>
+                      );
+                    })}
+                    {tuvExtensionEnFecha && (
+                      <View style={s.tiempoComida}>
+                        <Text style={s.tiempoTituloExtra}>🍜 Comida Extra</Text>
+                        {(() => {
+                          const cExtra = comidas.find(x => x.tiempo === 'comida_extra');
+                          if (!cExtra) return <Text style={s.textoNormal}>Sin registro</Text>;
+                          return (
+                            <>
+                              {cExtra.que_comio ? <Text style={s.textoNormal}>{cExtra.que_comio}</Text> : null}
+                              <FilaInfo label="¿Cuánto comió?" valor={CUANTO[cExtra.cuanto_comio]?.emoji + ' ' + CUANTO[cExtra.cuanto_comio]?.label} negrita />
+                              <FilaInfo label="Observaciones" valor={cExtra.observaciones} />
+                            </>
+                          );
+                        })()}
                       </View>
-                    );
-                  })
+                    )}
+                  </>
                 ) : (
                   <Text style={s.tabVacio}>Sin registro de alimentación</Text>
                 )
@@ -473,6 +511,7 @@ const s = StyleSheet.create({
   // Tiempos de comida
   tiempoComida: { marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
   tiempoTitulo: { fontSize: 13, fontWeight: '900', color: '#4A5568', marginBottom: 6 },
+  tiempoTituloExtra: { fontSize: 13, fontWeight: '900', color: '#7C3AED', marginBottom: 6, paddingTop: 4 },
 
   // Fila info
   fila: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },

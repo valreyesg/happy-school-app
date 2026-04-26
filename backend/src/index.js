@@ -23,10 +23,11 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 app.use(cors({
   origin: [
     process.env.WEB_URL,
+    process.env.MOBILE_URL,
     'http://localhost:5173',
     'http://localhost:3001',
     'exp://localhost:8081',
-  ],
+  ].filter(Boolean),
   credentials: true,
 }));
 

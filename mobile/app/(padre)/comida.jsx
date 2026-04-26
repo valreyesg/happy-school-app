@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import api from '@/src/services/api';
-import { useAuthStore } from '@/src/store/authStore';
+import api from '@/services/api';
+import { useAuthStore } from '@/store/authStore';
 
 const ComidaSemanal = () => {
   const { alumno } = useAuthStore();

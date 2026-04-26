@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { ANIMO, CUANTO, COMPORTAMIENTO } from '@/constants/catalogos';
-import NotificationBell from '@/src/components/NotificationBell';
-import { buildGoogleCalendarUrl } from '@/src/utils/googleCalendar';
+import NotificationBell from '@/components/NotificationBell';
+import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 
 function proximos3Dias() {
   const hoy = new Date();

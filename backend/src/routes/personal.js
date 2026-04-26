@@ -105,7 +105,7 @@ router.post('/', authorize('directora'), async (req, res, next) => {
       return res.status(400).json({ error: 'nombre_completo, email y rol_principal son obligatorios' });
 
     // Crear usuario primero
-    const passHash = await bcrypt.hash(password_inicial || 'HappySchool2026!', 10);
+    const passHash = await bcrypt.hash(password_inicial || process.env.DEFAULT_USER_PASSWORD, 10);
     const usuarioResult = await query(`
       INSERT INTO usuarios (nombre, email, telefono, password_hash, rol_principal, primer_login)
       VALUES ($1, $2, $3, $4, $5, true)
@@ -175,13 +175,13 @@ router.put('/:id', authorize('directora'), async (req, res, next) => {
 // ── POST /personal/:id/reset-password ────────────────────────────────────────
 router.post('/:id/reset-password', authorize('directora'), async (req, res, next) => {
   try {
-    const passHash = await bcrypt.hash('HappySchool2026!', 10);
+    const passHash = await bcrypt.hash(process.env.DEFAULT_USER_PASSWORD, 10);
     await query(`
       UPDATE usuarios u SET password_hash = $1, primer_login = true
       FROM personal p
       WHERE p.id = $2 AND u.id = p.usuario_id
     `, [passHash, req.params.id]);
-    res.json({ ok: true, mensaje: 'Contraseña restablecida a HappySchool2026!' });
+    res.json({ ok: true, mensaje: 'Contraseña restablecida al valor por defecto' });
   } catch (err) { next(err); }
 });
 

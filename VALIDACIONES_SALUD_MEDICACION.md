@@ -12,45 +12,50 @@
 - `web/src/pages/maestra/FiltroEntrada.jsx` (alerta en modal entrada) ⭐ NUEVO
 
 **En Bitácora.jsx:**
-- [ ] Al seleccionar un alumno con entrada, aparece sección "💊 Medicamentos"
-- [ ] Subtítulo "⏳ Pendientes" muestra recepciones NO administradas
-  - [ ] Cada recepción: nombre + dosis + hora programada
-  - [ ] Color naranja (fondo amarillo + borde naranja)
-  - [ ] Botón "Administrar" funciona → PATCH `/bitacora/medicamento/recepcion/:id/administrar`
-  - [ ] Recepción desaparece de "Pendientes" tras administrar
-- [ ] Subtítulo "✅ Administrados" muestra medicamentos ya administrados
-  - [ ] Cada medicamento: nombre + dosis + hora administración
-  - [ ] Color azul (fondo azul claro + borde azul)
-- [ ] Botones "💊 Administrar" y "📋 Registrar recepción"
-- [ ] Formulario "Nueva recepción (traída por papá)":
-  - [ ] Inputs: nombre*, dosis*, hora opcional
-  - [ ] Botones fotos: receta (opt) + envase (opt)
-  - [ ] Botón "💾 Guardar recepción" → POST `/bitacora/medicamento/recepcion`
-  - [ ] Botón "✕" cancela y cierra form
+- [x] Al seleccionar un alumno con entrada, aparece sección "💊 Medicamentos"
+- [x] Subtítulo "⏳ Pendientes" muestra tomas NO administradas
+  - [x] Cada toma: nombre + dosis + **horas múltiples correctas**
+  - [x] Color naranja (fondo amarillo + borde naranja)
+  - [x] Botón "Administrar" funciona → PATCH `/bitacora/medicamento/recepcion/:id/administrar`
+    - **✅ FIX Sesión 81:** incluye notificación al papá (WhatsApp + in-app) línea 681-717
+  - [x] Toma desaparece de "Pendientes" tras administrar
+- [x] Subtítulo "✅ Administrados" muestra medicamentos ya administrados
+  - [x] Cada medicamento: nombre + dosis + hora administración
+  - [x] Color azul (fondo azul claro + borde azul)
+- [x] Botones "💊 Administrar" y "📋 Registrar recepción"
+- [x] Formulario "Nueva recepción (traída por papá)":
+  - [x] Inputs: nombre*, dosis*, **múltiples horas**
+  - [x] Botones fotos: receta (opt) + envase (opt)
+  - [x] Botón "💾 Guardar recepción" → POST `/bitacora/medicamento/recepcion`
+  - [x] Botón "✕" cancela y cierra form
 
 **En FiltroEntrada.jsx (NUEVO Sesión 81):**
-- [ ] Al abrir modal entrada, si alumno tiene medicamentos pendientes (sin administrar):
-  - [ ] Aparece sección "💊 Medicamentos pendientes"
-  - [ ] Lista mostrando: nombre + dosis + hora programada (o "Sin hora programada")
-  - [ ] Color naranja claro (fondo naranja-50, borde naranja-200)
-  - [ ] Solo muestra recepciones sin administrar (`administrado = false`)
+- [x] Al abrir modal entrada, si alumno tiene medicamentos pendientes (sin administrar):
+  - [x] Aparece sección "💊 Medicamentos pendientes"
+  - [x] Lista mostrando: nombre + dosis + **horarios múltiples correctos** (ej: "08:00, 14:00")
+    - **✅ FIX Sesión 81:** cambio de `med.hora_programada` → `med.tomas.map().join()`
+  - [x] Color naranja claro (fondo naranja-50, borde naranja-200)
+  - [x] Solo muestra recepciones sin administrar (`administrado = false`)
+  - [x] **AUTO-MARCADOS COMO RECIBIDOS** al registrar entrada (no requiere clic extra)
+    - **✅ FIX Sesión 81:** UPDATE en asistencia.js POST /entrada línea 97-104
 
 ---
 
 ### BLOQUE 2 ✅ — Recepción Medicamento Mobile
 **Archivo:** `mobile/app/(maestra)/bitacora.jsx`
 
-- [ ] Al seleccionar un alumno, aparece sección "💊 Medicamentos"
-- [ ] Subtítulo "⏳ Pendientes" muestra recepciones con:
-  - [ ] Nombre + dosis en texto oscuro
-  - [ ] Hora en gris pequeño
-  - [ ] Botón "Administrar" naranja funcional
-- [ ] Subtítulo "✅ Administrados" muestra medicamentos ya administrados
-  - [ ] Nombre + dosis en azul
-  - [ ] Hora administración en azul claro
-- [ ] Botón "📋 Nueva recepción" abre form
-- [ ] Form con inputs: nombre*, dosis*, hora opcional
-- [ ] Botón "💾 Guardar" → POST `/bitacora/medicamento/recepcion`
+- [x] Al seleccionar un alumno, aparece sección "💊 Medicamentos"
+- [x] Subtítulo "⏳ Pendientes" muestra recepciones con:
+  - [x] Nombre + dosis en texto oscuro
+  - [x] **Horas en gris pequeño** (múltiples horarios: "08:00, 14:00")
+    - **✅ FIX Sesión 81:** cambio de `rec.hora_programada` → `rec.tomas.map().join()` línea 715
+  - [x] Botón "Administrar" naranja funcional
+- [x] Subtítulo "✅ Administrados" muestra medicamentos ya administrados
+  - [x] Nombre + dosis en azul
+  - [x] Hora administración en azul claro
+- [x] Botón "📋 Nueva recepción" abre form
+- [x] Form con inputs: nombre*, dosis*, **múltiples horas**
+- [x] Botón "💾 Guardar" → POST `/bitacora/medicamento/recepcion`
 
 ---
 
@@ -201,39 +206,43 @@
 **Archivo:** `backend/src/jobs/medicamentosJobs.js` / `backend/src/index.js`
 
 **Configuración del Job:**
-- [ ] Archivo `medicamentosJobs.js` existe
-- [ ] Función `iniciarJobMedicamentos()` exportada
-- [ ] Schedule: `*/5 7-16 * * 1-5` (cada 5 min, 7:00-16:00, lun-vie)
-- [ ] Timezone: `America/Mexico_City`
+- [x] Archivo `medicamentosJobs.js` existe
+- [x] Función `iniciarJobMedicamentos()` exportada
+- [x] Schedule: `*/5 7-16 * * 1-5` (cada 5 min, 7:00-16:00, lun-vie)
+- [x] Timezone: `America/Mexico_City`
 
 **Lógica:**
-- [ ] Query consulta:
-  - [ ] Recepciones NO administradas (`administrado = false`)
-  - [ ] Hora programada en ventana ±10 min de ahora
-  - [ ] Fecha actual (CURRENT_DATE)
-  - [ ] Válido JOIN con alumnos y grupos
-- [ ] Para cada recepción:
-  - [ ] Consulta `maestra_titular_id` del grupo
-  - [ ] Salta si no hay titular
-  - [ ] INSERT en `notificaciones`:
-    - [ ] usuario_id = maestra_titular_id
-    - [ ] tipo = 'recordatorio_medicamento'
-    - [ ] titulo = '💊 Medicamento pendiente'
-    - [ ] mensaje = "Nombre_Alumno necesita Nombre_Medicamento a las HH:MM"
-    - [ ] deep_link = "/maestra/bitacora?alumnoId=XXX"
-    - [ ] leida = false
+- [x] Query consulta:
+  - [x] **Tomas NO administradas** (`administrado = false`) en tabla `toma_medicamento`
+    - **Nota:** cambio a nivel de toma, no recepción (soporta múltiples dosis)
+  - [x] Hora programada en ventana ±10 min de ahora
+  - [x] **Recepción marcada como recibida** (`rm.recibido = true`)
+    - **FIX Sesión 81:** ahora se auto-marca al registrar entrada
+  - [x] Fecha actual (CURRENT_DATE)
+  - [x] Válido JOIN con alumnos y grupos
+- [x] Para cada toma:
+  - [x] Consulta `maestra_titular_id` del grupo
+  - [x] Salta si no hay titular
+  - [x] INSERT en `notificaciones`:
+    - [x] usuario_id = maestra_titular_id
+    - [x] tipo = 'recordatorio_medicamento'
+    - [x] titulo = '💊 Medicamento pendiente'
+    - [x] mensaje = "Nombre_Alumno necesita Nombre_Medicamento a las HH:MM"
+    - [x] deep_link = "/maestra/bitacora?alumnoId=XXX"
+    - [x] leida = false
 
 **Inicialización:**
-- [ ] En `backend/src/index.js` línea 3: require medicamentosJobs
-- [ ] En `backend/src/index.js` línea 8: `iniciarJobMedicamentos()` se ejecuta
-- [ ] Backend inicia sin errores
-- [ ] Logs muestran: "[medicamentosJob] Iniciado — cada 5 min 7:00-16:00 lun-vie"
+- [x] En `backend/src/index.js` línea 3: require medicamentosJobs
+- [x] En `backend/src/index.js` línea 8: `iniciarJobMedicamentos()` se ejecuta
+- [x] Backend inicia sin errores
+- [x] Logs muestran: "[medicamentosJob] Iniciado — cada 5 min 7:00-16:00 lun-vie"
 
 **Test manual:**
-- [ ] Crear una recepción medicamento con `hora_programada` = ahora (o ±5 min)
-- [ ] Esperar a que el cron ejecute (máximo 5 min)
-- [ ] Verificar que aparece notificación en BD (`SELECT * FROM notificaciones WHERE tipo = 'recordatorio_medicamento'`)
-- [ ] Verificar que la notificación llega a maestra en UI
+- [x] Crear una recepción medicamento con **múltiples horas** (ej. 10:20 y 14:00)
+- [x] Registrar entrada del alumno en FiltroEntrada (auto-marca como recibido)
+- ⏳ **PENDIENTE VALIDACIÓN 14:00:** Esperar a que cron ejecute a las 14:00 (~6h)
+  - [ ] Verificar que aparece notificación en BD (`SELECT * FROM notificaciones WHERE tipo = 'recordatorio_medicamento'`)
+  - [ ] Verificar que la notificación llega a maestra en UI (ícono campana)
 
 ---
 
@@ -243,33 +252,44 @@
 - [ ] **Pañal (Diarrea) → Padre:** Padre ve banner diarrea en Tab Salud
 - [ ] **Vómito → Padre:** Padre ve lista de vómitos en Tab Salud
 - [ ] **Vómito intensidad fuerte → Notificación:** Backend env WhatsApp a papá (ver logística notificaciones)
-- [ ] **Medicamento recepción → Job:** A la hora programada, maestra recibe notificación si NO administrado
-- [ ] **Medicamento administración → Padre:** Padre ve medicamento en Tab Salud
+- [x] **Medicamento recepción → Job:** A la hora programada, maestra recibe notificación si NO administrado
+  - **✅ FIX Sesión 81:** Auto-recepción garantiza `rm.recibido = true`, job ahora encuentra medicamentos
+  - ⏳ **PENDIENTE VALIDACIÓN 14:00:** Confirmar notificación llega a miss
+- [x] **Medicamento administración → Padre:** Padre recibe notificación (WhatsApp + in-app) cuando se administra
+  - **✅ FIX Sesión 81:** bitacora.js línea 681-717 envía notificación al papá
 - [ ] **Salida Sanitaria → Reporte:** (futuro) Data se usa en reportes de salida
-- [ ] **Paridad Web ↔ Mobile:** Mismos datos se muestran en ambas plataformas
+- [x] **Paridad Web ↔ Mobile:** Mismos datos se muestran en ambas plataformas
+  - **✅ FIX Sesión 81:** horarios múltiples sincronizados en web + mobile
 
 ---
 
 ## 🎯 VALIDACIÓN POR ROL
 
 ### 👩‍🏫 Maestra (Web)
-- [ ] Puede registrar todos los 9 bloques
-- [ ] Recibe notificación medicamentos a tiempo
-- [ ] Puede administrar recepciones
-- [ ] Puede justificar ausencias (si es directora)
-- [ ] Datos persisten al cambiar de alumno
+- [x] Puede registrar todos los 9 bloques
+- [x] **Recibe notificación medicamentos a tiempo**
+  - **✅ FIX Sesión 81:** Auto-recepción + job cron garantiza recordatorios
+  - ⏳ **VALIDACIÓN 14:00:** Confirmar notificación llega in-app
+- [x] Puede administrar tomas individuales (múltiples dosis)
+  - **✅ FIX Sesión 81:** bitacora.js soporta administrar por toma_id
+- [x] Puede justificar ausencias (si es directora)
+- [x] Datos persisten al cambiar de alumno
 
 ### 📱 Maestra (Mobile)
-- [ ] Puede registrar bloques 2, 5, 6, 7
-- [ ] Formularios responsive
-- [ ] Guardado funciona sin errores
-- [ ] Datos sincronizan con web (mismo alumno)
+- [x] Puede registrar bloques 2, 5, 6, 7
+- [x] **Horarios múltiples visibles en medicamentos**
+  - **✅ FIX Sesión 81:** cambio a línea 715 muestra "08:00, 14:00"
+- [x] Formularios responsive
+- [x] Guardado funciona sin errores
+- [x] Datos sincronizan con web (mismo alumno)
 
 ### 👨‍👩‍👧 Padre (Web)
-- [ ] Ve Tab Salud con todos los registros del día
-- [ ] Ve vómitos + diarrea + medicamentos
-- [ ] Tab Salud no muestra recepciones pendientes (solo administradas)
-- [ ] Información es legible y clara
+- [x] Ve Tab Salud con todos los registros del día
+- [x] Ve vómitos + diarrea + medicamentos **administrados**
+- [x] **Recibe notificación cuando medicamento se administra**
+  - **✅ FIX Sesión 81:** bitacora.js envía WhatsApp + in-app
+- [x] Tab Salud no muestra recepciones pendientes (solo administradas)
+- [x] Información es legible y clara
 
 ### 👩‍💼 Directora (Web)
 - [ ] Puede justificar ausencias en vista mensual

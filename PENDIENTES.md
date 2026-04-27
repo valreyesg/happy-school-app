@@ -5,17 +5,23 @@
 
 ---
 
-## 🏥 SALUD Y MEDICACIÓN (Continuación Sesión 79)
+## 🏥 SALUD Y MEDICACIÓN — SESIÓN 79/80 (50% completado)
 
-**Backend 100% completado en Sesión 78.** Implementar frontend + job cron medicamentos.
+**Sesión 79 completado:**
+- ✅ Bloque 1: Recepción Medicamento Web (modal, lista pendientes, administración)
+- ✅ Bloque 2: Recepción Medicamento Mobile (sección new, botones)
+- ✅ Bloque 3: Insumos Web + Mobile (stock visible con colores dinámicos)
+- ✅ Bloque 4: Justificantes Web Directora (vista mensual con modal justificar)
+- ⚠️ Bloque 5: Vómito Web (formulario incompleto, sin mobile ni integración padre)
 
-**Orden de prioridad para Sesión 79:**
-1. **RECEPCIÓN MEDICAMENTO** (web + mobile) — más crítica operacionalmente
-2. **CONTROL INSUMOS** (web + mobile) — stock pañales, alertas padre
-3. **JUSTIFICANTES** (web) — para directora  
-4. Resto: vómito, diarrea, salida, job
+**Sesión 80 pendiente:**
+- [ ] Bloque 5 Mobile: Vómito  
+- [ ] Bloque 6: Diarrea Web + Mobile (es_diarrea en pañal, banner rojo)
+- [ ] Bloque 7: Salida Sanitaria Web + Mobile (checkboxes pañal/pertenencias/estado)
+- [ ] Bloque 8: Vista Padre Tab Salud (mostrar vómitos, diarrea)
+- [ ] Bloque 9: Job recordatorio medicamentos
 
-Ver `memory/sesion_78_salud_medicacion.md` para detalles de implementación.
+Ver `memory/sesion_79_salud_medicacion.md` para líneas de código exactas y validación.
 
 ---
 

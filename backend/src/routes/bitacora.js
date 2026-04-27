@@ -51,6 +51,63 @@ router.get('/actividades-grupo', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── POST /bitacora/vomito ───────────────────────────────────────────────────
+// Registrar episodio de vómito
+router.post('/vomito', async (req, res, next) => {
+  try {
+    const { alumno_id, bitacora_id, intensidad, notas } = req.body;
+
+    const result = await query(`
+      INSERT INTO registro_vomito (alumno_id, bitacora_id, intensidad, notas, registrado_por)
+      SELECT $1, $2, $3, $4, personal.id
+      FROM personal WHERE personal.usuario_id = $5
+      RETURNING *
+    `, [alumno_id, bitacora_id, intensidad, notas, req.user.id]);
+
+    // Si intensidad es 'fuerte', notificar al padre
+    if (intensidad === 'fuerte') {
+      const padreResult = await query(`
+        SELECT a.nombre_completo AS alumno_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+               p.nombre_completo AS padre_nombre,
+               u.id AS usuario_id
+        FROM alumnos a
+        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN padres p ON ap.padre_id = p.id
+        JOIN usuarios u ON p.usuario_id = u.id
+        WHERE a.id = $1 LIMIT 1
+      `, [alumno_id]);
+
+      if (padreResult.rows.length > 0) {
+        const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+        await enviarMensaje({
+          telefono,
+          clave: 'alerta_salud',
+          variables: {
+            nombre_padre: padre_nombre.split(' ')[0],
+            nombre_alumno: alumno_nombre,
+            tipo_alerta: 'Vómito fuerte',
+          },
+          alumnoId: alumno_id,
+        });
+        if (usuario_id) {
+          await query(`
+            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+            VALUES ($1, $2, $3, 'alerta_vomito', $4)
+          `, [
+            usuario_id,
+            `⚠️ Alerta de salud — ${alumno_nombre}`,
+            `Vómito fuerte registrado en ${alumno_nombre}.`,
+            JSON.stringify({ alumno_id, tipo: 'vomito_fuerte' }),
+          ]);
+        }
+      }
+    }
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
 // ── GET /bitacora/:alumnoId?fecha=YYYY-MM-DD ──────────────────────────────
 // Obtener bitácora completa de un alumno en una fecha (default: hoy)
 router.get('/:alumnoId', async (req, res, next) => {
@@ -58,7 +115,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas, vomitos, recepciones] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -120,20 +177,32 @@ router.get('/:alumnoId', async (req, res, next) => {
           AND t.fecha_limite = COALESCE($2::date, CURRENT_DATE)
         ORDER BY t.created_at DESC
       `, [alumnoId, fecha]),
+
+      query(
+        "SELECT * FROM registro_vomito WHERE alumno_id = $1 AND DATE(hora AT TIME ZONE 'America/Mexico_City') = COALESCE($2::date, CURRENT_DATE) ORDER BY hora DESC",
+        [alumnoId, fecha]
+      ),
+
+      query(
+        'SELECT * FROM recepcion_medicamento WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE) ORDER BY created_at DESC',
+        [alumnoId, fecha]
+      ),
     ]);
 
     res.json({
       fecha: fechaRow.rows[0].f,
       alumno_id: alumnoId,
-      bitacora:    bitacora.rows[0]    || null,
-      banio:       banio.rows[0]       || null,
-      comida:      comida.rows         || [],
-      panial:      panial.rows        || [],
-      esfinteres:  esfinteres.rows[0]  || null,
-      medicamentos: medicamentos.rows  || [],
-      incidentes:   incidentes.rows    || [],
-      actividades:  actividades.rows   || [],
-      tareas:       tareas.rows        || [],
+      bitacora:    bitacora.rows[0]      || null,
+      banio:       banio.rows[0]         || null,
+      comida:      comida.rows           || [],
+      panial:      panial.rows          || [],
+      esfinteres:  esfinteres.rows[0]    || null,
+      medicamentos: medicamentos.rows    || [],
+      incidentes:   incidentes.rows      || [],
+      actividades:  actividades.rows     || [],
+      tareas:       tareas.rows          || [],
+      vomitos:      vomitos.rows         || [],
+      recepciones_medicamento: recepciones.rows || [],
     });
   } catch (err) { next(err); }
 });
@@ -300,12 +369,42 @@ router.post('/guardar', async (req, res, next) => {
 // Registrar cambio de pañal (Maternal — múltiples por día)
 router.post('/panial', async (req, res, next) => {
   try {
-    const { alumno_id, condicion, tiene_irritacion, notas } = req.body;
+    const { alumno_id, condicion, tiene_irritacion, es_diarrea, notas } = req.body;
 
     const result = await query(`
-      INSERT INTO registro_panial (alumno_id, hora, condicion, tiene_irritacion, notas, registrado_por)
-      VALUES ($1, NOW(), $2, $3, $4, $5) RETURNING *
-    `, [alumno_id, condicion, tiene_irritacion || false, notas, req.user.id]);
+      INSERT INTO registro_panial (alumno_id, hora, condicion, tiene_irritacion, es_diarrea, notas, registrado_por)
+      VALUES ($1, NOW(), $2, $3, $4, $5, $6) RETURNING *
+    `, [alumno_id, condicion, tiene_irritacion || false, es_diarrea || false, notas, req.user.id]);
+
+    // Si es_diarrea === true, notificar al padre
+    if (es_diarrea) {
+      const padreResult = await query(`
+        SELECT a.nombre_completo AS alumno_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+               p.nombre_completo AS padre_nombre,
+               u.id AS usuario_id
+        FROM alumnos a
+        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN padres p ON ap.padre_id = p.id
+        JOIN usuarios u ON p.usuario_id = u.id
+        WHERE a.id = $1 LIMIT 1
+      `, [alumno_id]);
+
+        if (padreResult.rows.length > 0) {
+        const { alumno_nombre, usuario_id } = padreResult.rows[0];
+        if (usuario_id) {
+          await query(`
+            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+            VALUES ($1, $2, $3, 'alerta_diarrea', $4)
+          `, [
+            usuario_id,
+            `⚠️ Alerta de salud — ${alumno_nombre}`,
+            `Deposición anormal registrada en ${alumno_nombre}.`,
+            JSON.stringify({ alumno_id, tipo: 'diarrea' }),
+          ]);
+        }
+      }
+    }
 
     res.status(201).json(result.rows[0]);
   } catch (err) { next(err); }
@@ -372,6 +471,157 @@ router.post('/medicamento', async (req, res, next) => {
     }
 
     res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/medicamento/recepcion ────────────────────────────────────
+// Registrar recepción de medicamento (foto receta + foto envase)
+router.post('/medicamento/recepcion', upload.fields([
+  { name: 'foto_receta', maxCount: 1 },
+  { name: 'foto_envase', maxCount: 1 }
+]), async (req, res, next) => {
+  try {
+    const { alumno_id, nombre, dosis, hora_programada, notas } = req.body;
+    const { foto_receta, foto_envase } = req.files || {};
+
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
+    );
+    const recibidoPor = personalResult.rows[0]?.id || null;
+
+    let fotoRecetaUrl = null, fotoRecetaPublicId = null;
+    let fotoEnvaseUrl = null, fotoEnvasePublicId = null;
+
+    if (foto_receta && foto_receta[0]) {
+      const recetaResult = await uploadToCloudinary(foto_receta[0].buffer, {
+        folder: 'happyschool/medicamentos-recepcion',
+        resource_type: 'auto'
+      });
+      fotoRecetaUrl = recetaResult.secure_url;
+      fotoRecetaPublicId = recetaResult.public_id;
+    }
+
+    if (foto_envase && foto_envase[0]) {
+      const envaseResult = await uploadToCloudinary(foto_envase[0].buffer, {
+        folder: 'happyschool/medicamentos-recepcion',
+        resource_type: 'auto'
+      });
+      fotoEnvaseUrl = envaseResult.secure_url;
+      fotoEnvasePublicId = envaseResult.public_id;
+    }
+
+    const result = await query(`
+      INSERT INTO recepcion_medicamento
+        (alumno_id, fecha, nombre, dosis, hora_programada, foto_receta_url, foto_receta_public_id,
+         foto_envase_url, foto_envase_public_id, recibido_por, notas)
+      VALUES ($1, CURRENT_DATE, $2, $3, $4::time, $5, $6, $7, $8, $9, $10)
+      RETURNING *
+    `, [alumno_id, nombre, dosis, hora_programada, fotoRecetaUrl, fotoRecetaPublicId,
+        fotoEnvaseUrl, fotoEnvasePublicId, recibidoPor, notas]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── GET /bitacora/medicamento/pendientes ────────────────────────────────────
+// Listar recepciones de medicamento pendientes de administrar
+router.get('/medicamento/pendientes', async (req, res, next) => {
+  try {
+    const { fecha } = req.query;
+    const result = await query(`
+      SELECT rm.*, a.nombre_completo AS alumno_nombre, g.nombre AS grupo_nombre
+      FROM recepcion_medicamento rm
+      JOIN alumnos a ON rm.alumno_id = a.id
+      LEFT JOIN grupos g ON a.grupo_id = g.id
+      WHERE rm.administrado = false AND rm.fecha = COALESCE($1::date, CURRENT_DATE)
+      ORDER BY rm.hora_programada, rm.created_at
+    `, [fecha]);
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── PATCH /bitacora/medicamento/recepcion/:recepcionId/administrar ──────────
+// Marcar recepción como administrada y crear registro en medicamentos
+router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res, next) => {
+  try {
+    const { recepcionId } = req.params;
+
+    // Obtener datos de recepción
+    const recepcionResult = await query(
+      'SELECT * FROM recepcion_medicamento WHERE id = $1',
+      [recepcionId]
+    );
+
+    if (!recepcionResult.rows.length) {
+      return res.status(404).json({ error: 'Recepción no encontrada' });
+    }
+
+    const recepcion = recepcionResult.rows[0];
+    const { alumno_id, nombre, dosis, notas } = recepcion;
+
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
+    );
+    const maestraId = personalResult.rows[0]?.id || null;
+
+    // Insertar en medicamentos
+    const medicResult = await query(`
+      INSERT INTO medicamentos (alumno_id, fecha, nombre, dosis, hora_administracion, administrado_por, notas)
+      VALUES ($1, CURRENT_DATE, $2, $3, NOW(), $4, $5) RETURNING *
+    `, [alumno_id, nombre, dosis, maestraId, notas]);
+
+    // Marcar recepción como administrada
+    await query(`
+      UPDATE recepcion_medicamento
+      SET administrado = true, medicamento_id = $1, updated_at = NOW()
+      WHERE id = $2
+    `, [medicResult.rows[0].id, recepcionId]);
+
+    // Notificar a padres (igual que POST /medicamento)
+    const padreResult = await query(`
+      SELECT a.nombre_completo AS alumno_nombre,
+             COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             p.nombre_completo AS padre_nombre,
+             u.id AS usuario_id
+      FROM alumnos a
+      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN padres p ON ap.padre_id = p.id
+      JOIN usuarios u ON p.usuario_id = u.id
+      WHERE a.id = $1 LIMIT 1
+    `, [alumno_id]);
+
+    if (padreResult.rows.length > 0) {
+      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+      await enviarMensaje({
+        telefono,
+        clave: 'medicamento',
+        variables: {
+          nombre_padre: padre_nombre.split(' ')[0],
+          nombre_alumno: alumno_nombre,
+          medicamento: nombre,
+          dosis,
+          hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        },
+        alumnoId: alumno_id,
+      });
+      if (usuario_id) {
+        await query(`
+          INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+          VALUES ($1, $2, $3, 'medicamento', $4)
+        `, [
+          usuario_id,
+          `Medicamento administrado — ${alumno_nombre}`,
+          `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
+          JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
+        ]);
+        await query(
+          'UPDATE medicamentos SET notificacion_enviada = true WHERE id = $1',
+          [medicResult.rows[0].id]
+        );
+      }
+    }
+
+    res.json({ medicamento: medicResult.rows[0], recepcion: recepcionResult.rows[0] });
   } catch (err) { next(err); }
 });
 

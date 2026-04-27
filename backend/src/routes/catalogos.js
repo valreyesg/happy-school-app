@@ -22,10 +22,21 @@ const CATALOGOS = {
     { key: 'necesita_mejorar', emoji: '⚠️', label: 'A mejorar' },
   ],
   'condiciones-panial': [
-    { key: 'limpio', label: '✅ Limpio' },
-    { key: 'orina',  label: '💧 Pipí'  },
-    { key: 'heces',  label: '💩 Popó'  },
-    { key: 'mixto',  label: '🔄 Mixto' },
+    { key: 'limpio',  label: '✅ Limpio'  },
+    { key: 'orina',   label: '💧 Pipí'   },
+    { key: 'heces',   label: '💩 Popó'   },
+    { key: 'mixto',   label: '🔄 Mixto'  },
+    { key: 'diarrea', label: '⚠️ Diarrea' },
+  ],
+  'tipos-insumo': [
+    { key: 'panial',    label: '👶 Pañal'     },
+    { key: 'toallitas', label: '🧻 Toallitas' },
+    { key: 'crema',     label: '🧴 Crema'     },
+  ],
+  'vomito-intensidad': [
+    { key: 'leve',     label: '🤢 Leve'     },
+    { key: 'moderado', label: '🤮 Moderado' },
+    { key: 'fuerte',   label: '🚨 Fuerte'   },
   ],
   'tiempos-comida': [
     { key: 'desayuno',     emoji: '🥐', label: 'Desayuno'     },

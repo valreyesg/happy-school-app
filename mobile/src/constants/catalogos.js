@@ -33,8 +33,21 @@ export const TIEMPOS_COMIDA = [
 ];
 
 export const CONDICIONES_PANIAL = [
-  { key: 'limpio', label: 'Limpio' },
-  { key: 'orina',  label: 'Pipí'   },
-  { key: 'heces',  label: 'Popó'   },
-  { key: 'mixto',  label: 'Mixto'  },
+  { key: 'limpio',  label: 'Limpio'   },
+  { key: 'orina',   label: 'Pipí'     },
+  { key: 'heces',   label: 'Popó'     },
+  { key: 'mixto',   label: 'Mixto'    },
+  { key: 'diarrea', label: '⚠️ Diarrea' },
+];
+
+export const TIPOS_INSUMO = [
+  { key: 'panial',    label: 'Pañal'     },
+  { key: 'toallitas', label: 'Toallitas' },
+  { key: 'crema',     label: 'Crema'     },
+];
+
+export const VOMITO_INTENSIDAD = [
+  { key: 'leve',     label: 'Leve'     },
+  { key: 'moderado', label: 'Moderado' },
+  { key: 'fuerte',   label: 'Fuerte'   },
 ];

@@ -484,4 +484,79 @@ router.get('/filtro-entrada/:alumno_id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── PATCH /asistencia/:alumnoId/justificar ───────────────────────────────────
+// Marcar una falta como justificada
+router.patch('/:alumnoId/justificar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+    const { fecha, motivo } = req.body;
+
+    // Obtener el ID de la persona autenticada
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1',
+      [req.user.id]
+    );
+    const justificadaPor = personalResult.rows[0]?.id || null;
+
+    // Actualizar asistencia
+    const result = await query(`
+      UPDATE asistencia
+      SET estado = 'justificado',
+          justificacion_motivo = $1,
+          justificada_por = $2,
+          justificada_at = NOW(),
+          updated_at = NOW()
+      WHERE alumno_id = $3 AND fecha = $4::date
+      RETURNING *
+    `, [motivo, justificadaPor, alumnoId, fecha]);
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: 'Registro de asistencia no encontrado' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── POST /asistencia/salida-sanitario ──────────────────────────────────────
+// Registrar checklist de salida sanitaria
+router.post('/salida-sanitario', async (req, res, next) => {
+  try {
+    const { alumno_id, panial_limpio, pertenencias_ok, estado_fisico_ok, notas, entrega_conforme } = req.body;
+
+    const result = await query(`
+      INSERT INTO registro_salida_sanitario
+        (alumno_id, fecha, panial_limpio, pertenencias_ok, estado_fisico_ok, notas, entrega_conforme, registrado_por, updated_at)
+      VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, NOW())
+      ON CONFLICT (alumno_id, fecha) DO UPDATE SET
+        panial_limpio = EXCLUDED.panial_limpio,
+        pertenencias_ok = EXCLUDED.pertenencias_ok,
+        estado_fisico_ok = EXCLUDED.estado_fisico_ok,
+        notas = EXCLUDED.notas,
+        entrega_conforme = EXCLUDED.entrega_conforme,
+        registrado_por = EXCLUDED.registrado_por,
+        updated_at = NOW()
+      RETURNING *
+    `, [alumno_id, panial_limpio, pertenencias_ok, estado_fisico_ok, notas, entrega_conforme, req.user.id]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── GET /asistencia/salida-sanitario/:alumnoId ────────────────────────────
+// Obtener checklist de salida sanitaria
+router.get('/salida-sanitario/:alumnoId', async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+    const { fecha } = req.query;
+
+    const result = await query(`
+      SELECT * FROM registro_salida_sanitario
+      WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)
+    `, [alumnoId, fecha]);
+
+    res.json(result.rows[0] || null);
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

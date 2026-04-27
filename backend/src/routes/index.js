@@ -20,6 +20,7 @@ const comidaRoutes = require('./comida');
 const ciclosRoutes = require('./ciclos');
 const catalogosRoutes = require('./catalogos');
 const tareasRoutes = require('./tareas');
+const insumosRoutes = require('./insumos');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -40,5 +41,6 @@ router.use('/comida', comidaRoutes);
 router.use('/ciclos', ciclosRoutes);
 router.use('/catalogos', catalogosRoutes);
 router.use('/tareas', tareasRoutes);
+router.use('/insumos', insumosRoutes);
 
 module.exports = router;

@@ -5,9 +5,15 @@
 
 ---
 
-## 🟡 VALIDACIONES PENDIENTES — SESIÓN XX: SOLICITUD TOALLITAS HÚMEDAS (MAÑANA)
+## 🟡 VALIDACIONES PENDIENTES — (ejecutar hoy/mañana)
 
-### Validar mañana (2026-04-28):
+### Sesión 81: Job Cron Medicamentos (validar hoy ~14:00)
+- [ ] A las 14:00 → verificar que dispara recordatorio a miss
+- [ ] Notificación in-app a miss debe aparecer
+- [ ] BD notificaciones registro: `tipo='recordatorio_medicamento'`
+- **Referencia:** ARCHIVE_LOG — Sesión 81 Parte 2 (línea 268)
+
+### Sesión XX: Solicitud Toallitas Húmedas (validar mañana 2026-04-28)
 1. **FiltroEntrada de Sofía Reyes Mendoza**
    - [ ] Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
    - [ ] Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
@@ -17,28 +23,6 @@
    - [ ] Desmarcar "Trajo pañales hoy" en entrada
    - [ ] Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
    - [ ] Registrar cambio → stock baja a "3 pañales"
-
----
-
-## 🔴 VALIDACIONES PENDIENTES — SESIÓN 82 (CRÍTICO)
-
-### Validar antes de continuar:
-1. **Niños de extensión:**
-   - Crear niño extensión (mensual) desde web → verificar en lista
-   - Crear niño extensión (por_dia) → verificar pago generado en tabla `pagos` con `origen = 'extension_dia'`
-   - Ver QR y descargar imagen
-   - Escanear QR en mobile (cuando esté listo) → verificar registro en `registro_extension`
-   - Intentar entrada antes de 14:45 → verificar aviso sin bloquear
-
-
-3. **Hermanos (falta implementar UI):**
-   - Vincular dos alumnos desde Alumnos.jsx (cuando esté lista UI)
-   - Verificar ambos quedan con mismo `familia_id`
-   - Escanear QR salida → verificar alerta "Hermanos aún en escuela"
-
-4. **Job cron medicamentos (de Sesión 81):**
-   - A las 14:00 → verificar que dispara recordatorio a miss
-   - Medicamentos están marcados `recibido = true`
 
 ---
 

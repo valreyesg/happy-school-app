@@ -1,7 +1,58 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83
+
+---
+
+## ✅ SESIÓN 83 — VISITANTES + FIXES UPLOAD (100% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 100% COMPLETADO — Visitantes en página dedicada, upload fixes críticos
+
+**Objetivo:** Crear página dedicada `/directora/visitantes` con registro, foto, extensión día, salida, eliminación. Diagnosticar y fijar error crítico "Unexpected end of form" en upload de fotos.
+
+### Implementado (100%):
+
+**Backend:**
+- ✅ Fix crítico `app.js` — removido `upload.any()` global que consumía streams multipart antes de rutas
+- ✅ Restaurado `upload.single('foto')` en `/visitantes` POST 
+- ✅ Restaurado `upload.single('foto')` en `/ninos-extension` POST y PUT
+- ✅ Mock Cloudinary service para desarrollo (sin credenciales reales)
+- ✅ Migración `037_fix_registrado_por_fk.sql` — FK visitantes.registrado_por corregida (usuarios, no personal)
+
+**Frontend Web:**
+- ✅ Nueva página `/directora/visitantes` (Visitantes.jsx) — CRUD completo
+- ✅ Dashboard.jsx simplificado — Link a página dedicada (sin modal "registrar")
+- ✅ DirectoraLayout.jsx — nav item "Visitantes 👁️"
+- ✅ App.jsx — ruta `/directora/visitantes` agregada
+- ✅ Formato hora_entrada corregido (ISO → locale time HH:MM)
+
+**Validaciones completadas:**
+- ✅ Registrar visitante CON foto → sube sin error 500
+- ✅ Registrar visitante SIN foto → funciona igual
+- ✅ Card muestra: nombre, grupo, tutor, hora entrada (formato correcto HH:MM), hora salida (si existe), badges extensión
+- ✅ Botones: activar extensión día, registrar salida, eliminar (solo sin salida registrada)
+- ✅ Pago automático generado al activar extensión día (origen='visitante_extension', monto=150)
+
+**Archivos modificados:**
+- `backend/src/app.js` — Removidas 3 líneas multer global
+- `backend/src/routes/visitantes.js` — Restaurado multer, upload.single, req.file
+- `backend/src/routes/ninos_extension.js` — Restaurado multer, upload.single, req.file
+- `backend/src/services/cloudinaryService.js` — Mock Cloudinary para dev
+- `web/src/services/api.js` — Removido default Content-Type header
+- `web/src/pages/directora/Visitantes.jsx` — Nueva página CRUD
+- `web/src/pages/directora/Dashboard.jsx` — Simplificado visitantes section
+- `web/src/App.jsx` — Agregada ruta `/directora/visitantes`
+- `web/src/layouts/DirectoraLayout.jsx` — Agregado nav item Visitantes
+- `backend/migrations/037_fix_registrado_por_fk.sql` — Nueva migración
+
+**Root cause diagnosis:**
+- Error "Unexpected end of form" causado por `app.use(upload.any())` global en app.js línea 37
+- Multer global consumía stream multipart ANTES de que rutas específicas pudieran acceder
+- Error secundario: axios.create() con `headers: { 'Content-Type': 'application/json' }` forzaba JSON encoding
+- Fix: quitar ambos, deixar multer por ruta con headers automáticos
+
+**Commit:** próximo
 
 ---
 

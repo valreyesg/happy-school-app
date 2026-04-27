@@ -1,24 +1,7 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-26 | **Sesión actual:** 79
+**Última actualización:** 2026-04-26 | **Sesión actual:** 80
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
-
----
-
-## 🏥 SALUD Y MEDICACIÓN — SESIÓN 80 (100% completado) ✅
-
-**Sesión 79-80 completado:**
-- ✅ Bloque 1: Recepción Medicamento Web (modal, lista pendientes, administración)
-- ✅ Bloque 2: Recepción Medicamento Mobile (sección new, botones)
-- ✅ Bloque 3: Insumos Web + Mobile (stock visible con colores dinámicos)
-- ✅ Bloque 4: Justificantes Web Directora (vista mensual con modal justificar)
-- ✅ Bloque 5: Vómito Mobile (botón toggle, selector intensidad, notas, guardar)
-- ✅ Bloque 6: Diarrea Web + Mobile (es_diarrea en pañal, banner rojo ⚠️)
-- ✅ Bloque 7: Salida Sanitaria Web + Mobile (checkboxes pañal/pertenencias/estado + entrega conforme)
-- ✅ Bloque 8: Vista Padre Tab Salud (mostrar vómitos + diarrea)
-- ✅ Bloque 9: Job recordatorio medicamentos (cada 5 min 7-16 lun-vie, notificación a maestra)
-
-Módulo SALUD Y MEDICACIÓN: **COMPLETADO** 🎉
 
 ---
 
@@ -52,14 +35,6 @@ Módulo SALUD Y MEDICACIÓN: **COMPLETADO** 🎉
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
-
-### 🏥 SALUD Y MEDICACIÓN (Bloque completo)
-- [ ] **Recepción de Medicamento:** Campo Filtro Entrada → foto receta + foto envase → habilitar administración.
-- [ ] **Dosis + Recordatorio automático Miss:** Campo bitácora con timestamp.
-- [ ] **Justificantes Inasistencia:** Endpoint Directora marcar falta "Justificada" → excluir de contador suspensión.
-- [ ] **Depósición especial:** Marcar "Diarrea" en bitácora salud.
-- [ ] **Filtro Sanitario Salida:** Checklist (pañal, pertenencias, estado físico) + botón "Entrega Conforme".
-- [ ] **Control de Insumos (Maternal/Prekinder):** Contador stock pañales → alerta padre WhatsApp y notificación cuando <5.
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
 - [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.

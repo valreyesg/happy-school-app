@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-27 | **Sesión actual:** 82 + XX (Insumos)
+**Última actualización:** 2026-04-27 | **Sesión actual:** 83 (Visitantes + fixes upload)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -30,11 +30,14 @@
    - Escanear QR en mobile (cuando esté listo) → verificar registro en `registro_extension`
    - Intentar entrada antes de 14:45 → verificar aviso sin bloquear
 
-2. **Visitantes:**
-   - Registrar visitante desde Dashboard → aparece en lista
-   - Foto sube a Cloudinary (verificar en tabla `visitantes.foto_url`)
-   - Activar extensión día → verificar pago generado con `origen = 'visitante_extension'`
-   - Registrar salida → verificar confirmación del cargo
+2. **Visitantes:** ✅ COMPLETADO EN SESIÓN 83
+   - ✅ Página dedicada `/directora/visitantes` con lista, selector fecha
+   - ✅ Registrar visitante (con/sin foto) → aparece en lista
+   - ✅ Foto se sube (URLs mock en dev, Cloudinary en prod)
+   - ✅ Activar extensión día → pago generado con `origen = 'visitante_extension'`
+   - ✅ Registrar salida → confirmación y badge
+   - ✅ Dashboard simplificado: solo resumen + link "Ver todos →"
+   - ✅ FK visitantes.registrado_por corregida (usuarios, no personal)
 
 3. **Hermanos (falta implementar UI):**
    - Vincular dos alumnos desde Alumnos.jsx (cuando esté lista UI)

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-26 | **Sesión actual:** 81
+**Última actualización:** 2026-04-27 | **Sesión actual:** 81
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -44,10 +44,13 @@
 ### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (pendiente)
 > Bloque 1 completado en Sesión 81. Ver ARCHIVE_LOG para detalle.
 
-- [ ] **Validación Miss — Administración de Tomas de Medicamento (Sesión 81)**
-  - **Status:** Backend 100% listo. Frontend padre 100% listo. **PENDIENTE:** Frontend miss validación visual.
-  - **Qué falta:** En `web/src/pages/maestra/Bitacora.jsx`, la sección de medicamentos necesita:
-    - [ ] Verificar que muestra correctamente las tomas (una fila por toma, no por recepción)
+- [x] **Validación Miss — Administración de Tomas de Medicamento (Sesión 81)**
+  - **Status:** ✅ COMPLETADO — 3 fixes aplicados
+  - **Fixes realizados:**
+    - [x] FiltroEntrada.jsx: mostrar horarios desde tomas[] (web + mobile)
+    - [x] asistencia.js: auto-marcar medicamentos recibidos al entrar
+    - [x] bitacora.js: notificar papá al administrar toma
+  - **Validación:** horarios visibles ✅ | Entrada auto-marca ✅ | Job 14:00 pendiente
     - [ ] Botón "Administrar" funciona y marca toma como administrada
     - [ ] Badge de estado cambia a ✅ cuando todas las tomas están administradas
     - [ ] Notificación WhatsApp se envía al padre cuando se administra

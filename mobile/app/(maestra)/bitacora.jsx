@@ -712,7 +712,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
                   <Text style={{ fontWeight: '900', color: '#92400E', marginBottom: 2 }}>{rec.nombre} — {rec.dosis}</Text>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Text style={{ fontSize: 12, color: '#B45309' }}>
-                      {rec.hora_programada ? new Date(rec.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                      {rec.tomas?.length > 0 ? rec.tomas.map(t => t.hora_programada.substring(0, 5)).join(', ') : 'Sin hora'}
                     </Text>
                     <TouchableOpacity
                       onPress={() => administrarRecepcionMutation.mutate(rec.id)}

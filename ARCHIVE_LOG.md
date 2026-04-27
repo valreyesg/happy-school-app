@@ -1,7 +1,48 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX
+
+---
+
+## ✅ SESIÓN XX — INSUMOS PAÑALES + SOLICITUD TOALLITAS HÚMEDAS (100% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 100% BACKEND + WEB — Validación FiltroEntrada mañana
+
+**Objetivo:** Rediseñar stock de insumos: 5 pañales diarios (se resetean c/ día), solicitud de toallitas húmedas con notificación WhatsApp al papá
+
+### Implementado (100%):
+
+**Backend:**
+- ✅ Migración `037_insumos_paniales_diario.sql`
+  - Nueva tabla `insumos_stock_diario` (alumno_id, fecha, cantidad)
+  - Nueva tabla `insumos_solicitudes` (alumno_id, fecha, tipo, resuelta, resuelta_en_entrada)
+  - Nuevo campo `trajo_paniales` en `registro_entrada`
+  - Eliminadas filas toallita + papel de `insumos_alumno`
+- ✅ Ruta `GET /insumos/:alumnoId` — devuelve `{ stock: { cantidad, no_registrado }, solicitudes_toallitas: [...] }`
+- ✅ Ruta `POST /insumos/:alumnoId/solicitar-toallitas` — crea solicitud + WhatsApp + notificación interna
+- ✅ Ruta `PUT /insumos/solicitudes/:id/recibida` — marca resuelta
+- ✅ Lógica `POST /asistencia/entrada` — si `trajo_paniales=true` → stock=5; si no → stock=saldo_ayer
+- ✅ Descuento automático en `POST /bitacora/panial` — resta 1 del stock diario
+
+**Frontend Web:**
+- ✅ `FiltroEntrada.jsx` — checkbox "Trajo pañales hoy (5)" + banner toallitas pendientes + botón marcar recibidas
+- ✅ `Bitacora.jsx` — bloque morado stock, botón "Solicitar toallitas húmedas", alerta solicitud, colores semáforo ajustados (≥3 verde, ≥1 amarillo, <1 rojo)
+
+**Validaciones completadas (hoy):**
+- ✅ Sofía Reyes Mendoza: solicitud creada + papá recibió WhatsApp
+- ✅ Stock inicializado: 4 pañales (5 - 1 cambio de hoy)
+- ✅ Bloque morado renderiza correctamente
+- ✅ Botón says "🧻 Solicitar toallitas húmedas"
+- ✅ Alerta amarilla de solicitud pendiente visible
+
+### Pendiente (validar mañana 2026-04-28):
+- [ ] FiltroEntrada muestre "🧻 Pendiente: llevar toallitas" (banner)
+- [ ] Botón "✅ Las trajo hoy" marque como resuelta
+- [ ] Stock sin pañales: desmarcar "Trajo pañales" → stock = 4 (saldo ayer)
+- [ ] **Nota técnica:** Query de solicitudes puede necesitar cambio si no muestra de ayer (`fecha <= CURRENT_DATE`)
+
+**Commit:** bdcbfae
 
 ---
 

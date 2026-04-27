@@ -1,22 +1,37 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-27 | **Sesión actual:** 82
+**Última actualización:** 2026-04-27 | **Sesión actual:** 82 + XX (Insumos)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🟡 VALIDACIONES PENDIENTES — SOLICITUD TOALLITAS HÚMEDAS (MAÑANA)
+## 🟡 VALIDACIONES PENDIENTES — SESIÓN XX: SOLICITUD TOALLITAS HÚMEDAS (MAÑANA)
 
 ### Validar mañana (2026-04-28):
 1. **FiltroEntrada de Sofía Reyes Mendoza**
-   - Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
-   - Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
-   - **NOTA IMPORTANTE:** La query de solicitudes puede necesitar ajuste — ver "NOTA IMPORTANTE — Query de Solicitudes" al final
+   - [ ] Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
+   - [ ] Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
+   - [ ] **NOTA:** La query de solicitudes solo busca `fecha = CURRENT_DATE` — si necesita mostrar solicitudes de ayer, cambiar a `fecha <= CURRENT_DATE`
 
 2. **Stock sin pañales**
-   - Desmarcar "Trajo pañales hoy" en entrada
-   - Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
-   - Registrar cambio → stock baja a "3 pañales"
+   - [ ] Desmarcar "Trajo pañales hoy" en entrada
+   - [ ] Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
+   - [ ] Registrar cambio → stock baja a "3 pañales"
+
+---
+
+## ✅ COMPLETADO — SESIÓN XX: INSUMOS PAÑALES (MOVER A ARCHIVE_LOG)
+
+### Validado hoy (2026-04-27):
+- ✅ Migración 037: Stock diario + Solicitudes toallitas creadas
+- ✅ Backend: 5 endpoints reescritos (GET, POST, PUT /insumos)
+- ✅ Asistencia: Lógica `trajo_paniales` con stock inteligente
+- ✅ Bitácora: Descuento automático al registrar cambio de pañal
+- ✅ FiltroEntrada: Checkbox "Trajo pañales hoy (5)" + banner toallitas pendientes
+- ✅ Bitácora: Bloque morado stock con colores (verde ≥3, amarillo ≥1, rojo <1)
+- ✅ Botón "🧻 Solicitar toallitas húmedas" funcional
+- ✅ Sofía Reyes Mendoza: Solicitud creada + notificación WhatsApp al papá
+- ✅ Stock inicial: 4 pañales (5 - 1 cambio registrado hoy)
 
 ---
 

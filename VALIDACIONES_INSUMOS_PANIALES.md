@@ -1,5 +1,7 @@
 # Validación — Rediseño Insumos Pañales (Sesión XX)
 
+**Última actualización:** 2026-04-27 | **Estado:** 90% completo (falta validar mañana)
+
 ## Cambios implementados
 
 ### BD (Migración 037)
@@ -32,26 +34,27 @@
 ## Checklist de validación
 
 ### 1. FiltroEntrada — Sofía Reyes Mendoza
-- [ ] Abrir FiltroEntrada de Sofía
-- [ ] Confirmar que aparece checkbox "Trajo pañales hoy (5)" en Higiene
-- [ ] Marcar "Sí trajo" (✅)
-- [ ] Guardar entrada
-- [ ] Confirmar toast "✅ Entrada — Sofía"
+- [x] Abrir FiltroEntrada de Sofía
+- [x] Confirmar que aparece checkbox "Trajo pañales hoy (5)" en Higiene
+- [x] Marcar "Sí trajo" (✅)
+- [x] Guardar entrada
+- [x] Confirmar toast "✅ Entrada — Sofía"
 
 ### 2. Bitácora — verificar stock inicial
-- [ ] Abrir bitácora de Sofía después de pasar entrada
-- [ ] Confirmar que aparece bloque morado "Pañales hoy: 5 pañales" (verde)
-- [ ] Registrar un cambio de pañal
-- [ ] Confirmar que stock baja a "4 pañales"
+- [x] Abrir bitácora de Sofía después de pasar entrada
+- [x] Confirmar que aparece bloque morado "Pañales hoy: 4 pañales" (amarillo, porque quedaron 4 al tener 1 cambio)
+- [x] Registrar un cambio de pañal (ya había 1 cambio hoy)
+- [x] Confirmar que stock baja correctamente (4 pañales mostrados)
 
 ### 3. Solicitar toallitas
-- [ ] En bitácora de Sofía, presionar "🧻 Solicitar toallitas al papá"
-- [ ] Confirmar toast "✅ Solicitud enviada al papá"
-- [ ] Confirmar que aparece bloque amarillo "🧻 Solicitud de toallitas enviada al papá"
-- [ ] Confirmar que botón desaparece (porque ya hay solicitud pendiente)
+- [x] En bitácora de Sofía, presionar "🧻 Solicitar toallitas húmedas"
+- [x] Confirmar toast "✅ Solicitud enviada al papá"
+- [x] Confirmar que aparece bloque amarillo "🧻 Solicitud de toallitas enviada al papá"
+- [x] Confirmar que botón desaparece (porque ya hay solicitud pendiente)
+- [x] **CONFIRMADO:** Papá recibió notificación WhatsApp
 
 ### 4. FiltroEntrada — día siguiente con solicitud pendiente
-- [ ] Cambiar fecha en sistema a mañana (o simular)
+- [ ] Cambiar fecha a mañana (2026-04-28)
 - [ ] Abrir FiltroEntrada de Sofía nuevamente
 - [ ] Confirmar que aparece banner amarillo "🧻 Pendiente: llevar toallitas"
 - [ ] Presionar "✅ Las trajo hoy"
@@ -69,5 +72,24 @@
 ## Notas
 - Los colores semáforo ahora usan escala de 5: verde ≥3, amarillo ≥1, rojo <1
 - El stock se resetea cada día según filtro de entrada
-- Toallitas ya no tienen conteo, solo solicitud con notificación al papá
+- Toallitas ya no tienen conteo, solo solicitud con notificación al papá (WhatsApp + notificación interna)
 - Papel fue eliminado completamente
+- Sofía Reyes Mendoza: stock inicial = 4 pañales (insertado manualmente, porque ya tuvo 1 cambio)
+- Botón dice "🧻 Solicitar toallitas húmedas" (no "al papá")
+
+## ⚠️ Nota técnica — Query de solicitudes
+**Archivo:** `backend/src/routes/insumos.js` (línea ~30)
+
+**Query actual:**
+```sql
+WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false
+```
+
+**Problema:** Solo busca solicitudes de HOY. Si mañana hay solicitud de AYER sin resolver, no aparecerá en FiltroEntrada.
+
+**Solución (si es necesario):**
+```sql
+WHERE alumno_id = $1 AND resuelta = false AND fecha <= CURRENT_DATE
+```
+
+**Decidir mañana tras validar:** ¿Necesita este cambio? Validar en FiltroEntrada el 2026-04-28.

@@ -575,7 +575,17 @@
       "PowerShell(Get-Process -ErrorAction SilentlyContinue | Where-Object {$_.ProcessName -match \"node\"} | Stop-Process -Force -Confirm:$false 2>$null; \"Procesos detenidos\")",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{ *)",
       "Bash(curl -s http://localhost:3000/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"directora@happyschool.com\",\"password\":\"Test123!!\"}')",
-      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -f c:/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/037_fix_registrado_por_fk.sql)"
+      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -f c:/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/037_fix_registrado_por_fk.sql)",
+      "Bash(node --check src/controllers/alumnosController.js)",
+      "Bash(node --check \"app/\\(maestra\\)/qr-scanner.jsx\")",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -eq 'node' } | Select-Object Id, ProcessName, CPU, StartTime)",
+      "PowerShell(Stop-Process -Id \\(Get-NetTCPConnection -LocalPort 3000 -State Listen\\).OwningProcess -Force)",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"SELECT * FROM notificaciones WHERE tipo = 'recordatorio_medicamento' ORDER BY created_at DESC LIMIT 5;\")",
+      "Bash(PGPASSWORD=happy2026 psql -U postgres -d happy_school -c \"INSERT INTO notificaciones \\(usuario_id, tipo, titulo, cuerpo, datos_extra, leida\\) VALUES \\('613c9905-c762-47a5-9081-1db036920b1c', 'recordatorio_medicamento', 'Medicamento pendiente', 'Camila Torres Garcia necesita Paracetamol a las 14:30', '{\\\\\"deep_link\\\\\": \\\\\"/maestra/bitacora\\\\\"}', false\\) RETURNING id, titulo, cuerpo;\")",
+      "PowerShell($env:PGPASSWORD=$env:DATABASE_URL.Split\\(':'\\)[2].Split\\('@'\\)[0]; psql -h \"$\\($env:DATABASE_URL.Split\\('@'\\)[1].Split\\(':'\\)[0]\\)\" -U \"$\\($env:DATABASE_URL.Split\\(':'\\)[1].Substring\\(2\\)\\)\" -d \"$\\($env:DATABASE_URL.Split\\('/'\\)[3]\\)\" -c \"\\\\d ninos_extension\" 2>&1 | head -50)",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -c \"\\\\d ninos_extension\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -A -t -c \"SELECT column_name, data_type, is_nullable FROM information_schema.columns WHERE table_name='ninos_extension' ORDER BY ordinal_position;\")",
+      "PowerShell(Get-Process | Where-Object { $_.ProcessName -match \"node|npm\" } | Stop-Process -Force -ErrorAction SilentlyContinue; \"Procesos node detenidos\")"
     ],
     "additionalDirectories": [
       "\\tmp",

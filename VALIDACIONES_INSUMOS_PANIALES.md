@@ -1,6 +1,6 @@
 # Validación — Rediseño Insumos Pañales (Sesión XX)
 
-**Última actualización:** 2026-04-27 | **Estado:** 90% completo (falta validar mañana)
+**Última actualización:** 2026-04-28 | **Estado:** Backend 100% completo. Validación 2026-04-28 pendiente (Sesión 86)
 
 ## Cambios implementados
 

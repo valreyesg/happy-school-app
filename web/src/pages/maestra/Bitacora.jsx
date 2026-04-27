@@ -622,24 +622,12 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     actFotosMutation.mutate(fd);
   };
 
-  // Salida Sanitaria
-  const [salidaSanitaria, setSalidaSanitaria] = useState({ panial_limpio: false, pertenencias_ok: false, estado_fisico_ok: false, notas: '', entrega_conforme: false });
-  const [salidaGuardada, setSalidaGuardada] = useState(false);
-
+  // Salida Sanitaria (solo lectura)
   const { data: salidaData } = useQuery({
     queryKey: ['salida-sanitaria', alumno?.id],
     queryFn: () => api.get(`/asistencia/salida-sanitario/${alumno.id}`).then(r => r.data),
     enabled: !!alumno?.id,
-    onSuccess: (data) => { if (data) { setSalidaSanitaria(data); setSalidaGuardada(true); } }
   });
-
-  const salidaMutation = useMutation({
-    mutationFn: (data) => api.post('/asistencia/salida-sanitario', data),
-    onSuccess: () => { setSalidaGuardada(true); queryClient.invalidateQueries(['salida-sanitaria', alumno?.id]); toast.success('✅ Checklist guardado'); },
-    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
-  });
-
-  const guardarSalidaSanitaria = () => salidaMutation.mutate({ alumno_id: alumno.id, ...salidaSanitaria });
 
   // Insumos (stock diario de pañales + solicitudes de toallitas)
   const { data: insumosData } = useQuery({
@@ -1305,38 +1293,38 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         )}
       </Seccion>
 
-      {/* Salida Sanitaria */}
+      {/* Salida Sanitaria — Solo lectura */}
       <Seccion titulo="🚪 Salida Sanitaria">
-        {salidaGuardada && (
-          <div className="bg-green-100 text-green-800 rounded p-2 mb-3 text-sm font-semibold">✅ Checklist guardado</div>
+        {!salidaData ? (
+          <div className="text-center py-4">
+            <p className="text-sm font-bold text-gray-400">⏳ Pendiente de registrar salida</p>
+            <p className="text-xs text-gray-400 mt-1">
+              El checklist se completa al registrar la salida desde Filtro de Salida
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {[
+              { key: 'panial_limpio', label: '🧷 Pañal limpio al salir', mostrar: alumno.usa_panial },
+              { key: 'pertenencias_ok', label: '🎒 Pertenencias completas', mostrar: true },
+              { key: 'estado_fisico_ok', label: '💚 Estado físico normal', mostrar: true },
+              { key: 'entrega_conforme', label: '✅ Entrega conforme', mostrar: true },
+            ].filter(item => item.mostrar).map(({ key, label }) => (
+              <div key={key} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50">
+                <span className={`text-lg ${salidaData[key] ? 'text-green-500' : 'text-red-400'}`}>
+                  {salidaData[key] ? '✓' : '✗'}
+                </span>
+                <span className="font-semibold text-gray-700 text-sm">{label}</span>
+              </div>
+            ))}
+            {salidaData.notas && (
+              <div className="px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
+                <p className="text-xs font-black text-blue-600 uppercase mb-1">Observaciones</p>
+                <p className="text-sm text-gray-700">{salidaData.notas}</p>
+              </div>
+            )}
+          </div>
         )}
-        <div className="space-y-2">
-          {[
-            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir' },
-            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas' },
-            { key: 'estado_fisico_ok', label: '💚 Estado físico normal' },
-          ].map(({ key, label }) => (
-            <label key={key} className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={salidaSanitaria[key]}
-                onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, [key]: e.target.checked }))}
-                className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
-              <span className="font-semibold text-gray-700">{label}</span>
-            </label>
-          ))}
-          <textarea placeholder="Observaciones…" value={salidaSanitaria.notas}
-            onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, notas: e.target.value }))}
-            className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" rows={2} />
-          <label className="flex items-center gap-2 cursor-pointer font-bold">
-            <input type="checkbox" checked={salidaSanitaria.entrega_conforme}
-              onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, entrega_conforme: e.target.checked }))}
-              className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
-            <span>✅ Entrega conforme</span>
-          </label>
-          <button onClick={guardarSalidaSanitaria} disabled={salidaMutation.isPending}
-            className="w-full py-3 rounded-xl font-black text-sm bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 transition-all">
-            {salidaMutation.isPending ? 'Guardando…' : '💾 Guardar checklist'}
-          </button>
-        </div>
       </Seccion>
 
       {/* Botón guardar fijo (oculto en solo lectura) */}

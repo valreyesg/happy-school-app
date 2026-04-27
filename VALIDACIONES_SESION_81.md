@@ -1,5 +1,5 @@
 # Validaciones — Sesión 81
-**Fecha:** 2026-04-26 | **Estado:** ⏳ Pendiente de validar
+**Fecha:** 2026-04-26 | **Estado:** Archivado (función completada, ver ARCHIVE_LOG.md Sesiones 82+)
 
 ---
 

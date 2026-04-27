@@ -1,7 +1,65 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85
+
+---
+
+## ✅ SESIÓN 85 — Refactorización Salida Sanitaria → FiltroSalida (100% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 100% COMPLETADO — Integración de checklist sanitario en modal de salida con validación de salida anticipada
+
+### Implementado:
+
+**BD — Migración 038:**
+- ✅ Agregadas columnas `es_anticipada` (BOOLEAN, DEFAULT false) y `motivo_salida` (TEXT) a `registro_salida`
+
+**Backend — `routes/asistencia.js`:**
+- ✅ GET `/asistencia/filtro-salida` — Agregado campo `usa_panial` en SELECT (necesario para mostrar/ocultar checkbox en Paso 2)
+- ✅ POST `/asistencia/salida` — Ampliado para aceptar campos de salida anticipada + checklist sanitario
+  - Validación: `motivo_salida` obligatorio si `es_anticipada = true` (retorna 400 si falta)
+  - Transacción explícita: INSERT a `registro_salida` (con columnas nuevas) + INSERT condicional a `registro_salida_sanitario`
+  - Respuesta incluye `salida_sanitaria` con los datos del checklist registrado
+
+**Frontend — `pages/maestra/FiltroSalida.jsx`:**
+- ✅ ModalSalida refactorizado a **2 pasos**:
+  - **Paso 1:** Selector "¿Quién recoge?" + Campo obligatorio "Motivo salida anticipada" (visible solo si `anticipada = true`)
+  - **Paso 2:** Checklist sanitario con campos:
+    - 🧷 Pañal limpio al salir (solo si `alumno.usa_panial = true`)
+    - 🎒 Pertenencias completas
+    - 💚 Estado físico normal
+    - Textarea: Observaciones (opcional)
+    - ✅ Entrega conforme
+- ✅ Barra de progreso visual (indicador Paso 1/Paso 2)
+- ✅ Validaciones integradas:
+  - Paso 1: Quién recoge requerido, motivo obligatorio en salida anticipada
+  - Paso 2: Todos los campos sanitarios capturados (booleanos + notas)
+- ✅ Payload enviado incluye: `es_anticipada`, `motivo_salida`, `panial_limpio`, `pertenencias_ok`, `estado_fisico_ok`, `notas_sanitarias`, `entrega_conforme`
+
+**Frontend — `pages/maestra/Bitacora.jsx`:**
+- ✅ Sección "🚪 Salida Sanitaria" convertida a **solo lectura**:
+  - Muestra datos capturados con checkmarks ✓/✗ por campo
+  - Si no hay salida registrada: "⏳ Pendiente de registrar salida" + nota explicativa
+  - Eliminado estado editable (`salidaSanitaria`, `salidaGuardada`)
+  - Eliminada mutation de escritura (`POST /asistencia/salida-sanitario`)
+  - Mantiene solo query de lectura (`GET /asistencia/salida-sanitario/:alumnoId`)
+
+### Validaciones completadas:
+- ✅ FiltroSalida: Paso 1 con selector "quién recoge"
+- ✅ FiltroSalida: Paso 2 con checklist sanitario (checkboxes + observaciones)
+- ✅ Salida normal (no anticipada): no muestra campo de motivo en Paso 1, avanza directo a Paso 2
+- ✅ Salida anticipada (antes de `hora_salida_normal` de BD): muestra campo motivo obligatorio, valida antes de pasar a Paso 2
+- ✅ Registros guardados en BD: `registro_salida` tiene `es_anticipada` y `motivo_salida` correctamente
+- ✅ Registros guardados en BD: `registro_salida_sanitario` guarda el checklist
+- ✅ Bitácora: muestra datos de salida sanitaria (solo lectura, sin botón de guardar)
+- ✅ Alumno sin `usa_panial`: checkbox de pañal no aparece en Paso 2
+
+### Archivos modificados:
+- `backend/migrations/038_salida_anticipada_motivo.sql` (nueva)
+- `backend/migrations/037_fix_registrado_por_fk.sql` (corregida — eliminada línea que intentaba ALTER ninos_extension)
+- `backend/src/routes/asistencia.js` (POST /salida + GET /filtro-salida)
+- `web/src/pages/maestra/FiltroSalida.jsx` (ModalSalida refactorizado)
+- `web/src/pages/maestra/Bitacora.jsx` (sección Salida Sanitaria a solo lectura)
 
 ---
 

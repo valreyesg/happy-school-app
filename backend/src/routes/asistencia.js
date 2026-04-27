@@ -201,24 +201,32 @@ router.post('/entrada', async (req, res, next) => {
 
 // Registrar salida
 router.post('/salida', async (req, res, next) => {
+  const client = await require('../config/database').pool.connect();
   try {
     const {
       alumno_id, padre_id, persona_autorizada_id,
       nombre_quien_recoge, qr_escaneado,
+      es_anticipada, motivo_salida,
+      panial_limpio, pertenencias_ok, estado_fisico_ok, notas_sanitarias, entrega_conforme
     } = req.body;
+
+    // Validación: motivo_salida es obligatorio si es_anticipada es true
+    if (es_anticipada && !motivo_salida?.trim()) {
+      return res.status(400).json({ error: 'motivo_salida es obligatorio para salidas anticipadas' });
+    }
 
     // Verificar si está autorizado
     let autorizado = false;
     let alerta = false;
 
     if (padre_id) {
-      const padreResult = await query(
+      const padreResult = await client.query(
         'SELECT id FROM alumno_padre WHERE alumno_id = $1 AND padre_id = $2',
         [alumno_id, padre_id]
       );
       autorizado = padreResult.rows.length > 0;
     } else if (persona_autorizada_id) {
-      const personaResult = await query(
+      const personaResult = await client.query(
         'SELECT id FROM personas_autorizadas WHERE id = $1 AND alumno_id = $2 AND activo = true',
         [persona_autorizada_id, alumno_id]
       );
@@ -227,7 +235,7 @@ router.post('/salida', async (req, res, next) => {
 
     // Verificar blacklist
     if (nombre_quien_recoge) {
-      const blackResult = await query(
+      const blackResult = await client.query(
         `SELECT id FROM blacklist WHERE alumno_id = $1 AND activo = true
          AND nombre_completo ILIKE $2`,
         [alumno_id, `%${nombre_quien_recoge}%`]
@@ -240,17 +248,57 @@ router.post('/salida', async (req, res, next) => {
 
     const ahora = new Date();
 
-    const result = await query(`
+    // Iniciar transacción
+    await client.query('BEGIN');
+
+    // INSERT a registro_salida con columnas nuevas
+    const result = await client.query(`
       INSERT INTO registro_salida (
         alumno_id, hora_salida, recogido_por_tipo, padre_id, persona_autorizada_id,
-        nombre_quien_recoge, autorizado, alerta_generada, qr_escaneado, registrado_por
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
+        nombre_quien_recoge, autorizado, alerta_generada, qr_escaneado, registrado_por,
+        es_anticipada, motivo_salida
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *
     `, [
       alumno_id, ahora,
       padre_id ? 'padre' : persona_autorizada_id ? 'persona_autorizada' : 'otro',
       padre_id, persona_autorizada_id, nombre_quien_recoge,
       autorizado, alerta, qr_escaneado || false, req.user.id,
+      es_anticipada || false, motivo_salida || null
     ]);
+
+    let salida_sanitaria = null;
+
+    // INSERT condicional a registro_salida_sanitario — SIEMPRE guardar (almenos uno de los campos viene)
+    try {
+      const sanitariaResult = await client.query(`
+        INSERT INTO registro_salida_sanitario
+          (alumno_id, fecha, panial_limpio, pertenencias_ok, estado_fisico_ok, notas, entrega_conforme, registrado_por, updated_at)
+        VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7, NOW())
+        ON CONFLICT (alumno_id, fecha) DO UPDATE SET
+          panial_limpio = COALESCE(EXCLUDED.panial_limpio, registro_salida_sanitario.panial_limpio),
+          pertenencias_ok = COALESCE(EXCLUDED.pertenencias_ok, registro_salida_sanitario.pertenencias_ok),
+          estado_fisico_ok = COALESCE(EXCLUDED.estado_fisico_ok, registro_salida_sanitario.estado_fisico_ok),
+          notas = COALESCE(EXCLUDED.notas, registro_salida_sanitario.notas),
+          entrega_conforme = COALESCE(EXCLUDED.entrega_conforme, registro_salida_sanitario.entrega_conforme),
+          updated_at = NOW()
+        RETURNING *
+      `, [
+        alumno_id,
+        typeof panial_limpio === 'boolean' ? panial_limpio : null,
+        typeof pertenencias_ok === 'boolean' ? pertenencias_ok : null,
+        typeof estado_fisico_ok === 'boolean' ? estado_fisico_ok : null,
+        notas_sanitarias || null,
+        typeof entrega_conforme === 'boolean' ? entrega_conforme : null,
+        req.user.id
+      ]);
+      salida_sanitaria = sanitariaResult.rows[0];
+    } catch (err) {
+      console.error('Error al guardar salida_sanitaria:', err.message);
+      // No bloquear la transacción si falla el sanitario
+    }
+
+    // COMMIT transacción
+    await client.query('COMMIT');
 
     if (!autorizado) {
       // Notificar inmediatamente a padres
@@ -296,11 +344,17 @@ router.post('/salida', async (req, res, next) => {
 
     res.json({
       salida: result.rows[0],
+      salida_sanitaria,
       autorizado,
       alerta,
       hermanos_sin_salir: hermanosSinSalirResult.rows
     });
-  } catch (err) { next(err); }
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    next(err);
+  } finally {
+    client.release();
+  }
 });
 
 // Filtro de entrada — todos los alumnos activos agrupados por grupo
@@ -449,7 +503,7 @@ router.get('/filtro-salida', async (req, res, next) => {
     // Alumnos presentes el día especificado, agrupados por grupo, con flag de salida ya registrada
     const result = await query(`
       SELECT
-        a.id, a.nombre_completo, a.foto_url,
+        a.id, a.nombre_completo, a.foto_url, a.usa_panial,
         g.id AS grupo_id, g.nombre AS grupo_nombre, g.color_hex AS grupo_color,
         COALESCE(ast.estado, 'ausente') AS estado_asistencia,
         re.hora_entrada,

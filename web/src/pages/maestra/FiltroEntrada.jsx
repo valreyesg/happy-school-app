@@ -238,8 +238,8 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-gray-800">{med.nombre} — {med.dosis}</p>
                       <p className="text-xs text-gray-500">
-                        {med.hora_programada
-                          ? new Date(`1970-01-01T${med.hora_programada}`).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+                        {med.tomas?.length > 0
+                          ? med.tomas.map(t => t.hora_programada.substring(0, 5)).join(', ')
                           : 'Sin hora programada'}
                       </p>
                     </div>

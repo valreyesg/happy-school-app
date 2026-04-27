@@ -95,6 +95,15 @@ router.post('/entrada', async (req, res, next) => {
       ON CONFLICT (alumno_id, fecha) DO UPDATE SET estado=$2, entrada_id=$3, updated_at=NOW()
     `, [alumno_id, estadoAsistencia, entradaResult.rows[0].id]);
 
+    // Auto-marcar medicamentos del día como recibidos al registrar entrada
+    await query(`
+      UPDATE recepcion_medicamento
+      SET recibido = true, recibido_at = NOW()
+      WHERE alumno_id = $1
+        AND fecha = CURRENT_DATE
+        AND recibido = false
+    `, [alumno_id]);
+
     // Notificaciones WhatsApp
     const alumnoResult = await query(`
       SELECT a.nombre_completo, p.nombre_completo AS padre_nombre,

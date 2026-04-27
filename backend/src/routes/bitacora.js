@@ -677,6 +677,46 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
         WHERE id = $1
       `, [toma_id, maestraId, medicResult.rows[0].id]);
 
+      // Notificar al padre que se administró el medicamento
+      const padreResult = await query(`
+        SELECT a.nombre_completo AS alumno_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+               p.nombre_completo AS padre_nombre,
+               u.id AS usuario_id
+        FROM alumnos a
+        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN padres p ON ap.padre_id = p.id
+        JOIN usuarios u ON p.usuario_id = u.id
+        WHERE a.id = $1 LIMIT 1
+      `, [alumno_id]);
+
+      if (padreResult.rows.length > 0) {
+        const { alumno_nombre, telefono, padre_nombre, usuario_id: padreUsuarioId } = padreResult.rows[0];
+        await enviarMensaje({
+          telefono,
+          clave: 'medicamento',
+          variables: {
+            nombre_padre: padre_nombre.split(' ')[0],
+            nombre_alumno: alumno_nombre,
+            medicamento: nombre,
+            dosis,
+            hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+          },
+          alumnoId: alumno_id,
+        });
+        if (padreUsuarioId) {
+          await query(`
+            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+            VALUES ($1, $2, $3, 'medicamento', $4)
+          `, [
+            padreUsuarioId,
+            `Medicamento administrado — ${alumno_nombre}`,
+            `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
+            JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
+          ]);
+        }
+      }
+
       // Retornar toma actualizada
       const tomaResult = await query(
         'SELECT * FROM toma_medicamento WHERE id = $1',

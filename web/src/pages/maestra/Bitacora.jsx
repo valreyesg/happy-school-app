@@ -622,6 +622,25 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     actFotosMutation.mutate(fd);
   };
 
+  // Salida Sanitaria
+  const [salidaSanitaria, setSalidaSanitaria] = useState({ panial_limpio: false, pertenencias_ok: false, estado_fisico_ok: false, notas: '', entrega_conforme: false });
+  const [salidaGuardada, setSalidaGuardada] = useState(false);
+
+  const { data: salidaData } = useQuery({
+    queryKey: ['salida-sanitaria', alumno?.id],
+    queryFn: () => api.get(`/asistencia/salida-sanitario/${alumno.id}`).then(r => r.data),
+    enabled: !!alumno?.id,
+    onSuccess: (data) => { if (data) { setSalidaSanitaria(data); setSalidaGuardada(true); } }
+  });
+
+  const salidaMutation = useMutation({
+    mutationFn: (data) => api.post('/asistencia/salida-sanitario', data),
+    onSuccess: () => { setSalidaGuardada(true); queryClient.invalidateQueries(['salida-sanitaria', alumno?.id]); toast.success('✅ Checklist guardado'); },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const guardarSalidaSanitaria = () => salidaMutation.mutate({ alumno_id: alumno.id, ...salidaSanitaria });
+
   // Insumos (stock de pañales, toallitas, etc.)
   const [insumos, setInsumos] = useState([]);
   const { data: insumosData } = useQuery({
@@ -822,7 +841,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             {PANIAL_CONDICIONES.map(c => (
               <button
                 key={c.key}
-                onClick={() => panialMutation.mutate({ alumno_id: alumno.id, condicion: c.key, tiene_irritacion: false, notas: '' })}
+                onClick={() => panialMutation.mutate({ alumno_id: alumno.id, condicion: c.key, tiene_irritacion: false, es_diarrea: c.key === 'diarrea', notas: '' })}
                 disabled={panialMutation.isPending || soloLectura}
                 className="px-4 py-2 bg-hs-purple text-white rounded-xl font-bold text-sm hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -991,6 +1010,12 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
       {/* Salud */}
       <Seccion titulo={`🌡️ Salud${data?.vomitos?.length > 0 ? ' 🤢' : ''}`}>
+        {data?.panial?.some(p => p.es_diarrea) && (
+          <div className="bg-red-100 border border-red-400 text-red-800 rounded-lg p-3 mb-3 flex items-center gap-2">
+            <span>⚠️</span>
+            <span className="font-semibold">Deposición anormal registrada hoy</span>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <span className="font-bold text-gray-700">¿Tuvo fiebre?</span>
           <button onClick={() => setTuvoFiebre(v => !v)}
@@ -1241,6 +1266,40 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             </button>
           </div>
         )}
+      </Seccion>
+
+      {/* Salida Sanitaria */}
+      <Seccion titulo="🚪 Salida Sanitaria">
+        {salidaGuardada && (
+          <div className="bg-green-100 text-green-800 rounded p-2 mb-3 text-sm font-semibold">✅ Checklist guardado</div>
+        )}
+        <div className="space-y-2">
+          {[
+            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir' },
+            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas' },
+            { key: 'estado_fisico_ok', label: '💚 Estado físico normal' },
+          ].map(({ key, label }) => (
+            <label key={key} className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={salidaSanitaria[key]}
+                onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, [key]: e.target.checked }))}
+                className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
+              <span className="font-semibold text-gray-700">{label}</span>
+            </label>
+          ))}
+          <textarea placeholder="Observaciones…" value={salidaSanitaria.notas}
+            onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, notas: e.target.value }))}
+            className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" rows={2} />
+          <label className="flex items-center gap-2 cursor-pointer font-bold">
+            <input type="checkbox" checked={salidaSanitaria.entrega_conforme}
+              onChange={(e) => setSalidaSanitaria(prev => ({ ...prev, entrega_conforme: e.target.checked }))}
+              className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
+            <span>✅ Entrega conforme</span>
+          </label>
+          <button onClick={guardarSalidaSanitaria} disabled={salidaMutation.isPending}
+            className="w-full py-3 rounded-xl font-black text-sm bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 transition-all">
+            {salidaMutation.isPending ? 'Guardando…' : '💾 Guardar checklist'}
+          </button>
+        </div>
       </Seccion>
 
       {/* Botón guardar fijo (oculto en solo lectura) */}

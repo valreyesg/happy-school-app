@@ -628,7 +628,25 @@ export default function PadreBitacora() {
                           ))}
                         </div>
                       )}
-                      {!bit?.tuvo_fiebre && !bit?.se_enfermo && meds.length === 0 && (
+                      {data?.vomitos?.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-orange-700">🤢 Vómitos</h4>
+                          {data.vomitos.map((v, i) => (
+                            <div key={i} className="bg-orange-50 rounded-lg p-3 text-sm">
+                              <span className="font-medium">{v.hora?.substring(0, 5)}</span>
+                              {' — '}<span className="capitalize">{v.intensidad}</span>
+                              {v.notas && <span className="text-gray-600"> · {v.notas}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {data?.panial?.some(p => p.es_diarrea) && (
+                        <div className="bg-red-100 border border-red-300 rounded-lg p-3 flex items-center gap-2">
+                          <span>⚠️</span>
+                          <span className="text-red-800 font-semibold">Deposición anormal registrada hoy</span>
+                        </div>
+                      )}
+                      {!bit?.tuvo_fiebre && !bit?.se_enfermo && meds.length === 0 && data?.vomitos?.length === 0 && !data?.panial?.some(p => p.es_diarrea) && (
                         <p className="text-center text-sm text-gray-400 font-semibold py-6">Sin registros de salud</p>
                       )}
                     </div>

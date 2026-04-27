@@ -280,6 +280,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
       alumno_id: alumnoId,
       condicion,
       tiene_irritacion: false,
+      es_diarrea: condicion === 'diarrea',
       notas: '',
     });
   };
@@ -289,6 +290,39 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const [recNombre, setRecNombre] = useState('');
   const [recDosis, setRecDosis] = useState('');
   const [recHora, setRecHora] = useState('');
+
+  const [mostrarFormVomito, setMostrarFormVomito] = useState(false);
+  const [vomitoIntensidad, setVomitoIntensidad] = useState('');
+  const [vomitoNotas, setVomitoNotas] = useState('');
+
+  const [salidaSanitaria, setSalidaSanitaria] = useState({ panial_limpio: false, pertenencias_ok: false, estado_fisico_ok: false, notas: '', entrega_conforme: false });
+  const [salidaGuardada, setSalidaGuardada] = useState(false);
+
+  const salidaMutation = useMutation({
+    mutationFn: (data) => api.post('/asistencia/salida-sanitario', data),
+    onSuccess: () => { setSalidaGuardada(true); Alert.alert('✅', 'Checklist guardado.'); },
+    onError: () => Alert.alert('Error', 'No se pudo guardar el checklist'),
+  });
+
+  const vomitoMutation = useMutation({
+    mutationFn: (data) => api.post('/bitacora/vomito', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      setMostrarFormVomito(false);
+      setVomitoIntensidad('');
+      setVomitoNotas('');
+      Alert.alert('¡Listo!', 'Vómito registrado.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo registrar el vómito'),
+  });
+
+  const registrarVomito = () => {
+    if (!vomitoIntensidad) {
+      Alert.alert('', 'Selecciona la intensidad');
+      return;
+    }
+    vomitoMutation.mutate({ alumno_id: alumnoId, intensidad: vomitoIntensidad, notas: vomitoNotas });
+  };
 
   const recepcionMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/medicamento/recepcion', body),
@@ -597,6 +631,75 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               multiline
             />
           )}
+
+          {bitacoraExistente?.panial?.some(p => p.es_diarrea) && (
+            <View style={{ backgroundColor: '#fee2e2', borderRadius: 8, padding: 12, marginTop: 12, borderLeftWidth: 4, borderLeftColor: '#dc2626' }}>
+              <Text style={{ color: '#991b1b', fontWeight: '600', fontSize: 13 }}>⚠️ Deposición anormal registrada hoy</Text>
+            </View>
+          )}
+
+          {/* Vómitos */}
+          {bitacoraExistente?.vomitos?.length > 0 && (
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: '#B45309', marginBottom: 8 }}>🤢 Vómitos del día</Text>
+              {bitacoraExistente.vomitos.map((v, i) => (
+                <Text key={i} style={{ fontSize: 13, color: '#4A5568', marginBottom: 4 }}>
+                  {v.hora?.substring(0, 5)} — {v.intensidad}
+                  {v.notas ? ` · ${v.notas}` : ''}
+                </Text>
+              ))}
+            </View>
+          )}
+
+          <TouchableOpacity
+            onPress={() => setMostrarFormVomito(!mostrarFormVomito)}
+            style={{ marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: mostrarFormVomito ? '#FEE2E2' : '#FEF3C7', borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#FED7AA' }}
+          >
+            <Text style={{ color: '#B45309', fontSize: 14, fontWeight: '700' }}>
+              🤢 {mostrarFormVomito ? 'Cancelar' : '+ Registrar vómito'}
+            </Text>
+          </TouchableOpacity>
+
+          {mostrarFormVomito && (
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
+              <Text style={s.subLabel}>Intensidad</Text>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
+                {['leve', 'moderado', 'fuerte'].map((nivel) => (
+                  <TouchableOpacity
+                    key={nivel}
+                    onPress={() => setVomitoIntensidad(nivel)}
+                    style={{
+                      flex: 1,
+                      paddingVertical: 10,
+                      borderRadius: 8,
+                      alignItems: 'center',
+                      backgroundColor: vomitoIntensidad === nivel ? '#805AD5' : '#EDF2F7',
+                      borderWidth: 1,
+                      borderColor: vomitoIntensidad === nivel ? '#805AD5' : '#CBD5E0',
+                    }}
+                  >
+                    <Text style={{ color: vomitoIntensidad === nivel ? '#fff' : '#4A5568', fontWeight: '700', fontSize: 13 }}>
+                      {nivel.charAt(0).toUpperCase() + nivel.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TextInput
+                style={s.input}
+                placeholder="Notas (opcional)"
+                value={vomitoNotas}
+                onChangeText={setVomitoNotas}
+                multiline
+              />
+              <TouchableOpacity
+                onPress={registrarVomito}
+                disabled={vomitoMutation.isPending}
+                style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#F59E0B', borderRadius: 10, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </Seccion>
 
         {/* Medicamentos */}
@@ -686,6 +789,43 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               </View>
             </View>
           )}
+        </Seccion>
+
+        {/* Salida Sanitaria */}
+        <Seccion titulo="🚪 Salida Sanitaria">
+          {salidaGuardada && (
+            <Text style={{ color: '#166534', backgroundColor: '#dcfce7', padding: 8, borderRadius: 8, marginBottom: 8, fontWeight: '600', fontSize: 12 }}>✅ Checklist guardado</Text>
+          )}
+          {[
+            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir' },
+            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas' },
+            { key: 'estado_fisico_ok', label: '💚 Estado físico normal' },
+            { key: 'entrega_conforme', label: '✅ Entrega conforme' },
+          ].map(({ key, label }) => (
+            <View key={key} style={s.switchRow}>
+              <Text style={s.switchLabel}>{label}</Text>
+              <Switch
+                value={salidaSanitaria[key]}
+                onValueChange={(v) => setSalidaSanitaria(prev => ({ ...prev, [key]: v }))}
+                trackColor={{ true: '#38A169' }}
+                thumbColor={salidaSanitaria[key] ? '#22C55E' : '#CBD5E0'}
+              />
+            </View>
+          ))}
+          <TextInput
+            style={s.input}
+            placeholder="Observaciones…"
+            value={salidaSanitaria.notas}
+            onChangeText={(v) => setSalidaSanitaria(prev => ({ ...prev, notas: v }))}
+            multiline
+          />
+          <TouchableOpacity
+            onPress={() => salidaMutation.mutate({ alumno_id: alumnoId, ...salidaSanitaria })}
+            disabled={salidaMutation.isPending}
+            style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#22C55E', borderRadius: 10, alignItems: 'center' }}
+          >
+            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar checklist</Text>
+          </TouchableOpacity>
         </Seccion>
 
         {/* Notas generales */}

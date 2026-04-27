@@ -5,23 +5,20 @@
 
 ---
 
-## 🏥 SALUD Y MEDICACIÓN — SESIÓN 79/80 (50% completado)
+## 🏥 SALUD Y MEDICACIÓN — SESIÓN 80 (100% completado) ✅
 
-**Sesión 79 completado:**
+**Sesión 79-80 completado:**
 - ✅ Bloque 1: Recepción Medicamento Web (modal, lista pendientes, administración)
 - ✅ Bloque 2: Recepción Medicamento Mobile (sección new, botones)
 - ✅ Bloque 3: Insumos Web + Mobile (stock visible con colores dinámicos)
 - ✅ Bloque 4: Justificantes Web Directora (vista mensual con modal justificar)
-- ⚠️ Bloque 5: Vómito Web (formulario incompleto, sin mobile ni integración padre)
+- ✅ Bloque 5: Vómito Mobile (botón toggle, selector intensidad, notas, guardar)
+- ✅ Bloque 6: Diarrea Web + Mobile (es_diarrea en pañal, banner rojo ⚠️)
+- ✅ Bloque 7: Salida Sanitaria Web + Mobile (checkboxes pañal/pertenencias/estado + entrega conforme)
+- ✅ Bloque 8: Vista Padre Tab Salud (mostrar vómitos + diarrea)
+- ✅ Bloque 9: Job recordatorio medicamentos (cada 5 min 7-16 lun-vie, notificación a maestra)
 
-**Sesión 80 pendiente:**
-- [ ] Bloque 5 Mobile: Vómito  
-- [ ] Bloque 6: Diarrea Web + Mobile (es_diarrea en pañal, banner rojo)
-- [ ] Bloque 7: Salida Sanitaria Web + Mobile (checkboxes pañal/pertenencias/estado)
-- [ ] Bloque 8: Vista Padre Tab Salud (mostrar vómitos, diarrea)
-- [ ] Bloque 9: Job recordatorio medicamentos
-
-Ver `memory/sesion_79_salud_medicacion.md` para líneas de código exactas y validación.
+Módulo SALUD Y MEDICACIÓN: **COMPLETADO** 🎉
 
 ---
 

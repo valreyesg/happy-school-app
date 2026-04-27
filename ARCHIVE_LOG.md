@@ -1,7 +1,46 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 78
+**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 80
+
+---
+
+## ✅ SESIÓN 80 — SALUD Y MEDICACIÓN (100% Frontend + Job Backend)
+
+**Fecha:** 2026-04-26 | **Estado:** 100% COMPLETADO ✅ | **Duración:** ~100 min
+
+**Lo que se hizo en Frontend Web (Maestra):**
+- Bloque 6: Agregado flag `es_diarrea` al envío de pañal — banner rojo ⚠️ en sección Salud
+- Bloque 7: Sección "Salida Sanitaria" con checkboxes (pañal limpio, pertenencias, estado) + entrega conforme
+  - Query GET `/asistencia/salida-sanitario/:alumnoId` para precargar
+  - Mutation POST `/asistencia/salida-sanitario` para guardar
+
+**Lo que se hizo en Frontend Mobile:**
+- Bloque 5: Sección "Vómito" con botón toggle, selector 3-botones intensidad (leve/moderado/fuerte), notas
+  - Mutation POST `/bitacora/vomito` 
+  - Listado de vómitos del día con hora + intensidad + notas
+- Bloque 6: Modificado `registrarPanial()` para enviar `es_diarrea: condicion === 'diarrea'`
+  - Banner rojo en sección Salud si hay diarrea
+- Bloque 7: Sección "Salida Sanitaria" con 4 Switches (pañal/pertenencias/estado/entrega) + notas
+  - Mutation POST `/asistencia/salida-sanitario`
+
+**Lo que se hizo en Frontend Web (Padre):**
+- Bloque 8: Tab Salud mejorado para mostrar:
+  - Listado de vómitos (hora + intensidad + notas) si existen
+  - Banner ⚠️ si hay diarrea
+  - Empty state actualizado (considera vómitos y diarrea)
+
+**Lo que se hizo en Backend:**
+- Bloque 9: Job cron medicamentos — `backend/src/jobs/medicamentosJobs.js`
+  - Schedule: cada 5 min, 7:00-16:00, lun-vie (UTC México)
+  - Query: recepciones NO administradas con `hora_programada` en ventana ±10 min
+  - Acción: INSERT notificación tipo `recordatorio_medicamento` a maestra titular
+  - Integración en `backend/src/index.js` — se ejecuta al iniciar servidor
+
+**Validación:**
+- ✅ Sintaxis JS backend y frontend sin errores
+- ✅ Backend iniciado con ambos jobs (comida + medicamentos)
+- ✅ Cambios presentes en todos 5 archivos clave
 
 ---
 

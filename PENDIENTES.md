@@ -69,7 +69,7 @@
 
 - [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
 - [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
-- [ ] **Recargo Impuntualidad:** $125 MXN automático a las 3:06 PM (niños sin extensión). Panel Directora condonar con motivo.
+- [x] **Recargo Impuntualidad:** $125 MXN automático a las 3:06 PM (niños sin extensión). ✅ Sesión 86
 - [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
 - [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
 - [ ] **Exportación Contable:** Excel filtrable para admin.

@@ -248,22 +248,71 @@ router.post('/salida', async (req, res, next) => {
 
     const ahora = new Date();
 
+    // Leer config de horario y cobro desde configuracion_general (fuente de verdad: directora)
+    const cfgRows = await client.query(`
+      SELECT clave, valor FROM configuracion_general
+      WHERE clave IN ('hora_salida_normal', 'hora_inicio_cobro_extension', 'costo_extension_hora')
+    `);
+    const cfg = {};
+    cfgRows.rows.forEach(r => { cfg[r.clave] = r.valor; });
+    const horaSalidaNormal  = cfg['hora_salida_normal']          || '15:00';
+    const horaInicioCobro   = cfg['hora_inicio_cobro_extension'] || '15:06';
+    const costoExtHora      = parseFloat(cfg['costo_extension_hora'] || '125');
+
+    // Leer si el alumno tiene extensión contratada
+    const alumnoHorarioRes = await client.query(`
+      SELECT COALESCE(cha.tiene_extension, false) AS tiene_extension
+      FROM alumnos a
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
+      WHERE a.id = $1
+    `, [alumno_id]);
+    const tieneExtension = alumnoHorarioRes.rows[0]?.tiene_extension === true;
+
+    // Función helper: convertir HH:MM a minutos desde medianoche
+    function horaAMinutos(horaStr) {
+      const [h, m] = horaStr.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    // Hora actual en zona México
+    const horaActualMX = ahora.toLocaleTimeString('en-CA', {
+      timeZone: 'America/Mexico_City',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    });
+
+    const minActual      = horaAMinutos(horaActualMX);
+    const minSalidaNorm  = horaAMinutos(horaSalidaNormal);
+    const minInicioCobro = horaAMinutos(horaInicioCobro);
+
+    let esSalidaTardia = false;
+    let minutosTarde   = 0;
+    let cobroExtension = 0;
+
+    if (!tieneExtension && minActual >= minInicioCobro) {
+      esSalidaTardia = true;
+      minutosTarde   = minActual - minSalidaNorm;
+      // Monto fijo = costo_extension_hora de la config
+      cobroExtension = costoExtHora;
+    }
+
     // Iniciar transacción
     await client.query('BEGIN');
 
-    // INSERT a registro_salida con columnas nuevas
+    // INSERT a registro_salida con campos de salida tardía
     const result = await client.query(`
       INSERT INTO registro_salida (
         alumno_id, hora_salida, recogido_por_tipo, padre_id, persona_autorizada_id,
         nombre_quien_recoge, autorizado, alerta_generada, qr_escaneado, registrado_por,
-        es_anticipada, motivo_salida
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *
+        es_anticipada, motivo_salida,
+        es_extension, minutos_tarde, cobro_extension
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *
     `, [
       alumno_id, ahora,
       padre_id ? 'padre' : persona_autorizada_id ? 'persona_autorizada' : 'otro',
       padre_id, persona_autorizada_id, nombre_quien_recoge,
       autorizado, alerta, qr_escaneado || false, req.user.id,
-      es_anticipada || false, motivo_salida || null
+      es_anticipada || false, motivo_salida || null,
+      esSalidaTardia, minutosTarde, cobroExtension
     ]);
 
     let salida_sanitaria = null;
@@ -295,6 +344,26 @@ router.post('/salida', async (req, res, next) => {
     } catch (err) {
       console.error('Error al guardar salida_sanitaria:', err.message);
       // No bloquear la transacción si falla el sanitario
+    }
+
+    // Generar registro en pagos si es salida tardía
+    let pagoSalidaTardia = null;
+    if (esSalidaTardia && cobroExtension > 0) {
+      const conceptoRes = await client.query(`
+        SELECT id FROM conceptos_pago
+        WHERE nombre ILIKE 'Salida tard%' AND activo = true LIMIT 1
+      `);
+      if (conceptoRes.rows[0]) {
+        const mesActual = ahora.getMonth() + 1;
+        const anioActual = ahora.getFullYear();
+        const pagoRes = await client.query(`
+          INSERT INTO pagos
+            (alumno_id, concepto_id, monto_base, monto_total, estado, origen, mes_correspondiente, anio_correspondiente, registrado_por)
+          VALUES ($1, $2, $3, $3, 'pendiente', 'salida_tardia', $5, $6, $4)
+          RETURNING id, monto_total, estado
+        `, [alumno_id, conceptoRes.rows[0].id, cobroExtension, req.user.id, mesActual, anioActual]);
+        pagoSalidaTardia = pagoRes.rows[0];
+      }
     }
 
     // COMMIT transacción
@@ -347,7 +416,9 @@ router.post('/salida', async (req, res, next) => {
       salida_sanitaria,
       autorizado,
       alerta,
-      hermanos_sin_salir: hermanosSinSalirResult.rows
+      hermanos_sin_salir: hermanosSinSalirResult.rows,
+      es_salida_tardia: esSalidaTardia,
+      pago_salida_tardia: pagoSalidaTardia
     });
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
@@ -494,11 +565,15 @@ router.get('/filtro-salida', async (req, res, next) => {
     const fechaRow = await query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fechaParam]);
     const fechaResuelta = fechaRow.rows[0].f;
 
-    // hora_salida_normal de config
+    // Leer config de horario
     const cfgResult = await query(
-      `SELECT valor FROM configuracion_general WHERE clave = 'hora_salida_normal' LIMIT 1`
+      `SELECT clave, valor FROM configuracion_general
+       WHERE clave IN ('hora_salida_normal', 'hora_inicio_cobro_extension')`
     );
-    const hora_salida_normal = cfgResult.rows[0]?.valor || '15:00';
+    const cfgMap = {};
+    cfgResult.rows.forEach(r => { cfgMap[r.clave] = r.valor; });
+    const hora_salida_normal        = cfgMap['hora_salida_normal']          || '15:00';
+    const hora_inicio_cobro_ext     = cfgMap['hora_inicio_cobro_extension'] || '15:06';
 
     // Alumnos presentes el día especificado, agrupados por grupo, con flag de salida ya registrada
     const result = await query(`
@@ -571,7 +646,12 @@ router.get('/filtro-salida', async (req, res, next) => {
       });
     }
 
-    res.json({ grupos: Object.values(grupos), hora_salida_normal, fecha: fechaResuelta });
+    res.json({
+      grupos: Object.values(grupos),
+      hora_salida_normal,
+      hora_inicio_cobro_extension: hora_inicio_cobro_ext,
+      fecha: fechaResuelta
+    });
   } catch (err) { next(err); }
 });
 

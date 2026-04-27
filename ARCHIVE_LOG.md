@@ -1,7 +1,58 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86
+
+---
+
+## ✅ SESIÓN 86 — Detección y Cobro de Salida Tardía sin Extensión (100% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 100% COMPLETADO — Recargo automático $125 cuando alumno sin extensión es recogido después de `hora_inicio_cobro_extension`
+
+### Implementado:
+
+**BD — Migración 039:**
+- ✅ Creado concepto de pago `'Salida tardía'` (tipo: `'extension'`, monto: `125.00`, es_mensual: `false`)
+- ✅ Concepto activo para registrar pagos automáticos
+
+**Backend — `routes/asistencia.js`:**
+- ✅ GET `/asistencia/filtro-salida` — Expone `hora_inicio_cobro_extension` (tolerancia configurable desde directora)
+- ✅ POST `/asistencia/salida` — Lógica completa de detección y cobro:
+  - Lee configuración desde `configuracion_general`: `hora_salida_normal`, `hora_inicio_cobro_extension`, `costo_extension_hora`
+  - Lee estado de extensión del alumno desde `config_horario_alumno` (`tiene_extension`)
+  - **Condición:** Si alumno NO tiene extensión Y hora actual >= `hora_inicio_cobro_extension`:
+    - Calcula `minutos_tarde` = minutos desde `hora_salida_normal` hasta hora actual
+    - Establece `cobro_extension` = valor fijo de `costo_extension_hora` (ej: $125)
+    - Guarda en `registro_salida`: `es_extension=true`, `minutos_tarde`, `cobro_extension`
+    - Crea registro en `pagos` con `origen='salida_tardia'`, `estado='pendiente'`, `mes_correspondiente`, `anio_correspondiente`
+  - Respuesta incluye `es_salida_tardia` y `pago_salida_tardia` (con monto_total)
+- ✅ Hora consultada en zona Mexico City (`America/Mexico_City`) para validez en contexto local
+
+**Frontend — `pages/maestra/FiltroSalida.jsx`:**
+- ✅ Helper `esSalidaTardia(alumno, horaInicioCobro)` — Retorna true si sin extensión Y hora >= tolerancia
+- ✅ Modal de salida recibe `horaInicioCobro` del backend
+- ✅ Badge rojo "SALIDA TARDÍA" visible en Paso 1 cuando aplica condición
+- ✅ Toast diferenciado con emoji ⏰ al confirmar: "Salida registrada — Recargo $X generado"
+- ✅ Payload a backend incluye información (aunque backend calcula todo, frontend informa visualmente)
+
+### Validaciones completadas:
+- ✅ Alumno sin extensión, salida después de tolerancia → cálculo correcto de minutos_tarde
+- ✅ Pago generado en `pagos` con origen `'salida_tardia'` y estado `'pendiente'`
+- ✅ Pago visible en página de Pagos (directora) con monto correcto y campos mes/año rellenos
+- ✅ Badge rojo visible en el modal antes de confirmar salida
+- ✅ Toast con monto aparece al completar registro
+- ✅ Alumno CON extensión → no genera cobro (correcto)
+- ✅ Alumno sin extensión pero salida dentro de tolerancia (< 3:06pm) → no genera cobro (correcto)
+
+### Archivos modificados:
+- `backend/migrations/039_concepto_salida_tardia.sql` (nueva)
+- `backend/src/routes/asistencia.js` (GET y POST /asistencia/salida y /asistencia/filtro-salida)
+- `web/src/pages/maestra/FiltroSalida.jsx` (helper `esSalidaTardia`, badge, toast)
+
+### Pendiente para próxima sesión:
+- ⏳ Notificación a padres en portal (campanita) cuando se genera recargo
+- ⏳ Notificación WhatsApp a padres (opcional, requiere plantilla)
+- ⏳ Panel directora para condonar recargos (PENDIENTES.md línea 72)
 
 ---
 

@@ -23,9 +23,18 @@ function esSalidaAnticipada(horaSalidaNormal) {
   return ahora < limite;
 }
 
+function esSalidaTardia(alumno, horaInicioCobro) {
+  if (!horaInicioCobro || alumno.tiene_extension) return false;
+  const ahora = new Date();
+  const [h, m] = horaInicioCobro.split(':').map(Number);
+  const limite = new Date();
+  limite.setHours(h, m, 0, 0);
+  return ahora >= limite;
+}
+
 // ── Modal salida ───────────────────────────────────────────────────────────────
 
-function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
+function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuccess }) {
   const queryClient = useQueryClient();
 
   // Construir opciones para el selector
@@ -53,12 +62,17 @@ function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
     ? alumno.hora_salida_extension
     : horaSalidaNormal;
   const anticipada = esSalidaAnticipada(horaLimite);
+  const tardia = esSalidaTardia(alumno, horaInicioCobro);
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/salida', data).then(r => r.data),
     onSuccess: (data) => {
       if (!data.autorizado) {
         toast.error(`🚨 ALERTA — ${alumno.nombre_completo.split(' ')[0]} retirado por persona NO autorizada`);
+      } else if (data.es_salida_tardia && data.pago_salida_tardia) {
+        toast.success(`⏰ Salida registrada — Recargo $${data.pago_salida_tardia.monto_total} generado`, {
+          duration: 5000
+        });
       } else {
         toast.success(`🚪 Salida registrada — ${alumno.nombre_completo.split(' ')[0]}`);
       }
@@ -161,6 +175,19 @@ function ModalSalida({ alumno, horaSalidaNormal, onClose, onSuccess }) {
                 <p className="text-xs font-bold text-blue-700">
                   Extensión de horario · Salida hasta {alumno.hora_salida_extension || '18:00'}
                 </p>
+              </div>
+            )}
+
+            {/* Badge salida tardía */}
+            {tardia && (
+              <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-400 rounded-2xl">
+                <AlertTriangle size={22} className="text-red-600 shrink-0" />
+                <div>
+                  <p className="font-black text-red-700 text-sm">SALIDA TARDÍA</p>
+                  <p className="text-xs text-red-600 font-semibold">
+                    Se generará un recargo por salida fuera de horario.
+                  </p>
+                </div>
               </div>
             )}
 
@@ -363,6 +390,7 @@ export default function FiltroSalida() {
 
   const grupos = data?.grupos ?? [];
   const horaSalidaNormal = data?.hora_salida_normal || '15:00';
+  const horaInicioCobro = data?.hora_inicio_cobro_extension || '15:06';
   const anticipada = esSalidaAnticipada(horaSalidaNormal);
 
   const todosAlumnos = grupos.flatMap(g => g.alumnos);
@@ -478,6 +506,7 @@ export default function FiltroSalida() {
         <ModalSalida
           alumno={alumnoSeleccionado}
           horaSalidaNormal={horaSalidaNormal}
+          horaInicioCobro={horaInicioCobro}
           onClose={() => setAlumnoSeleccionado(null)}
           onSuccess={() => setAlumnoSeleccionado(null)}
         />

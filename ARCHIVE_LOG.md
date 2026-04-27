@@ -9,11 +9,32 @@
 
 ---
 
-### ✅ PARTE 2: MEDICAMENTOS CON TOMAS MÚLTIPLES
+### ✅ PARTE 2: MEDICAMENTOS CON TOMAS MÚLTIPLES — FIXES FINALES
 
-**Fecha:** 2026-04-27 | **Estado:** Backend + Frontend padre 100% ✅ | **Frontend miss:** Pendiente validación visual
+**Fecha:** 2026-04-27 | **Estado:** ✅ COMPLETADO 100% + Validación en progreso (job 14:00)
 
-**Problema resuelto:** El padre entrega medicamento una sola vez pero puede necesitar múltiples dosis al día (ej. 8am y 2pm). Necesitábamos tabla separada de tomas para que el job de recordatorios dispare notificación por cada horario.
+**Problema resuelto:** El padre entrega medicamento una sola vez pero puede necesitar múltiples dosis al día (ej. 8am y 2pm). Sesión anterior implementó backend + padre. Hoy: 3 fixes críticos UX para flujo completo miss → papá.
+
+**3 Bugs identificados y corregidos:**
+
+1. **Horarios no visibles en FiltroEntrada** — mostraba "Sin hora programada" aunque papá agregó horarios
+   - **Causa:** Lectura de campo legacy `med.hora_programada` (NULL en recepcion_medicamento)
+   - **Fuente correcta:** `med.tomas[].hora_programada` (tabla toma_medicamento)
+   - **Fix:** `med.tomas?.length > 0 ? med.tomas.map(t => t.hora_programada.substring(0, 5)).join(', ') : 'Sin hora'`
+   - **Archivos:** FiltroEntrada.jsx web (línea 241) + mobile (línea 715)
+
+2. **Miss olvida dar clic "Recibir"** — medicamento no se marca como recibido
+   - **Impacto:** Job cron no dispara recordatorio (filtra `rm.recibido = true`)
+   - **Causa:** UX: Miss tiene 2 acciones (entrada + clic recibir), olvida la segunda
+   - **Fix:** Auto-marcar medicamentos al registrar entrada
+   - **Ubicación:** asistencia.js POST /entrada (línea 97-104) — UPDATE recepcion_medicamento SET recibido=true
+   - **Resultado:** Medicamentos auto-recibidos al pasar FiltroEntrada, job ya los encuentra
+
+3. **Papá no recibe notificación de administración** — flujo nuevo (toma_id) no notificaba
+   - **Causa:** Notificación solo en rama compatibilidad (sin toma_id)
+   - **Fix:** Copiar bloque notificaciones al flujo toma_id
+   - **Ubicación:** bitacora.js PATCH /administrar (línea 681-717) — query padre + enviarMensaje + INSERT notificaciones
+   - **Resultado:** Papá recibe WhatsApp + notificación in-app cuando toma se administra
 
 ### Cambios implementados
 
@@ -71,13 +92,14 @@
 - `web/src/pages/padre/Bitacora.jsx` (formulario, display, delete mutation)
 - `web/src/pages/maestra/Bitacora.jsx` (display tomas, administrar mutation)
 
-### Validaciones completadas (Sesión 81)
-- ✅ Padre declara medicamento con múltiples horas
-- ✅ Recepción se crea con tomas (una por hora)
-- ✅ Padre ve lista de tomas con estado individual
-- ✅ Padre puede borrar medicamento no recibido
-- ✅ Job dispara notificación a miss por cada toma a su hora
-- **⏳ PENDIENTE:** Miss recibe notificación y administra toma individual (validación visual en Bitácora.jsx miss)
+### Validaciones completadas (Sesión 81 Parte 2)
+- ✅ Horarios visibles en FiltroEntrada (web + mobile)
+- ✅ Medicamentos auto-marcados como recibidos al entrar (FiltroEntrada)
+- ✅ Papá recibe notificación al administrar toma (WhatsApp + in-app)
+- ✅ Paridad web ↔ mobile confirmada
+- ⏳ **VALIDACIÓN PENDIENTE:** Job cron a las 14:00 dispara recordatorio a miss
+  - **Cronograma:** Validación por Valeria a las 14:00 hoy (2026-04-27)
+  - **Qué revisar:** Notificación in-app a miss + BD `notificaciones` tipo='recordatorio_medicamento'
 
 ---
 

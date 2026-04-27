@@ -1,7 +1,21 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-25 | **Sesión actual:** 78
+**Última actualización:** 2026-04-26 | **Sesión actual:** 79
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
+
+---
+
+## 🏥 SALUD Y MEDICACIÓN (Continuación Sesión 79)
+
+**Backend 100% completado en Sesión 78.** Implementar frontend + job cron medicamentos.
+
+**Orden de prioridad para Sesión 79:**
+1. **RECEPCIÓN MEDICAMENTO** (web + mobile) — más crítica operacionalmente
+2. **CONTROL INSUMOS** (web + mobile) — stock pañales, alertas padre
+3. **JUSTIFICANTES** (web) — para directora  
+4. Resto: vómito, diarrea, salida, job
+
+Ver `memory/sesion_78_salud_medicacion.md` para detalles de implementación.
 
 ---
 

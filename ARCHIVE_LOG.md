@@ -1,7 +1,50 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-25 | Sesiones documentadas: 7 → 77
+**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 78
+
+---
+
+## ✅ SESIÓN 78 — SALUD Y MEDICACIÓN (50% Backend)
+
+**Fecha:** 2026-04-26 | **Estado:** Backend 100% ✅, Frontend pendiente Sesión 79 | **Duración:** ~90 min
+
+**Lo que se hizo en Backend:**
+
+### Migración SQL 030 ✅
+- Tabla `recepcion_medicamento` — autorización previa con fotos receta + envase
+- Tabla `registro_vomito` — episodios múltiples/día con intensidad (leve/moderado/fuerte)
+- Tabla `registro_salida_sanitario` — checklist de entrega al tutor (pañal/pertenencias/estado físico)
+- Tabla `insumos_alumno` — stock dinámico pañales, toallitas, crema por alumno
+- Tabla `insumos_movimientos` — historial de cambios (recarga/descuento/ajuste)
+- ALTER TABLE asistencia — columnas justificacion_motivo, justificada_por, justificada_at
+- ALTER TABLE registro_panial — columna es_diarrea boolean
+
+### Catálogos Backend ✅
+- Agregado `diarrea` a `condiciones-panial` (⚠️ emoji)
+- Creados `tipos-insumo` (panial, toallitas, crema)
+- Creados `vomito-intensidad` (leve, moderado, fuerte)
+- Mismos catálogos en mobile/src/constants/catalogos.js para paridad
+
+### Endpoints Bitácora ✅
+- **POST /bitacora/vomito** — registrar episodios, notif padre si intensidad='fuerte'
+- **POST /bitacora/panial (MODIFICADO)** — agregar es_diarrea, notif padre si true
+- **POST /bitacora/medicamento/recepcion** — multipart foto_receta + foto_envase
+- **GET /bitacora/medicamento/pendientes** — listar recepciones no administradas
+- **PATCH /bitacora/medicamento/recepcion/:id/administrar** — marcar como administrado + notif
+- **GET /:alumnoId** — incluye vomitos[], recepciones_medicamento[]
+
+### Routes Insumos (NUEVO) ✅
+- **GET /insumos/:alumnoId** — stock actual todos tipos
+- **POST /insumos/:alumnoId/recarga** — crear/actualizar + historial
+- **GET /insumos/alertas/hoy** — para directora, alumnos con stock bajo
+
+### Endpoints Asistencia ✅
+- **PATCH /asistencia/:alumnoId/justificar** — marcar falta como justificada
+- **POST /asistencia/salida-sanitario** — registrar checklist salida (upsert)
+- **GET /asistencia/salida-sanitario/:alumnoId** — obtener checklist
+
+**Pendiente para Sesión 79:** Frontend web + mobile + job cron medicamentos
 
 ---
 

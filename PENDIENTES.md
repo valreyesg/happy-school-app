@@ -20,21 +20,6 @@
 
 ---
 
-## ✅ COMPLETADO — SESIÓN XX: INSUMOS PAÑALES (MOVER A ARCHIVE_LOG)
-
-### Validado hoy (2026-04-27):
-- ✅ Migración 037: Stock diario + Solicitudes toallitas creadas
-- ✅ Backend: 5 endpoints reescritos (GET, POST, PUT /insumos)
-- ✅ Asistencia: Lógica `trajo_paniales` con stock inteligente
-- ✅ Bitácora: Descuento automático al registrar cambio de pañal
-- ✅ FiltroEntrada: Checkbox "Trajo pañales hoy (5)" + banner toallitas pendientes
-- ✅ Bitácora: Bloque morado stock con colores (verde ≥3, amarillo ≥1, rojo <1)
-- ✅ Botón "🧻 Solicitar toallitas húmedas" funcional
-- ✅ Sofía Reyes Mendoza: Solicitud creada + notificación WhatsApp al papá
-- ✅ Stock inicial: 4 pañales (5 - 1 cambio registrado hoy)
-
----
-
 ## 🔴 VALIDACIONES PENDIENTES — SESIÓN 82 (CRÍTICO)
 
 ### Validar antes de continuar:

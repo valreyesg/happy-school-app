@@ -59,21 +59,35 @@
 
 ---
 
-### BLOQUE 3 ✅ — Insumos Web + Mobile
+### BLOQUE 3 ✅ — Insumos Pañales Web + Mobile (REDISEÑADO SESIÓN XX)
 **Archivo:** `web/src/pages/maestra/Bitacora.jsx` / `mobile/app/(maestra)/bitacora.jsx`
 
-**WEB:**
-- [ ] En sección "👶🏻 Cambios de pañal", antes de botones, aparece "Stock disponible"
-- [ ] Lista: tipo (limpio/orina/heces/mixto/diarrea) + cantidad
-- [ ] Colores dinámicos:
-  - [ ] Verde (>=10)
-  - [ ] Amarillo (>=5 <10)
-  - [ ] Rojo (<5)
-- [ ] GET `/insumos/:alumnoId` carga al abrir bitácora
+**CAMBIO ARQUITECTÓNICO — Sesión XX:**
+- ✅ Stock rediseñado: 5 pañales diarios (fijos), se resetea cada día según filtro entrada
+- ✅ Tabla antigua `insumos_alumno` eliminada (solo pañal, sin toallita/papel)
+- ✅ Nueva tabla `insumos_stock_diario` (cantidad por alumno/fecha)
+- ✅ Nueva tabla `insumos_solicitudes` (solicitudes toallitas con notificación papá)
+- ✅ Campo `trajo_paniales` agregado a `registro_entrada`
+
+**WEB — Validado Sesión XX:**
+- [x] En sección "👶🏻 Cambios de pañal", antes de botones, aparece bloque morado "Pañales hoy"
+- [x] Muestra cantidad: "4 pañales" (ej. Sofía: 5 - 1 cambio = 4)
+- [x] Colores dinámicos NUEVOS:
+  - [x] Verde (cantidad >= 3)
+  - [x] Amarillo (cantidad >= 1 y < 3)
+  - [x] Rojo (cantidad < 1)
+- [x] GET `/insumos/:alumnoId` devuelve `{ stock: { cantidad, no_registrado }, solicitudes_toallitas: [...] }`
+- [x] Botón "🧻 Solicitar toallitas húmedas" funcional
+  - [x] Crea solicitud + envía WhatsApp al papá + notificación interna
+  - [x] Banner amarillo muestra alerta si hay solicitud pendiente
+- [x] FiltroEntrada tiene checkbox "Trajo pañales hoy (5)"
+  - [x] Si marcado → stock = 5
+  - [x] Si desmarcado → stock = saldo de ayer
 
 **MOBILE:**
-- [ ] Misma sección con colores dinámicos
-- [ ] GET `/insumos/:alumnoId` se ejecuta correctamente
+- [ ] Misma sección con colores dinámicos (pendiente implementar)
+- [ ] GET `/insumos/:alumnoId` se ejecuta correctamente (pendiente validar)
+- [ ] Botón solicitar toallitas (pendiente implementar)
 
 ---
 

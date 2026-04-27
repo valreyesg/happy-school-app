@@ -47,11 +47,12 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [confirmacionComida, setConfirmacionComida] = useState(null);
   const [cargandoComida, setCargandoComida] = useState(false);
   const [pagoVerificado, setPagoVerificado] = useState(false);
+  const [medicamentosPendientes, setMedicamentosPendientes] = useState([]);
   const queryClient = useQueryClient();
 
-  // Cargar confirmación de comida al abrir modal
+  // Cargar confirmación de comida y medicamentos pendientes al abrir modal
   useEffect(() => {
-    const cargarConfirmacionComida = async () => {
+    const cargarDatos = async () => {
       try {
         setCargandoComida(true);
         const hoy = new Date().toLocaleDateString('en-CA');
@@ -60,20 +61,28 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
         lunes.setDate(lunes.getDate() - lunes.getDay() + 1);
         const semanaInicio = lunes.toLocaleDateString('en-CA');
 
-        const res = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaInicio}`);
-        if (res.data) {
-          setConfirmacionComida(res.data);
-          setPagoVerificado(res.data.pago_verificado || false);
+        // Cargar comida
+        const resComida = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaInicio}`);
+        if (resComida.data) {
+          setConfirmacionComida(resComida.data);
+          setPagoVerificado(resComida.data.pago_verificado || false);
+        }
+
+        // Cargar medicamentos pendientes
+        const resMeds = await api.get(`/bitacora/${alumno.id}?fecha=${hoy}`);
+        if (resMeds.data?.recepciones_medicamento) {
+          const pendientes = resMeds.data.recepciones_medicamento.filter(r => !r.administrado);
+          setMedicamentosPendientes(pendientes);
         }
       } catch (e) {
-        // Sin confirmación, no mostrar nada
+        // Sin datos, no mostrar nada
       } finally {
         setCargandoComida(false);
       }
     };
 
     if (alumno?.id) {
-      cargarConfirmacionComida();
+      cargarDatos();
     }
   }, [alumno?.id]);
 
@@ -206,6 +215,28 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
                 {confirmacionComida.metodo_pago === 'transferencia' && ' | 💳 Transferencia'}
                 {confirmacionComida.metodo_pago === 'efectivo' && ' | 💵 Efectivo'}
               </p>
+            </>
+          )}
+
+          {/* Sección Medicamentos (si hay pendientes) */}
+          {medicamentosPendientes.length > 0 && (
+            <>
+              <p className="text-xs font-black text-orange-600 uppercase tracking-wider pt-2">💊 Medicamentos pendientes</p>
+              <div className="space-y-2">
+                {medicamentosPendientes.map((med, i) => (
+                  <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-2xl text-sm border-2 border-orange-200">
+                    <span className="text-orange-500 text-lg">💊</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-black text-orange-800">{med.nombre} — {med.dosis}</p>
+                      <p className="text-xs text-orange-600">
+                        {med.hora_programada
+                          ? new Date(med.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+                          : 'Sin hora programada'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </>
           )}
         </div>

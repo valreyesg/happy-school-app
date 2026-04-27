@@ -7,8 +7,11 @@
 ## 📋 CHECKLIST VALIDACIÓN POR BLOQUE
 
 ### BLOQUE 1 ✅ — Recepción Medicamento Web
-**Archivo:** `web/src/pages/maestra/Bitacora.jsx`
+**Archivos:** 
+- `web/src/pages/maestra/Bitacora.jsx` (sección principal)
+- `web/src/pages/maestra/FiltroEntrada.jsx` (alerta en modal entrada) ⭐ NUEVO
 
+**En Bitácora.jsx:**
 - [ ] Al seleccionar un alumno con entrada, aparece sección "💊 Medicamentos"
 - [ ] Subtítulo "⏳ Pendientes" muestra recepciones NO administradas
   - [ ] Cada recepción: nombre + dosis + hora programada
@@ -24,6 +27,13 @@
   - [ ] Botones fotos: receta (opt) + envase (opt)
   - [ ] Botón "💾 Guardar recepción" → POST `/bitacora/medicamento/recepcion`
   - [ ] Botón "✕" cancela y cierra form
+
+**En FiltroEntrada.jsx (NUEVO Sesión 81):**
+- [ ] Al abrir modal entrada, si alumno tiene medicamentos pendientes (sin administrar):
+  - [ ] Aparece sección "💊 Medicamentos pendientes"
+  - [ ] Lista mostrando: nombre + dosis + hora programada (o "Sin hora programada")
+  - [ ] Color naranja claro (fondo naranja-50, borde naranja-200)
+  - [ ] Solo muestra recepciones sin administrar (`administrado = false`)
 
 ---
 

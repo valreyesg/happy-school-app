@@ -507,7 +507,27 @@
       "PowerShell(Get-Process | Where-Object {$_.ProcessName -match \"node\"} | ForEach-Object {Stop-Process -Id $_.Id -Force}; Start-Sleep -Seconds 1)",
       "Bash([ -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/$f\" ])",
       "Bash([ -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/$f\" ])",
-      "Bash(node scripts/checks/check_panial.js)"
+      "Bash(node scripts/checks/check_panial.js)",
+      "Bash(git -C \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\" ls-files --error-unmatch \"*.log\")",
+      "Bash(git -C \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\" status --short)",
+      "Bash(git check-ignore *)",
+      "Bash(grep -E '\\\\.log$')",
+      "Bash(node -e \"require\\('./package.json'\\); console.log\\('✅ JSON válido'\\)\")",
+      "Bash(npx concurrently *)",
+      "Read(//c/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/web/**)",
+      "Bash(xargs sed *)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER add web/src/ web/jsconfig.json README.md)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER commit -m ' *)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER add PENDIENTES.md ARCHIVE_LOG.md)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER status)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER status -- web/)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER check-ignore -v web/jsconfig.json)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER ls-files web/jsconfig.json)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER diff web/jsconfig.json)",
+      "Bash(git -C /c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER status --short web/jsconfig.json)",
+      "Read(//c/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/**)",
+      "Bash(node backend/scripts/migrate-runner.js backend/migrations/030_salud_medicacion.sql)",
+      "Bash(curl -s http://localhost:3001/api/catalogos/condiciones-panial)"
     ],
     "additionalDirectories": [
       "\\tmp",
@@ -515,7 +535,8 @@
       "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend",
       "C:\\Users\\vreyesg\\.claude\\plans",
       "c:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\web\\node_modules\\.vite",
-      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend\\src\\database"
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend\\src\\database",
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\tests"
     ]
   }
 }

@@ -28,6 +28,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       asistenciaPorGrupoResult,
       salidasAnticipadasResult,
       rechazadosSintomasResult,
+      extensionVespertinaResult,
     ] = await Promise.all([
 
       // Total de alumnos inscritos en ciclo (activo o especificado)
@@ -161,6 +162,25 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           AND (re.sin_fiebre = false OR re.temperatura > 37.5 OR re.sin_sintomas = false)
         ORDER BY g.nombre, a.nombre_completo
       `, [hoy]),
+
+      // Alumnos para modo extensión vespertina (a partir de 15:06)
+      // Incluye: alumnos con entrada hoy + su estado de extensión + si ya registraron salida
+      query(`
+        SELECT
+          a.id, a.nombre_completo, a.foto_url,
+          g.nombre AS grupo_nombre, g.color_hex,
+          COALESCE(cha.tiene_extension, false) AS tiene_extension,
+          rs.hora_salida
+        FROM asistencia ast
+        JOIN alumnos a ON ast.alumno_id = a.id
+        LEFT JOIN grupos g ON a.grupo_id = g.id
+        LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
+        LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = $1
+        WHERE ast.fecha = $1
+          AND ast.estado IN ('presente', 'retardo')
+          AND a.deleted_at IS NULL
+        ORDER BY cha.tiene_extension DESC, g.nombre, a.nombre_completo
+      `, [hoy]),
     ]);
 
     const pagos = pagosSemResult.rows[0];
@@ -182,6 +202,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
       salidasHoy:          salidasAnticipadasResult.rows,
       salidasAnticipadas:  salidasAnticipadasResult.rows.filter(r => r.es_anticipada),
       rechazadosSintomas:  rechazadosSintomasResult.rows,
+      extensionVespertina: extensionVespertinaResult.rows,
     });
   } catch (err) { next(err); }
 });

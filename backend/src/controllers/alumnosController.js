@@ -249,7 +249,7 @@ const actualizar = async (req, res, next) => {
     const permitidos = [
       'nombre_completo', 'fecha_nacimiento', 'curp', 'grupo_id', 'ciclo_id',
       'usa_panial', 'alergias', 'condiciones_especiales', 'tipo_sangre',
-      'medico_nombre', 'medico_telefono', 'notas', 'estado',
+      'medico_nombre', 'medico_telefono', 'notas', 'estado', 'familia_id',
     ];
 
     const updates = [];

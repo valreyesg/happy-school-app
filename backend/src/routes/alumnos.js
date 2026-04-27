@@ -287,6 +287,119 @@ router.get('/:id/historial-servicios', authorize('directora', 'administrativo', 
 // ── POST /alumnos/:id/historial-servicios ────────────────────────────────────
 router.post('/:id/historial-servicios', authorize('directora', 'administrativo'), ctrl.registrarHistorialServicio);
 
+// ── POST /alumnos/:id/padres — vincula o reutiliza tutor por email ───────────
+router.post('/:id/padres', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { nombre_completo, parentesco, telefono, telefono_whatsapp, email, es_tutor_principal } = req.body;
+    if (!nombre_completo || !parentesco || !telefono)
+      return res.status(400).json({ error: 'nombre_completo, parentesco y telefono son obligatorios' });
+
+    let padre_id;
+    // Reutilizar si ya existe un tutor con ese email
+    if (email) {
+      const existente = await query('SELECT id FROM padres WHERE email = $1', [email]);
+      if (existente.rows.length > 0) padre_id = existente.rows[0].id;
+    }
+    if (!padre_id) {
+      const nuevo = await query(
+        'INSERT INTO padres (nombre_completo, parentesco, telefono, telefono_whatsapp, email) VALUES ($1,$2,$3,$4,$5) RETURNING id',
+        [nombre_completo, parentesco, telefono, telefono_whatsapp || null, email || null]
+      );
+      padre_id = nuevo.rows[0].id;
+    }
+    await query(
+      'INSERT INTO alumno_padre (alumno_id, padre_id, es_tutor_principal) VALUES ($1,$2,$3) ON CONFLICT (alumno_id, padre_id) DO NOTHING',
+      [req.params.id, padre_id, es_tutor_principal || false]
+    );
+    const padre = await query('SELECT p.*, ap.es_tutor_principal FROM padres p JOIN alumno_padre ap ON p.id = ap.padre_id WHERE p.id = $1 AND ap.alumno_id = $2', [padre_id, req.params.id]);
+    res.status(201).json(padre.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── PUT /alumnos/:id/padres/:padreId — editar datos del tutor ─────────────
+router.put('/:id/padres/:padreId', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { nombre_completo, parentesco, telefono, telefono_whatsapp, email } = req.body;
+    const permitidos = { nombre_completo, parentesco, telefono, telefono_whatsapp, email };
+    const updates = [];
+    const values = [];
+    let idx = 1;
+    for (const [campo, valor] of Object.entries(permitidos)) {
+      if (valor !== undefined) {
+        updates.push(`${campo} = $${idx}`);
+        values.push(valor);
+        idx++;
+      }
+    }
+    if (updates.length === 0) return res.status(400).json({ error: 'No hay campos para actualizar' });
+    updates.push(`updated_at = NOW()`);
+    values.push(req.params.padreId);
+    const result = await query(
+      `UPDATE padres SET ${updates.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Tutor no encontrado' });
+    res.json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ── POST /alumnos/:id/padres/:padreId/foto — subir foto del tutor ─────────
+router.post('/:id/padres/:padreId/foto', authorize('directora', 'administrativo'), upload.single('foto'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Foto requerida' });
+    const { url, public_id } = await uploadToCloudinary(req.file.buffer, {
+      folder: `happyschool/padres/${req.params.padreId}`,
+      transformation: [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+    });
+    await query('UPDATE padres SET foto_url = $1, updated_at = NOW() WHERE id = $2', [url, req.params.padreId]);
+    res.json({ foto_url: url });
+  } catch (err) { next(err); }
+});
+
+// ── GET /alumnos/:id/hermanos ─────────────────────────────────────────────────
+router.get('/:id/hermanos', async (req, res, next) => {
+  try {
+    const alumnoRes = await query('SELECT familia_id FROM alumnos WHERE id = $1 AND deleted_at IS NULL', [req.params.id]);
+    const familia_id = alumnoRes.rows[0]?.familia_id;
+    if (!familia_id) return res.json([]);
+    const result = await query(`
+      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
+             g.nombre AS grupo_nombre, g.color_hex, a.estado
+      FROM alumnos a
+      LEFT JOIN grupos g ON a.grupo_id = g.id
+      WHERE a.familia_id = $1 AND a.id != $2 AND a.deleted_at IS NULL
+      ORDER BY a.fecha_nacimiento
+    `, [familia_id, req.params.id]);
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── POST /alumnos/:id/familia — vincula hermano existente ────────────────────
+router.post('/:id/familia', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { hermano_id } = req.body;
+    if (!hermano_id) return res.status(400).json({ error: 'hermano_id es obligatorio' });
+    if (hermano_id === req.params.id) return res.status(400).json({ error: 'Un alumno no puede ser hermano de sí mismo' });
+
+    const hermanoRes = await query('SELECT id, familia_id FROM alumnos WHERE id = $1 AND deleted_at IS NULL', [hermano_id]);
+    if (!hermanoRes.rows[0]) return res.status(404).json({ error: 'Alumno hermano no encontrado' });
+
+    // Usar familia_id existente del hermano, o el UUID del hermano como nuevo familia_id
+    const familia_id = hermanoRes.rows[0].familia_id || hermano_id;
+    await query('UPDATE alumnos SET familia_id = $1 WHERE id = $2', [familia_id, hermano_id]);
+    await query('UPDATE alumnos SET familia_id = $1 WHERE id = $2', [familia_id, req.params.id]);
+    res.json({ familia_id });
+  } catch (err) { next(err); }
+});
+
+// ── DELETE /alumnos/:id/familia — desvincular de familia ─────────────────────
+router.delete('/:id/familia', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    await query('UPDATE alumnos SET familia_id = NULL WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
 // ── GET /alumnos/:id/ciclos — ciclos en que estuvo inscrito + ciclo actual ──
 router.get('/:id/ciclos', async (req, res, next) => {
   try {

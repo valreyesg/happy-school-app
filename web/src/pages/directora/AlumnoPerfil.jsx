@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -141,6 +141,300 @@ function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, sub
               </span>
             ))}
           </div>
+        </div>
+      )}
+    </Seccion>
+  );
+}
+
+// ─── Padres / Tutores (editable) ─────────────────────────────────────────────
+function SeccionPadres({ alumnoId, padres = [], queryClient }) {
+  const [editandoId, setEditandoId] = useState(null);
+  const [mostrarFormNuevo, setMostrarFormNuevo] = useState(false);
+  const [formEditar, setFormEditar] = useState({});
+  const [formNuevo, setFormNuevo] = useState({ nombre_completo: '', parentesco: '', telefono: '', telefono_whatsapp: '', email: '', es_tutor_principal: false });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const fotoRefs = useRef({});
+
+  const iniciarEdicion = (p) => {
+    setEditandoId(p.id);
+    setFormEditar({ nombre_completo: p.nombre_completo, parentesco: p.parentesco, telefono: p.telefono, telefono_whatsapp: p.telefono_whatsapp || '', email: p.email || '' });
+    setError('');
+  };
+
+  const guardarEdicion = async (padreId) => {
+    setSaving(true);
+    setError('');
+    try {
+      await api.put(`/alumnos/${alumnoId}/padres/${padreId}`, formEditar);
+      queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
+      setEditandoId(null);
+      toast.success('Tutor actualizado');
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Error al guardar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const subirFoto = async (padreId, archivo) => {
+    const fd = new FormData();
+    fd.append('foto', archivo);
+    try {
+      await api.post(`/alumnos/${alumnoId}/padres/${padreId}/foto`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
+      toast.success('Foto actualizada');
+    } catch {
+      toast.error('Error al subir foto');
+    }
+  };
+
+  const guardarNuevo = async () => {
+    setError('');
+    if (!formNuevo.nombre_completo || !formNuevo.parentesco || !formNuevo.telefono) {
+      setError('Nombre, parentesco y teléfono son obligatorios');
+      return;
+    }
+    setSaving(true);
+    try {
+      await api.post(`/alumnos/${alumnoId}/padres`, formNuevo);
+      queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
+      setMostrarFormNuevo(false);
+      setFormNuevo({ nombre_completo: '', parentesco: '', telefono: '', telefono_whatsapp: '', email: '', es_tutor_principal: false });
+      toast.success('Tutor agregado');
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Error al agregar');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Seccion
+      titulo="Padres / Tutores"
+      badge={padres.length}
+      accion={!mostrarFormNuevo && (
+        <button className="btn-hs btn-hs-primary text-sm py-1" onClick={() => { setMostrarFormNuevo(true); setEditandoId(null); setError(''); }}>
+          + Agregar
+        </button>
+      )}
+    >
+      {padres.length === 0 && !mostrarFormNuevo && (
+        <p className="text-gray-400 text-sm font-semibold text-center py-2">Sin tutores registrados.</p>
+      )}
+      <div className="space-y-3 mb-3">
+        {padres.map(p => (
+          <div key={p.id} className="border border-gray-100 rounded-xl overflow-hidden">
+            {editandoId === p.id ? (
+              <div className="p-4 bg-blue-50 space-y-3">
+                {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre completo</label>
+                    <input className="input-hs w-full" value={formEditar.nombre_completo} onChange={e => setFormEditar(f => ({ ...f, nombre_completo: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Parentesco</label>
+                    <input className="input-hs w-full" placeholder="Mamá, Papá, Tutor…" value={formEditar.parentesco} onChange={e => setFormEditar(f => ({ ...f, parentesco: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono</label>
+                    <input className="input-hs w-full" value={formEditar.telefono} onChange={e => setFormEditar(f => ({ ...f, telefono: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">WhatsApp</label>
+                    <input className="input-hs w-full" value={formEditar.telefono_whatsapp} onChange={e => setFormEditar(f => ({ ...f, telefono_whatsapp: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+                    <input className="input-hs w-full" type="email" value={formEditar.email} onChange={e => setFormEditar(f => ({ ...f, email: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn-hs btn-hs-ghost flex-1" onClick={() => setEditandoId(null)}>Cancelar</button>
+                  <button className="btn-hs btn-hs-primary flex-1" onClick={() => guardarEdicion(p.id)} disabled={saving}>{saving ? 'Guardando…' : 'Guardar'}</button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4 p-3 bg-gray-50">
+                <label className="cursor-pointer flex-shrink-0" title="Cambiar foto">
+                  {p.foto_url
+                    ? <img src={p.foto_url} alt={p.nombre_completo} className="w-12 h-12 rounded-full object-cover border-2 border-blue-200" />
+                    : <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-lg">{p.nombre_completo.charAt(0)}</div>
+                  }
+                  <input type="file" accept="image/*" className="hidden" ref={el => fotoRefs.current[p.id] = el} onChange={e => e.target.files[0] && subirFoto(p.id, e.target.files[0])} />
+                </label>
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-gray-800 truncate">
+                    {p.nombre_completo}
+                    {p.es_tutor_principal && <span className="ml-2 text-xs bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-full">Tutor principal</span>}
+                  </p>
+                  <p className="text-xs text-gray-500 font-semibold">{p.parentesco}{p.email ? ` · ${p.email}` : ''}{p.telefono ? ` · ${p.telefono}` : ''}</p>
+                </div>
+                <button onClick={() => iniciarEdicion(p)} className="text-blue-500 hover:text-blue-700 text-xs font-bold flex-shrink-0">Editar</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {mostrarFormNuevo && (
+        <div className="border border-blue-200 rounded-xl p-4 bg-blue-50 space-y-3">
+          <p className="text-xs font-black text-blue-700 uppercase tracking-wider">Agregar tutor</p>
+          {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre completo *</label>
+              <input className="input-hs w-full" value={formNuevo.nombre_completo} onChange={e => setFormNuevo(f => ({ ...f, nombre_completo: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Parentesco *</label>
+              <input className="input-hs w-full" placeholder="Mamá, Papá, Abuela…" value={formNuevo.parentesco} onChange={e => setFormNuevo(f => ({ ...f, parentesco: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono *</label>
+              <input className="input-hs w-full" value={formNuevo.telefono} onChange={e => setFormNuevo(f => ({ ...f, telefono: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">WhatsApp</label>
+              <input className="input-hs w-full" value={formNuevo.telefono_whatsapp} onChange={e => setFormNuevo(f => ({ ...f, telefono_whatsapp: e.target.value }))} />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
+              <input className="input-hs w-full" type="email" value={formNuevo.email} onChange={e => setFormNuevo(f => ({ ...f, email: e.target.value }))} />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={formNuevo.es_tutor_principal} onChange={e => setFormNuevo(f => ({ ...f, es_tutor_principal: e.target.checked }))} />
+            <span className="text-sm font-semibold text-gray-600">Marcar como tutor principal</span>
+          </label>
+          <div className="flex gap-2">
+            <button className="btn-hs btn-hs-ghost flex-1" onClick={() => { setMostrarFormNuevo(false); setError(''); }}>Cancelar</button>
+            <button className="btn-hs btn-hs-primary flex-1" onClick={guardarNuevo} disabled={saving}>{saving ? 'Guardando…' : 'Agregar tutor'}</button>
+          </div>
+        </div>
+      )}
+    </Seccion>
+  );
+}
+
+// ─── Hermanos ─────────────────────────────────────────────────────────────────
+function SeccionHermanos({ alumnoId }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [buscando, setBuscando] = useState('');
+  const [resultados, setResultados] = useState([]);
+  const [mostrarBuscador, setMostrarBuscador] = useState(false);
+  const [linking, setLinking] = useState(false);
+
+  const { data: hermanos = [], isLoading } = useQuery({
+    queryKey: ['hermanos', alumnoId],
+    queryFn: () => api.get(`/alumnos/${alumnoId}/hermanos`).then(r => r.data),
+    enabled: !!alumnoId,
+  });
+
+  useEffect(() => {
+    if (!buscando || buscando.length < 2) { setResultados([]); return; }
+    const t = setTimeout(() => {
+      api.get('/alumnos', { params: { buscar: buscando, limit: 5 } })
+        .then(r => setResultados((r.data.alumnos || []).filter(a => a.id !== alumnoId)))
+        .catch(() => {});
+    }, 300);
+    return () => clearTimeout(t);
+  }, [buscando, alumnoId]);
+
+  const vincular = async (hermanoId) => {
+    setLinking(true);
+    try {
+      await api.post(`/alumnos/${alumnoId}/familia`, { hermano_id: hermanoId });
+      queryClient.invalidateQueries(['hermanos', alumnoId]);
+      setMostrarBuscador(false);
+      setBuscando('');
+      setResultados([]);
+      toast.success('Hermanos vinculados');
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al vincular');
+    } finally {
+      setLinking(false);
+    }
+  };
+
+  const desvincular = async () => {
+    try {
+      await api.delete(`/alumnos/${alumnoId}/familia`);
+      queryClient.invalidateQueries(['hermanos', alumnoId]);
+      toast.success('Desvinculado de la familia');
+    } catch {
+      toast.error('Error al desvincular');
+    }
+  };
+
+  return (
+    <Seccion
+      titulo="Hermanos"
+      badge={isLoading ? '…' : hermanos.length}
+      badgeColor={hermanos.length > 0 ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}
+      accion={!mostrarBuscador && (
+        <button className="btn-hs btn-hs-primary text-sm py-1" onClick={() => setMostrarBuscador(true)}>
+          + Vincular
+        </button>
+      )}
+    >
+      {hermanos.length === 0 && !mostrarBuscador && !isLoading && (
+        <p className="text-gray-400 text-sm font-semibold text-center py-2">Sin hermanos vinculados.</p>
+      )}
+      <div className="space-y-2 mb-3">
+        {hermanos.map(h => (
+          <div key={h.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => navigate(`/directora/alumnos/${h.id}`)}>
+            {h.foto_url
+              ? <img src={h.foto_url} alt={h.nombre_completo} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+              : <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-black flex-shrink-0">{h.nombre_completo.charAt(0)}</div>
+            }
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-gray-800 truncate">{h.nombre_completo}</p>
+              <p className="text-xs text-gray-500 font-semibold">{h.grupo_nombre}</p>
+            </div>
+            <span className="text-xs text-purple-600 font-bold flex-shrink-0">Ver perfil →</span>
+          </div>
+        ))}
+      </div>
+      {hermanos.length > 0 && (
+        <button onClick={desvincular} className="text-xs text-red-400 hover:text-red-600 font-bold w-full text-center py-1">
+          Desvincular de esta familia
+        </button>
+      )}
+      {mostrarBuscador && (
+        <div className="border border-green-200 rounded-xl p-4 bg-green-50 space-y-3">
+          <p className="text-xs font-black text-green-700 uppercase tracking-wider">Buscar alumno hermano</p>
+          <input
+            className="input-hs w-full"
+            placeholder="Escribe nombre del hermano…"
+            value={buscando}
+            onChange={e => setBuscando(e.target.value)}
+            autoFocus
+          />
+          {resultados.length > 0 && (
+            <div className="space-y-1">
+              {resultados.map(a => (
+                <button key={a.id} onClick={() => vincular(a.id)} disabled={linking}
+                  className="w-full flex items-center gap-3 p-2 bg-white rounded-lg hover:bg-green-100 transition-colors text-left">
+                  {a.foto_url
+                    ? <img src={a.foto_url} alt={a.nombre_completo} className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                    : <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-black text-gray-600 flex-shrink-0">{a.nombre_completo.charAt(0)}</div>
+                  }
+                  <div>
+                    <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                    <p className="text-xs text-gray-500">{a.grupo_nombre}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+          {buscando.length >= 2 && resultados.length === 0 && (
+            <p className="text-sm text-gray-400 font-semibold text-center">Sin resultados</p>
+          )}
+          <button className="btn-hs btn-hs-ghost w-full" onClick={() => { setMostrarBuscador(false); setBuscando(''); setResultados([]); }}>Cancelar</button>
         </div>
       )}
     </Seccion>
@@ -1038,30 +1332,10 @@ export default function DirectoraAlumnoPerfil() {
 
       {pestaña === 'perfil' && (<>
       {/* ── Padres / Tutores ── */}
-      <Seccion titulo="Padres / Tutores" badge={alumno.padres?.length || 0}>
-        {(!alumno.padres || alumno.padres.length === 0) ? (
-          <p className="text-gray-400 text-sm font-semibold text-center py-2">Sin tutores registrados.</p>
-        ) : (
-          <div className="space-y-3">
-            {alumno.padres.map(p => (
-              <div key={p.id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black flex-shrink-0">
-                  {p.nombre_completo.charAt(0)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-gray-800 truncate">
-                    {p.nombre_completo}
-                    {p.es_tutor_principal && <span className="ml-2 text-xs bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-full">Tutor principal</span>}
-                  </p>
-                  <p className="text-xs text-gray-500 font-semibold">
-                    {p.email}{p.telefono ? ` · ${p.telefono}` : ''}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Seccion>
+      <SeccionPadres alumnoId={id} padres={alumno.padres || []} queryClient={queryClient} />
+
+      {/* ── Hermanos ── */}
+      <SeccionHermanos alumnoId={id} />
 
       {/* ── Personas autorizadas ── */}
       <SeccionPersonasAutorizadas

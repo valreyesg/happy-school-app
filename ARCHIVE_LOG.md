@@ -1,7 +1,58 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 80
+**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 81
+
+---
+
+## ✅ SESIÓN 81 — GESTIÓN ALUMNOS AVANZADA (Bloque 1)
+
+**Fecha:** 2026-04-26 | **Estado:** BLOQUE 1 COMPLETADO ✅ | **Bloque 2:** pendiente
+
+### Aclaraciones de negocio definidas esta sesión
+- **Estructura familiar:** 1 tutor principal (mamá o papá) en tabla `padres`. Máximo 2 personas autorizadas para recoger (límite correcto, no se cambió). Campo `parentesco` es texto libre → soporta "Mamá 1", "Mamá 2", etc.
+- **Niños de Solo Extensión:** NO son alumnos de la escuela. Solo usan servicio vespertino 3-6 PM. Irán en tabla separada `ninos_extension` (Bloque 2).
+- **Niños Visitantes:** NO son alumnos. Vienen un día puntual. Tabla `visitantes` (Bloque 2).
+- **Alumnos regulares tarde:** Un alumno regular que llega tarde = retardo (ya implementado). NUNCA se convierte en estancia por día.
+
+### Cambios implementados
+
+**BD:**
+- Migración `031_familia_id.sql` aplicada — columna `familia_id UUID` + índice en tabla `alumnos`.
+
+**Backend (`backend/src/routes/alumnos.js`):**
+- `POST /alumnos/:id/padres` — vincula o reutiliza tutor por email (no-duplicidad). Campos: nombre_completo, parentesco (texto libre), telefono, telefono_whatsapp, email, es_tutor_principal.
+- `PUT /alumnos/:id/padres/:padreId` — editar datos del tutor desde perfil del alumno.
+- `POST /alumnos/:id/padres/:padreId/foto` — subir foto del tutor a Cloudinary.
+- `GET /alumnos/:id/hermanos` — retorna hermanos con mismo `familia_id`.
+- `POST /alumnos/:id/familia` — vincula dos alumnos como hermanos (comparten `familia_id`).
+- `DELETE /alumnos/:id/familia` — desvincula alumno de su familia.
+
+**Backend (`backend/src/controllers/alumnosController.js`):**
+- Agregado `familia_id` a lista de campos permitidos en `actualizar()`.
+
+**Backend (`backend/src/routes/reportes.js`):**
+- Nueva query en `/reportes/dashboard`: `extensionVespertina` — alumnos con asistencia hoy + su estado de extensión + si ya registraron salida. Alimenta el panel vespertino del dashboard.
+
+**Frontend (`web/src/pages/directora/AlumnoPerfil.jsx`):**
+- Nuevo componente `SeccionPadres` — reemplaza la vista solo-lectura de tutores. Permite editar nombre, parentesco, teléfono, WhatsApp, email de cada tutor y subir su foto. Botón "+ Agregar" para vincular nuevo tutor.
+- Nuevo componente `SeccionHermanos` — muestra hermanos con navegación directa a su perfil. Buscador para vincular hermano existente. Botón desvincular.
+
+**Frontend (`web/src/pages/directora/Dashboard.jsx`):**
+- Nuevo componente `PanelExtensionVespertina` — aparece automáticamente a las 3:06 PM. Muestra 3 grupos:
+  1. ✅ Con extensión contratada (salida pendiente)
+  2. ⚠️ Sin extensión — salida pendiente (aviso: se generará cobro al salir)
+  3. Ya salieron (colapsado)
+- Botón "Ver todos / Modo extensión" para toggle manual.
+- Reloj se recalcula cada 60 segundos para activación automática.
+
+### Archivos modificados
+- `backend/migrations/031_familia_id.sql` (nuevo)
+- `backend/src/routes/alumnos.js`
+- `backend/src/routes/reportes.js`
+- `backend/src/controllers/alumnosController.js`
+- `web/src/pages/directora/AlumnoPerfil.jsx`
+- `web/src/pages/directora/Dashboard.jsx`
 
 ---
 

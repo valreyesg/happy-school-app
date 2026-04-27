@@ -218,6 +218,112 @@ function ModalRetardosGrupo({ grupo, onClose }) {
   );
 }
 
+function PanelExtensionVespertina({ alumnos = [], forzarModoNormal, onToggle }) {
+  const conExtension = alumnos.filter(a => a.tiene_extension && !a.hora_salida);
+  const sinExtensionPendientes = alumnos.filter(a => !a.tiene_extension && !a.hora_salida);
+  const yaSalieron = alumnos.filter(a => a.hora_salida);
+
+  return (
+    <div className="space-y-4">
+      {/* Banner modo extensión */}
+      <div className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-4 flex items-center gap-3">
+        <span className="text-2xl">⏰</span>
+        <div className="flex-1">
+          <p className="font-black text-purple-800">Vista de Extensión Activa</p>
+          <p className="text-xs text-purple-600 font-semibold">
+            Son las {new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} — mostrando niños en la escuela después de las 3:06 PM
+          </p>
+        </div>
+        <button onClick={onToggle} className="text-xs text-purple-600 underline font-bold flex-shrink-0">
+          {forzarModoNormal ? 'Modo extensión' : 'Ver todos'}
+        </button>
+      </div>
+
+      {!forzarModoNormal && (
+        <>
+          {/* Con extensión contratada */}
+          {conExtension.length > 0 && (
+            <div className="card-hs">
+              <h3 className="font-black text-gray-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">✅</span> Con extensión contratada
+                <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full bg-green-100 text-green-700">{conExtension.length}</span>
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {conExtension.map(a => (
+                  <div key={a.id} className="flex items-center gap-2 p-2 bg-green-50 rounded-xl">
+                    {a.foto_url
+                      ? <img src={a.foto_url} alt={a.nombre_completo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                      : <div className="w-9 h-9 rounded-full bg-green-200 flex items-center justify-center text-green-800 font-black text-sm flex-shrink-0">{a.nombre_completo.charAt(0)}</div>
+                    }
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-gray-800 truncate">{a.nombre_completo.split(' ')[0]}</p>
+                      <p className="text-xs text-gray-500 truncate">{a.grupo_nombre}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Sin extensión — salida pendiente */}
+          {sinExtensionPendientes.length > 0 && (
+            <div className="card-hs border-2 border-orange-300 bg-orange-50">
+              <h3 className="font-black text-orange-800 mb-3 flex items-center gap-2">
+                <span className="text-lg">⚠️</span> Sin extensión — salida pendiente
+                <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full bg-orange-200 text-orange-800">{sinExtensionPendientes.length}</span>
+              </h3>
+              <p className="text-xs text-orange-700 font-semibold mb-3">Al registrar su salida se generará cobro de estancia por día.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {sinExtensionPendientes.map(a => (
+                  <div key={a.id} className="flex items-center gap-2 p-2 bg-white border border-orange-200 rounded-xl">
+                    {a.foto_url
+                      ? <img src={a.foto_url} alt={a.nombre_completo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                      : <div className="w-9 h-9 rounded-full bg-orange-200 flex items-center justify-center text-orange-800 font-black text-sm flex-shrink-0">{a.nombre_completo.charAt(0)}</div>
+                    }
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-gray-800 truncate">{a.nombre_completo.split(' ')[0]}</p>
+                      <p className="text-xs text-gray-500 truncate">{a.grupo_nombre}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ya salieron */}
+          {yaSalieron.length > 0 && (
+            <details className="card-hs">
+              <summary className="cursor-pointer font-bold text-sm text-gray-500 flex items-center gap-2">
+                <span>✔️</span> Ya salieron ({yaSalieron.length})
+              </summary>
+              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {yaSalieron.map(a => (
+                  <div key={a.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl opacity-60">
+                    {a.foto_url
+                      ? <img src={a.foto_url} alt={a.nombre_completo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                      : <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-black text-sm flex-shrink-0">{a.nombre_completo.charAt(0)}</div>
+                    }
+                    <div className="min-w-0">
+                      <p className="font-bold text-xs text-gray-800 truncate">{a.nombre_completo.split(' ')[0]}</p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {new Date(a.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </details>
+          )}
+
+          {conExtension.length === 0 && sinExtensionPendientes.length === 0 && (
+            <p className="text-center text-gray-400 font-semibold text-sm py-4">🎉 Todos los niños han salido</p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading, onCardClick }) {
   const porGrupo = asistenciaPorGrupo.map(g => {
     const salidas = salidasHoy.filter(s => s.grupo_nombre === g.grupo_nombre);
@@ -367,6 +473,23 @@ export default function DirectoraDashboard() {
   const [modalDocumentacion, setModalDocumentacion] = useState(null);
   const [modalRetardos, setModalRetardos] = useState(null);
 
+  const [minutosActuales, setMinutosActuales] = useState(() => {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  });
+  const [forzarModoNormal, setForzarModoNormal] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setMinutosActuales(now.getHours() * 60 + now.getMinutes());
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const CORTE_EXTENSION = 15 * 60 + 6; // 15:06
+  const modoExtension = minutosActuales >= CORTE_EXTENSION;
+
   return (
     <div className="space-y-8 animate-fade-in">
       {modalGrupo && <ModalAsistenciaGrupo grupo={modalGrupo} onClose={() => setModalGrupo(null)} />}
@@ -478,6 +601,15 @@ export default function DirectoraDashboard() {
         isLoading={isLoading}
         onCardClick={setModalSalidas}
       />
+
+      {/* Panel extensión vespertina — visible a partir de las 3:06 PM */}
+      {modoExtension && (
+        <PanelExtensionVespertina
+          alumnos={resumen?.extensionVespertina || []}
+          forzarModoNormal={forzarModoNormal}
+          onToggle={() => setForzarModoNormal(v => !v)}
+        />
+      )}
 
       {/* Incidentes del día */}
       {incidentesHoy.length > 0 && (

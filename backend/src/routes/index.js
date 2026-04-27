@@ -21,6 +21,8 @@ const ciclosRoutes = require('./ciclos');
 const catalogosRoutes = require('./catalogos');
 const tareasRoutes = require('./tareas');
 const insumosRoutes = require('./insumos');
+const ninosExtensionRoutes = require('./ninos_extension');
+const visitantesRoutes = require('./visitantes');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -42,5 +44,7 @@ router.use('/ciclos', ciclosRoutes);
 router.use('/catalogos', catalogosRoutes);
 router.use('/tareas', tareasRoutes);
 router.use('/insumos', insumosRoutes);
+router.use('/ninos-extension', ninosExtensionRoutes);
+router.use('/visitantes', visitantesRoutes);
 
 module.exports = router;

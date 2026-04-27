@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Users, CreditCard, AlertTriangle, CheckCircle, Clock, UserCheck } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
@@ -468,6 +469,12 @@ export default function DirectoraDashboard() {
     refetchInterval: 60000,
   });
 
+  const { data: visitantesHoy = [] } = useQuery({
+    queryKey: ['visitantes-hoy'],
+    queryFn: () => api.get('/visitantes').then(r => r.data),
+    refetchInterval: 60000,
+  });
+
   const [modalGrupo, setModalGrupo] = useState(null);
   const [modalSalidas, setModalSalidas] = useState(null);
   const [modalDocumentacion, setModalDocumentacion] = useState(null);
@@ -715,6 +722,50 @@ export default function DirectoraDashboard() {
           </details>
         </div>
       )}
+
+      {/* Visitantes de hoy */}
+      <div className="card-hs">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black text-gray-800 flex items-center gap-2">
+            👁️ Visitantes de hoy
+          </h2>
+          <Link
+            to="/directora/visitantes"
+            className="px-3 py-1 text-sm text-blue-600 hover:underline font-semibold"
+          >
+            Ver todos →
+          </Link>
+        </div>
+        {visitantesHoy.length === 0 ? (
+          <p className="text-sm text-gray-500 text-center py-4">No hay visitantes registrados hoy</p>
+        ) : (
+          <div className="space-y-2">
+            {visitantesHoy.map(v => (
+              <div key={v.id} className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                {v.foto_url && (
+                  <img src={v.foto_url} alt={v.nombre} className="w-10 h-10 rounded-full object-cover" />
+                )}
+                <div className="flex-1">
+                  <p className="font-bold text-sm text-gray-800">{v.nombre}</p>
+                  <p className="text-xs text-gray-500">{v.grupo_nombre} • {v.tutor_nombre}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  {v.hora_salida ? (
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✅ Salida</span>
+                  ) : (
+                    <>
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">✓ Entrada</span>
+                      {v.tiene_extension_dia && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">🌙 Ext</span>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
     </div>
   );

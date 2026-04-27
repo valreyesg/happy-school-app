@@ -9,6 +9,7 @@ const api = axios.create({
       // No transformar FormData — dejar que axios lo maneje como multipart
       if (data instanceof FormData) {
         delete headers['Content-Type'];
+        delete headers['content-type'];
         return data;
       }
       if (data && typeof data === 'object') {

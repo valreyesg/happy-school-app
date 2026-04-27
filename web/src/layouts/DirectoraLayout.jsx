@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import {
   LayoutDashboard, Users, UserCheck, CreditCard, ClipboardList,
-  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed, Clock, Megaphone,
+  Calendar, Star, Settings, LogOut, Menu, X, GraduationCap, DoorOpen, UtensilsCrossed, Clock, Megaphone, Eye,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
@@ -14,6 +14,8 @@ const NAV_ITEMS = [
   { to: '/directora/turno-puerta', icon: DoorOpen,        label: 'Turno Puerta' },
   { to: '/directora/comida',       icon: UtensilsCrossed, label: 'Servicio de Comida' },
   { to: '/directora/alumnos',    icon: Users,           label: 'Alumnos' },
+  { to: '/directora/ninos-extension', icon: Clock,       label: 'Niños de Extensión' },
+  { to: '/directora/visitantes',  icon: Eye,             label: 'Visitantes' },
   { to: '/directora/grupos',     icon: GraduationCap,   label: 'Grupos' },
   { to: '/directora/personal',    icon: UserCheck,       label: 'Personal' },
   { to: '/directora/pagos',       icon: CreditCard,      label: 'Pagos' },

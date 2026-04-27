@@ -14,6 +14,8 @@ import PadreLayout from '@/layouts/PadreLayout';
 // Páginas de directora
 import DirectoraDashboard from '@/pages/directora/Dashboard';
 import DirectoraAlumnos from '@/pages/directora/Alumnos';
+import DirectoraNinosExtension from '@/pages/directora/NinosExtension';
+import DirectoraVisitantes from '@/pages/directora/Visitantes';
 import DirectoraGrupos from '@/pages/directora/Grupos';
 import DirectoraPersonal from '@/pages/directora/Personal';
 import DirectoraPagos from '@/pages/directora/Pagos';
@@ -94,6 +96,8 @@ export default function App() {
         <Route index element={<DirectoraDashboard />} />
         <Route path="alumnos" element={<DirectoraAlumnos />} />
         <Route path="alumnos/:id" element={<DirectoraAlumnoPerfil />} />
+        <Route path="ninos-extension" element={<DirectoraNinosExtension />} />
+        <Route path="visitantes" element={<DirectoraVisitantes />} />
         <Route path="asistencia" element={<DirectoraAsistencia />} />
         <Route path="grupos" element={<DirectoraGrupos />} />
         <Route path="personal" element={<DirectoraPersonal />} />

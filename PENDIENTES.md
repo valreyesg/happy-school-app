@@ -5,6 +5,21 @@
 
 ---
 
+## 🟡 VALIDACIONES PENDIENTES — SOLICITUD TOALLITAS HÚMEDAS (MAÑANA)
+
+### Validar mañana (2026-04-28):
+1. **FiltroEntrada de Sofía Reyes Mendoza**
+   - Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
+   - Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
+   - **NOTA IMPORTANTE:** La query de solicitudes puede necesitar ajuste — ver "NOTA IMPORTANTE — Query de Solicitudes" al final
+
+2. **Stock sin pañales**
+   - Desmarcar "Trajo pañales hoy" en entrada
+   - Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
+   - Registrar cambio → stock baja a "3 pañales"
+
+---
+
 ## 🔴 VALIDACIONES PENDIENTES — SESIÓN 82 (CRÍTICO)
 
 ### Validar antes de continuar:
@@ -160,6 +175,32 @@
 - [ ] **Modo Offline Miss:** Caché local + sincronización.
 - [ ] **Backup Automático:** Diario.
 - [ ] **Pruebas UX + Performance:** Optimización completa.
+
+---
+
+---
+
+## 📝 NOTA IMPORTANTE — Query de Solicitudes Toallitas
+
+**En:** `backend/src/routes/insumos.js` (GET `/:alumnoId`)
+
+**Query actual:**
+```sql
+SELECT id, fecha, created_at FROM insumos_solicitudes
+WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false
+```
+
+**Problema:** Solo busca solicitudes de HOY. Si mañana hay una solicitud de AYER no resuelta, no aparecerá.
+
+**Fix (si es necesario):**
+```sql
+SELECT id, fecha, created_at FROM insumos_solicitudes
+WHERE alumno_id = $1 AND resuelta = false AND fecha <= CURRENT_DATE
+```
+
+Esto mostraría solicitudes no resueltas de hoy y días anteriores.
+
+**Decidir mañana tras validar:** ¿Necesita la query este cambio?
 
 ---
 

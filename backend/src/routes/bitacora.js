@@ -391,6 +391,18 @@ router.post('/panial', async (req, res, next) => {
       VALUES ($1, NOW(), $2, $3, $4, $5, $6) RETURNING *
     `, [alumno_id, condicion, tiene_irritacion || false, es_diarrea || false, notas, req.user.id]);
 
+    // Descontar 1 del stock diario de pañales
+    try {
+      await query(
+        `UPDATE insumos_stock_diario
+         SET cantidad = GREATEST(cantidad - 1, 0), updated_at = NOW()
+         WHERE alumno_id = $1 AND fecha = CURRENT_DATE`,
+        [alumno_id]
+      );
+    } catch (err) {
+      console.error('[bitacora] Error al descontar stock de pañales:', err.message);
+    }
+
     // Si es_diarrea === true, notificar al padre
     if (es_diarrea) {
       const padreResult = await query(`

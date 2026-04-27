@@ -7,84 +7,135 @@ const { enviarMensaje } = require('../services/whatsappService');
 router.use(authenticate);
 
 // ── GET /insumos/:alumnoId ────────────────────────────────────────────────
-// Obtener stock actual de insumos del alumno
+// Obtener stock diario actual de pañales + solicitudes de toallitas pendientes
 router.get('/:alumnoId', async (req, res, next) => {
   try {
     const { alumnoId } = req.params;
-    const result = await query(
-      'SELECT * FROM insumos_alumno WHERE alumno_id = $1 ORDER BY tipo',
+
+    // Obtener stock del día actual
+    const stockResult = await query(
+      `SELECT cantidad FROM insumos_stock_diario
+       WHERE alumno_id = $1 AND fecha = CURRENT_DATE`,
       [alumnoId]
     );
-    res.json(result.rows || []);
+
+    const stock = stockResult.rows.length > 0
+      ? { cantidad: stockResult.rows[0].cantidad, no_registrado: false }
+      : { cantidad: null, no_registrado: true };
+
+    // Obtener solicitudes de toallitas pendientes del día
+    const solicitudesResult = await query(
+      `SELECT id, fecha, created_at FROM insumos_solicitudes
+       WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false
+       ORDER BY created_at DESC`,
+      [alumnoId]
+    );
+
+    res.json({
+      stock,
+      solicitudes_toallitas: solicitudesResult.rows || [],
+    });
   } catch (err) { next(err); }
 });
 
-// ── POST /insumos/:alumnoId/recarga ───────────────────────────────────────
-// Registrar recarga de insumo (suma al stock)
-router.post('/:alumnoId/recarga', async (req, res, next) => {
+// ── POST /insumos/:alumnoId/solicitar-toallitas ───────────────────────────
+// Crear solicitud de toallitas + enviar notificación al papá
+router.post('/:alumnoId/solicitar-toallitas', async (req, res, next) => {
   try {
     const { alumnoId } = req.params;
-    const { tipo, cantidad, motivo } = req.body;
 
-    // Obtener stock actual
-    let insumosResult = await query(
-      'SELECT * FROM insumos_alumno WHERE alumno_id = $1 AND tipo = $2',
-      [alumnoId, tipo]
+    // Verificar si ya existe solicitud no resuelta hoy
+    const existente = await query(
+      `SELECT id FROM insumos_solicitudes
+       WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false`,
+      [alumnoId]
     );
 
-    let insumoId, cantidadAnterior, cantidadNueva;
-
-    if (insumosResult.rows.length === 0) {
-      // Crear entrada si no existe
-      const createResult = await query(`
-        INSERT INTO insumos_alumno (alumno_id, tipo, cantidad_actual)
-        VALUES ($1, $2, $3) RETURNING *
-      `, [alumnoId, tipo, cantidad]);
-      insumoId = createResult.rows[0].id;
-      cantidadAnterior = 0;
-      cantidadNueva = cantidad;
-    } else {
-      insumoId = insumosResult.rows[0].id;
-      cantidadAnterior = insumosResult.rows[0].cantidad_actual;
-      cantidadNueva = cantidadAnterior + cantidad;
-
-      // Actualizar stock
-      await query(`
-        UPDATE insumos_alumno
-        SET cantidad_actual = $1, updated_at = NOW()
-        WHERE id = $2
-      `, [cantidadNueva, insumoId]);
+    if (existente.rows.length > 0) {
+      return res.status(400).json({
+        error: 'Ya existe una solicitud de toallitas pendiente para hoy',
+      });
     }
 
-    // Registrar movimiento
-    await query(`
-      INSERT INTO insumos_movimientos
-        (alumno_id, tipo, movimiento, cantidad, cantidad_resultante, motivo, registrado_por)
-      VALUES ($1, $2, 'recarga', $3, $4, $5, $6)
-    `, [alumnoId, tipo, cantidad, cantidadNueva, motivo, req.user.id]);
+    // Crear solicitud
+    const solicitudResult = await query(
+      `INSERT INTO insumos_solicitudes (alumno_id, tipo, registrado_por)
+       VALUES ($1, 'toallita', $2) RETURNING *`,
+      [alumnoId, req.user.id]
+    );
+    const solicitud = solicitudResult.rows[0];
 
-    // Retornar stock actualizado
-    const updatedResult = await query(
-      'SELECT * FROM insumos_alumno WHERE id = $1',
-      [insumoId]
+    // Obtener datos del padre tutor principal
+    const padreResult = await query(
+      `SELECT p.nombre_completo, COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+              u.id AS usuario_id, a.nombre_completo AS alumno_nombre
+       FROM alumnos a
+       JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+       JOIN padres p ON ap.padre_id = p.id
+       JOIN usuarios u ON p.usuario_id = u.id
+       WHERE a.id = $1 LIMIT 1`,
+      [alumnoId]
     );
 
-    res.json(updatedResult.rows[0]);
+    if (padreResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Padre tutor principal no encontrado' });
+    }
+
+    const info = padreResult.rows[0];
+
+    // Enviar notificación WhatsApp
+    try {
+      await enviarMensaje({
+        telefono: info.telefono,
+        clave: 'solicitud_toallitas',
+        variables: {
+          nombre_padre: info.nombre_completo.split(' ')[0],
+          nombre_alumno: info.alumno_nombre,
+        },
+        alumnoId,
+      });
+    } catch (err) {
+      console.error('[insumos] Error enviando WhatsApp solicitud_toallitas:', err.message);
+    }
+
+    // Insertar notificación en-app al padre
+    try {
+      await query(
+        `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+         VALUES ($1, $2, $3, 'solicitud_toallitas', $4)`,
+        [
+          info.usuario_id,
+          `Necesitas llevar toallitas — ${info.alumno_nombre}`,
+          'La escuela necesita que lleves toallitas mañana',
+          JSON.stringify({ alumno_id: alumnoId }),
+        ]
+      );
+    } catch (err) {
+      console.error('[insumos] Error insertando notificación:', err.message);
+    }
+
+    res.json(solicitud);
   } catch (err) { next(err); }
 });
 
-// ── GET /insumos/alertas/hoy ──────────────────────────────────────────────
-// Listar alumnos con stock bajo (para directora)
-router.get('/alertas/hoy', authorize('directora', 'administrativo'), async (req, res, next) => {
+// ── PUT /insumos/solicitudes/:solicitudId/recibida ───────────────────────
+// Marcar solicitud como resuelta (papá entregó toallitas en entrada)
+router.put('/solicitudes/:solicitudId/recibida', async (req, res, next) => {
   try {
-    const result = await query(`
-      SELECT ia.*, a.nombre_completo AS alumno_nombre, a.grupo_id
-      FROM insumos_alumno ia
-      JOIN alumnos a ON ia.alumno_id = a.id
-      WHERE ia.cantidad_actual < ia.umbral_alerta
-      ORDER BY a.nombre_completo, ia.tipo
-    `);
-    res.json(result.rows);
+    const { solicitudId } = req.params;
+
+    const result = await query(
+      `UPDATE insumos_solicitudes
+       SET resuelta = true, resuelta_en_entrada = true, updated_at = NOW()
+       WHERE id = $1 RETURNING *`,
+      [solicitudId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Solicitud no encontrada' });
+    }
+
+    res.json(result.rows[0]);
   } catch (err) { next(err); }
 });
 

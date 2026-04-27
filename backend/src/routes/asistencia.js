@@ -11,7 +11,7 @@ router.post('/entrada', async (req, res, next) => {
   try {
     const {
       alumno_id, uñas_cortadas, sin_lagañas, sin_fiebre, temperatura,
-      sin_sintomas, sintomas_notas, panial_limpio, trae_uniforme,
+      sin_sintomas, sintomas_notas, panial_limpio, trajo_paniales, trae_uniforme,
       trae_bata, trae_termo, agua_suficiente, qr_escaneado,
     } = req.body;
 
@@ -72,18 +72,18 @@ router.post('/entrada', async (req, res, next) => {
       INSERT INTO registro_entrada (
         alumno_id, hora_entrada, es_retardo, numero_retardo_mes,
         uñas_cortadas, sin_lagañas, sin_fiebre, temperatura, sin_sintomas, sintomas_notas,
-        panial_limpio, trae_uniforme, trae_bata, trae_termo, agua_suficiente,
+        panial_limpio, trajo_paniales, trae_uniforme, trae_bata, trae_termo, agua_suficiente,
         puede_entrar, motivo_no_entrada, qr_escaneado, registrado_por
-      ) VALUES ($1,NOW(),$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+      ) VALUES ($1,NOW(),$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
       ON CONFLICT (alumno_id, fecha)
       DO UPDATE SET
-        hora_entrada=NOW(), es_retardo=$2, puede_entrar=$15,
-        motivo_no_entrada=$16
+        hora_entrada=NOW(), es_retardo=$2, puede_entrar=$16,
+        motivo_no_entrada=$17, trajo_paniales=$11
       RETURNING *
     `, [
       alumno_id, esRetardo, esRetardo ? (retardosMesActuales + 1) : 0,
       uñas_cortadas, sin_lagañas, sin_fiebre, temperatura, sin_sintomas, sintomas_notas,
-      panial_limpio, trae_uniforme, trae_bata, trae_termo, agua_suficiente,
+      panial_limpio, trajo_paniales, trae_uniforme, trae_bata, trae_termo, agua_suficiente,
       puedeEntrar, motivoNoEntrada, qr_escaneado || false, req.user.id,
     ]);
 
@@ -94,6 +94,35 @@ router.post('/entrada', async (req, res, next) => {
       VALUES ($1, CURRENT_DATE, $2, $3)
       ON CONFLICT (alumno_id, fecha) DO UPDATE SET estado=$2, entrada_id=$3, updated_at=NOW()
     `, [alumno_id, estadoAsistencia, entradaResult.rows[0].id]);
+
+    // Calcular y registrar stock diario de pañales (solo si usa_panial = true)
+    const alumnoUsaPanialResult = await query(
+      'SELECT usa_panial FROM alumnos WHERE id = $1',
+      [alumno_id]
+    );
+    if (alumnoUsaPanialResult.rows.length > 0 && alumnoUsaPanialResult.rows[0].usa_panial) {
+      let cantidadHoy = 0;
+      if (trajo_paniales) {
+        // Si trajo pañales hoy, iniciar con 5
+        cantidadHoy = 5;
+      } else {
+        // Si no trajo, obtener saldo de ayer
+        const stockAyerResult = await query(
+          `SELECT cantidad FROM insumos_stock_diario
+           WHERE alumno_id = $1 AND fecha = CURRENT_DATE - 1`,
+          [alumno_id]
+        );
+        cantidadHoy = stockAyerResult.rows.length > 0 ? stockAyerResult.rows[0].cantidad : 0;
+      }
+      // Insertar o actualizar stock del día
+      await query(
+        `INSERT INTO insumos_stock_diario (alumno_id, fecha, cantidad)
+         VALUES ($1, CURRENT_DATE, $2)
+         ON CONFLICT (alumno_id, fecha) DO UPDATE
+         SET cantidad = $2, updated_at = NOW()`,
+        [alumno_id, cantidadHoy]
+      );
+    }
 
     // Auto-marcar medicamentos del día como recibidos al registrar entrada
     await query(`
@@ -245,7 +274,32 @@ router.post('/salida', async (req, res, next) => {
       }
     }
 
-    res.json({ salida: result.rows[0], autorizado, alerta });
+    // Detectar hermanos sin salida registrada hoy
+    const hermanosSinSalirResult = await query(`
+      SELECT a2.id, a2.nombre_completo, g.nombre AS grupo_nombre
+      FROM alumnos a1
+      JOIN alumnos a2 ON a2.familia_id = a1.familia_id
+                     AND a2.id != a1.id
+                     AND a2.deleted_at IS NULL
+      JOIN grupos g ON a2.grupo_id = g.id
+      LEFT JOIN registro_salida rs2 ON rs2.alumno_id = a2.id
+                                    AND rs2.hora_salida::date = CURRENT_DATE
+      WHERE a1.id = $1
+        AND a1.familia_id IS NOT NULL
+        AND rs2.id IS NULL
+        AND EXISTS (
+          SELECT 1 FROM registro_entrada re2
+          WHERE re2.alumno_id = a2.id AND re2.fecha = CURRENT_DATE
+            AND re2.puede_entrar = true
+        )
+    `, [alumno_id]);
+
+    res.json({
+      salida: result.rows[0],
+      autorizado,
+      alerta,
+      hermanos_sin_salir: hermanosSinSalirResult.rows
+    });
   } catch (err) { next(err); }
 });
 

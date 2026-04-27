@@ -38,7 +38,7 @@ const CHECKS_DEFAULT = {
   uñas_cortadas: false, sin_lagañas: false,
   sin_fiebre: true, temperatura: '',
   sin_sintomas: true, sintomas_notas: '',
-  panial_limpio: false, trae_uniforme: false,
+  panial_limpio: false, trajo_paniales: false, trae_uniforme: false,
   trae_bata: false, trae_termo: false, agua_suficiente: false,
 };
 
@@ -49,6 +49,13 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [pagoVerificado, setPagoVerificado] = useState(false);
   const [medicamentosPendientes, setMedicamentosPendientes] = useState([]);
   const queryClient = useQueryClient();
+
+  // Query: solicitudes de toallitas pendientes
+  const { data: solicitudesToallitas = [] } = useQuery({
+    queryKey: ['solicitudes-toallitas', alumno?.id],
+    queryFn: () => api.get(`/insumos/${alumno.id}`).then(r => r.data.solicitudes_toallitas || []),
+    enabled: !!alumno?.id && alumno?.usa_panial,
+  });
 
   // Cargar confirmación de comida y medicamentos pendientes al abrir modal
   useEffect(() => {
@@ -93,6 +100,15 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
       toast.success('✅ Medicamento marcado como recibido');
     },
     onError: (err) => toast.error(err?.response?.data?.error || 'Error al marcar recibido'),
+  });
+
+  const marcarToallitasRecibidosMutation = useMutation({
+    mutationFn: (solicitudId) => api.put(`/insumos/solicitudes/${solicitudId}/recibida`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['solicitudes-toallitas', alumno?.id] });
+      toast.success('✅ Toallitas marcadas como recibidas');
+    },
+    onError: (err) => toast.error(err?.response?.data?.error || 'Error al marcar toallitas'),
   });
 
   const mutation = useMutation({
@@ -174,6 +190,19 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           </div>
         )}
 
+        {solicitudesToallitas.length > 0 && (
+          <div className="mx-5 mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl">
+            <p className="text-xs font-black text-yellow-700 mb-2">🧻 Pendiente: llevar toallitas</p>
+            <button
+              type="button"
+              onClick={() => marcarToallitasRecibidosMutation.mutate(solicitudesToallitas[0].id)}
+              disabled={marcarToallitasRecibidosMutation.isPending}
+              className="w-full px-3 py-2 bg-yellow-400 text-white rounded-lg font-bold text-xs hover:bg-yellow-500 disabled:opacity-50">
+              ✅ Las trajo hoy
+            </button>
+          </div>
+        )}
+
         <div className="overflow-y-auto flex-1 p-5 space-y-3">
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Salud</p>
           <CheckRowInv field="sin_fiebre" label="Sin fiebre" emoji="🌡️" />
@@ -195,7 +224,12 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Higiene</p>
           <CheckRow field="uñas_cortadas" label="Uñas cortadas" emoji="✂️" />
           <CheckRow field="sin_lagañas"   label="Sin lagañas"   emoji="👁️" />
-          {alumno.usa_panial && <CheckRow field="panial_limpio" label="Pañal limpio" emoji="👶🏻" />}
+          {alumno.usa_panial && (
+            <>
+              <CheckRow field="panial_limpio" label="Pañal limpio" emoji="👶🏻" />
+              <CheckRow field="trajo_paniales" label="Trajo pañales hoy (5)" emoji="🧷" />
+            </>
+          )}
 
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Materiales</p>
           <CheckRow field="trae_uniforme"   label="Uniforme"        emoji="👕" />

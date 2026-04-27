@@ -641,20 +641,19 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
   const guardarSalidaSanitaria = () => salidaMutation.mutate({ alumno_id: alumno.id, ...salidaSanitaria });
 
-  // Insumos (stock de pañales, toallitas, etc.)
-  const [insumos, setInsumos] = useState([]);
+  // Insumos (stock diario de pañales + solicitudes de toallitas)
   const { data: insumosData } = useQuery({
     queryKey: ['insumos', alumno.id],
-    queryFn: () => alumno.id ? api.get(`/insumos/${alumno.id}`).then(r => r.data).catch(() => []) : Promise.resolve([]),
+    queryFn: () => alumno.id ? api.get(`/insumos/${alumno.id}`).then(r => r.data).catch(() => ({})) : Promise.resolve({}),
     enabled: !!alumno.id && alumno.usa_panial,
   });
-  useEffect(() => {
-    if (insumosData) setInsumos(insumosData);
-  }, [insumosData]);
+  const stockDiario = insumosData?.stock ?? null;
+  const solicitudesToallitas = insumosData?.solicitudes_toallitas ?? [];
 
   const getColorInsumo = (cantidad) => {
-    if (cantidad >= 10) return 'text-green-600';
-    if (cantidad >= 5) return 'text-yellow-600';
+    if (cantidad === null || cantidad === undefined) return 'text-gray-400';
+    if (cantidad >= 3) return 'text-green-600';
+    if (cantidad >= 1) return 'text-yellow-600';
     return 'text-red-600';
   };
 
@@ -665,6 +664,16 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       queryClient.invalidateQueries({ queryKey: ['insumos', alumno.id] });
       toast.success('Cambio de pañal registrado');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  // Solicitar toallitas
+  const toallitasMutation = useMutation({
+    mutationFn: () => api.post(`/insumos/${alumno.id}/solicitar-toallitas`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['insumos', alumno.id] });
+      toast.success('✅ Solicitud enviada al papá');
     },
     onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
   });
@@ -807,21 +816,27 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       {/* Pañal (solo si usa_panial) */}
       {alumno.usa_panial && (
         <Seccion titulo="👶🏻 Cambios de pañal">
-          {insumos.length > 0 && (
-            <div className="mb-4 p-3 bg-gray-50 rounded-xl border-2 border-gray-200">
-              <p className="text-xs font-black text-gray-500 uppercase mb-2">Stock disponible</p>
-              <div className="space-y-1">
-                {insumos.map((ins, i) => (
-                  <div key={i} className="flex items-center justify-between text-sm">
-                    <span className="font-semibold text-gray-700">{ins.tipo}:</span>
-                    <span className={`font-black text-lg ${getColorInsumo(ins.cantidad_actual)}`}>
-                      {ins.cantidad_actual} {ins.cantidad_actual === 1 ? 'unidad' : 'unidades'}
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* Bloque stock diario */}
+          {stockDiario && (
+            <div className="mb-3 px-3 py-2 bg-purple-50 rounded-xl border-2 border-purple-200 flex items-center justify-between">
+              <span className="text-xs font-black text-purple-600 uppercase">Pañales hoy</span>
+              <span className={`font-black text-lg ${getColorInsumo(stockDiario.cantidad)}`}>
+                {stockDiario.cantidad} {stockDiario.cantidad === 1 ? 'pañal' : 'pañales'}
+              </span>
             </div>
           )}
+          {stockDiario?.no_registrado && (
+            <p className="text-xs text-gray-400 font-semibold mb-3">Sin registro de entrada aún</p>
+          )}
+
+          {/* Alerta solicitud de toallitas */}
+          {solicitudesToallitas.length > 0 && (
+            <div className="mb-3 px-3 py-2 bg-yellow-50 rounded-xl border border-yellow-200 text-xs font-bold text-yellow-700">
+              🧻 Solicitud de toallitas enviada al papá
+            </div>
+          )}
+
+          {/* Registros del día */}
           {data?.panial?.length > 0 && (
             <div className="space-y-1 mb-3">
               <p className="text-xs font-black text-gray-400">Registros de hoy</p>
@@ -836,6 +851,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
               ))}
             </div>
           )}
+
+          {/* Botones de cambio */}
           <p className="text-xs font-black text-gray-400 mb-2">Registrar nuevo cambio</p>
           <div className="flex flex-wrap gap-2">
             {PANIAL_CONDICIONES.map(c => (
@@ -849,6 +866,17 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
               </button>
             ))}
           </div>
+
+          {/* Botón solicitar toallitas */}
+          {solicitudesToallitas.length === 0 && !soloLectura && (
+            <button
+              onClick={() => toallitasMutation.mutate()}
+              disabled={toallitasMutation.isPending}
+              className="mt-3 w-full px-3 py-2 bg-yellow-400 text-white rounded-xl font-bold text-sm hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              🧻 Solicitar toallitas húmedas
+            </button>
+          )}
         </Seccion>
       )}
 

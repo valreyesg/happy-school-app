@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-27 | **Sesión actual:** 84
+**Última actualización:** 2026-04-28 | **Sesión actual:** 84
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -44,20 +44,20 @@
 
 ---
 
-## 🔵 TAREAS RESTANTES — BLOQUE 2 (para Sesión 83)
+## 🔵 TAREAS RESTANTES — BLOQUE 2 (para próximas sesiones)
 
-### Pendiente completar:
+### Pendiente completar (NO en Sesión 83 — todavía):
 1. **Alumnos.jsx — UI hermanos** (~30 min)
    - Modal detalle alumno con sección "Hermanos"
    - Buscar + vincular hermano → POST `/alumnos/:id/familia`
    - Desvincular → DELETE `/alumnos/:id/familia`
-   - Chip "2 hermanos" en tarjeta
+   - Chip "X hermanos" en tarjeta
 
-2. **mobile/qr-scanner.jsx — Soporte QR extensión** (~20 min)
-   - Guard extendido: `HAPPYSCHOOL:EXT:` + `HAPPYSCHOOL:ALUMNO:`
-   - ComponenteResultadoExtension (naranja)
-   - Alert si hora < 14:45 ("Entrada temprana")
-   - Banner alerta hermanos en salida
+2. **mobile/qr-scanner.jsx — Soporte QR extensión + hermanos** (~20 min)
+   - Guard QR extendido: `HAPPYSCHOOL:EXT:` + `HAPPYSCHOOL:ALUMNO:`
+   - ComponenteResultadoExtension (naranja/ámbar)
+   - Alert si hora < 14:45 ("Entrada temprana", no bloquear)
+   - Banner alerta hermanos en salida (detectar `hermanos_sin_salir`)
 
 ---
 
@@ -97,32 +97,10 @@
 - [ ] **Protocolo Salida Anticipada:** Formulario motivo + hora + quién retira + firma digital tutor + notificación al otro padre.
 - [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
-### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (pendiente)
-> Bloque 1 completado en Sesión 81. Ver ARCHIVE_LOG para detalle.
-
-
-- [ ] **Modalidad "Solo Extensión" — Tabla `ninos_extension`:**
-  - Los niños de extensión NO son alumnos de la escuela. Solo asisten 3:00-6:00 PM.
-  - Crear tabla `ninos_extension` (migración `032_ninos_extension.sql`): nombre, fecha_nacimiento, foto, tutor_nombre, tutor_telefono, tutor_email, modalidad_pago ('mensual'|'por_dia'), activo.
-  - Crear tabla `registro_extension` para sus entradas/salidas (separada de `registro_entrada` de alumnos).
-  - Backend: rutas CRUD en `backend/src/routes/ninos_extension.js`.
-  - Web: pantalla nueva en panel directora "Niños de Extensión" (no dentro de Alumnos.jsx).
-  - Mobile: scanner QR para registrar entrada/salida de niños de extensión desde las 2:45 PM.
-
-- [ ] **Niños Visitantes — Tabla `visitantes`:**
-  - Niño externo que viene un día (ej: viernes de consejo técnico). No es alumno.
-  - Crear tabla `visitantes` (migración `033_visitantes.sql`): nombre, fecha, foto_url, foto_public_id, grupo_visitado_id, tutor_nombre, tutor_telefono, hora_entrada, hora_salida, tiene_extension_dia (BOOLEAN), registrado_por.
-  - Backend: `backend/src/routes/visitantes.js` con GET (por fecha), POST (registro), PATCH (salida / activar extensión del día). Registrar en `routes/index.js`.
-  - Web: sección "Visitantes de hoy" en Dashboard — modal registro rápido con foto, badge naranja "VISITANTE", botón "Agregar extensión hoy", botón "Registrar salida".
-
-- [ ] **Validación de Cobro Automática — Solo Extensión y Visitantes:**
-  - ⚠️ Los alumnos regulares que llegan tarde = retardo (ya implementado). NO cambia.
-  - Al registrar salida de visitante con `tiene_extension_dia = true` → confirmar cargo generado.
-  - Al registrar entrada de niño de extensión antes de las 2:45 PM → mostrar aviso de horario (no bloquear).
-  - Migración `034_pagos_origen.sql`: `ALTER TABLE pagos ADD COLUMN IF NOT EXISTS origen VARCHAR(20) DEFAULT 'manual'` — para distinguir cargos automáticos y poder condonarlos desde directora.
-
-- [ ] **Detección Hermanos en QR salida** (ver también SEGURIDAD — SALIDA AVANZADA):
-  - Al escanear QR de salida, si el alumno tiene `familia_id`, alertar "Hay hermanos en otros grupos: [nombres]".
+### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (✅ COMPLETADO EN SESIÓN 82)
+> ✅ Completado: Niños Extensión + Visitantes + Hermanos backend + Validación cobros automáticos
+> ⏳ Pendiente (próximas sesiones): UI Hermanos (Alumnos.jsx) + Mobile QR extensión (qr-scanner.jsx)
+> Ver ARCHIVE_LOG.md — Sesión 82 para detalles técnicos y commits
 
 ### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
 - [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).

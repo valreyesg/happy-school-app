@@ -5,7 +5,6 @@ const cors = require('cors');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
-const multer = require('multer');
 
 const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
@@ -32,9 +31,6 @@ app.use(rateLimit({
   max: 300,
   message: { error: 'Demasiadas solicitudes, intenta más tarde.' },
 }));
-
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
-app.use(upload.any());
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

@@ -574,7 +574,8 @@
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"SELECT * FROM insumos_stock_diario WHERE alumno_id = 'a35cebfa-88be-45f0-b72a-83afdf77e18b' AND fecha = CURRENT_DATE;\")",
       "PowerShell(Get-Process -ErrorAction SilentlyContinue | Where-Object {$_.ProcessName -match \"node\"} | Stop-Process -Force -Confirm:$false 2>$null; \"Procesos detenidos\")",
       "Bash(curl -s -X POST http://localhost:3000/api/auth/login -H 'Content-Type: application/json' -d '{ *)",
-      "Bash(curl -s http://localhost:3000/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"directora@happyschool.com\",\"password\":\"Test123!!\"}')"
+      "Bash(curl -s http://localhost:3000/api/auth/login -X POST -H \"Content-Type: application/json\" -d '{\"email\":\"directora@happyschool.com\",\"password\":\"Test123!!\"}')",
+      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -f c:/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/037_fix_registrado_por_fk.sql)"
     ],
     "additionalDirectories": [
       "\\tmp",

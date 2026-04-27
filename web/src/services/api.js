@@ -3,21 +3,6 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
   timeout: 15000,
-  headers: { 'Content-Type': 'application/json; charset=utf-8' },
-  transformRequest: [
-    (data, headers) => {
-      // No transformar FormData — dejar que axios lo maneje como multipart
-      if (data instanceof FormData) {
-        delete headers['Content-Type'];
-        delete headers['content-type'];
-        return data;
-      }
-      if (data && typeof data === 'object') {
-        return JSON.stringify(data);
-      }
-      return data;
-    },
-  ],
 });
 
 // Interceptor: adjuntar token si existe en localStorage

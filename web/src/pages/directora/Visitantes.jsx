@@ -56,10 +56,9 @@ export default function DirectoraVisitantes() {
     onError: (err) => toast.error(err.response?.data?.error || 'Error al eliminar'),
   });
 
-  const formatHora = (fecha, hora) => {
-    if (!hora) return '—';
-    const [h, m] = hora.split(':');
-    return `${h}:${m}`;
+  const formatHora = (isoString) => {
+    if (!isoString) return '—';
+    return new Date(isoString).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' });
   };
 
   if (isLoading) return <SkeletonList count={3} />;
@@ -120,11 +119,11 @@ export default function DirectoraVisitantes() {
                   </p>
                   <div className="flex gap-2 mt-2 flex-wrap">
                     <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
-                      🕐 {formatHora(v.fecha, v.hora_entrada)}
+                      🕐 {formatHora(v.hora_entrada)}
                     </span>
                     {v.hora_salida && (
                       <span className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">
-                        ✅ Salida {formatHora(v.fecha, v.hora_salida)}
+                        ✅ Salida {formatHora(v.hora_salida)}
                       </span>
                     )}
                     {v.tiene_extension_dia && (
@@ -207,7 +206,7 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
     Object.keys(form).forEach(key => {
       if (key === 'foto' && form[key]) {
         data.append('foto', form[key]);
-      } else if (key !== 'foto') {
+      } else if (key !== 'foto' && form[key]) {
         data.append(key, form[key]);
       }
     });

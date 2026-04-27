@@ -1,32 +1,50 @@
-const cloudinary = require('cloudinary').v2;
-const { Readable } = require('stream');
+const crypto = require('crypto');
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Mock de Cloudinary para desarrollo (sin credenciales reales)
+const isProduction = process.env.NODE_ENV === 'production';
+const cloudinary = isProduction ? require('cloudinary').v2 : null;
 
-const uploadToCloudinary = (buffer, options = {}) => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { resource_type: 'auto', ...options },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve({ url: result.secure_url, public_id: result.public_id });
-      }
-    );
-    const readable = new Readable();
-    readable._read = () => {};
-    readable.push(buffer);
-    readable.push(null);
-    readable.pipe(stream);
+if (isProduction && cloudinary) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
   });
+}
+
+const uploadToCloudinary = async (buffer, options = {}) => {
+  if (isProduction && cloudinary) {
+    // Subida real a Cloudinary en producción
+    return new Promise((resolve, reject) => {
+      const { Readable } = require('stream');
+      const stream = cloudinary.uploader.upload_stream(
+        { resource_type: 'auto', ...options },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve({ url: result.secure_url, public_id: result.public_id });
+        }
+      );
+      const readable = new Readable();
+      readable._read = () => {};
+      readable.push(buffer);
+      readable.push(null);
+      readable.pipe(stream);
+    });
+  } else {
+    // Mock para desarrollo: generar URL simulada
+    const publicId = `mock/${options.folder || 'default'}/${crypto.randomBytes(8).toString('hex')}`;
+    const url = `https://res.cloudinary.com/mock-dev/image/upload/v1/${publicId}`;
+    return { url, public_id: publicId };
+  }
 };
 
 const deleteFromCloudinary = async (publicId) => {
   if (!publicId) return;
-  return cloudinary.uploader.destroy(publicId);
+  if (isProduction && cloudinary) {
+    return cloudinary.uploader.destroy(publicId);
+  }
+  // Mock: no hacer nada
+  return { result: 'ok' };
 };
 
 const uploadPDF = (buffer, options = {}) => {

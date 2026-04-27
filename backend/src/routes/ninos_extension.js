@@ -60,14 +60,7 @@ router.get('/:id', authorize('directora', 'administrativo'), async (req, res, ne
 });
 
 // ── POST /ninos-extension — crear niño de extensión
-router.post('/', authorize('directora', 'administrativo'), (req, res, next) => {
-  // Si hay Content-Type multipart/form-data, usar multer; si no, pasar directo
-  if (req.is('multipart/form-data')) {
-    upload.single('foto')(req, res, next);
-  } else {
-    next();
-  }
-}, async (req, res, next) => {
+router.post('/', authorize('directora', 'administrativo'), upload.single('foto'), async (req, res, next) => {
   try {
     const { nombre_completo, fecha_nacimiento, tutor_nombre, tutor_telefono, tutor_email, modalidad_pago } = req.body;
 
@@ -107,13 +100,7 @@ router.post('/', authorize('directora', 'administrativo'), (req, res, next) => {
 });
 
 // ── PUT /ninos-extension/:id — editar niño
-router.put('/:id', authorize('directora', 'administrativo'), (req, res, next) => {
-  if (req.is('multipart/form-data')) {
-    upload.single('foto')(req, res, next);
-  } else {
-    next();
-  }
-}, async (req, res, next) => {
+router.put('/:id', authorize('directora', 'administrativo'), upload.single('foto'), async (req, res, next) => {
   try {
     const { nombre_completo, fecha_nacimiento, tutor_nombre, tutor_telefono, tutor_email, modalidad_pago } = req.body;
 

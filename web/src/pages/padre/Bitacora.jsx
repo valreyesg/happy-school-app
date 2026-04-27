@@ -185,6 +185,12 @@ export default function PadreBitacora() {
   const [incidenteFirmando, setIncidenteFirmando] = useState(null);
   const tabsRef = useRef(null);
   const queryClient = useQueryClient();
+  const fotoRecetaRef = useRef();
+
+  // Medicamentos
+  const [formMed, setFormMed] = useState({ nombre: '', dosis: '', hora_programada: '' });
+  const [fotoReceta, setFotoReceta] = useState(null);
+  const [mostrarFormMed, setMostrarFormMed] = useState(false);
 
   // Forzar refetch limpiando cache
   useEffect(() => {
@@ -252,6 +258,31 @@ export default function PadreBitacora() {
     });
   })();
 
+  const recepcionMutation = useMutation({
+    mutationFn: (fd) => api.post('/bitacora/medicamento/recepcion', fd).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora-padre', alumnoId, fecha] });
+      toast.success('💊 Medicamento registrado');
+      setFormMed({ nombre: '', dosis: '', hora_programada: '' });
+      setFotoReceta(null);
+      setMostrarFormMed(false);
+    },
+    onError: (err) => toast.error(err?.response?.data?.error || 'Error al guardar'),
+  });
+
+  const handleRegistrarMed = () => {
+    if (!formMed.nombre.trim() || !formMed.dosis.trim()) {
+      toast.error('Nombre y dosis son obligatorios'); return;
+    }
+    const fd = new FormData();
+    fd.append('alumno_id', alumnoId);
+    fd.append('nombre', formMed.nombre.trim());
+    fd.append('dosis', formMed.dosis.trim());
+    if (formMed.hora_programada) fd.append('hora_programada', formMed.hora_programada);
+    if (fotoReceta) fd.append('foto_receta', fotoReceta);
+    recepcionMutation.mutate(fd);
+  };
+
   const firmaMutation = useMutation({
     mutationFn: (formData) => api.patch(`/bitacora/incidente/${incidenteFirmando.id}/firma`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -288,8 +319,9 @@ export default function PadreBitacora() {
   const comidas = data?.comida || [];
   const panial  = data?.panial || [];
   const esf     = data?.esfinteres;
-  const meds    = data?.medicamentos || [];
-  const incidentes = data?.incidentes || [];
+  const meds         = data?.medicamentos || [];
+  const recepciones  = data?.recepciones_medicamento || [];
+  const incidentes   = data?.incidentes || [];
   const actividades = data?.actividades || [];
   const hijoActual = hijos.find(h => h.id === alumnoId);
   const entradaHoy = hijoActual?.filtro_entrada || null;
@@ -600,6 +632,93 @@ export default function PadreBitacora() {
                   {/* Salud */}
                   {tabActivo === 'salud' && (
                     <div className="space-y-3">
+
+                      {/* ── Declarar medicamento (solo hoy) ── */}
+                      {esHoyFecha && (
+                        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-black text-purple-700">💊 Medicamentos para hoy</p>
+                            <button
+                              onClick={() => setMostrarFormMed(v => !v)}
+                              className="text-xs font-bold text-purple-600 bg-white border border-purple-200 px-3 py-1.5 rounded-xl hover:bg-purple-50 transition-colors"
+                            >
+                              {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
+                            </button>
+                          </div>
+
+                          {recepciones.length > 0 && (
+                            <div className="space-y-2">
+                              {recepciones.map((r, i) => (
+                                <div key={i} className="bg-white rounded-xl px-3 py-2 border border-purple-100 flex items-center justify-between">
+                                  <div>
+                                    <p className="text-sm font-bold text-purple-800">{r.nombre}</p>
+                                    <p className="text-xs text-purple-500 font-semibold">
+                                      {r.dosis}{r.hora_programada && ` · ${r.hora_programada.substring(0, 5)}`}
+                                    </p>
+                                  </div>
+                                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${r.administrado ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                    {r.administrado ? '✅ Dado' : '⏳ Pendiente'}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {recepciones.length === 0 && !mostrarFormMed && (
+                            <p className="text-xs text-purple-400 font-semibold">
+                              Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.
+                            </p>
+                          )}
+
+                          {mostrarFormMed && (
+                            <div className="space-y-3 pt-1 border-t border-purple-100">
+                              <input
+                                placeholder="Medicamento *  (ej. Ibuprofeno)"
+                                value={formMed.nombre}
+                                onChange={e => setFormMed(p => ({ ...p, nombre: e.target.value }))}
+                                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+                              />
+                              <input
+                                placeholder="Dosis *  (ej. 5ml cada 8h)"
+                                value={formMed.dosis}
+                                onChange={e => setFormMed(p => ({ ...p, dosis: e.target.value }))}
+                                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+                              />
+                              <input
+                                type="time"
+                                placeholder="Hora programada (opcional)"
+                                value={formMed.hora_programada}
+                                onChange={e => setFormMed(p => ({ ...p, hora_programada: e.target.value }))}
+                                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+                              />
+                              <div>
+                                <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
+                                <button
+                                  onClick={() => fotoRecetaRef.current?.click()}
+                                  className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-500 hover:border-purple-300'}`}
+                                >
+                                  {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
+                                </button>
+                                <input
+                                  ref={fotoRecetaRef}
+                                  type="file"
+                                  accept="image/*,.pdf"
+                                  hidden
+                                  onChange={e => setFotoReceta(e.target.files?.[0] || null)}
+                                />
+                              </div>
+                              <button
+                                onClick={handleRegistrarMed}
+                                disabled={recepcionMutation.isPending}
+                                className="w-full py-2.5 rounded-xl bg-purple-500 text-white text-sm font-black hover:bg-purple-600 disabled:opacity-50 transition-colors"
+                              >
+                                {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       {bit?.tuvo_fiebre && (
                         <div className="bg-red-50 border-l-4 border-red-400 rounded-xl p-3">
                           <p className="text-sm font-bold text-red-700">

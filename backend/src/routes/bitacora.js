@@ -540,6 +540,33 @@ router.get('/medicamento/pendientes', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── PATCH /bitacora/medicamento/recepcion/:recepcionId/recibir ──────────────
+// Maestra en Filtro de Entrada confirma que recibió el medicamento físicamente
+router.patch('/medicamento/recepcion/:recepcionId/recibir', async (req, res, next) => {
+  try {
+    const { recepcionId } = req.params;
+
+    const personalResult = await query(
+      'SELECT id FROM personal WHERE usuario_id = $1',
+      [req.user.id]
+    );
+    const recibidoPor = personalResult.rows[0]?.id || null;
+
+    const result = await query(`
+      UPDATE recepcion_medicamento
+      SET recibido = true, recibido_at = NOW(), recibido_por = $2, updated_at = NOW()
+      WHERE id = $1
+      RETURNING *
+    `, [recepcionId, recibidoPor]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Recepción no encontrada' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) { next(err); }
+});
+
 // ── PATCH /bitacora/medicamento/recepcion/:recepcionId/administrar ──────────
 // Marcar recepción como administrada y crear registro en medicamentos
 router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res, next) => {

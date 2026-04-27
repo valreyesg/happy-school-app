@@ -86,6 +86,15 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
     }
   }, [alumno?.id]);
 
+  const recibirMedMutation = useMutation({
+    mutationFn: (recepcionId) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/recibir`).then(r => r.data),
+    onSuccess: (_, recepcionId) => {
+      setMedicamentosPendientes(prev => prev.map(m => m.id === recepcionId ? { ...m, recibido: true } : m));
+      toast.success('✅ Medicamento marcado como recibido');
+    },
+    onError: (err) => toast.error(err?.response?.data?.error || 'Error al marcar recibido'),
+  });
+
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/entrada', data).then(r => r.data),
     onSuccess: (data) => {
@@ -218,22 +227,34 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
             </>
           )}
 
-          {/* Sección Medicamentos (si hay pendientes) */}
+          {/* Sección Medicamentos */}
           {medicamentosPendientes.length > 0 && (
             <>
-              <p className="text-xs font-black text-orange-600 uppercase tracking-wider pt-2">💊 Medicamentos pendientes</p>
+              <p className="text-xs font-black text-orange-600 uppercase tracking-wider pt-2">💊 Medicamentos — recibir del papá</p>
               <div className="space-y-2">
-                {medicamentosPendientes.map((med, i) => (
-                  <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-2xl text-sm border-2 border-orange-200">
-                    <span className="text-orange-500 text-lg">💊</span>
+                {medicamentosPendientes.map((med) => (
+                  <div key={med.id} className={`flex items-start gap-2 px-3 py-2 rounded-2xl text-sm border-2 transition-all ${med.recibido ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
+                    <span className="text-lg">{med.recibido ? '✅' : '💊'}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-orange-800">{med.nombre} — {med.dosis}</p>
-                      <p className="text-xs text-orange-600">
+                      <p className="font-black text-gray-800">{med.nombre} — {med.dosis}</p>
+                      <p className="text-xs text-gray-500">
                         {med.hora_programada
-                          ? new Date(med.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+                          ? new Date(`1970-01-01T${med.hora_programada}`).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
                           : 'Sin hora programada'}
                       </p>
                     </div>
+                    {!med.recibido && (
+                      <button
+                        onClick={() => recibirMedMutation.mutate(med.id)}
+                        disabled={recibirMedMutation.isPending}
+                        className="px-3 py-1.5 rounded-xl bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap"
+                      >
+                        Recibir
+                      </button>
+                    )}
+                    {med.recibido && (
+                      <span className="text-xs font-bold text-green-600 whitespace-nowrap">Recibido</span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -396,8 +417,9 @@ export default function FiltroEntrada() {
 
   // Stats globales
   const todosAlumnos = grupos.flatMap(g => g.alumnos);
-  const totalPendientes = todosAlumnos.filter(a => a.estado_asistencia === 'ausente').length;
-  const totalPresentes  = todosAlumnos.filter(a => ['presente', 'retardo'].includes(a.estado_asistencia)).length;
+  const totalPendientes  = todosAlumnos.filter(a => a.estado_asistencia === 'ausente').length;
+  const totalPresentes   = todosAlumnos.filter(a => ['presente', 'retardo'].includes(a.estado_asistencia)).length;
+  const totalNoEntrada   = todosAlumnos.filter(a => a.estado_asistencia === 'no_entrada').length;
   const cumpleHoy       = todosAlumnos.filter(a => esCumpleanos(a.fecha_nacimiento));
 
   // Filtro búsqueda
@@ -470,17 +492,21 @@ export default function FiltroEntrada() {
 
       {/* Stats */}
       {!isLoading && (
-        <div className="grid grid-cols-3 gap-3">
-          <div className="card-hs p-4 text-center">
-            <p className="text-3xl font-black text-green-600">{totalPresentes}</p>
+        <div className="grid grid-cols-4 gap-2">
+          <div className="card-hs p-3 text-center">
+            <p className="text-2xl font-black text-green-600">{totalPresentes}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Registrados</p>
           </div>
-          <div className="card-hs p-4 text-center">
-            <p className="text-3xl font-black text-hs-purple">{totalPendientes}</p>
+          <div className="card-hs p-3 text-center">
+            <p className="text-2xl font-black text-red-500">{totalNoEntrada}</p>
+            <p className="text-xs font-bold text-gray-500 mt-1">No entraron</p>
+          </div>
+          <div className="card-hs p-3 text-center">
+            <p className="text-2xl font-black text-hs-purple">{totalPendientes}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Pendientes</p>
           </div>
-          <div className="card-hs p-4 text-center">
-            <p className="text-3xl font-black text-gray-700">{todosAlumnos.length}</p>
+          <div className="card-hs p-3 text-center">
+            <p className="text-2xl font-black text-gray-700">{todosAlumnos.length}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Total</p>
           </div>
         </div>

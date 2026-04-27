@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import toast from 'react-hot-toast';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,7 @@ const ESTADO_STYLE = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',     emoji: '✅' },
   retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',       emoji: '⏰' },
   no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'No entró',      emoji: '🚫' },
+  justificado: { bg: 'bg-blue-100',  text: 'text-blue-700',   label: 'Justificado',   emoji: '📋' },
   ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Sin registrar', emoji: '⬜' },
 };
 
@@ -26,6 +28,7 @@ const ESTADO_CELDA = {
   presente:   { bg: 'bg-green-400',  title: 'Presente' },
   retardo:    { bg: 'bg-yellow-400', title: 'Retardo' },
   no_entrada: { bg: 'bg-red-500',    title: 'No entró' },
+  justificado: { bg: 'bg-blue-400',  title: 'Justificado' },
 };
 
 function Check({ val, label }) {
@@ -127,15 +130,42 @@ function FilaAlumno({ alumno }) {
 // ── Vista mensual ─────────────────────────────────────────────────────────────
 
 function VistaMensual({ grupoId }) {
+  const queryClient = useQueryClient();
   const hoy = new Date();
   const [mes, setMes]   = useState(hoy.getMonth() + 1);
   const [anio, setAnio] = useState(hoy.getFullYear());
+  const [justificandoModal, setJustificandoModal] = useState(null);
+  const [motivoJustificacion, setMotivoJustificacion] = useState('');
 
   const { data: alumnos = [], isLoading } = useQuery({
     queryKey: ['asistencia-mensual', grupoId, mes, anio],
     queryFn: () => api.get(`/asistencia/grupo/${grupoId}/mensual?mes=${mes}&anio=${anio}`).then(r => r.data),
     enabled: !!grupoId,
   });
+
+  const justificarMutation = useMutation({
+    mutationFn: ({ alumnoId, fecha, motivo }) =>
+      api.patch(`/asistencia/${alumnoId}/justificar`, { fecha, motivo }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['asistencia-mensual', grupoId, mes, anio] });
+      setJustificandoModal(null);
+      setMotivoJustificacion('');
+      toast.success('✅ Ausencia justificada');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const justificarAusencia = () => {
+    if (!motivoJustificacion.trim()) {
+      toast.error('Escribe el motivo de la justificación');
+      return;
+    }
+    justificarMutation.mutate({
+      alumnoId: justificandoModal.alumnoId,
+      fecha: justificandoModal.fecha,
+      motivo: motivoJustificacion,
+    });
+  };
 
   const diasEnMes = new Date(anio, mes, 0).getDate();
   const dias = Array.from({ length: diasEnMes }, (_, i) => {
@@ -207,13 +237,29 @@ function VistaMensual({ grupoId }) {
                       if (estado === 'presente') presentes++;
                       else if (estado === 'retardo') { presentes++; retardos++; }
                       else if (estado === 'no_entrada') noEntradas++;
+                      else if (estado === 'justificado') presentes++;
                       const cfg = ESTADO_CELDA[estado];
+                      const isAusente = !estado || (!d.esFinde && !cfg);
+                      const fecha = `${anio}-${pad(mes)}-${pad(d.num)}`;
                       return (
-                        <td key={d.num} className={`text-center py-1 ${d.esFinde ? 'opacity-30' : ''}`}>
+                        <td key={d.num} className={`text-center py-1 relative group ${d.esFinde ? 'opacity-30' : ''}`}>
                           {cfg
                             ? <span className={`inline-block w-5 h-5 rounded ${cfg.bg}`} title={cfg.title} />
                             : <span className="inline-block w-5 h-5 rounded bg-gray-200 opacity-40" />
                           }
+                          {isAusente && !d.esFinde && (
+                            <div className="invisible group-hover:visible absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-20">
+                              <button
+                                onClick={() => {
+                                  setJustificandoModal({ alumnoId: alumno.id, fecha });
+                                  setMotivoJustificacion('');
+                                }}
+                                className="underline hover:no-underline"
+                              >
+                                Justificar
+                              </button>
+                            </div>
+                          )}
                         </td>
                       );
                     })}
@@ -232,6 +278,46 @@ function VistaMensual({ grupoId }) {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Modal justificación */}
+      {justificandoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-black text-gray-800">📋 Justificar ausencia</h3>
+            <p className="text-sm text-gray-600">
+              <strong>{alumnos.find(a => a.id === justificandoModal.alumnoId)?.nombre_completo}</strong>
+              {' · '}
+              <strong>{new Date(justificandoModal.fecha + 'T12:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
+            </p>
+            <textarea
+              placeholder="Motivo de la justificación…"
+              value={motivoJustificacion}
+              onChange={e => setMotivoJustificacion(e.target.value)}
+              rows={3}
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={justificarAusencia}
+                disabled={justificarMutation.isPending}
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all"
+              >
+                {justificarMutation.isPending ? 'Guardando…' : '💾 Justificar'}
+              </button>
+              <button
+                onClick={() => {
+                  setJustificandoModal(null);
+                  setMotivoJustificacion('');
+                }}
+                disabled={justificarMutation.isPending}
+                className="px-4 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition-all"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

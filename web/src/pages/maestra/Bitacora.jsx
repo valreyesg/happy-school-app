@@ -476,7 +476,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     }
   }, [tareasHoy]);
 
-  // Medicamento
+  // Medicamento — administración directa
   const [medNombre, setMedNombre] = useState('');
   const [medDosis,  setMedDosis]  = useState('');
   const [medNotas,  setMedNotas]  = useState('');
@@ -492,6 +492,88 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const registrarMed = () => {
     if (!medNombre || !medDosis) { toast.error('Escribe nombre y dosis'); return; }
     medMutation.mutate({ alumno_id: alumno.id, nombre: medNombre, dosis: medDosis, notas: medNotas });
+  };
+
+  // Recepción de medicamento (traído por papá)
+  const [mostrarFormRecepcion, setMostrarFormRecepcion] = useState(false);
+  const [recNombre,    setRecNombre]    = useState('');
+  const [recDosis,     setRecDosis]     = useState('');
+  const [recHora,      setRecHora]      = useState('');
+  const [recFotoReceta, setRecFotoReceta] = useState(null);
+  const [recFotoEnvase, setRecFotoEnvase] = useState(null);
+  const recFotoRecetaRef = useRef();
+  const recFotoEnvaseRef = useRef();
+
+  const recepcionMutation = useMutation({
+    mutationFn: (fd) => api.post('/bitacora/medicamento/recepcion', fd).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      setMostrarFormRecepcion(false);
+      setRecNombre(''); setRecDosis(''); setRecHora('');
+      setRecFotoReceta(null); setRecFotoEnvase(null);
+      toast.success('📋 Recepción de medicamento registrada');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const administrarRecepcionMutation = useMutation({
+    mutationFn: (recepcionId) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      toast.success('✅ Medicamento administrado');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const guardarRecepcion = () => {
+    if (!recNombre || !recDosis) { toast.error('Escribe nombre y dosis'); return; }
+    const fd = new FormData();
+    fd.append('alumno_id', alumno.id);
+    fd.append('nombre', recNombre);
+    fd.append('dosis', recDosis);
+    if (recHora) fd.append('hora_programada', recHora);
+    if (recFotoReceta) fd.append('foto_receta', recFotoReceta);
+    if (recFotoEnvase) fd.append('foto_envase', recFotoEnvase);
+    recepcionMutation.mutate(fd);
+  };
+
+  const abrirFormRecepcion = () => {
+    const pendiente = data?.recepciones_medicamento?.find(r => !r.administrado);
+    if (pendiente) {
+      setRecNombre(pendiente.nombre || '');
+      setRecDosis(pendiente.dosis || '');
+    }
+    setMostrarFormRecepcion(true);
+  };
+
+  // Vómito
+  const [mostrarFormVomito, setMostrarFormVomito] = useState(false);
+  const [vomitoIntensidad, setVomitoIntensidad] = useState('');
+  const [vomitoNotas, setVomitoNotas] = useState('');
+  const { data: vomitosCatalogo } = useQuery({
+    queryKey: ['catalogos', 'vomito-intensidad'],
+    queryFn: () => api.get('/catalogos/vomito-intensidad').then(r => r.data),
+  });
+
+  const vomitoMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/vomito', body).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      setMostrarFormVomito(false);
+      setVomitoIntensidad('');
+      setVomitoNotas('');
+      toast.success('🤢 Episodio de vómito registrado');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  const registrarVomito = () => {
+    if (!vomitoIntensidad) { toast.error('Selecciona la intensidad'); return; }
+    vomitoMutation.mutate({
+      alumno_id: alumno.id,
+      intensidad: vomitoIntensidad,
+      notas: vomitoNotas,
+    });
   };
 
   // Incidente
@@ -540,11 +622,29 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     actFotosMutation.mutate(fd);
   };
 
+  // Insumos (stock de pañales, toallitas, etc.)
+  const [insumos, setInsumos] = useState([]);
+  const { data: insumosData } = useQuery({
+    queryKey: ['insumos', alumno.id],
+    queryFn: () => alumno.id ? api.get(`/insumos/${alumno.id}`).then(r => r.data).catch(() => []) : Promise.resolve([]),
+    enabled: !!alumno.id && alumno.usa_panial,
+  });
+  useEffect(() => {
+    if (insumosData) setInsumos(insumosData);
+  }, [insumosData]);
+
+  const getColorInsumo = (cantidad) => {
+    if (cantidad >= 10) return 'text-green-600';
+    if (cantidad >= 5) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
   // Pañal
   const panialMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/panial', body).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+      queryClient.invalidateQueries({ queryKey: ['insumos', alumno.id] });
       toast.success('Cambio de pañal registrado');
     },
     onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
@@ -688,6 +788,21 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       {/* Pañal (solo si usa_panial) */}
       {alumno.usa_panial && (
         <Seccion titulo="👶🏻 Cambios de pañal">
+          {insumos.length > 0 && (
+            <div className="mb-4 p-3 bg-gray-50 rounded-xl border-2 border-gray-200">
+              <p className="text-xs font-black text-gray-500 uppercase mb-2">Stock disponible</p>
+              <div className="space-y-1">
+                {insumos.map((ins, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span className="font-semibold text-gray-700">{ins.tipo}:</span>
+                    <span className={`font-black text-lg ${getColorInsumo(ins.cantidad_actual)}`}>
+                      {ins.cantidad_actual} {ins.cantidad_actual === 1 ? 'unidad' : 'unidades'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {data?.panial?.length > 0 && (
             <div className="space-y-1 mb-3">
               <p className="text-xs font-black text-gray-400">Registros de hoy</p>
@@ -875,7 +990,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       </Seccion>
 
       {/* Salud */}
-      <Seccion titulo="🌡️ Salud">
+      <Seccion titulo={`🌡️ Salud${data?.vomitos?.length > 0 ? ' 🤢' : ''}`}>
         <div className="flex items-center justify-between">
           <span className="font-bold text-gray-700">¿Tuvo fiebre?</span>
           <button onClick={() => setTuvoFiebre(v => !v)}
@@ -899,6 +1014,52 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
           <textarea rows={2} placeholder="Describe el malestar…"
             value={descEnfermedad} onChange={e => setDescEnfermedad(e.target.value)}
             className="w-full border-2 border-red-300 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-500 resize-none" />
+        )}
+
+        {/* Vómito */}
+        {data?.vomitos?.length > 0 && (
+          <div className="space-y-2 border-t-2 border-gray-200 pt-3 mt-3">
+            <p className="text-xs font-black text-orange-600 uppercase">🤢 Episodios de vómito</p>
+            {data.vomitos.map((v, i) => (
+              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
+                <span className="text-orange-600 font-bold">🤢</span>
+                <div>
+                  <p className="font-black text-orange-800">Intensidad: {v.intensidad}</p>
+                  <p className="text-xs text-orange-600">{new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
+                  {v.notas && <p className="text-xs text-orange-700 mt-1">{v.notas}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!soloLectura && (
+          <button onClick={() => setMostrarFormVomito(!mostrarFormVomito)}
+            className="w-full mt-3 py-2 px-3 rounded-xl font-bold text-sm bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all border-2 border-orange-300">
+            + Registrar vómito
+          </button>
+        )}
+        {mostrarFormVomito && (
+          <div className="space-y-2 border-t-2 border-orange-200 pt-3 mt-3">
+            <div className="flex flex-wrap gap-2">
+              {vomitosCatalogo?.map(int => (
+                <button key={int.key}
+                  onClick={() => setVomitoIntensidad(int.key)}
+                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all
+                    ${vomitoIntensidad === int.key
+                      ? 'bg-orange-500 text-white'
+                      : 'bg-orange-50 text-orange-700 border-2 border-orange-200 hover:bg-orange-100'}`}>
+                  {int.label}
+                </button>
+              ))}
+            </div>
+            <textarea rows={2} placeholder="Notas adicionales (opcional)"
+              value={vomitoNotas} onChange={e => setVomitoNotas(e.target.value)}
+              className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500 resize-none" />
+            <button onClick={registrarVomito} disabled={vomitoMutation.isPending}
+              className="w-full py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+              {vomitoMutation.isPending ? 'Registrando…' : '✅ Registrar vómito'}
+            </button>
+          </div>
         )}
       </Seccion>
 
@@ -928,9 +1089,34 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       </Seccion>
 
       {/* Medicamentos */}
-      <Seccion titulo="💊 Medicamentos del día">
+      <Seccion titulo={`💊 Medicamentos${data?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
+        {/* Recepciones pendientes */}
+        {data?.recepciones_medicamento?.length > 0 && data.recepciones_medicamento.some(r => !r.administrado) && (
+          <div className="space-y-2 mb-3 border-b-2 border-orange-200 pb-3">
+            <p className="text-xs font-black text-orange-600 uppercase">⏳ Pendientes de administración</p>
+            {data.recepciones_medicamento.filter(r => !r.administrado).map((rec, i) => (
+              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
+                <span className="text-orange-500 text-lg">💊</span>
+                <div className="flex-1">
+                  <p className="font-black text-orange-800">{rec.nombre} — {rec.dosis}</p>
+                  <p className="text-xs text-orange-600">
+                    Pendiente · {rec.hora_programada ? new Date(rec.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                  </p>
+                </div>
+                <button onClick={() => administrarRecepcionMutation.mutate(rec.id)}
+                  disabled={administrarRecepcionMutation.isPending}
+                  className="px-3 py-1 rounded-lg bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap">
+                  Administrar
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Medicamentos administrados */}
         {data?.medicamentos?.length > 0 && (
           <div className="space-y-2 mb-3">
+            <p className="text-xs font-black text-green-600 uppercase">✅ Administrados</p>
             {data.medicamentos.map((m, i) => (
               <div key={i} className="flex items-start gap-2 px-3 py-2 bg-blue-50 rounded-xl text-sm">
                 <span className="text-blue-500 text-lg">💊</span>
@@ -945,8 +1131,10 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             ))}
           </div>
         )}
+
         {!soloLectura && (
-          <div className="space-y-2">
+          <div className="space-y-2 border-t-2 border-gray-200 pt-3">
+            <p className="text-xs font-black text-gray-400 uppercase">Registrar administración manual</p>
             <input type="text" placeholder="Nombre del medicamento *"
               value={medNombre} onChange={e => setMedNombre(e.target.value)}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400" />
@@ -956,10 +1144,59 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             <textarea rows={2} placeholder="Notas (opcional)"
               value={medNotas} onChange={e => setMedNotas(e.target.value)}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none" />
-            <button onClick={registrarMed} disabled={medMutation.isPending}
-              className="w-full py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all">
-              {medMutation.isPending ? 'Registrando…' : '💊 Registrar medicamento'}
-            </button>
+            <div className="flex gap-2">
+              <button onClick={registrarMed} disabled={medMutation.isPending}
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all">
+                {medMutation.isPending ? 'Registrando…' : '💊 Administrar'}
+              </button>
+              <button onClick={abrirFormRecepcion} disabled={recepcionMutation.isPending}
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+                📋 Registrar recepción
+              </button>
+            </div>
+
+            {mostrarFormRecepcion && (
+              <div className="space-y-2 border-t-2 border-orange-200 pt-3 mt-3">
+                <p className="text-xs font-black text-orange-600 uppercase">Nueva recepción (traída por papá)</p>
+                <input type="text" placeholder="Nombre del medicamento *"
+                  value={recNombre} onChange={e => setRecNombre(e.target.value)}
+                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                <input type="text" placeholder="Dosis (ej. 5ml, 1 tableta) *"
+                  value={recDosis} onChange={e => setRecDosis(e.target.value)}
+                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                <input type="time" placeholder="Hora programada (opcional)"
+                  value={recHora} onChange={e => setRecHora(e.target.value)}
+                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <button onClick={() => recFotoRecetaRef.current?.click()}
+                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-orange-600 hover:bg-orange-50">
+                      📷 {recFotoReceta ? '✅ Receta' : 'Foto receta (opt)'}
+                    </button>
+                    <input ref={recFotoRecetaRef} type="file" accept="image/*" hidden
+                      onChange={e => setRecFotoReceta(e.target.files?.[0] || null)} />
+                  </div>
+                  <div className="flex-1">
+                    <button onClick={() => recFotoEnvaseRef.current?.click()}
+                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-orange-600 hover:bg-orange-50">
+                      📷 {recFotoEnvase ? '✅ Envase' : 'Foto envase (opt)'}
+                    </button>
+                    <input ref={recFotoEnvaseRef} type="file" accept="image/*" hidden
+                      onChange={e => setRecFotoEnvase(e.target.files?.[0] || null)} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={guardarRecepcion} disabled={recepcionMutation.isPending}
+                    className="flex-1 py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+                    {recepcionMutation.isPending ? 'Guardando…' : '💾 Guardar recepción'}
+                  </button>
+                  <button onClick={() => setMostrarFormRecepcion(false)} disabled={recepcionMutation.isPending}
+                    className="px-4 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition-all">
+                    ✕
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </Seccion>

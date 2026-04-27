@@ -213,9 +213,19 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     enabled: !!usaPanial,
   });
 
+  // ── Insumos ──
+  const { data: insumosData = [] } = useQuery({
+    queryKey: ['insumos', alumnoId],
+    queryFn: () => api.get(`/insumos/${alumnoId}`).then(r => r.data).catch(() => []),
+    enabled: !!usaPanial,
+  });
+
   const panialMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/panial', body),
-    onSuccess: () => queryClient.invalidateQueries(['bitacora-data', alumnoId, fecha]),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora-data', alumnoId, fecha]);
+      queryClient.invalidateQueries(['insumos', alumnoId]);
+    },
   });
 
   // ── Guardar bitácora ──
@@ -274,6 +284,57 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     });
   };
 
+  // ── Recepción de medicamento ──
+  const [mostrarRecepcion, setMostrarRecepcion] = useState(false);
+  const [recNombre, setRecNombre] = useState('');
+  const [recDosis, setRecDosis] = useState('');
+  const [recHora, setRecHora] = useState('');
+
+  const recepcionMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/medicamento/recepcion', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      setMostrarRecepcion(false);
+      setRecNombre('');
+      setRecDosis('');
+      setRecHora('');
+      Alert.alert('¡Listo!', 'Recepción de medicamento registrada.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo registrar la recepción.'),
+  });
+
+  const administrarRecepcionMutation = useMutation({
+    mutationFn: (recepcionId) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      Alert.alert('✅', 'Medicamento administrado.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo administrar el medicamento.'),
+  });
+
+  const guardarRecepcion = () => {
+    if (!recNombre || !recDosis) {
+      Alert.alert('Falta información', 'Escribe nombre y dosis.');
+      return;
+    }
+    const body = {
+      alumno_id: alumnoId,
+      nombre: recNombre,
+      dosis: recDosis,
+    };
+    if (recHora) body.hora_programada = recHora;
+    recepcionMutation.mutate(body);
+  };
+
+  const abrirFormRecepcion = () => {
+    const pendiente = bitacoraExistente?.recepciones_medicamento?.find(r => !r.administrado);
+    if (pendiente) {
+      setRecNombre(pendiente.nombre || '');
+      setRecDosis(pendiente.dosis || '');
+    }
+    setMostrarRecepcion(true);
+  };
+
   if (isLoading) {
     return (
       <View style={s.center}>
@@ -325,6 +386,20 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         {/* Pañal (solo Maternal) */}
         {usaPanial && (
           <Seccion titulo="Cambios de pañal">
+            {insumosData.length > 0 && (
+              <View style={{ backgroundColor: '#F3F4F6', padding: 10, borderRadius: 8, marginBottom: 12 }}>
+                <Text style={{ fontSize: 12, fontWeight: '900', color: '#6B7280', marginBottom: 6, textTransform: 'uppercase' }}>Stock disponible</Text>
+                {insumosData.map((ins, i) => {
+                  const colorStock = ins.cantidad_actual >= 10 ? '#059669' : ins.cantidad_actual >= 5 ? '#D97706' : '#DC2626';
+                  return (
+                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <Text style={{ fontSize: 13, color: '#4B5563', fontWeight: '600' }}>{ins.tipo}:</Text>
+                      <Text style={{ fontSize: 14, fontWeight: '900', color: colorStock }}>{ins.cantidad_actual}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
             <Text style={s.panialSub}>Registros de hoy:</Text>
             {(bitacoraData?.panial || []).map((p, i) => (
               <View key={i} style={s.panialLog}>
@@ -521,6 +596,95 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               onChangeText={setDescripcionEnfermedad}
               multiline
             />
+          )}
+        </Seccion>
+
+        {/* Medicamentos */}
+        <Seccion titulo={`💊 Medicamentos${bitacoraExistente?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
+          {bitacoraExistente?.recepciones_medicamento?.length > 0 && bitacoraExistente.recepciones_medicamento.some(r => !r.administrado) && (
+            <View style={{ marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7AA' }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: '#B45309', marginBottom: 8, textTransform: 'uppercase' }}>⏳ Pendientes</Text>
+              {bitacoraExistente.recepciones_medicamento.filter(r => !r.administrado).map((rec, i) => (
+                <View key={i} style={{ backgroundColor: '#FEF3C7', padding: 10, borderRadius: 8, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: '#F59E0B' }}>
+                  <Text style={{ fontWeight: '900', color: '#92400E', marginBottom: 2 }}>{rec.nombre} — {rec.dosis}</Text>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 12, color: '#B45309' }}>
+                      {rec.hora_programada ? new Date(rec.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => administrarRecepcionMutation.mutate(rec.id)}
+                      disabled={administrarRecepcionMutation.isPending}
+                      style={{ backgroundColor: '#F59E0B', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
+                    >
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>Administrar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {bitacoraExistente?.medicamentos?.length > 0 && (
+            <View style={{ marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#BFDBFE' }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: '#1E40AF', marginBottom: 8, textTransform: 'uppercase' }}>✅ Administrados</Text>
+              {bitacoraExistente.medicamentos.map((m, i) => (
+                <View key={i} style={{ backgroundColor: '#DBEAFE', padding: 10, borderRadius: 8, marginBottom: 6, borderLeftWidth: 4, borderLeftColor: '#3B82F6' }}>
+                  <Text style={{ fontWeight: '700', color: '#1E40AF' }}>{m.nombre} — {m.dosis}</Text>
+                  <Text style={{ fontSize: 11, color: '#1E3A8A', marginTop: 2 }}>
+                    {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <TouchableOpacity
+              onPress={abrirFormRecepcion}
+              disabled={recepcionMutation.isPending}
+              style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: 10, alignItems: 'center' }}
+            >
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>📋 Nueva recepción</Text>
+            </TouchableOpacity>
+          </View>
+
+          {mostrarRecepcion && (
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
+              <TextInput
+                style={s.input}
+                placeholder="Nombre del medicamento *"
+                value={recNombre}
+                onChangeText={setRecNombre}
+              />
+              <TextInput
+                style={s.input}
+                placeholder="Dosis (ej. 5ml, 1 tableta) *"
+                value={recDosis}
+                onChangeText={setRecDosis}
+              />
+              <TextInput
+                style={s.input}
+                placeholder="Hora (opcional)"
+                value={recHora}
+                onChangeText={setRecHora}
+              />
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                <TouchableOpacity
+                  onPress={guardarRecepcion}
+                  disabled={recepcionMutation.isPending}
+                  style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: 10, alignItems: 'center' }}
+                >
+                  <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setMostrarRecepcion(false)}
+                  disabled={recepcionMutation.isPending}
+                  style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 10, backgroundColor: '#E5E7EB', alignItems: 'center' }}
+                >
+                  <Text style={{ color: '#374151', fontSize: 14, fontWeight: '700' }}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           )}
         </Seccion>
 

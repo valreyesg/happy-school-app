@@ -1,7 +1,83 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 81
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82
+
+---
+
+## ✅ SESIÓN 82 — GESTIÓN ALUMNOS BLOQUE 2 (85% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 85% COMPLETADO — Pendiente: Alumnos.jsx UI + mobile qr-scanner
+
+**Objetivo:** Agregar 3 tipos de personas externas (niños extensión, visitantes, hermanos) + detección de hermanos en QR salida + cobros automáticos
+
+### Implementado (100%):
+
+**Backend:**
+- ✅ 3 migraciones ejecutadas:
+  - `036_pagos_origen.sql` — campo `pagos.origen` (manual, extension_dia, visitante_extension, retardo)
+  - `034_ninos_extension.sql` — tabla `ninos_extension` + `registro_extension` (QR, modalidad pago, entrada/salida)
+  - `035_visitantes.sql` — tabla `visitantes` (foto, extensión día, hora entrada/salida)
+- ✅ Ruta completa `/ninos-extension` — CRUD, entrada/salida automáticas, QR único (`HAPPYSCHOOL:EXT:<id>`), pagos automáticos
+- ✅ Ruta completa `/visitantes` — CRUD, extensión del día, pagos automáticos (`origen = 'visitante_extension'`)
+- ✅ Query detección hermanos en `POST /asistencia/salida` — retorna `hermanos_sin_salir[]`
+
+**Frontend Web:**
+- ✅ `NinosExtension.jsx` (página completa) — crear, editar, eliminar, modal QR con descarga, indicador activo/inactivo, modalidad pago
+- ✅ `Dashboard.jsx` — sección "Visitantes de hoy" con botón "+ Registrar", lista visitantes con badge naranja, modal registro visitante
+- ✅ `App.jsx` — ruta agregada `/directora/ninos-extension`
+- ✅ `DirectoraLayout.jsx` — nav item "Niños de Extensión"
+
+**Validaciones completadas:**
+- ✅ Crear niño extensión mensual desde web
+- ✅ Migraciones ejecutadas sin errores
+- ✅ Rutas backend funcionales
+
+### Pendiente (85% → 100%):
+
+**Frontend Web (~30 min):**
+- ⏳ `Alumnos.jsx` — Agregar sección "Hermanos" en modal detalle alumno
+  - Query GET `/alumnos/:id/hermanos`
+  - Buscar alumno + botón "Vincular" → POST `/alumnos/:id/familia` con `hermano_id`
+  - Lista hermanos vinculados + botón "Desvincular" → DELETE `/alumnos/:id/familia`
+  - Chip "X hermanos" en tarjeta del listado
+
+**Frontend Mobile (~20 min):**
+- ⏳ `qr-scanner.jsx` — Ampliar para niños extensión
+  - Guard QR extendido: detectar `HAPPYSCHOOL:EXT:` + `HAPPYSCHOOL:ALUMNO:`
+  - GET `/ninos-extension/por-qr/:qrData` si es extensión
+  - ComponenteResultadoExtension (fondo naranja/ámbar)
+  - Alert "Entrada temprana" si hora < 14:45 (no bloquear)
+  - Banner alerta hermanos en salida (si `hermanos_sin_salir.length > 0`)
+
+### Archivos creados:
+- `backend/migrations/034_ninos_extension.sql`
+- `backend/migrations/035_visitantes.sql`
+- `backend/migrations/036_pagos_origen.sql`
+- `backend/src/routes/ninos_extension.js` (266 líneas)
+- `backend/src/routes/visitantes.js` (207 líneas)
+- `web/src/pages/directora/NinosExtension.jsx` (308 líneas)
+
+### Archivos modificados:
+- `backend/src/routes/index.js` — registrar 2 rutas nuevas
+- `backend/src/routes/asistencia.js` — agregar query hermanos
+- `web/src/App.jsx` — import + ruta
+- `web/src/layouts/DirectoraLayout.jsx` — nav item
+- `web/src/pages/directora/Dashboard.jsx` — query visitantes + componente ModalNuevoVisitante
+
+### Decisiones de diseño:
+
+**QR niños extensión:** Formato `HAPPYSCHOOL:EXT:<UUID>` mantiene consistencia con alumno regular. Se genera automáticamente al crear niño.
+
+**Pagos automáticos:** Campo `pagos.origen` diferencia cargos para poder condonarlos masivamente. Flujos:
+- Niño extensión modalidad `por_dia` → pago automático al registrar entrada (si no existe ya)
+- Visitante con extensión día → pago automático al activar flag
+
+**Detección hermanos:** Via `familia_id` compartido. Query en salida busca hermanos con entrada hoy + sin salida + no deletados. Backend retorna array en respuesta.
+
+### Commits:
+- `172f3a6` — docs: VALIDACIONES actualizado — Sesión 81 Fixes medicamentos
+- (Se crearán commits en próxima sesión tras cierre)
 
 ---
 

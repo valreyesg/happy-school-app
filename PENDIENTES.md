@@ -1,7 +1,53 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-27 | **Sesión actual:** 81
+**Última actualización:** 2026-04-27 | **Sesión actual:** 82
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
+
+---
+
+## 🔴 VALIDACIONES PENDIENTES — SESIÓN 82 (CRÍTICO)
+
+### Validar antes de continuar:
+1. **Niños de extensión:**
+   - Crear niño extensión (mensual) desde web → verificar en lista
+   - Crear niño extensión (por_dia) → verificar pago generado en tabla `pagos` con `origen = 'extension_dia'`
+   - Ver QR y descargar imagen
+   - Escanear QR en mobile (cuando esté listo) → verificar registro en `registro_extension`
+   - Intentar entrada antes de 14:45 → verificar aviso sin bloquear
+
+2. **Visitantes:**
+   - Registrar visitante desde Dashboard → aparece en lista
+   - Foto sube a Cloudinary (verificar en tabla `visitantes.foto_url`)
+   - Activar extensión día → verificar pago generado con `origen = 'visitante_extension'`
+   - Registrar salida → verificar confirmación del cargo
+
+3. **Hermanos (falta implementar UI):**
+   - Vincular dos alumnos desde Alumnos.jsx (cuando esté lista UI)
+   - Verificar ambos quedan con mismo `familia_id`
+   - Escanear QR salida → verificar alerta "Hermanos aún en escuela"
+
+4. **Job cron medicamentos (de Sesión 81):**
+   - A las 14:00 → verificar que dispara recordatorio a miss
+   - Medicamentos están marcados `recibido = true`
+
+---
+
+---
+
+## 🔵 TAREAS RESTANTES — BLOQUE 2 (para Sesión 83)
+
+### Pendiente completar:
+1. **Alumnos.jsx — UI hermanos** (~30 min)
+   - Modal detalle alumno con sección "Hermanos"
+   - Buscar + vincular hermano → POST `/alumnos/:id/familia`
+   - Desvincular → DELETE `/alumnos/:id/familia`
+   - Chip "2 hermanos" en tarjeta
+
+2. **mobile/qr-scanner.jsx — Soporte QR extensión** (~20 min)
+   - Guard extendido: `HAPPYSCHOOL:EXT:` + `HAPPYSCHOOL:ALUMNO:`
+   - ComponenteResultadoExtension (naranja)
+   - Alert si hora < 14:45 ("Entrada temprana")
+   - Banner alerta hermanos en salida
 
 ---
 

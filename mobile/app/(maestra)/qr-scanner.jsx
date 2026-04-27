@@ -41,7 +41,6 @@ export default function QRScannerScreen() {
       setAlumnoDetectado(alumno);
 
       if (modo === 'entrada') {
-        // Registrar entrada automáticamente con checklist pendiente
         setScanned(true);
       }
     },
@@ -52,9 +51,42 @@ export default function QRScannerScreen() {
     },
   });
 
+  const buscarExtensionMutation = useMutation({
+    mutationFn: (qrData) => api.get(`/ninos-extension/por-qr/${encodeURIComponent(qrData)}`).then(r => r.data),
+    onSuccess: (nino) => {
+      Vibration.vibrate(100);
+      setAlumnoDetectado({ ...nino, es_extension: true });
+      setScanned(true);
+    },
+    onError: () => {
+      Alert.alert('QR no reconocido', 'Este código no corresponde a ningún niño de extensión', [
+        { text: 'OK', onPress: resetScanner },
+      ]);
+    },
+  });
+
   const handleBarCodeScanned = ({ data }) => {
     if (cooldownRef.current || scanned) return;
-    if (!data.startsWith('HAPPYSCHOOL:ALUMNO:')) return;
+    if (!data.startsWith('HAPPYSCHOOL:ALUMNO:') && !data.startsWith('HAPPYSCHOOL:EXT:')) return;
+
+    if (data.startsWith('HAPPYSCHOOL:EXT:')) {
+      const horaMinutos = new Date().getHours() * 60 + new Date().getMinutes();
+      const limiteMinutos = 14 * 60 + 45; // 14:45
+      if (horaMinutos < limiteMinutos) {
+        Alert.alert(
+          '⏰ Entrada temprana',
+          'Este niño de extensión llega antes de las 14:45. Se registrará igualmente.',
+          [{ text: 'Continuar', onPress: () => { cooldownRef.current = true; setScanned(true); buscarExtensionMutation.mutate(data); setTimeout(() => { cooldownRef.current = false; }, 3000); } },
+           { text: 'Cancelar' }],
+        );
+        return;
+      }
+      cooldownRef.current = true;
+      setScanned(true);
+      buscarExtensionMutation.mutate(data);
+      setTimeout(() => { cooldownRef.current = false; }, 3000);
+      return;
+    }
 
     cooldownRef.current = true;
     setScanned(true);
@@ -248,15 +280,29 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
 function ResultadoEntrada({ alumno, resultado, modo, onSiguiente }) {
   const puede = resultado.puede_entrar;
   const tieneExtension = alumno.tiene_extension;
+  const hermanosSinSalir = alumno.hermanos_sin_salir || 0;
 
   return (
     <View style={[styles.resultadoContainer, {
-      backgroundColor: modo === 'entrada'
-        ? (puede ? '#F0FFF4' : '#FFF5F5')
-        : '#F3E8FF'
+      backgroundColor: alumno.es_extension
+        ? '#FFF7ED'
+        : modo === 'entrada'
+          ? (puede ? '#F0FFF4' : '#FFF5F5')
+          : '#F3E8FF'
     }]}>
+      {/* Banner niño de extensión */}
+      {alumno.es_extension && (
+        <View style={[styles.extensionBanner, { backgroundColor: '#FED7AA' }]}>
+          <Text style={{ fontSize: 28 }}>🏫</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.extensionTitle}>Niño de extensión</Text>
+            <Text style={styles.extensionSubtitle}>Registro de {modo}</Text>
+          </View>
+        </View>
+      )}
+
       {/* Banner de extensión en modo salida */}
-      {modo === 'salida' && tieneExtension && (
+      {modo === 'salida' && tieneExtension && !alumno.es_extension && (
         <View style={styles.extensionBanner}>
           <Text style={{ fontSize: 28 }}>⏱️</Text>
           <View style={{ flex: 1 }}>
@@ -264,6 +310,19 @@ function ResultadoEntrada({ alumno, resultado, modo, onSiguiente }) {
             <Text style={styles.extensionSubtitle}>
               Salida hasta las {alumno.hora_salida_extension || '18:00'}
             </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Banner hermanos sin registrar salida */}
+      {modo === 'salida' && hermanosSinSalir > 0 && (
+        <View style={styles.hermanosBanner}>
+          <Text style={{ fontSize: 28 }}>👨‍👩‍👧</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.hermanosTitle}>
+              {hermanosSinSalir === 1 ? '1 hermano' : `${hermanosSinSalir} hermanos`} sin salida registrada
+            </Text>
+            <Text style={styles.hermanosSubtitle}>Verificar antes de que salgan</Text>
           </View>
         </View>
       )}
@@ -369,6 +428,13 @@ const styles = StyleSheet.create({
   },
   extensionTitle: { fontSize: 14, fontWeight: '900', color: '#744210' },
   extensionSubtitle: { fontSize: 12, fontWeight: '600', color: '#975A16', marginTop: 2 },
+  hermanosBanner: {
+    width: '100%', backgroundColor: '#FECACA', borderRadius: 16, padding: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16,
+    borderWidth: 2, borderColor: '#FCA5A5',
+  },
+  hermanosTitle: { fontSize: 14, fontWeight: '900', color: '#991B1B' },
+  hermanosSubtitle: { fontSize: 12, fontWeight: '600', color: '#B91C1C', marginTop: 2 },
   resultadoTitle: { fontSize: 32, fontWeight: '900' },
   resultadoNombre: { fontSize: 20, fontWeight: '800', color: '#2D3748' },
   resultadoMotivo: { fontSize: 15, fontWeight: '600', color: '#C53030', textAlign: 'center' },

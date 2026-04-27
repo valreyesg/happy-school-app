@@ -1,19 +1,13 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** 84
+**Última actualización:** 2026-04-27 | **Sesión actual:** 85
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🟡 VALIDACIONES PENDIENTES — (ejecutar hoy/mañana)
+## 🟡 VALIDACIONES PENDIENTES — (ejecutar mañana 2026-04-28)
 
-### Sesión 81: Job Cron Medicamentos (validar hoy ~14:00)
-- [ ] A las 14:00 → verificar que dispara recordatorio a miss
-- [ ] Notificación in-app a miss debe aparecer
-- [ ] BD notificaciones registro: `tipo='recordatorio_medicamento'`
-- **Referencia:** ARCHIVE_LOG — Sesión 81 Parte 2 (línea 268)
-
-### Sesión XX: Solicitud Toallitas Húmedas (validar mañana 2026-04-28)
+### Sesión XX: Solicitud Toallitas Húmedas
 1. **FiltroEntrada de Sofía Reyes Mendoza**
    - [ ] Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
    - [ ] Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
@@ -23,25 +17,6 @@
    - [ ] Desmarcar "Trajo pañales hoy" en entrada
    - [ ] Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
    - [ ] Registrar cambio → stock baja a "3 pañales"
-
----
-
----
-
-## 🔵 TAREAS RESTANTES — BLOQUE 2 (para próximas sesiones)
-
-### Pendiente completar (NO en Sesión 83 — todavía):
-1. **Alumnos.jsx — UI hermanos** (~30 min)
-   - Modal detalle alumno con sección "Hermanos"
-   - Buscar + vincular hermano → POST `/alumnos/:id/familia`
-   - Desvincular → DELETE `/alumnos/:id/familia`
-   - Chip "X hermanos" en tarjeta
-
-2. **mobile/qr-scanner.jsx — Soporte QR extensión + hermanos** (~20 min)
-   - Guard QR extendido: `HAPPYSCHOOL:EXT:` + `HAPPYSCHOOL:ALUMNO:`
-   - ComponenteResultadoExtension (naranja/ámbar)
-   - Alert si hora < 14:45 ("Entrada temprana", no bloquear)
-   - Banner alerta hermanos en salida (detectar `hermanos_sin_salir`)
 
 ---
 
@@ -74,19 +49,24 @@
 
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
-### 🍽️ MÓDULO COMIDA AVANZADO (Bitácora 4 tiempos)
-
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
 - [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
 - [ ] **Protocolo Salida Anticipada:** Formulario motivo + hora + quién retira + firma digital tutor + notificación al otro padre.
 - [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
-### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (✅ COMPLETADO EN SESIÓN 82)
-> ✅ Completado: Niños Extensión + Visitantes + Hermanos backend + Validación cobros automáticos
-> ⏳ Pendiente (próximas sesiones): UI Hermanos (Alumnos.jsx) + Mobile QR extensión (qr-scanner.jsx)
-> Ver ARCHIVE_LOG.md — Sesión 82 para detalles técnicos y commits
+### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (✅ COMPLETADO EN SESIONES 82 + 84)
+> ✅ Completado: Niños Extensión + Visitantes + Hermanos backend + Generación automática de cobros en pagos
+> ✅ Completado Sesión 84: UI Hermanos (AlumnoPerfil.jsx) + Chip hermanos tarjeta + Mobile QR extensión + Banner hermanos sin salir
+> ⏳ Pendiente: Validación/UI de cobros (módulo Finanzas)
+> Ver ARCHIVE_LOG.md — Sesión 82 y Sesión 84 para detalles técnicos
 
 ### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
+
+> ℹ️ **Nota técnica:** Al registrar un niño de servicio extendido (`modalidad_pago = 'por_dia'`)
+> o un visitante con extensión, el backend YA genera automáticamente un cargo en `pagos`
+> con `origen = 'extension_dia'` / `'visitante_extension'` y estado `'pendiente'`.
+> La validación y UI de estos cobros se trabajará cuando se llegue a este módulo.
+
 - [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
 - [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
 - [ ] **Recargo Impuntualidad:** $125 MXN automático a las 3:06 PM (niños sin extensión). Panel Directora condonar con motivo.
@@ -134,30 +114,6 @@
 - [ ] **Pruebas UX + Performance:** Optimización completa.
 
 ---
-
----
-
-## 📝 NOTA IMPORTANTE — Query de Solicitudes Toallitas
-
-**En:** `backend/src/routes/insumos.js` (GET `/:alumnoId`)
-
-**Query actual:**
-```sql
-SELECT id, fecha, created_at FROM insumos_solicitudes
-WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false
-```
-
-**Problema:** Solo busca solicitudes de HOY. Si mañana hay una solicitud de AYER no resuelta, no aparecerá.
-
-**Fix (si es necesario):**
-```sql
-SELECT id, fecha, created_at FROM insumos_solicitudes
-WHERE alumno_id = $1 AND resuelta = false AND fecha <= CURRENT_DATE
-```
-
-Esto mostraría solicitudes no resueltas de hoy y días anteriores.
-
-**Decidir mañana tras validar:** ¿Necesita la query este cambio?
 
 ---
 

@@ -256,6 +256,11 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
               🍼 Pañal
             </span>
           )}
+          {alumno.total_hermanos > 0 && (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+              👨‍👩‍👧 {alumno.total_hermanos} {alumno.total_hermanos === 1 ? 'hermano' : 'hermanos'}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
           {alumno.grupo_nombre && (

@@ -1,7 +1,48 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84
+
+---
+
+## ✅ SESIÓN 84 — UI Hermanos + QR Extensión Mobile + Cron Medicamentos (100% Completado)
+
+**Fecha:** 2026-04-27 | **Estado:** 100% COMPLETADO — UI hermanos web, QR extensión mobile, cron medicamentos corregido y validado
+
+### Implementado:
+
+**Backend — `alumnosController.js`:**
+- ✅ `buscarPorQR` ahora devuelve `tiene_extension`, `hora_salida_extension`, `hermanos_sin_salir`
+- ✅ `listar` (ambas queries: actual e histórica) ahora incluye `total_hermanos` por alumno
+
+**Backend — `jobs/medicamentosJobs.js` — 3 bugs corregidos:**
+- ✅ Bug 1: `g.maestra_titular_id` no existe en `grupos` → corregido con JOIN a `asignaciones_grupo` + `personal`
+- ✅ Bug 2: INSERT usaba columnas `mensaje` y `deep_link` inexistentes → corregido a `cuerpo` y `datos_extra` (JSONB)
+- ✅ Bug 3: Insertaba `personal.id` en lugar de `usuarios.id` → corregido con `p_tit.usuario_id`
+
+**Backend — `routes/bitacora.js`:**
+- ✅ Notificación de medicamento administrado ahora llega a TODOS los padres vinculados (no solo tutor principal)
+- ✅ Ambos flujos corregidos: con `toma_id` y compatibilidad sin `toma_id`
+
+**Frontend Web — `layouts/MaestraLayout.jsx`:**
+- ✅ Campanita `NotificationBell` agregada al header de la miss (no existía)
+
+**Frontend Web — `pages/directora/Alumnos.jsx`:**
+- ✅ Chip "👨‍👩‍👧 N hermanos" en tarjeta de alumno (azul, visible si `total_hermanos > 0`)
+
+**Mobile — `app/(maestra)/qr-scanner.jsx`:**
+- ✅ Guard QR ampliado: acepta `HAPPYSCHOOL:ALUMNO:` y `HAPPYSCHOOL:EXT:`
+- ✅ Alert "⏰ Entrada temprana" si escanean QR extensión antes de las 14:45
+- ✅ `buscarExtensionMutation` → `/ninos-extension/por-qr/:qrData`
+- ✅ Banner naranja para niños de extensión en resultado
+- ✅ Banner rojo de hermanos sin salida en modo salida (`hermanos_sin_salir > 0`)
+
+### Validaciones completadas:
+- ✅ Cron medicamentos disparó a las ~14:20, notificación apareció en campanita de la miss
+- ✅ Miss administró medicamento desde bitácora, se registró correctamente
+- ✅ Notificación llegó al papá tutor principal (Adriana García López)
+- ✅ Fix notificación a ambos padres implementado (Héctor Torres Núñez también recibirá)
+- ✅ UI hermanos en AlumnoPerfil.jsx (ya existía completa desde sesión anterior) — validado vínculo hermanos
 
 ---
 

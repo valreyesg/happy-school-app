@@ -10,11 +10,13 @@ const iniciarJobMedicamentos = () => {
         SELECT t.id AS toma_id, t.hora_programada, t.recordatorio_enviado,
                rm.id AS recepcion_id, rm.alumno_id, rm.nombre,
                a.nombre_completo AS alumno_nombre,
-               g.maestra_titular_id
+               p_tit.usuario_id AS maestra_usuario_id
         FROM toma_medicamento t
         JOIN recepcion_medicamento rm ON rm.id = t.recepcion_id
         JOIN alumnos a ON a.id = rm.alumno_id
         JOIN grupos g ON g.id = a.grupo_id
+        JOIN asignaciones_grupo ag ON ag.grupo_id = g.id AND ag.es_titular = true AND ag.activo = true
+        JOIN personal p_tit ON p_tit.id = ag.personal_id
         WHERE t.administrado = false
           AND t.recordatorio_enviado = false
           AND rm.recibido = true
@@ -25,15 +27,15 @@ const iniciarJobMedicamentos = () => {
       `);
 
       for (const rec of rows) {
-        if (!rec.maestra_titular_id) continue;
+        if (!rec.maestra_usuario_id) continue;
         await pool.query(`
-          INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje, deep_link, leida)
+          INSERT INTO notificaciones (usuario_id, tipo, titulo, cuerpo, datos_extra, leida)
           VALUES ($1, 'recordatorio_medicamento', '💊 Medicamento pendiente',
                   $2, $3, false)
         `, [
-          rec.maestra_titular_id,
+          rec.maestra_usuario_id,
           `${rec.alumno_nombre} necesita ${rec.nombre} a las ${rec.hora_programada.substring(0, 5)}`,
-          `/maestra/bitacora?alumnoId=${rec.alumno_id}`
+          JSON.stringify({ deep_link: `/maestra/bitacora?alumnoId=${rec.alumno_id}` }),
         ]);
 
         // Marcar recordatorio como enviado en la toma

@@ -689,21 +689,21 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
         WHERE id = $1
       `, [toma_id, maestraId, medicResult.rows[0].id]);
 
-      // Notificar al padre que se administró el medicamento
+      // Notificar a TODOS los padres vinculados que se administró el medicamento
       const padreResult = await query(`
         SELECT a.nombre_completo AS alumno_nombre,
                COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
                p.nombre_completo AS padre_nombre,
                u.id AS usuario_id
         FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
         JOIN usuarios u ON p.usuario_id = u.id
-        WHERE a.id = $1 LIMIT 1
+        WHERE a.id = $1
       `, [alumno_id]);
 
-      if (padreResult.rows.length > 0) {
-        const { alumno_nombre, telefono, padre_nombre, usuario_id: padreUsuarioId } = padreResult.rows[0];
+      for (const padre of padreResult.rows) {
+        const { alumno_nombre, telefono, padre_nombre, usuario_id: padreUsuarioId } = padre;
         await enviarMensaje({
           telefono,
           clave: 'medicamento',
@@ -750,21 +750,21 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
       WHERE id = $2
     `, [medicResult.rows[0].id, recepcionId]);
 
-    // Notificar a padres (igual que POST /medicamento)
+    // Notificar a TODOS los padres vinculados
     const padreResult = await query(`
       SELECT a.nombre_completo AS alumno_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
              p.nombre_completo AS padre_nombre,
              u.id AS usuario_id
       FROM alumnos a
-      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
       JOIN padres p ON ap.padre_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
-      WHERE a.id = $1 LIMIT 1
+      WHERE a.id = $1
     `, [alumno_id]);
 
-    if (padreResult.rows.length > 0) {
-      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+    for (const padre of padreResult.rows) {
+      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padre;
       await enviarMensaje({
         telefono,
         clave: 'medicamento',
@@ -787,12 +787,12 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
           `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
           JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
         ]);
-        await query(
-          'UPDATE medicamentos SET notificacion_enviada = true WHERE id = $1',
-          [medicResult.rows[0].id]
-        );
       }
     }
+    await query(
+      'UPDATE medicamentos SET notificacion_enviada = true WHERE id = $1',
+      [medicResult.rows[0].id]
+    );
 
     res.json({ medicamento: medicResult.rows[0], recepcion: recepcionResult.rows[0] });
   } catch (err) { next(err); }

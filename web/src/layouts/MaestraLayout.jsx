@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { LayoutDashboard, DoorOpen, DoorClosed, CheckSquare, BookOpen, Image, LogOut, Menu, Clipboard } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
+import NotificationBell from '@/components/NotificationBell';
 import toast from 'react-hot-toast';
 
 const NAV_ITEMS = [
@@ -89,11 +90,14 @@ export default function MaestraLayout() {
       )}
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="lg:hidden bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-4">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
+        <header className="bg-white border-b border-gray-100 px-4 py-3 flex items-center gap-4">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-xl hover:bg-gray-100 transition-colors lg:hidden">
             <Menu size={22} className="text-gray-600" />
           </button>
-          <Logo size="sm" showSlogan={false} />
+          <Logo size="sm" showSlogan={false} className="lg:hidden" />
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
 
         <div className="flex-1 overflow-y-auto p-4 lg:p-8">

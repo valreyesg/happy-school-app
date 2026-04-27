@@ -83,7 +83,8 @@ const listar = async (req, res, next) => {
               GROUP BY d.entidad_id HAVING COUNT(DISTINCT d.tipo) >= 4
             ) THEN 'completa'
             ELSE 'incompleta'
-          END AS documentacion
+          END AS documentacion,
+          (SELECT COUNT(*) FROM alumnos h WHERE h.familia_id = a.familia_id AND h.id != a.id AND h.deleted_at IS NULL) AS total_hermanos
         FROM inscripciones i
         JOIN alumnos a ON a.id = i.alumno_id AND a.deleted_at IS NULL
         LEFT JOIN grupos g ON g.id = i.grupo_id
@@ -110,7 +111,8 @@ const listar = async (req, res, next) => {
               GROUP BY d.entidad_id HAVING COUNT(DISTINCT d.tipo) >= 4
             ) THEN 'completa'
             ELSE 'incompleta'
-          END AS documentacion
+          END AS documentacion,
+          (SELECT COUNT(*) FROM alumnos h WHERE h.familia_id = a.familia_id AND h.id != a.id AND h.deleted_at IS NULL) AS total_hermanos
         FROM alumnos a
         LEFT JOIN grupos g ON a.grupo_id = g.id
         WHERE ${where}
@@ -373,10 +375,27 @@ const buscarPorQR = async (req, res, next) => {
           WHERE alumno_id = a.id AND es_retardo = true
             AND EXTRACT(MONTH FROM created_at) = EXTRACT(MONTH FROM NOW())
             AND EXTRACT(YEAR FROM created_at) = EXTRACT(YEAR FROM NOW())
-        ) AS retardos_mes
+        ) AS retardos_mes,
+        -- Extensión de horario
+        cha.tiene_extension,
+        cha.hora_salida_extension,
+        -- Hermanos sin registrar salida hoy (para alerta en QR salida)
+        (
+          SELECT COUNT(*) FROM alumnos hermano
+          LEFT JOIN registro_entrada re_h ON re_h.alumno_id = hermano.id AND re_h.fecha = CURRENT_DATE
+          WHERE hermano.familia_id = a.familia_id
+            AND hermano.id != a.id
+            AND hermano.deleted_at IS NULL
+            AND re_h.id IS NOT NULL
+            AND NOT EXISTS (
+              SELECT 1 FROM registro_salida rs
+              WHERE rs.alumno_id = hermano.id AND rs.fecha = CURRENT_DATE
+            )
+        ) AS hermanos_sin_salir
       FROM alumnos a
       LEFT JOIN grupos g ON a.grupo_id = g.id
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       WHERE a.id = $1 AND a.deleted_at IS NULL
     `, [alumnoId]);
 
@@ -390,6 +409,8 @@ const buscarPorQR = async (req, res, next) => {
     if (alumno.entrada_id) {
       alumno.ya_registro_entrada = true;
     }
+
+    alumno.hermanos_sin_salir = parseInt(alumno.hermanos_sin_salir) || 0;
 
     res.json(alumno);
   } catch (err) {

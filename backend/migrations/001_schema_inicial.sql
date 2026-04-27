@@ -40,7 +40,7 @@ CREATE TYPE nivel_logro_tipo AS ENUM (
 -- TABLA BASE: CICLOS ESCOLARES
 -- ============================================================
 
-CREATE TABLE ciclos_escolares (
+CREATE TABLE IF NOT EXISTS ciclos_escolares (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(50) NOT NULL, -- ej: "2025-2026"
   fecha_inicio DATE NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE ciclos_escolares (
 -- GRUPOS
 -- ============================================================
 
-CREATE TABLE grupos (
+CREATE TABLE IF NOT EXISTS grupos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(100) NOT NULL, -- ej: "Kinder 1A"
   nivel VARCHAR(50) NOT NULL, -- Maternal, Prekinder, Kinder 1, Kinder 2, Kinder 3
@@ -72,7 +72,7 @@ CREATE TABLE grupos (
 -- USUARIOS (Personal + Padres)
 -- ============================================================
 
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(200) NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
@@ -90,14 +90,14 @@ CREATE TABLE usuarios (
   deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_usuarios_email ON usuarios(email);
-CREATE INDEX idx_usuarios_rol ON usuarios(rol_principal);
+CREATE INDEX IF NOT EXISTS idx_usuarios_email ON usuarios(email);
+CREATE INDEX IF NOT EXISTS idx_usuarios_rol ON usuarios(rol_principal);
 
 -- ============================================================
 -- ROLES ADICIONALES (una persona puede tener múltiples roles)
 -- ============================================================
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(50) UNIQUE NOT NULL,
   descripcion TEXT,
@@ -105,7 +105,7 @@ CREATE TABLE roles (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE roles_usuario (
+CREATE TABLE IF NOT EXISTS roles_usuario (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   rol_id UUID NOT NULL REFERENCES roles(id),
@@ -121,7 +121,7 @@ CREATE TABLE roles_usuario (
 -- REFRESH TOKENS
 -- ============================================================
 
-CREATE TABLE refresh_tokens (
+CREATE TABLE IF NOT EXISTS refresh_tokens (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
   token TEXT NOT NULL UNIQUE,
@@ -130,13 +130,13 @@ CREATE TABLE refresh_tokens (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_refresh_tokens_usuario ON refresh_tokens(usuario_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_usuario ON refresh_tokens(usuario_id);
 
 -- ============================================================
 -- PERSONAL (maestra, directora, admin)
 -- ============================================================
 
-CREATE TABLE personal (
+CREATE TABLE IF NOT EXISTS personal (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   usuario_id UUID UNIQUE REFERENCES usuarios(id),
   nombre_completo VARCHAR(200) NOT NULL,
@@ -152,7 +152,7 @@ CREATE TABLE personal (
 );
 
 -- Asignación de maestras a grupos
-CREATE TABLE asignaciones_grupo (
+CREATE TABLE IF NOT EXISTS asignaciones_grupo (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   personal_id UUID NOT NULL REFERENCES personal(id),
   grupo_id UUID NOT NULL REFERENCES grupos(id),
@@ -167,7 +167,7 @@ CREATE TABLE asignaciones_grupo (
 );
 
 -- Asignación de maestra de puerta (diaria)
-CREATE TABLE asignacion_puerta (
+CREATE TABLE IF NOT EXISTS asignacion_puerta (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   personal_id UUID NOT NULL REFERENCES personal(id),
   fecha DATE NOT NULL,
@@ -181,7 +181,7 @@ CREATE TABLE asignacion_puerta (
 -- ALUMNOS
 -- ============================================================
 
-CREATE TABLE alumnos (
+CREATE TABLE IF NOT EXISTS alumnos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre_completo VARCHAR(200) NOT NULL,
   fecha_nacimiento DATE NOT NULL,
@@ -208,15 +208,15 @@ CREATE TABLE alumnos (
   deleted_at TIMESTAMPTZ
 );
 
-CREATE INDEX idx_alumnos_grupo ON alumnos(grupo_id);
-CREATE INDEX idx_alumnos_estado ON alumnos(estado);
-CREATE INDEX idx_alumnos_nombre ON alumnos USING gin(nombre_completo gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_alumnos_grupo ON alumnos(grupo_id);
+CREATE INDEX IF NOT EXISTS idx_alumnos_estado ON alumnos(estado);
+CREATE INDEX IF NOT EXISTS idx_alumnos_nombre ON alumnos USING gin(nombre_completo gin_trgm_ops);
 
 -- ============================================================
 -- PADRES / TUTORES
 -- ============================================================
 
-CREATE TABLE padres (
+CREATE TABLE IF NOT EXISTS padres (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   usuario_id UUID UNIQUE REFERENCES usuarios(id),
   nombre_completo VARCHAR(200) NOT NULL,
@@ -231,7 +231,7 @@ CREATE TABLE padres (
 );
 
 -- Relación padres-alumnos (un alumno puede tener múltiples tutores)
-CREATE TABLE alumno_padre (
+CREATE TABLE IF NOT EXISTS alumno_padre (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   padre_id UUID NOT NULL REFERENCES padres(id) ON DELETE CASCADE,
@@ -244,7 +244,7 @@ CREATE TABLE alumno_padre (
 -- DOCUMENTOS
 -- ============================================================
 
-CREATE TABLE documentos (
+CREATE TABLE IF NOT EXISTS documentos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   entidad_tipo VARCHAR(50) NOT NULL, -- 'alumno', 'padre', 'personal'
   entidad_id UUID NOT NULL,
@@ -256,13 +256,13 @@ CREATE TABLE documentos (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_documentos_entidad ON documentos(entidad_tipo, entidad_id);
+CREATE INDEX IF NOT EXISTS idx_documentos_entidad ON documentos(entidad_tipo, entidad_id);
 
 -- ============================================================
 -- PERSONAS AUTORIZADAS PARA RECOGER
 -- ============================================================
 
-CREATE TABLE personas_autorizadas (
+CREATE TABLE IF NOT EXISTS personas_autorizadas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   nombre_completo VARCHAR(200) NOT NULL,
@@ -278,7 +278,7 @@ CREATE TABLE personas_autorizadas (
 );
 
 -- Blacklist: personas que NO pueden recoger
-CREATE TABLE blacklist (
+CREATE TABLE IF NOT EXISTS blacklist (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   nombre_completo VARCHAR(200) NOT NULL,
@@ -294,7 +294,7 @@ CREATE TABLE blacklist (
 -- CONTROL DE ENTRADA / SALIDA
 -- ============================================================
 
-CREATE TABLE registro_entrada (
+CREATE TABLE IF NOT EXISTS registro_entrada (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -322,10 +322,10 @@ CREATE TABLE registro_entrada (
   UNIQUE(alumno_id, fecha)
 );
 
-CREATE INDEX idx_entrada_alumno_fecha ON registro_entrada(alumno_id, fecha);
-CREATE INDEX idx_entrada_fecha ON registro_entrada(fecha);
+CREATE INDEX IF NOT EXISTS idx_entrada_alumno_fecha ON registro_entrada(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_entrada_fecha ON registro_entrada(fecha);
 
-CREATE TABLE registro_salida (
+CREATE TABLE IF NOT EXISTS registro_salida (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -345,13 +345,13 @@ CREATE TABLE registro_salida (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_salida_alumno_fecha ON registro_salida(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_salida_alumno_fecha ON registro_salida(alumno_id, fecha);
 
 -- ============================================================
 -- ASISTENCIA (vista consolidada)
 -- ============================================================
 
-CREATE TABLE asistencia (
+CREATE TABLE IF NOT EXISTS asistencia (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   grupo_id UUID REFERENCES grupos(id),
@@ -364,14 +364,14 @@ CREATE TABLE asistencia (
   UNIQUE(alumno_id, fecha)
 );
 
-CREATE INDEX idx_asistencia_alumno ON asistencia(alumno_id, fecha);
-CREATE INDEX idx_asistencia_grupo_fecha ON asistencia(grupo_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_asistencia_alumno ON asistencia(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_asistencia_grupo_fecha ON asistencia(grupo_id, fecha);
 
 -- ============================================================
 -- BITÁCORA DIARIA
 -- ============================================================
 
-CREATE TABLE bitacora_diaria (
+CREATE TABLE IF NOT EXISTS bitacora_diaria (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -394,10 +394,10 @@ CREATE TABLE bitacora_diaria (
   UNIQUE(alumno_id, fecha)
 );
 
-CREATE INDEX idx_bitacora_alumno_fecha ON bitacora_diaria(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_bitacora_alumno_fecha ON bitacora_diaria(alumno_id, fecha);
 
 -- Registro de baño
-CREATE TABLE registro_banio (
+CREATE TABLE IF NOT EXISTS registro_banio (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   bitacora_id UUID REFERENCES bitacora_diaria(id),
@@ -410,7 +410,7 @@ CREATE TABLE registro_banio (
 );
 
 -- Registro de pañal (solo Maternal)
-CREATE TABLE registro_panial (
+CREATE TABLE IF NOT EXISTS registro_panial (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   bitacora_id UUID REFERENCES bitacora_diaria(id),
@@ -422,10 +422,10 @@ CREATE TABLE registro_panial (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_panial_alumno_fecha ON registro_panial(alumno_id, hora);
+CREATE INDEX IF NOT EXISTS idx_panial_alumno_fecha ON registro_panial(alumno_id, hora);
 
 -- Control de esfínteres (Prekinder y Kinder 1)
-CREATE TABLE control_esfinteres (
+CREATE TABLE IF NOT EXISTS control_esfinteres (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   bitacora_id UUID REFERENCES bitacora_diaria(id),
@@ -441,7 +441,7 @@ CREATE TABLE control_esfinteres (
 );
 
 -- Registro de alimentación
-CREATE TABLE registro_comida (
+CREATE TABLE IF NOT EXISTS registro_comida (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   bitacora_id UUID REFERENCES bitacora_diaria(id),
@@ -456,7 +456,7 @@ CREATE TABLE registro_comida (
 );
 
 -- Fotos de actividades del día
-CREATE TABLE actividades_fotos (
+CREATE TABLE IF NOT EXISTS actividades_fotos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID REFERENCES alumnos(id), -- null = grupal
   grupo_id UUID REFERENCES grupos(id),
@@ -474,7 +474,7 @@ CREATE TABLE actividades_fotos (
 -- MEDICAMENTOS
 -- ============================================================
 
-CREATE TABLE medicamentos (
+CREATE TABLE IF NOT EXISTS medicamentos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -488,13 +488,13 @@ CREATE TABLE medicamentos (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_medicamentos_alumno ON medicamentos(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_medicamentos_alumno ON medicamentos(alumno_id, fecha);
 
 -- ============================================================
 -- INCIDENTES Y ACCIDENTES
 -- ============================================================
 
-CREATE TABLE incidentes (
+CREATE TABLE IF NOT EXISTS incidentes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   fecha TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -508,13 +508,13 @@ CREATE TABLE incidentes (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_incidentes_alumno ON incidentes(alumno_id);
+CREATE INDEX IF NOT EXISTS idx_incidentes_alumno ON incidentes(alumno_id);
 
 -- ============================================================
 -- PAGOS
 -- ============================================================
 
-CREATE TABLE conceptos_pago (
+CREATE TABLE IF NOT EXISTS conceptos_pago (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(200) NOT NULL,
   descripcion TEXT,
@@ -530,7 +530,7 @@ CREATE TABLE conceptos_pago (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE pagos (
+CREATE TABLE IF NOT EXISTS pagos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   concepto_id UUID NOT NULL REFERENCES conceptos_pago(id),
@@ -553,12 +553,12 @@ CREATE TABLE pagos (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_pagos_alumno ON pagos(alumno_id);
-CREATE INDEX idx_pagos_estado ON pagos(estado);
-CREATE INDEX idx_pagos_mes ON pagos(mes_correspondiente, anio_correspondiente);
+CREATE INDEX IF NOT EXISTS idx_pagos_alumno ON pagos(alumno_id);
+CREATE INDEX IF NOT EXISTS idx_pagos_estado ON pagos(estado);
+CREATE INDEX IF NOT EXISTS idx_pagos_mes ON pagos(mes_correspondiente, anio_correspondiente);
 
 -- Control de pago de comida semanal
-CREATE TABLE pago_comida_semanal (
+CREATE TABLE IF NOT EXISTS pago_comida_semanal (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   semana_inicio DATE NOT NULL, -- lunes de la semana
@@ -575,7 +575,7 @@ CREATE TABLE pago_comida_semanal (
 -- CONFIGURACIÓN DE HORARIOS Y EXTENSIÓN
 -- ============================================================
 
-CREATE TABLE config_horario_alumno (
+CREATE TABLE IF NOT EXISTS config_horario_alumno (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   ciclo_id UUID REFERENCES ciclos_escolares(id),
@@ -592,7 +592,7 @@ CREATE TABLE config_horario_alumno (
 -- CALENDARIO Y EVENTOS
 -- ============================================================
 
-CREATE TABLE categorias_evento (
+CREATE TABLE IF NOT EXISTS categorias_evento (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nombre VARCHAR(100) NOT NULL,
   color_hex VARCHAR(7) DEFAULT '#805AD5',
@@ -601,7 +601,7 @@ CREATE TABLE categorias_evento (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE eventos (
+CREATE TABLE IF NOT EXISTS eventos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   titulo VARCHAR(200) NOT NULL,
   descripcion TEXT,
@@ -618,10 +618,10 @@ CREATE TABLE eventos (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_eventos_fecha ON eventos(fecha_inicio);
+CREATE INDEX IF NOT EXISTS idx_eventos_fecha ON eventos(fecha_inicio);
 
 -- Temario mensual
-CREATE TABLE temario_mensual (
+CREATE TABLE IF NOT EXISTS temario_mensual (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   grupo_id UUID NOT NULL REFERENCES grupos(id),
   mes INTEGER NOT NULL, -- 1-12
@@ -641,7 +641,7 @@ CREATE TABLE temario_mensual (
 );
 
 -- Menú semanal
-CREATE TABLE menu_semanal (
+CREATE TABLE IF NOT EXISTS menu_semanal (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   semana_inicio DATE NOT NULL, -- lunes de la semana
   menu_data JSONB NOT NULL, -- {lunes: {desayuno: "", comida: ""}, martes: {...}, ...}
@@ -653,7 +653,7 @@ CREATE TABLE menu_semanal (
 );
 
 -- Lista de útiles
-CREATE TABLE lista_utiles (
+CREATE TABLE IF NOT EXISTS lista_utiles (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   grupo_id UUID NOT NULL REFERENCES grupos(id),
   ciclo_id UUID REFERENCES ciclos_escolares(id),
@@ -666,7 +666,7 @@ CREATE TABLE lista_utiles (
 );
 
 -- Seguimiento de útiles por padre
-CREATE TABLE lista_utiles_progreso (
+CREATE TABLE IF NOT EXISTS lista_utiles_progreso (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   lista_id UUID REFERENCES lista_utiles(id),
   padre_id UUID REFERENCES padres(id),
@@ -680,7 +680,7 @@ CREATE TABLE lista_utiles_progreso (
 -- TAREAS Y ACTIVIDADES
 -- ============================================================
 
-CREATE TABLE tareas (
+CREATE TABLE IF NOT EXISTS tareas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   grupo_id UUID NOT NULL REFERENCES grupos(id),
   titulo VARCHAR(200) NOT NULL,
@@ -692,7 +692,7 @@ CREATE TABLE tareas (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE tarea_alumno (
+CREATE TABLE IF NOT EXISTS tarea_alumno (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tarea_id UUID REFERENCES tareas(id),
   alumno_id UUID REFERENCES alumnos(id),
@@ -706,7 +706,7 @@ CREATE TABLE tarea_alumno (
 -- EVALUACIONES Y BOLETAS
 -- ============================================================
 
-CREATE TABLE indicadores_evaluacion (
+CREATE TABLE IF NOT EXISTS indicadores_evaluacion (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   nivel_codigo VARCHAR(20) NOT NULL, -- maternal, prekinder, kinder1, etc.
   nombre VARCHAR(200) NOT NULL,
@@ -717,7 +717,7 @@ CREATE TABLE indicadores_evaluacion (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE periodos_evaluacion (
+CREATE TABLE IF NOT EXISTS periodos_evaluacion (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   ciclo_id UUID REFERENCES ciclos_escolares(id),
   nombre VARCHAR(100) NOT NULL, -- "Primer Bimestre", "Mensual - Septiembre", etc.
@@ -728,7 +728,7 @@ CREATE TABLE periodos_evaluacion (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE evaluaciones (
+CREATE TABLE IF NOT EXISTS evaluaciones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   periodo_id UUID NOT NULL REFERENCES periodos_evaluacion(id),
@@ -744,7 +744,7 @@ CREATE TABLE evaluaciones (
   UNIQUE(alumno_id, periodo_id, indicador_id)
 );
 
-CREATE TABLE boletas (
+CREATE TABLE IF NOT EXISTS boletas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   periodo_id UUID NOT NULL REFERENCES periodos_evaluacion(id),
@@ -760,7 +760,7 @@ CREATE TABLE boletas (
 -- GALERÍA
 -- ============================================================
 
-CREATE TABLE albumes (
+CREATE TABLE IF NOT EXISTS albumes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   titulo VARCHAR(200) NOT NULL,
   descripcion TEXT,
@@ -772,7 +772,7 @@ CREATE TABLE albumes (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE galeria_fotos (
+CREATE TABLE IF NOT EXISTS galeria_fotos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   album_id UUID REFERENCES albumes(id) ON DELETE CASCADE,
   url TEXT NOT NULL,
@@ -787,7 +787,7 @@ CREATE TABLE galeria_fotos (
 -- CHAT Y MENSAJES
 -- ============================================================
 
-CREATE TABLE conversaciones (
+CREATE TABLE IF NOT EXISTS conversaciones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   tipo VARCHAR(30) NOT NULL, -- 'grupo', 'individual'
   grupo_id UUID REFERENCES grupos(id), -- para chat de grupo
@@ -795,7 +795,7 @@ CREATE TABLE conversaciones (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE conversacion_participantes (
+CREATE TABLE IF NOT EXISTS conversacion_participantes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   conversacion_id UUID REFERENCES conversaciones(id) ON DELETE CASCADE,
   usuario_id UUID REFERENCES usuarios(id),
@@ -804,7 +804,7 @@ CREATE TABLE conversacion_participantes (
   UNIQUE(conversacion_id, usuario_id)
 );
 
-CREATE TABLE mensajes (
+CREATE TABLE IF NOT EXISTS mensajes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   conversacion_id UUID NOT NULL REFERENCES conversaciones(id) ON DELETE CASCADE,
   remitente_id UUID NOT NULL REFERENCES usuarios(id),
@@ -815,13 +815,13 @@ CREATE TABLE mensajes (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_mensajes_conversacion ON mensajes(conversacion_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_mensajes_conversacion ON mensajes(conversacion_id, created_at);
 
 -- ============================================================
 -- ENCUESTAS Y VOTACIONES
 -- ============================================================
 
-CREATE TABLE encuestas (
+CREATE TABLE IF NOT EXISTS encuestas (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   titulo VARCHAR(200) NOT NULL,
   descripcion TEXT,
@@ -834,7 +834,7 @@ CREATE TABLE encuestas (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE respuestas_encuesta (
+CREATE TABLE IF NOT EXISTS respuestas_encuesta (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   encuesta_id UUID REFERENCES encuestas(id),
   padre_id UUID REFERENCES padres(id),
@@ -847,7 +847,7 @@ CREATE TABLE respuestas_encuesta (
 -- AVISOS Y COMUNICADOS
 -- ============================================================
 
-CREATE TABLE avisos (
+CREATE TABLE IF NOT EXISTS avisos (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   titulo VARCHAR(200) NOT NULL,
   contenido TEXT NOT NULL,
@@ -858,7 +858,7 @@ CREATE TABLE avisos (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE aviso_confirmaciones (
+CREATE TABLE IF NOT EXISTS aviso_confirmaciones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   aviso_id UUID REFERENCES avisos(id),
   padre_id UUID REFERENCES padres(id),
@@ -870,7 +870,7 @@ CREATE TABLE aviso_confirmaciones (
 -- NOTIFICACIONES PUSH Y WHATSAPP
 -- ============================================================
 
-CREATE TABLE notificaciones (
+CREATE TABLE IF NOT EXISTS notificaciones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   usuario_id UUID REFERENCES usuarios(id),
   titulo VARCHAR(200) NOT NULL,
@@ -882,9 +882,9 @@ CREATE TABLE notificaciones (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_notificaciones_usuario ON notificaciones(usuario_id, leida);
+CREATE INDEX IF NOT EXISTS idx_notificaciones_usuario ON notificaciones(usuario_id, leida);
 
-CREATE TABLE log_whatsapp (
+CREATE TABLE IF NOT EXISTS log_whatsapp (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   telefono VARCHAR(20) NOT NULL,
   mensaje TEXT NOT NULL,
@@ -896,7 +896,7 @@ CREATE TABLE log_whatsapp (
 );
 
 -- Plantillas de mensajes WhatsApp (editables desde el panel)
-CREATE TABLE plantillas_whatsapp (
+CREATE TABLE IF NOT EXISTS plantillas_whatsapp (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   clave VARCHAR(100) UNIQUE NOT NULL, -- 'recordatorio_pago', 'bitacora_lista', etc.
   nombre VARCHAR(200) NOT NULL,
@@ -910,7 +910,7 @@ CREATE TABLE plantillas_whatsapp (
 -- CONFIGURACIÓN GENERAL (administrable desde panel)
 -- ============================================================
 
-CREATE TABLE configuracion_general (
+CREATE TABLE IF NOT EXISTS configuracion_general (
   clave VARCHAR(100) PRIMARY KEY,
   valor TEXT NOT NULL,
   descripcion TEXT,
@@ -922,7 +922,7 @@ CREATE TABLE configuracion_general (
 -- REPORTES MENSUALES
 -- ============================================================
 
-CREATE TABLE reportes_mensuales (
+CREATE TABLE IF NOT EXISTS reportes_mensuales (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   mes INTEGER NOT NULL,
@@ -939,7 +939,7 @@ CREATE TABLE reportes_mensuales (
 -- INSCRIPCIONES Y REINSCRIPCIONES
 -- ============================================================
 
-CREATE TABLE inscripciones (
+CREATE TABLE IF NOT EXISTS inscripciones (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id),
   ciclo_id UUID NOT NULL REFERENCES ciclos_escolares(id),

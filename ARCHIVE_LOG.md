@@ -1,7 +1,83 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-26 | Sesiones documentadas: 7 → 81
+**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 81
+
+---
+
+## ✅ SESIÓN 81 — GESTIÓN ALUMNOS AVANZADA (Bloque 1) + MEDICAMENTOS (Tomas Múltiples)
+
+---
+
+### ✅ PARTE 2: MEDICAMENTOS CON TOMAS MÚLTIPLES
+
+**Fecha:** 2026-04-27 | **Estado:** Backend + Frontend padre 100% ✅ | **Frontend miss:** Pendiente validación visual
+
+**Problema resuelto:** El padre entrega medicamento una sola vez pero puede necesitar múltiples dosis al día (ej. 8am y 2pm). Necesitábamos tabla separada de tomas para que el job de recordatorios dispare notificación por cada horario.
+
+### Cambios implementados
+
+**BD:**
+- Migración `033_tomas_medicamento.sql` aplicada:
+  - Nueva tabla `toma_medicamento` (UUID, recepcion_id, hora_programada, recordatorio_enviado, administrado, administrado_at, administrado_por, medicamento_id, created_at)
+  - Índices: `idx_toma_recepcion`, `idx_toma_fecha`
+  - Campo `hora_programada` en `recepcion_medicamento` queda deprecado (se mantiene datos históricos)
+
+**Backend (`backend/src/routes/bitacora.js`):**
+- `POST /medicamento/recepcion` — ahora acepta array `horas` (JSON):
+  - Recibe medicamento name, dosis, array de horas programadas
+  - Crea recepción + una fila toma_medicamento por cada hora
+  - Retorna recepción con tomas array embebido (json_agg)
+  - Fotos ahora en Base64 (evita problemas multer/busboy) — fallback a data URL si Cloudinary no disponible en dev
+- `GET /:alumnoId` — query actualizado para incluir LEFT JOIN toma_medicamento con json_agg
+- `PATCH /medicamento/recepcion/:id/administrar` — ahora acepta `toma_id` para administrar dosis individual
+  - Si viene `toma_id` → marca esa toma como administrada
+  - Si no viene → comportamiento anterior (compatibilidad)
+
+**Backend (`backend/src/jobs/medicamentosJobs.js`):**
+- Bug fix: `rm.nombre_medicamento` → `rm.nombre` (columna correcta)
+- Query ahora busca en `toma_medicamento` en lugar de `recepcion_medicamento.hora_programada`
+- Filtra tomas: `administrado=false AND recordatorio_enviado=false AND rm.recibido=true`
+- Notificaciones disparan por TOMA, no por recepción
+- Marca `recordatorio_enviado=true` en `toma_medicamento` (nivel de dosis)
+
+**Frontend padre (`web/src/pages/padre/Bitacora.jsx`):**
+- Estado `horasMed` — array de strings "HH:MM" (reemplaza `hora_programada` único)
+- Formulario medicamento:
+  - Lista dinámica de inputs `type="time"`
+  - Botón "+ Agregar hora" para N dosis
+  - Botón "✕" para eliminar hora individual
+  - Foto receta → obligatoria, se convierte a Base64 antes de enviar
+- Display recepciones:
+  - Muestra tomas como lista de badges con hora + estado (⏳ pendiente / ✅ administrado)
+  - Badge principal de recepción:
+    - ✅ Dado (todas las tomas administradas)
+    - 📬 Recibido (en manos de miss, pendiente administración)
+    - ⏳ Pendiente (papá no ha recibido confirmación)
+  - Botón 🗑 para borrar (solo si no recibido ni administrado)
+- Ambas secciones (con/sin bitácora) muestran el mismo formulario y lista
+
+**Frontend miss (`web/src/pages/maestra/Bitacora.jsx`):**
+- Sección medicamentos → query en toma_medicamento level (no recepción level)
+- Display: una FILA por TOMA (no una fila por recepción)
+  - Muestra: medicamento name, dosis, hora programada, botón "Administrar"
+  - Administrar → envía `toma_id` al backend
+- Badge de estado: ⏳ Pendientes (solo tomas no administradas)
+
+### Archivos modificados
+- `backend/migrations/033_tomas_medicamento.sql` (nuevo)
+- `backend/src/routes/bitacora.js` (POST recepcion, GET bitacora, PATCH administrar)
+- `backend/src/jobs/medicamentosJobs.js` (query + bug fix)
+- `web/src/pages/padre/Bitacora.jsx` (formulario, display, delete mutation)
+- `web/src/pages/maestra/Bitacora.jsx` (display tomas, administrar mutation)
+
+### Validaciones completadas (Sesión 81)
+- ✅ Padre declara medicamento con múltiples horas
+- ✅ Recepción se crea con tomas (una por hora)
+- ✅ Padre ve lista de tomas con estado individual
+- ✅ Padre puede borrar medicamento no recibido
+- ✅ Job dispara notificación a miss por cada toma a su hora
+- **⏳ PENDIENTE:** Miss recibe notificación y administra toma individual (validación visual en Bitácora.jsx miss)
 
 ---
 

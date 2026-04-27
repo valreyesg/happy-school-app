@@ -1,7 +1,7 @@
 -- Migración 015: Tabla menu_comida_semanal
 -- Menú de comida semanal creado por Directora/Admin
 
-CREATE TABLE menu_comida_semanal (
+CREATE TABLE IF NOT EXISTS menu_comida_semanal (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   semana_inicio DATE NOT NULL,
   contenido_texto TEXT,
@@ -14,5 +14,5 @@ CREATE TABLE menu_comida_semanal (
   UNIQUE(semana_inicio)
 );
 
-CREATE INDEX idx_menu_comida_semana ON menu_comida_semanal(semana_inicio);
-CREATE INDEX idx_menu_comida_publicado ON menu_comida_semanal(publicado);
+CREATE INDEX IF NOT EXISTS idx_menu_comida_semana ON menu_comida_semanal(semana_inicio);
+CREATE INDEX IF NOT EXISTS idx_menu_comida_publicado ON menu_comida_semanal(publicado);

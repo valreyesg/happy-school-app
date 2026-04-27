@@ -1,7 +1,7 @@
 -- Migración 014: Tabla control_comida_semanal
 -- Confirmación y control de pago de servicio de comida semanal
 
-CREATE TABLE control_comida_semanal (
+CREATE TABLE IF NOT EXISTS control_comida_semanal (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   alumno_id UUID NOT NULL REFERENCES alumnos(id) ON DELETE CASCADE,
   semana_inicio DATE NOT NULL,
@@ -20,6 +20,6 @@ CREATE TABLE control_comida_semanal (
   UNIQUE(alumno_id, semana_inicio)
 );
 
-CREATE INDEX idx_control_comida_alumno_semana ON control_comida_semanal(alumno_id, semana_inicio);
-CREATE INDEX idx_control_comida_estado ON control_comida_semanal(estado);
-CREATE INDEX idx_control_comida_confirmado ON control_comida_semanal(confirmado);
+CREATE INDEX IF NOT EXISTS idx_control_comida_alumno_semana ON control_comida_semanal(alumno_id, semana_inicio);
+CREATE INDEX IF NOT EXISTS idx_control_comida_estado ON control_comida_semanal(estado);
+CREATE INDEX IF NOT EXISTS idx_control_comida_confirmado ON control_comida_semanal(confirmado);

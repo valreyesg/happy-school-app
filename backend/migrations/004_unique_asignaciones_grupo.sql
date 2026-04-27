@@ -7,6 +7,14 @@ WHERE id NOT IN (
   ORDER BY personal_id, grupo_id, ciclo_id, created_at DESC
 );
 
-ALTER TABLE asignaciones_grupo
-  ADD CONSTRAINT uq_asignaciones_grupo
-  UNIQUE (personal_id, grupo_id, ciclo_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints
+    WHERE constraint_name = 'uq_asignaciones_grupo'
+  ) THEN
+    ALTER TABLE asignaciones_grupo
+      ADD CONSTRAINT uq_asignaciones_grupo
+      UNIQUE (personal_id, grupo_id, ciclo_id);
+  END IF;
+END $$;

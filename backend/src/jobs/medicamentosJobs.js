@@ -5,18 +5,23 @@ const iniciarJobMedicamentos = () => {
   cron.schedule('*/5 7-16 * * 1-5', async () => {
     try {
       // Importar pool aquí para evitar ciclos de dependencia
-      const pool = require('../config/db');
+      const pool = require('../config/database');
       const { rows } = await pool.query(`
-        SELECT rm.id, rm.alumno_id, rm.nombre_medicamento, rm.hora_programada,
-               a.nombre_completo as alumno_nombre,
+        SELECT t.id AS toma_id, t.hora_programada, t.recordatorio_enviado,
+               rm.id AS recepcion_id, rm.alumno_id, rm.nombre,
+               a.nombre_completo AS alumno_nombre,
                g.maestra_titular_id
-        FROM recepcion_medicamento rm
+        FROM toma_medicamento t
+        JOIN recepcion_medicamento rm ON rm.id = t.recepcion_id
         JOIN alumnos a ON a.id = rm.alumno_id
         JOIN grupos g ON g.id = a.grupo_id
-        WHERE rm.administrado = false
-          AND rm.hora_programada::time BETWEEN (NOW() AT TIME ZONE 'America/Mexico_City' - INTERVAL '10 minutes')::time
-                                           AND (NOW() AT TIME ZONE 'America/Mexico_City' + INTERVAL '10 minutes')::time
-          AND DATE(rm.created_at AT TIME ZONE 'America/Mexico_City') = CURRENT_DATE
+        WHERE t.administrado = false
+          AND t.recordatorio_enviado = false
+          AND rm.recibido = true
+          AND t.hora_programada::time BETWEEN
+                (NOW() AT TIME ZONE 'America/Mexico_City' - INTERVAL '10 minutes')::time
+            AND (NOW() AT TIME ZONE 'America/Mexico_City' + INTERVAL '10 minutes')::time
+          AND rm.fecha = (NOW() AT TIME ZONE 'America/Mexico_City')::date
       `);
 
       for (const rec of rows) {
@@ -27,9 +32,15 @@ const iniciarJobMedicamentos = () => {
                   $2, $3, false)
         `, [
           rec.maestra_titular_id,
-          `${rec.alumno_nombre} necesita ${rec.nombre_medicamento} a las ${rec.hora_programada}`,
+          `${rec.alumno_nombre} necesita ${rec.nombre} a las ${rec.hora_programada.substring(0, 5)}`,
           `/maestra/bitacora?alumnoId=${rec.alumno_id}`
         ]);
+
+        // Marcar recordatorio como enviado en la toma
+        await pool.query(
+          'UPDATE toma_medicamento SET recordatorio_enviado = true WHERE id = $1',
+          [rec.toma_id]
+        );
       }
     } catch (err) {
       console.error('[medicamentosJob] Error:', err.message);

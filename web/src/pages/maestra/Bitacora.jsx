@@ -517,7 +517,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   });
 
   const administrarRecepcionMutation = useMutation({
-    mutationFn: (recepcionId) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`).then(r => r.data),
+    mutationFn: ({ recepcionId, tomaId }) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`, { toma_id: tomaId }).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       toast.success('✅ Medicamento administrado');
@@ -1115,26 +1115,35 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
       {/* Medicamentos */}
       <Seccion titulo={`💊 Medicamentos${data?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
-        {/* Recepciones pendientes */}
-        {data?.recepciones_medicamento?.length > 0 && data.recepciones_medicamento.some(r => !r.administrado) && (
+        {/* Tomas pendientes */}
+        {data?.recepciones_medicamento?.length > 0 && (
           <div className="space-y-2 mb-3 border-b-2 border-orange-200 pb-3">
-            <p className="text-xs font-black text-orange-600 uppercase">⏳ Pendientes de administración</p>
-            {data.recepciones_medicamento.filter(r => !r.administrado).map((rec, i) => (
-              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
-                <span className="text-orange-500 text-lg">💊</span>
-                <div className="flex-1">
-                  <p className="font-black text-orange-800">{rec.nombre} — {rec.dosis}</p>
-                  <p className="text-xs text-orange-600">
-                    Pendiente · {rec.hora_programada ? new Date(rec.hora_programada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
-                  </p>
-                </div>
-                <button onClick={() => administrarRecepcionMutation.mutate(rec.id)}
-                  disabled={administrarRecepcionMutation.isPending}
-                  className="px-3 py-1 rounded-lg bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap">
-                  Administrar
-                </button>
-              </div>
-            ))}
+            <p className="text-xs font-black text-orange-600 uppercase">⏳ Tomas pendientes</p>
+            {data.recepciones_medicamento
+              .filter(r => r.tomas && r.tomas.some(t => !t.administrado))
+              .flatMap(rec =>
+                rec.tomas
+                  .filter(t => !t.administrado)
+                  .map((toma, j) => (
+                    <div key={`${rec.id}-${j}`} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
+                      <span className="text-orange-500 text-lg">💊</span>
+                      <div className="flex-1">
+                        <p className="font-black text-orange-800">{rec.nombre} — {rec.dosis}</p>
+                        <p className="text-xs text-orange-600">
+                          {toma.hora_programada.substring(0, 5)} {toma.administrado ? '✅' : '⏳'}
+                        </p>
+                      </div>
+                      <button onClick={() => administrarRecepcionMutation.mutate({ recepcionId: rec.id, tomaId: toma.id })}
+                        disabled={administrarRecepcionMutation.isPending}
+                        className="px-3 py-1 rounded-lg bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap">
+                        Administrar
+                      </button>
+                    </div>
+                  ))
+              )}
+            {!data.recepciones_medicamento.some(r => r.tomas && r.tomas.some(t => !t.administrado)) && (
+              <p className="text-xs text-orange-400 italic">Todas las tomas fueron administradas</p>
+            )}
           </div>
         )}
 

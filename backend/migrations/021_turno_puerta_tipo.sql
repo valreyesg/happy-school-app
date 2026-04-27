@@ -12,8 +12,16 @@ ALTER TABLE turno_puerta
 
 -- New unique constraint: one person per turno per day
 -- This allows the same person in both entrada AND salida on the same day
-ALTER TABLE turno_puerta
-  ADD CONSTRAINT turno_puerta_fecha_personal_turno_key
-  UNIQUE (fecha, personal_id, turno);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints
+    WHERE constraint_name = 'turno_puerta_fecha_personal_turno_key' AND table_name = 'turno_puerta'
+  ) THEN
+    ALTER TABLE turno_puerta
+      ADD CONSTRAINT turno_puerta_fecha_personal_turno_key
+      UNIQUE (fecha, personal_id, turno);
+  END IF;
+END $$;
 
 COMMENT ON COLUMN turno_puerta.turno IS 'entrada | salida | completo';

@@ -11,5 +11,13 @@ WHERE id NOT IN (
 );
 
 -- Agregar restricción UNIQUE
-ALTER TABLE categorias_evento
-  ADD CONSTRAINT categorias_evento_nombre_unique UNIQUE (nombre);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT constraint_name FROM information_schema.table_constraints
+    WHERE constraint_name = 'categorias_evento_nombre_unique'
+  ) THEN
+    ALTER TABLE categorias_evento
+      ADD CONSTRAINT categorias_evento_nombre_unique UNIQUE (nombre);
+  END IF;
+END $$;

@@ -183,10 +183,25 @@ router.get('/:alumnoId', async (req, res, next) => {
         [alumnoId, fecha]
       ),
 
-      query(
-        'SELECT * FROM recepcion_medicamento WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE) ORDER BY created_at DESC',
-        [alumnoId, fecha]
-      ),
+      query(`
+        SELECT rm.*,
+               COALESCE(
+                 json_agg(
+                   json_build_object(
+                     'id', t.id,
+                     'hora_programada', t.hora_programada::text,
+                     'administrado', t.administrado,
+                     'administrado_at', t.administrado_at
+                   ) ORDER BY t.hora_programada
+                 ) FILTER (WHERE t.id IS NOT NULL),
+                 '[]'
+               ) AS tomas
+        FROM recepcion_medicamento rm
+        LEFT JOIN toma_medicamento t ON t.recepcion_id = rm.id
+        WHERE rm.alumno_id = $1 AND rm.fecha = COALESCE($2::date, CURRENT_DATE)
+        GROUP BY rm.id
+        ORDER BY rm.created_at DESC
+      `, [alumnoId, fecha]),
     ]);
 
     res.json({
@@ -475,14 +490,10 @@ router.post('/medicamento', async (req, res, next) => {
 });
 
 // ── POST /bitacora/medicamento/recepcion ────────────────────────────────────
-// Registrar recepción de medicamento (foto receta + foto envase)
-router.post('/medicamento/recepcion', upload.fields([
-  { name: 'foto_receta', maxCount: 1 },
-  { name: 'foto_envase', maxCount: 1 }
-]), async (req, res, next) => {
+// Registrar recepción de medicamento (foto en Base64)
+router.post('/medicamento/recepcion', async (req, res, next) => {
   try {
-    const { alumno_id, nombre, dosis, hora_programada, notas } = req.body;
-    const { foto_receta, foto_envase } = req.files || {};
+    const { alumno_id, nombre, dosis, notas, foto_receta_base64, foto_receta_name, horas } = req.body;
 
     const personalResult = await query(
       'SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]
@@ -490,36 +501,77 @@ router.post('/medicamento/recepcion', upload.fields([
     const recibidoPor = personalResult.rows[0]?.id || null;
 
     let fotoRecetaUrl = null, fotoRecetaPublicId = null;
-    let fotoEnvaseUrl = null, fotoEnvasePublicId = null;
 
-    if (foto_receta && foto_receta[0]) {
-      const recetaResult = await uploadToCloudinary(foto_receta[0].buffer, {
-        folder: 'happyschool/medicamentos-recepcion',
-        resource_type: 'auto'
-      });
-      fotoRecetaUrl = recetaResult.secure_url;
-      fotoRecetaPublicId = recetaResult.public_id;
-    }
+    // Convertir Base64 a Buffer para Cloudinary
+    if (foto_receta_base64) {
+      try {
+        const base64Data = foto_receta_base64.split(',')[1] || foto_receta_base64;
+        const buffer = Buffer.from(base64Data, 'base64');
 
-    if (foto_envase && foto_envase[0]) {
-      const envaseResult = await uploadToCloudinary(foto_envase[0].buffer, {
-        folder: 'happyschool/medicamentos-recepcion',
-        resource_type: 'auto'
-      });
-      fotoEnvaseUrl = envaseResult.secure_url;
-      fotoEnvasePublicId = envaseResult.public_id;
+        const recetaResult = await uploadToCloudinary(buffer, {
+          folder: 'happyschool/medicamentos-recepcion',
+          resource_type: 'auto',
+          public_id: `receta_${Date.now()}`
+        });
+        fotoRecetaUrl = recetaResult.secure_url;
+        fotoRecetaPublicId = recetaResult.public_id;
+      } catch (uploadErr) {
+        // En desarrollo, si Cloudinary falla, continuar sin foto
+        console.warn('[medicamento] Advertencia al subir foto:', uploadErr.message);
+        if (process.env.NODE_ENV === 'production') {
+          return res.status(400).json({ error: 'Error al subir la foto' });
+        }
+        // En desarrollo, usar data URL del Base64 como fallback
+        fotoRecetaUrl = foto_receta_base64;
+        fotoRecetaPublicId = `local_${Date.now()}`;
+      }
     }
 
     const result = await query(`
       INSERT INTO recepcion_medicamento
-        (alumno_id, fecha, nombre, dosis, hora_programada, foto_receta_url, foto_receta_public_id,
-         foto_envase_url, foto_envase_public_id, recibido_por, notas)
-      VALUES ($1, CURRENT_DATE, $2, $3, $4::time, $5, $6, $7, $8, $9, $10)
+        (alumno_id, fecha, nombre, dosis, foto_receta_url, foto_receta_public_id, recibido_por, notas)
+      VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6, $7)
       RETURNING *
-    `, [alumno_id, nombre, dosis, hora_programada, fotoRecetaUrl, fotoRecetaPublicId,
-        fotoEnvaseUrl, fotoEnvasePublicId, recibidoPor, notas]);
+    `, [alumno_id, nombre, dosis, fotoRecetaUrl, fotoRecetaPublicId, recibidoPor, notas]);
 
-    res.status(201).json(result.rows[0]);
+    const recepcionId = result.rows[0].id;
+
+    // Insertar tomas si vienen horas
+    let horasArray = [];
+    if (horas) {
+      horasArray = Array.isArray(horas) ? horas : JSON.parse(horas || '[]');
+    }
+
+    if (horasArray && horasArray.length > 0) {
+      for (const h of horasArray.filter(h => h)) {
+        await query(
+          'INSERT INTO toma_medicamento (recepcion_id, hora_programada) VALUES ($1, $2::time)',
+          [recepcionId, h]
+        );
+      }
+    }
+
+    // Devolver recepción con tomas
+    const fullResult = await query(`
+      SELECT rm.*,
+             COALESCE(
+               json_agg(
+                 json_build_object(
+                   'id', t.id,
+                   'hora_programada', t.hora_programada::text,
+                   'administrado', t.administrado,
+                   'administrado_at', t.administrado_at
+                 ) ORDER BY t.hora_programada
+               ) FILTER (WHERE t.id IS NOT NULL),
+               '[]'
+             ) AS tomas
+      FROM recepcion_medicamento rm
+      LEFT JOIN toma_medicamento t ON t.recepcion_id = rm.id
+      WHERE rm.id = $1
+      GROUP BY rm.id
+    `, [recepcionId]);
+
+    res.status(201).json(fullResult.rows[0]);
   } catch (err) { next(err); }
 });
 
@@ -537,6 +589,26 @@ router.get('/medicamento/pendientes', async (req, res, next) => {
       ORDER BY rm.hora_programada, rm.created_at
     `, [fecha]);
     res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── DELETE /bitacora/medicamento/recepcion/:recepcionId ──────────────────────
+// Padre cancela una recepción declarada (solo si no ha sido recibida aún)
+router.delete('/medicamento/recepcion/:recepcionId', async (req, res, next) => {
+  try {
+    const { recepcionId } = req.params;
+
+    const existing = await query(
+      'SELECT id, recibido, administrado FROM recepcion_medicamento WHERE id = $1',
+      [recepcionId]
+    );
+    if (existing.rows.length === 0) return res.status(404).json({ error: 'No encontrado' });
+    if (existing.rows[0].recibido || existing.rows[0].administrado) {
+      return res.status(400).json({ error: 'No se puede eliminar: ya fue recibido o administrado' });
+    }
+
+    await query('DELETE FROM recepcion_medicamento WHERE id = $1', [recepcionId]);
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 
@@ -568,10 +640,11 @@ router.patch('/medicamento/recepcion/:recepcionId/recibir', async (req, res, nex
 });
 
 // ── PATCH /bitacora/medicamento/recepcion/:recepcionId/administrar ──────────
-// Marcar recepción como administrada y crear registro en medicamentos
+// Administrar una toma específica (si toma_id) o toda la recepción (compatibilidad)
 router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res, next) => {
   try {
     const { recepcionId } = req.params;
+    const { toma_id } = req.body || {};
 
     // Obtener datos de recepción
     const recepcionResult = await query(
@@ -591,7 +664,28 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
     );
     const maestraId = personalResult.rows[0]?.id || null;
 
-    // Insertar en medicamentos
+    // Si viene toma_id, administrar esa toma específica
+    if (toma_id) {
+      const medicResult = await query(`
+        INSERT INTO medicamentos (alumno_id, fecha, nombre, dosis, hora_administracion, administrado_por, notas)
+        VALUES ($1, CURRENT_DATE, $2, $3, NOW(), $4, $5) RETURNING *
+      `, [alumno_id, nombre, dosis, maestraId, notas]);
+
+      await query(`
+        UPDATE toma_medicamento
+        SET administrado = true, administrado_at = NOW(), administrado_por = $2, medicamento_id = $3
+        WHERE id = $1
+      `, [toma_id, maestraId, medicResult.rows[0].id]);
+
+      // Retornar toma actualizada
+      const tomaResult = await query(
+        'SELECT * FROM toma_medicamento WHERE id = $1',
+        [toma_id]
+      );
+      return res.json(tomaResult.rows[0]);
+    }
+
+    // Compatibilidad: si no viene toma_id, marcar recepción completa como administrada
     const medicResult = await query(`
       INSERT INTO medicamentos (alumno_id, fecha, nombre, dosis, hora_administracion, administrado_por, notas)
       VALUES ($1, CURRENT_DATE, $2, $3, NOW(), $4, $5) RETURNING *

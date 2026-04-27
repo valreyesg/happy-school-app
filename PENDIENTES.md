@@ -44,6 +44,16 @@
 ### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (pendiente)
 > Bloque 1 completado en Sesión 81. Ver ARCHIVE_LOG para detalle.
 
+- [ ] **Validación Miss — Administración de Tomas de Medicamento (Sesión 81)**
+  - **Status:** Backend 100% listo. Frontend padre 100% listo. **PENDIENTE:** Frontend miss validación visual.
+  - **Qué falta:** En `web/src/pages/maestra/Bitacora.jsx`, la sección de medicamentos necesita:
+    - [ ] Verificar que muestra correctamente las tomas (una fila por toma, no por recepción)
+    - [ ] Botón "Administrar" funciona y marca toma como administrada
+    - [ ] Badge de estado cambia a ✅ cuando todas las tomas están administradas
+    - [ ] Notificación WhatsApp se envía al padre cuando se administra
+  - **Archivos:** `web/src/pages/maestra/Bitacora.jsx` (línea ~1117)
+  - **Complejidad:** ⭐ (1-2 horas, principalmente validación en browser)
+
 - [ ] **Modalidad "Solo Extensión" — Tabla `ninos_extension`:**
   - Los niños de extensión NO son alumnos de la escuela. Solo asisten 3:00-6:00 PM.
   - Crear tabla `ninos_extension` (migración `032_ninos_extension.sql`): nombre, fecha_nacimiento, foto, tutor_nombre, tutor_telefono, tutor_email, modalidad_pago ('mensual'|'por_dia'), activo.

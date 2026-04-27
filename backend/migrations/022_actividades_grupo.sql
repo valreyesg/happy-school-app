@@ -2,7 +2,7 @@
 -- Permite que la maestra capture actividades una vez por grupo+fecha
 -- y luego en cada bitácora de alumno marque participación individual
 
-CREATE TABLE actividades_grupo (
+CREATE TABLE IF NOT EXISTS actividades_grupo (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   grupo_id UUID NOT NULL REFERENCES grupos(id) ON DELETE CASCADE,
   fecha DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -15,15 +15,15 @@ CREATE TABLE actividades_grupo (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_act_grupo_fecha ON actividades_grupo(grupo_id, fecha);
-CREATE INDEX idx_act_grupo_creador ON actividades_grupo(creado_por);
+CREATE INDEX IF NOT EXISTS idx_act_grupo_fecha ON actividades_grupo(grupo_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_act_grupo_creador ON actividades_grupo(creado_por);
 
 COMMENT ON TABLE actividades_grupo IS
   'Catálogo de actividades definidas por la maestra para su grupo en un día específico. Se define una sola vez.';
 COMMENT ON COLUMN actividades_grupo.orden IS
   'Posición de la actividad en el día, para mostrar en orden correcto';
 
-CREATE TABLE actividades_alumno (
+CREATE TABLE IF NOT EXISTS actividades_alumno (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   actividad_grupo_id UUID NOT NULL REFERENCES actividades_grupo(id) ON DELETE CASCADE,
   bitacora_id UUID NOT NULL REFERENCES bitacora_diaria(id) ON DELETE CASCADE,
@@ -34,8 +34,8 @@ CREATE TABLE actividades_alumno (
   UNIQUE(actividad_grupo_id, alumno_id)
 );
 
-CREATE INDEX idx_act_alumno_bitacora ON actividades_alumno(bitacora_id);
-CREATE INDEX idx_act_alumno_grupo_alumno ON actividades_alumno(actividad_grupo_id, alumno_id);
+CREATE INDEX IF NOT EXISTS idx_act_alumno_bitacora ON actividades_alumno(bitacora_id);
+CREATE INDEX IF NOT EXISTS idx_act_alumno_grupo_alumno ON actividades_alumno(actividad_grupo_id, alumno_id);
 
 COMMENT ON TABLE actividades_alumno IS
   'Participación de cada alumno en las actividades del grupo. Un registro por alumno+actividad.';

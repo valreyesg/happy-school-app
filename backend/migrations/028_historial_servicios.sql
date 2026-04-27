@@ -15,6 +15,23 @@ CREATE TABLE IF NOT EXISTS historial_servicios (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Ensure columns exist (for idempotency)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'historial_servicios' AND column_name = 'mes'
+  ) THEN
+    ALTER TABLE historial_servicios ADD COLUMN mes INTEGER NOT NULL DEFAULT 1;
+  END IF;
+  IF NOT EXISTS (
+    SELECT column_name FROM information_schema.columns
+    WHERE table_name = 'historial_servicios' AND column_name = 'anio'
+  ) THEN
+    ALTER TABLE historial_servicios ADD COLUMN anio INTEGER NOT NULL DEFAULT 2024;
+  END IF;
+END $$;
+
 -- Index for fast queries by alumno and year
 CREATE INDEX IF NOT EXISTS idx_historial_servicios_alumno_anio
   ON historial_servicios(alumno_id, anio DESC, mes DESC);

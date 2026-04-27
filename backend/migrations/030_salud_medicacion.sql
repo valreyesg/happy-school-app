@@ -2,7 +2,7 @@
 -- ── MIGRACIÓN 030 — Tablas para recepción medicamento, vómito, stock insumos, etc.
 
 -- ── 1. Recepción de medicamento (autorización previa) ─────────────────────
-CREATE TABLE recepcion_medicamento (
+CREATE TABLE IF NOT EXISTS recepcion_medicamento (
   id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   alumno_id             UUID NOT NULL REFERENCES alumnos(id),
   fecha                 DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -21,10 +21,10 @@ CREATE TABLE recepcion_medicamento (
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_recepcion_med_alumno_fecha ON recepcion_medicamento(alumno_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_recepcion_med_alumno_fecha ON recepcion_medicamento(alumno_id, fecha);
 
 -- ── 2. Vómito (múltiples episodios por día) ──────────────────────────────
-CREATE TABLE registro_vomito (
+CREATE TABLE IF NOT EXISTS registro_vomito (
   id             UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   alumno_id      UUID NOT NULL REFERENCES alumnos(id),
   bitacora_id    UUID REFERENCES bitacora_diaria(id),
@@ -34,7 +34,7 @@ CREATE TABLE registro_vomito (
   registrado_por UUID REFERENCES usuarios(id),
   created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-CREATE INDEX idx_registro_vomito_alumno ON registro_vomito(alumno_id, hora);
+CREATE INDEX IF NOT EXISTS idx_registro_vomito_alumno ON registro_vomito(alumno_id, hora);
 
 -- ── 3. Diarrea en registro_panial ─────────────────────────────────────────
 ALTER TABLE registro_panial
@@ -47,7 +47,7 @@ ALTER TABLE asistencia
   ADD COLUMN IF NOT EXISTS justificada_at       TIMESTAMPTZ;
 
 -- ── 5. Filtro sanitario de SALIDA ─────────────────────────────────────────
-CREATE TABLE registro_salida_sanitario (
+CREATE TABLE IF NOT EXISTS registro_salida_sanitario (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   alumno_id        UUID NOT NULL REFERENCES alumnos(id),
   fecha            DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -63,7 +63,7 @@ CREATE TABLE registro_salida_sanitario (
 );
 
 -- ── 6. Stock de insumos (pañales, toallitas, crema) ───────────────────────
-CREATE TABLE insumos_alumno (
+CREATE TABLE IF NOT EXISTS insumos_alumno (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   alumno_id            UUID NOT NULL REFERENCES alumnos(id),
   tipo                 VARCHAR(50) NOT NULL DEFAULT 'panial',
@@ -75,7 +75,7 @@ CREATE TABLE insumos_alumno (
 );
 
 -- ── 7. Historial de movimientos de insumos ───────────────────────────────
-CREATE TABLE insumos_movimientos (
+CREATE TABLE IF NOT EXISTS insumos_movimientos (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   alumno_id           UUID NOT NULL REFERENCES alumnos(id),
   tipo                VARCHAR(50) NOT NULL DEFAULT 'panial',

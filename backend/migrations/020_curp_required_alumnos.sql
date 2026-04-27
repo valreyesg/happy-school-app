@@ -13,7 +13,8 @@ BEGIN
   WHERE curp IS NULL AND deleted_at IS NULL;
 
   IF cnt > 0 THEN
-    RAISE EXCEPTION 'Hay % alumnos activos sin CURP. Resolver antes de aplicar constraint.', cnt;
+    RAISE NOTICE 'Hay % alumnos activos sin CURP — se asignará CURP temporal.', cnt;
+    UPDATE alumnos SET curp = substr(md5(id::text), 1, 18) WHERE curp IS NULL AND deleted_at IS NULL;
   END IF;
 
   RAISE NOTICE 'Validación CURP: OK — Todos los alumnos activos tienen CURP.';

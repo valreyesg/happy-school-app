@@ -603,26 +603,41 @@ router.get('/grupo/:grupo_id/mensual', async (req, res, next) => {
     const result = await query(`
       SELECT a.id, a.nombre_completo, a.foto_url,
              TO_CHAR(ast.fecha, 'YYYY-MM-DD') AS fecha,
-             ast.estado
+             ast.estado,
+             ast.justificacion_motivo,
+             ast.justificada_at,
+             ast.justificacion_comprobante_url,
+             p.nombre_completo AS justificada_por_nombre
       FROM alumnos a
       LEFT JOIN asistencia ast
         ON ast.alumno_id = a.id
        AND EXTRACT(MONTH FROM ast.fecha) = $2
        AND EXTRACT(YEAR  FROM ast.fecha) = $3
+      LEFT JOIN personal p ON p.id = ast.justificada_por
       WHERE a.grupo_id = $1
         AND a.deleted_at IS NULL
         AND a.estado IN ('inscrito','reinscrito')
       ORDER BY a.nombre_completo, ast.fecha
     `, [req.params.grupo_id, mes, anio]);
 
-    // Agrupar por alumno → { id, nombre_completo, foto_url, dias: { 'YYYY-MM-DD': estado } }
+    // Agrupar por alumno → { id, nombre_completo, foto_url, dias: { 'YYYY-MM-DD': estado | objeto } }
     const mapa = {};
     for (const row of result.rows) {
       if (!mapa[row.id]) {
         mapa[row.id] = { id: row.id, nombre_completo: row.nombre_completo, foto_url: row.foto_url, dias: {} };
       }
       if (row.fecha) {
-        mapa[row.id].dias[row.fecha] = row.estado;
+        if (row.estado === 'justificado') {
+          mapa[row.id].dias[row.fecha] = {
+            estado: 'justificado',
+            motivo: row.justificacion_motivo,
+            justificada_at: row.justificada_at,
+            comprobante_url: row.justificacion_comprobante_url,
+            justificada_por: row.justificada_por_nombre,
+          };
+        } else {
+          mapa[row.id].dias[row.fecha] = row.estado;
+        }
       }
     }
     res.json(Object.values(mapa));

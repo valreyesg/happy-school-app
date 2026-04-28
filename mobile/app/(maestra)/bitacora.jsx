@@ -835,11 +835,11 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             <Text style={{ color: '#166534', backgroundColor: '#dcfce7', padding: 8, borderRadius: 8, marginBottom: 8, fontWeight: '600', fontSize: 12 }}>✅ Checklist guardado</Text>
           )}
           {[
-            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir' },
-            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas' },
-            { key: 'estado_fisico_ok', label: '💚 Estado físico normal' },
-            { key: 'entrega_conforme', label: '✅ Entrega conforme' },
-          ].map(({ key, label }) => (
+            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir', mostrar: usaPanial },
+            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas', mostrar: true },
+            { key: 'estado_fisico_ok', label: '💚 Estado físico normal', mostrar: true },
+            { key: 'entrega_conforme', label: '✅ Entrega conforme', mostrar: true },
+          ].filter(item => item.mostrar).map(({ key, label }) => (
             <View key={key} style={s.switchRow}>
               <Text style={s.switchLabel}>{label}</Text>
               <Switch

@@ -1,7 +1,55 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud)
+
+---
+
+## ✅ SESIÓN XX+3 (2026-04-28) — Pendientes Validación Salud: Directora Justificaciones + Vista Mensual + Mobile Pañal (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO — 4 pendientes cerrados
+
+### Funcionalidades Implementadas:
+
+**Tarea 4 — Vista Mensual sin scroll: contenedor ancho** ✅
+- Archivo: `web/src/pages/directora/Asistencia.jsx` línea 405
+- Cambio: Condicional `max-w-full` cuando modo="mensual", `max-w-4xl` en modo "Hoy"
+- Status: ✅ Validado — tabla muestra los 30 días de abril sin scroll
+
+**Tarea 1 — Backend: endpoint mensual incluye datos de justificación** ✅
+- Archivo: `backend/src/routes/asistencia.js` líneas 603-630
+- Cambios:
+  - SELECT extendido: `justificacion_motivo`, `justificada_at`, `justificacion_comprobante_url`, `justificada_por_nombre` (LEFT JOIN personal)
+  - Agrupación: si `estado = 'justificado'`, devuelve objeto `{ estado, motivo, justificada_at, comprobante_url, justificada_por }`
+- Status: ✅ Validado — curl devuelve objeto con datos completos
+
+**Tarea 2 — Web: modal de lectura para celdas justificadas** ✅
+- Archivo: `web/src/pages/directora/Asistencia.jsx` líneas 139, 247, 259-274, 357-401
+- Cambios:
+  - Estado `viendoJustificacion` para guardar datos de justificación
+  - Normalización de `diaData` (puede ser objeto o string)
+  - onClick actualizado: abre modal de lectura si celda está justificada
+  - Modal nuevos con: alumno + fecha, motivo en fondo azul, comprobante (imagen o PDF), quién justificó + cuándo
+  - Cursor pointer en celdas justificadas
+- Status: ✅ Validado — clic en celda azul abre modal de lectura con motivo
+
+**Tarea 3 — Mobile: ocultar toggle pañal para alumnos sin pañal** ✅
+- Archivo: `mobile/app/(maestra)/bitacora.jsx` líneas 837-843
+- Cambio: Agregar propiedad `mostrar: usaPanial` a item `panial_limpio`, aplicar `.filter(item => item.mostrar)`
+- Status: ✅ Validado — alumno sin pañal NO muestra toggle, alumno con pañal SÍ muestra
+
+### Archivos Modificados:
+- `backend/src/routes/asistencia.js` — SELECT extendido, agrupación objeto para justificados
+- `web/src/pages/directora/Asistencia.jsx` — Contenedor ancho, estado modal, normalización, onClick, modal lectura
+- `mobile/app/(maestra)/bitacora.jsx` — Filtro items salida por `mostrar: usaPanial`
+
+### Validaciones Completadas:
+- ✅ Vista mensual: todos los días de abril visibles sin scroll
+- ✅ Justificación: modal lectura al clic en celda azul, motivo visible
+- ✅ Mobile: toggle pañal oculto para alumnos sin pañal (`usa_panial = false`)
+
+### Commits:
+- 1 commit: `feat: Sesión XX+3 — Pendientes validación salud (directora justificaciones + vista mensual + mobile pañal)`
 
 ---
 

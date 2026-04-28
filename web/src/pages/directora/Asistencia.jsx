@@ -137,6 +137,7 @@ function VistaMensual({ grupoId }) {
   const [justificandoModal, setJustificandoModal] = useState(null);
   const [motivoJustificacion, setMotivoJustificacion] = useState('');
   const [comprobanteFile, setComprobanteFile] = useState(null);
+  const [viendoJustificacion, setViendoJustificacion] = useState(null);
 
   const { data: alumnos = [], isLoading } = useQuery({
     queryKey: ['asistencia-mensual', grupoId, mes, anio],
@@ -244,7 +245,8 @@ function VistaMensual({ grupoId }) {
                     </td>
                     {dias.map(d => {
                       const key = `${anio}-${pad(mes)}-${pad(d.num)}`;
-                      const estado = alumno.dias[key];
+                      const diaData = alumno.dias[key];
+                      const estado = diaData?.estado ?? diaData;
                       if (estado === 'presente') presentes++;
                       else if (estado === 'retardo') { presentes++; retardos++; }
                       else if (estado === 'no_entrada') noEntradas++;
@@ -255,14 +257,23 @@ function VistaMensual({ grupoId }) {
                       return (
                         <td
                           key={d.num}
-                          className={`text-center py-1 relative group ${d.esFinde ? 'opacity-30' : ''} ${isAusente && !d.esFinde ? 'cursor-pointer' : ''}`}
+                          className={`text-center py-1 relative group ${d.esFinde ? 'opacity-30' : ''} ${(isAusente || estado === 'justificado') && !d.esFinde ? 'cursor-pointer' : ''}`}
                           onClick={() => {
                             if (isAusente && !d.esFinde) {
                               setJustificandoModal({ alumnoId: alumno.id, fecha });
                               setMotivoJustificacion('');
+                            } else if (estado === 'justificado' && !d.esFinde && typeof diaData === 'object') {
+                              setViendoJustificacion({
+                                alumnoNombre: alumno.nombre_completo,
+                                fecha,
+                                motivo: diaData.motivo,
+                                comprobante_url: diaData.comprobante_url,
+                                justificada_por: diaData.justificada_por,
+                                justificada_at: diaData.justificada_at,
+                              });
                             }
                           }}
-                          title={isAusente && !d.esFinde ? 'Click para justificar ausencia' : undefined}
+                          title={isAusente && !d.esFinde ? 'Click para justificar ausencia' : estado === 'justificado' && !d.esFinde ? 'Click para ver justificación' : undefined}
                         >
                           {cfg
                             ? <span className={`inline-block w-5 h-5 rounded ${cfg.bg}`} title={cfg.title} />
@@ -342,6 +353,64 @@ function VistaMensual({ grupoId }) {
           </div>
         </div>
       )}
+
+      {/* Modal lectura de justificación */}
+      {viendoJustificacion && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 space-y-4">
+            <h3 className="text-lg font-black text-gray-800">📋 Justificación</h3>
+            <p className="text-sm text-gray-600">
+              <strong>{viendoJustificacion.alumnoNombre}</strong>
+              {' · '}
+              <strong>
+                {new Date(viendoJustificacion.fecha + 'T12:00')
+                  .toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </strong>
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-3 text-sm text-gray-700">
+              <p className="font-black text-blue-700 mb-1">Motivo</p>
+              <p>{viendoJustificacion.motivo || <span className="text-gray-400 italic">Sin motivo registrado</span>}</p>
+            </div>
+            {viendoJustificacion.comprobante_url && (
+              <div>
+                <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Comprobante</p>
+                {/\.(jpg|jpeg|png|webp|gif)$/i.test(viendoJustificacion.comprobante_url)
+                  ? <img
+                      src={viendoJustificacion.comprobante_url}
+                      alt="Comprobante"
+                      className="w-full rounded-xl border border-gray-200 max-h-48 object-contain"
+                    />
+                  : <a
+                      href={viendoJustificacion.comprobante_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 font-semibold text-sm underline"
+                    >
+                      Ver documento
+                    </a>
+                }
+              </div>
+            )}
+            <div className="text-xs text-gray-400 space-y-0.5">
+              {viendoJustificacion.justificada_por && (
+                <p>Registrado por: <span className="font-semibold text-gray-600">{viendoJustificacion.justificada_por}</span></p>
+              )}
+              {viendoJustificacion.justificada_at && (
+                <p>
+                  {new Date(viendoJustificacion.justificada_at)
+                    .toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => setViendoJustificacion(null)}
+              className="w-full py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -402,7 +471,7 @@ export default function DirectoraAsistencia() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-4xl mx-auto">
+    <div className={`space-y-6 animate-fade-in mx-auto ${modo === 'mensual' ? 'max-w-full' : 'max-w-4xl'}`}>
       {/* Encabezado */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>

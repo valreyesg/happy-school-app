@@ -188,22 +188,22 @@
 
 ---
 
-### BLOQUE 8 ✅ — Vista Padre Tab Salud
+### BLOQUE 8 ✅ — Vista Padre Tab Salud — COMPLETADO SESIONES PASADAS
 **Archivo:** `web/src/pages/padre/Bitacora.jsx`
 
-- [ ] Tab "Salud" existe en bitácora padre
-- [ ] Muestra:
-  - [ ] Fiebre (si tuvo): "🌡 Tuvo fiebre — XX°C"
-  - [ ] Malestar (si aplica): "⚕️ Descripción"
-  - [ ] Medicamentos administrados: lista con nombre + dosis + hora
-  - [ ] **NUEVO** Vómitos (si existen):
-    - [ ] Título "🤢 Vómitos"
-    - [ ] Cada vómito: hora + intensidad + notas (si existen)
-    - [ ] Fondo naranja claro
-  - [ ] **NUEVO** Diarrea (si existe):
-    - [ ] Banner rojo: "⚠️ Deposición anormal registrada hoy"
-- [ ] Empty state: "Sin registros de salud" (solo si NO hay nada)
-- [ ] Datos refrescan correctamente si cambias de alumno
+- [x] Tab "Salud" existe en bitácora padre
+- [x] Muestra:
+  - [x] Fiebre (si tuvo): "🌡 Tuvo fiebre — XX°C"
+  - [x] Malestar (si aplica): "⚕️ Descripción"
+  - [x] Medicamentos administrados: lista con nombre + dosis + hora
+  - [x] **NUEVO** Vómitos (si existen):
+    - [x] Título "🤢 Vómitos"
+    - [x] Cada vómito: hora + intensidad + notas (si existen)
+    - [x] Fondo naranja claro
+  - [x] **NUEVO** Diarrea (si existe):
+    - [x] Banner rojo: "⚠️ Deposición anormal registrada hoy"
+- [x] Empty state: "Sin registros de salud" (solo si NO hay nada)
+- [x] Datos refrescan correctamente si cambias de alumno
 
 ---
 

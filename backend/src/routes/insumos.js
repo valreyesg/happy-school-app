@@ -26,7 +26,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     // Obtener solicitudes de toallitas pendientes del día
     const solicitudesResult = await query(
       `SELECT id, fecha, created_at FROM insumos_solicitudes
-       WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false
+       WHERE alumno_id = $1 AND fecha <= CURRENT_DATE AND resuelta = false
        ORDER BY created_at DESC`,
       [alumnoId]
     );
@@ -47,7 +47,7 @@ router.post('/:alumnoId/solicitar-toallitas', async (req, res, next) => {
     // Verificar si ya existe solicitud no resuelta hoy
     const existente = await query(
       `SELECT id FROM insumos_solicitudes
-       WHERE alumno_id = $1 AND fecha = CURRENT_DATE AND resuelta = false`,
+       WHERE alumno_id = $1 AND fecha <= CURRENT_DATE AND resuelta = false`,
       [alumnoId]
     );
 
@@ -134,6 +134,15 @@ router.put('/solicitudes/:solicitudId/recibida', async (req, res, next) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Solicitud no encontrada' });
     }
+
+    // Marcar trajo_toallitas en registro_entrada del mismo día (crear si no existe)
+    await query(
+      `INSERT INTO registro_entrada (alumno_id, fecha, trajo_toallitas)
+       VALUES ($1, CURRENT_DATE, true)
+       ON CONFLICT (alumno_id, fecha) DO UPDATE
+       SET trajo_toallitas = true, updated_at = NOW()`,
+      [result.rows[0].alumno_id]
+    );
 
     res.json(result.rows[0]);
   } catch (err) { next(err); }

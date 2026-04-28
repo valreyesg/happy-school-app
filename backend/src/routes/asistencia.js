@@ -668,7 +668,8 @@ router.get('/filtro-entrada/:alumno_id', async (req, res, next) => {
         hora_entrada, es_retardo, numero_retardo_mes, puede_entrar, motivo_no_entrada,
         uñas_cortadas, sin_lagañas, sin_fiebre, temperatura,
         sin_sintomas, sintomas_notas, panial_limpio, trae_uniforme,
-        trae_bata, trae_termo, agua_suficiente
+        trae_bata, trae_termo, agua_suficiente,
+        trajo_paniales, trajo_toallitas
       FROM registro_entrada
       WHERE alumno_id = $1 AND fecha = $2
     `, [alumno_id, fecha]);

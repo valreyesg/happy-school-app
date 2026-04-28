@@ -626,6 +626,13 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
     enabled: !!alumnoId,
   });
 
+  // Datos de entrada (trajo_paniales, trajo_toallitas)
+  const { data: entradaData } = useQuery({
+    queryKey: ['entrada-dir', alumnoId, fecha],
+    queryFn: () => api.get(`/asistencia/filtro-entrada/${alumnoId}?fecha=${fecha}`).then(r => r.data).catch(() => null),
+    enabled: !!alumnoId,
+  });
+
   const labelFecha = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   });
@@ -666,6 +673,21 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
             <FilaBit label="Comportamiento" valor={COMP_MAP[b.comportamiento]?.label ?? b.comportamiento} />
             {b.comportamiento_notas && <FilaBit label="Nota conducta" valor={b.comportamiento_notas} />}
           </div>
+
+          {/* Insumos traídos en entrada */}
+          {entradaData && (entradaData.trajo_paniales || entradaData.trajo_toallitas) && (
+            <div className="card-hs space-y-2">
+              <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider mb-3">🧷 Insumos traídos</h3>
+              <div className="flex flex-wrap gap-2">
+                {entradaData.trajo_paniales && usaPanial && (
+                  <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-bold">Trajo pañales</span>
+                )}
+                {entradaData.trajo_toallitas && (
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold">Trajo toallitas</span>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Actividades */}
           {data?.actividades && data.actividades.length > 0 && (

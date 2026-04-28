@@ -638,6 +638,13 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const stockDiario = insumosData?.stock ?? null;
   const solicitudesToallitas = insumosData?.solicitudes_toallitas ?? [];
 
+  // Datos de entrada (trajo_paniales, trajo_toallitas)
+  const { data: entradaData } = useQuery({
+    queryKey: ['entrada-insumos', alumno.id, fecha],
+    queryFn: () => api.get(`/asistencia/filtro-entrada/${alumno.id}?fecha=${fecha}`).then(r => r.data).catch(() => null),
+    enabled: !!alumno.id && alumno.usa_panial,
+  });
+
   const getColorInsumo = (cantidad) => {
     if (cantidad === null || cantidad === undefined) return 'text-gray-400';
     if (cantidad >= 3) return 'text-green-600';
@@ -815,6 +822,18 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
           )}
           {stockDiario?.no_registrado && (
             <p className="text-xs text-gray-400 font-semibold mb-3">Sin registro de entrada aún</p>
+          )}
+
+          {/* Notas de insumos traídos en entrada */}
+          {entradaData && (entradaData.trajo_paniales || entradaData.trajo_toallitas) && (
+            <div className="mb-3 flex flex-wrap gap-2">
+              {entradaData.trajo_paniales && (
+                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold">🧷 Trajo pañales hoy</span>
+              )}
+              {entradaData.trajo_toallitas && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold">🧻 Trajo toallitas hoy</span>
+              )}
+            </div>
           )}
 
           {/* Alerta solicitud de toallitas */}

@@ -355,8 +355,8 @@ export default function PadreBitacora() {
   const hijoActual = hijos.find(h => h.id === alumnoId);
   const entradaHoy = hijoActual?.filtro_entrada || null;
   const esHoyFecha = fecha === hoy;
-  // Priorizar datos históricos si existen, sino usar datos de hoy
-  const entradaMostrada = esHoyFecha ? entradaHoy : entradaHistorica;
+  // Priorizar datos históricos si existen (siempre), sino usar datos de hoy
+  const entradaMostrada = entradaHistorica || entradaHoy;
   const usaPanial = hijoActual?.usa_panial || false;
 
   // Calcular avance bitácora (porcentaje de campos completados)
@@ -678,6 +678,8 @@ export default function PadreBitacora() {
                                 <PildoraBool label="Sin lagañas" valor={entradaMostrada.sin_lagañas} />
                                 <PildoraBool label="Sin fiebre" valor={entradaMostrada.sin_fiebre} />
                                 <PildoraBool label="Sin síntomas" valor={entradaMostrada.sin_sintomas} />
+                                {hijoActual?.usa_panial && <PildoraBool label="Trajo pañales" valor={entradaMostrada.trajo_paniales} />}
+                                {entradaMostrada.trajo_toallitas && <PildoraBool label="Trajo toallitas" valor={true} />}
                               </div>
                             </div>
                           </div>

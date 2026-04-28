@@ -361,11 +361,15 @@ SELECT * FROM asistencia WHERE alumno_id = ? AND justificada = true AND DATE(fec
 
 ## ✅ MARCADORES DE ÉXITO
 
-- ✅ Todos los checkboxes de bloques 1-9 marcados
-- ✅ Todos los casos edge validados sin errores
-- ✅ BD refleja datos correctamente
-- ✅ Paridad web ↔ mobile confirmada
+**Estado actual (2026-04-28):**
+- ✅ Bloques 1-6: completados web + mobile
+- ✅ Bloque 7: completado web + mobile (Salida Sanitaria)
+- ✅ Bloque 8: completado web (Vista Padre Tab Salud)
+- ✅ Bloque 9: completado backend (Job medicamentos)
+- ✅ Paridad web ↔ mobile confirmada (Bloques 1-6)
 - ✅ Roles (maestra/padre/directora) tienen acceso correcto
-- ✅ Job medicamentos ejecuta sin errores cada 5 min
+- ⏳ Pendiente: Directora historial justificaciones (columna tabla), casos edge validación
 
-Tras completar esta validación: **Módulo SALUD Y MEDICACIÓN = PRODUCCIÓN READY** 🎉
+**Próxima sesión:** Directora columna historial justificaciones + casos edge (alumno sin pañal, múltiples vómitos, job fuera de horario, etc.)
+
+Tras completar: **Módulo SALUD Y MEDICACIÓN = PRODUCCIÓN READY** 🎉

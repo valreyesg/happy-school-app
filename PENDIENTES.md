@@ -1,7 +1,9 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+1 → Próxima: Mobile paridad (vómitos bitácora directora + salida anticipada)
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+2 → Próxima: Directora historial justificaciones + casos edge validación
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
+
+✅ **COMPLETADO ESTA SESIÓN (XX+2):** Bloques 3 + 5B Mobile (Insumos Pañales + Vómito paridad web) — archivado en ARCHIVE_LOG
 
 ---
 

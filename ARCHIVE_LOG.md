@@ -1,7 +1,53 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada + Vómitos Directora)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B)
+
+---
+
+## ✅ SESIÓN XX+2 (2026-04-28) — Paridad Mobile: Bloques 3 + 5B (Insumos Pañales + Vómito) — 100% COMPLETADO
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO — Sincronización funcionalidad web a mobile
+
+### Funcionalidades Implementadas:
+
+**BLOQUE 3 — Insumos Pañales Mobile** ✅
+- Archivo: `mobile/app/(maestra)/bitacora.jsx` (líneas 217-223, 233-240, 449-464, 487-496)
+- Cambios implementados:
+  - ✅ Query `/insumos/:alumnoId` corregida: default `{}` en lugar de `[]`, catch devuelve `{}`
+  - ✅ Derivadas `stockDiario` (insumosData.stock) y `solicitudesToallitas` (insumosData.solicitudes_toallitas)
+  - ✅ Bloque morado "Pañales hoy" con cantidad e icono, colores dinámicos:
+    - Verde si cantidad >= 3
+    - Amarillo si cantidad >= 1 y < 3
+    - Rojo si cantidad < 1
+  - ✅ Texto "Sin registro de entrada aún" si `no_registrado = true`
+  - ✅ Banner amarillo "🧻 Solicitud de toallitas enviada al papá" si hay solicitudes pendientes
+  - ✅ Mutation `toallitasMutation` para POST `/insumos/:alumnoId/solicitar-toallitas`
+  - ✅ Botón "🧻 Solicitar toallitas húmedas" naranja (`#FBBF24`), visible solo si NO hay solicitudes
+  - ✅ Alert al completar solicitud: "✅ Solicitud enviada al papá"
+
+**BLOQUE 5B — Vómito Mobile** ✅
+- Archivo: `mobile/app/(maestra)/bitacora.jsx` (líneas 309-317, 345-351, 679-690, 705-722)
+- Cambios implementados:
+  - ✅ Query `vomitosCatalogo` desde `/catalogos/vomito-intensidad` con fallback hardcodeado (leve/moderado/fuerte)
+  - ✅ Constante `INTENSIDADES_VOMITO` para usar catálogo en formulario
+  - ✅ POST `/bitacora/vomito` incluye `bitacora_id` (mejora de datos backend)
+  - ✅ Sección "🤢 Episodios de vómito" con tarjetas naranja:
+    - Cada vómito en View con fondo `#FFF7ED`, borde naranja `#FED7AA`
+    - Muestra: "Intensidad: [valor]", hora y notas (si existen)
+  - ✅ Botones intensidad naranjas (`#EA580C` cuando seleccionados, `#FFF7ED` por defecto)
+  - ✅ Labels desde catálogo `int.label` (Leve, Moderado, Fuerte)
+
+### Archivos Modificados:
+- `mobile/app/(maestra)/bitacora.jsx` — 8 cambios puntuales (queries, mutations, renders)
+- `VALIDACIONES_SALUD_MEDICACION.md` — Bloques 3 y 5B marcados como ✅ COMPLETADOS en mobile
+
+### Validaciones Completadas:
+- ✅ Bloque 3: Stock visible, colores correctos (verde/amarillo/rojo), botón solicitar toallitas, banner solicitud pendiente
+- ✅ Bloque 5B: Vómitos como tarjetas naranja, botones intensidad naranjas, POST incluye bitacora_id, catálogo con fallback
+
+### Commits:
+- 1 commit: `feat: Sesión XX — Paridad Mobile Bloques 3 + 5B (Insumos Pañales + Vómito)`
 
 ---
 

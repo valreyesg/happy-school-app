@@ -341,6 +341,9 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
 
   const guardar = useMutation({
     mutationFn: async () => {
+      if (!form.curp || form.curp.trim() === '') {
+        throw new Error('La CURP es obligatoria');
+      }
       let resultado;
       if (esEdicion) {
         resultado = await api.put(`/alumnos/${alumno.id}`, form);
@@ -363,7 +366,7 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
       onCerrar();
     },
     onError: (err) => {
-      toast.error(err.response?.data?.error || 'Error al guardar');
+      toast.error(err.response?.data?.error || err.message || 'Error al guardar');
     },
   });
 
@@ -458,11 +461,12 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1">CURP</label>
+                <label className="block text-sm font-bold text-gray-700 mb-1">CURP <span className="text-red-500">*</span></label>
                 <input
                   className="input-hs uppercase"
                   placeholder="CURP del alumno"
                   maxLength={18}
+                  required
                   value={form.curp}
                   onChange={e => set('curp', e.target.value.toUpperCase())}
                 />

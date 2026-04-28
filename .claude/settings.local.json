@@ -624,7 +624,10 @@
       "PowerShell(Invoke-RestMethod -Uri \"http://localhost:3000/health\" -Method Get)",
       "PowerShell(\\(Invoke-WebRequest -Uri \"http://localhost:3000/health\" -UseBasicParsing\\).Content)",
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"\\\\d usuarios\")",
-      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"\\\\d personas_autorizadas\")"
+      "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"\\\\d personas_autorizadas\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/036_alumno_padre_activo.sql\")",
+      "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"036_alumno_padre_activo.sql\")",
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "\\tmp",

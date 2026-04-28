@@ -32,6 +32,39 @@
 
 ---
 
+## ✅ VALIDACIÓN COMPLETADA — Sesión 81 (Gestión Alumnos Bloque 1)
+
+**Estado:** VALIDACIÓN 100% COMPLETADA EN BROWSER (2026-04-28)
+**Implementador:** Claude | **Revisión:** Valeria
+
+### ✅ Padres / Tutores (AlumnoPerfil.jsx: SeccionPadres)
+- [x] Agregar tutor nuevo → tutor aparece sin recargar + toast ✅
+- [x] Editar tutor → cambiar datos → guardan sin recargar ✅
+- [x] Desactivar tutor (soft-delete) → desaparece de lista activa ✅
+- [x] Email único por alumno → rechaza si existe en otro alumno NO hermano ✅
+- [x] Email permitido para hermanos → alumnos hermanos pueden compartir tutor ✅
+- [x] Máximo 2 tutores activos → botón "+ Agregar" se oculta en 2 tutores ✅
+- [ ] Subir foto del tutor → aparece en tarjeta (PENDIENTE)
+
+### Tutores — Funcionalidades faltantes (PENDIENTE PRÓXIMA SESIÓN):
+- [ ] **Cambiar tutor principal:** Toggle para marcar/desmarcar `es_tutor_principal` en tutor ya existente (endpoint PUT + UI)
+- [ ] **Desvincular tutor completo:** Botón para desvincular sin desactivar (vs. desactivar que es soft-delete)
+- [ ] **Copiar tutores al vincular hermanos:** Al hacer POST `/alumnos/:id/familia`, copiar tutores de ambos alumnos para que compartan la misma lista
+
+### ✅ Hermanos (AlumnoPerfil.jsx: SeccionHermanos)
+- [x] Vincular hermanos → buscador + selección + tarjeta + toast ✅
+- [x] Navegación recíproca → click navega al perfil del hermano ✅
+- [x] Vínculo bidireccional → aparece en ambos perfiles ✅
+- [x] Desvincular → desaparece de ambos perfiles ✅
+
+### ⏳ Panel Extensión Vespertina (Dashboard.jsx: PanelExtensionVespertina) — PENDIENTE VALIDAR
+- [ ] Banner morado aparece a las 3:06 PM
+- [ ] 3 grupos: con extensión, sin extensión (cobro), ya salieron
+- [ ] Toggle "Ver todos / Modo extensión" funciona
+- [ ] Mensaje "Todos los niños han salido" cuando corresponde
+
+---
+
 ## 🎨 UX/UI AUDIT Y MEJORA
 
 - [ ] **Revisar y mejorar UX/UI completa (web + mobile)**

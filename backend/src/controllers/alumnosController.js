@@ -168,7 +168,7 @@ const obtener = async (req, res, next) => {
       SELECT p.*, ap.es_tutor_principal
       FROM padres p
       JOIN alumno_padre ap ON p.id = ap.padre_id
-      WHERE ap.alumno_id = $1
+      WHERE ap.alumno_id = $1 AND ap.activo = true
     `, [id]);
 
     // Personas autorizadas
@@ -247,6 +247,10 @@ const actualizar = async (req, res, next) => {
   try {
     const { id } = req.params;
     const campos = req.body;
+
+    if ('curp' in campos && (!campos.curp || campos.curp.trim() === '')) {
+      return res.status(400).json({ error: 'La CURP es obligatoria para actualizar un alumno.' });
+    }
 
     const permitidos = [
       'nombre_completo', 'fecha_nacimiento', 'curp', 'grupo_id', 'ciclo_id',

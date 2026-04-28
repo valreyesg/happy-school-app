@@ -309,19 +309,53 @@ router.post('/:id/padres', authorize('directora', 'administrativo'), async (req,
     if (!nombre_completo || !parentesco || !telefono)
       return res.status(400).json({ error: 'nombre_completo, parentesco y telefono son obligatorios' });
 
-    let padre_id;
-    // Reutilizar si ya existe un tutor con ese email
+    const conteo = await query(
+      'SELECT COUNT(*) FROM alumno_padre WHERE alumno_id = $1 AND activo = true',
+      [req.params.id]
+    );
+    if (parseInt(conteo.rows[0].count) >= 2) {
+      return res.status(400).json({ error: 'Este alumno ya tiene 2 tutores registrados. Máximo permitido: 2.' });
+    }
+
+    // Validar si el email YA está registrado como tutor de otro alumno NO hermano
     if (email) {
-      const existente = await query('SELECT id FROM padres WHERE email = $1', [email]);
-      if (existente.rows.length > 0) padre_id = existente.rows[0].id;
-    }
-    if (!padre_id) {
-      const nuevo = await query(
-        'INSERT INTO padres (nombre_completo, parentesco, telefono, telefono_whatsapp, email) VALUES ($1,$2,$3,$4,$5) RETURNING id',
-        [nombre_completo, parentesco, telefono, telefono_whatsapp || null, email || null]
+      const alumnoActual = await query(
+        'SELECT familia_id FROM alumnos WHERE id = $1',
+        [req.params.id]
       );
-      padre_id = nuevo.rows[0].id;
+      const familia_id_actual = alumnoActual.rows[0]?.familia_id;
+
+      // Buscar si este email ya está ACTIVAMENTE vinculado a otro alumno
+      const emailEnOtroAlumno = await query(
+        `SELECT DISTINCT a.id, a.familia_id FROM alumno_padre ap
+         JOIN padres p ON ap.padre_id = p.id
+         JOIN alumnos a ON ap.alumno_id = a.id
+         WHERE p.email = $1 AND ap.alumno_id != $2 AND ap.activo = true`,
+        [email, req.params.id]
+      );
+
+      // Si el email ya está en uso, verificar que sean hermanos
+      if (emailEnOtroAlumno.rows.length > 0) {
+        const todosSonHermanos = familia_id_actual &&
+          emailEnOtroAlumno.rows.every(row =>
+            row.familia_id && row.familia_id === familia_id_actual
+          );
+
+        if (!todosSonHermanos) {
+          return res.status(400).json({
+            error: 'Este email ya está registrado como tutor de otro alumno no relacionado.'
+          });
+        }
+      }
     }
+
+    // SIEMPRE crear un nuevo registro para este alumno (no reutilizar por email)
+    // Esto evita que editar un tutor afecte a otros alumnos
+    const nuevo = await query(
+      'INSERT INTO padres (nombre_completo, parentesco, telefono, telefono_whatsapp, email) VALUES ($1,$2,$3,$4,$5) RETURNING id',
+      [nombre_completo, parentesco, telefono, telefono_whatsapp || null, email || null]
+    );
+    const padre_id = nuevo.rows[0].id;
     await query(
       'INSERT INTO alumno_padre (alumno_id, padre_id, es_tutor_principal) VALUES ($1,$2,$3) ON CONFLICT (alumno_id, padre_id) DO NOTHING',
       [req.params.id, padre_id, es_tutor_principal || false]
@@ -335,6 +369,39 @@ router.post('/:id/padres', authorize('directora', 'administrativo'), async (req,
 router.put('/:id/padres/:padreId', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
     const { nombre_completo, parentesco, telefono, telefono_whatsapp, email } = req.body;
+
+    // Si se está cambiando el email, validar que no exista en otro alumno no hermano
+    if (email) {
+      const alumnoActual = await query(
+        'SELECT familia_id FROM alumnos WHERE id = $1',
+        [req.params.id]
+      );
+      const familia_id_actual = alumnoActual.rows[0]?.familia_id;
+
+      // Buscar si este email ya está ACTIVAMENTE vinculado a otro alumno
+      const emailEnOtroAlumno = await query(
+        `SELECT DISTINCT a.id, a.familia_id FROM alumno_padre ap
+         JOIN padres p ON ap.padre_id = p.id
+         JOIN alumnos a ON ap.alumno_id = a.id
+         WHERE p.email = $1 AND ap.alumno_id != $2 AND ap.activo = true`,
+        [email, req.params.id]
+      );
+
+      // Si el email ya está en uso, verificar que sean hermanos
+      if (emailEnOtroAlumno.rows.length > 0) {
+        const todosSonHermanos = familia_id_actual &&
+          emailEnOtroAlumno.rows.every(row =>
+            row.familia_id && row.familia_id === familia_id_actual
+          );
+
+        if (!todosSonHermanos) {
+          return res.status(400).json({
+            error: 'Este email ya está registrado como tutor de otro alumno no relacionado.'
+          });
+        }
+      }
+    }
+
     const permitidos = { nombre_completo, parentesco, telefono, telefono_whatsapp, email };
     const updates = [];
     const values = [];
@@ -368,6 +435,17 @@ router.post('/:id/padres/:padreId/foto', authorize('directora', 'administrativo'
     });
     await query('UPDATE padres SET foto_url = $1, updated_at = NOW() WHERE id = $2', [url, req.params.padreId]);
     res.json({ foto_url: url });
+  } catch (err) { next(err); }
+});
+
+// ── PATCH /alumnos/:id/padres/:padreId/desactivar — soft-delete de tutor ───────
+router.patch('/:id/padres/:padreId/desactivar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    await query(
+      'UPDATE alumno_padre SET activo = false, desactivado_at = NOW() WHERE alumno_id = $1 AND padre_id = $2',
+      [req.params.id, req.params.padreId]
+    );
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

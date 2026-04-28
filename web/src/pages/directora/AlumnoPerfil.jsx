@@ -210,11 +210,22 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
     }
   };
 
+  const desactivarTutor = async (padreId, nombreTutor) => {
+    if (!window.confirm(`¿Desactivar a ${nombreTutor}? Quedará en el histórico.`)) return;
+    try {
+      await api.patch(`/alumnos/${alumnoId}/padres/${padreId}/desactivar`);
+      queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
+      toast.success('Tutor desactivado. Ahora puedes agregar uno nuevo.');
+    } catch (err) {
+      toast.error(err?.response?.data?.error || 'Error al desactivar');
+    }
+  };
+
   return (
     <Seccion
       titulo="Padres / Tutores"
       badge={padres.length}
-      accion={!mostrarFormNuevo && (
+      accion={!mostrarFormNuevo && padres.length < 2 && (
         <button className="btn-hs btn-hs-primary text-sm py-1" onClick={() => { setMostrarFormNuevo(true); setEditandoId(null); setError(''); }}>
           + Agregar
         </button>
@@ -273,6 +284,7 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
                   <p className="text-xs text-gray-500 font-semibold">{p.parentesco}{p.email ? ` · ${p.email}` : ''}{p.telefono ? ` · ${p.telefono}` : ''}</p>
                 </div>
                 <button onClick={() => iniciarEdicion(p)} className="text-blue-500 hover:text-blue-700 text-xs font-bold flex-shrink-0">Editar</button>
+                <button onClick={() => desactivarTutor(p.id, p.nombre_completo)} className="text-red-400 hover:text-red-600 text-xs font-bold flex-shrink-0">Desactivar</button>
               </div>
             )}
           </div>
@@ -314,6 +326,9 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
             <button className="btn-hs btn-hs-primary flex-1" onClick={guardarNuevo} disabled={saving}>{saving ? 'Guardando…' : 'Agregar tutor'}</button>
           </div>
         </div>
+      )}
+      {padres.length >= 2 && (
+        <p className="text-xs text-gray-400 text-center mt-2">Máximo 2 tutores por alumno registrados.</p>
       )}
     </Seccion>
   );

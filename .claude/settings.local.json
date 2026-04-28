@@ -611,7 +611,9 @@
       "Bash(node -e \"let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\); const a=r.alumnos||[]; console.log\\('total:',a.length\\); a.slice\\(0,2\\).forEach\\(al=>{const entries=Object.entries\\(al.dias||{}\\); console.log\\(al.nombre_completo,JSON.stringify\\(entries.slice\\(0,8\\)\\)\\)}\\)}\\)\")",
       "Bash(node -e \"let d=''; process.stdin.on\\('data',c=>d+=c\\); process.stdin.on\\('end',\\(\\)=>console.log\\(JSON.stringify\\(JSON.parse\\(d\\),null,2\\)\\)\\)\")",
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -f migrations/031_justificante_comprobante.sql)",
-      "Bash(grep -n \"router\\\\\\\\.get\\\\|router\\\\\\\\.post\\\\|router\\\\\\\\.patch\" \"c:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\src\\\\routes\\\\bitacora.js\")"
+      "Bash(grep -n \"router\\\\\\\\.get\\\\|router\\\\\\\\.post\\\\|router\\\\\\\\.patch\" \"c:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\src\\\\routes\\\\bitacora.js\")",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(curl -s http://localhost:3001)"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -37,6 +37,8 @@ router.get('/mis-hijos', async (req, res, next) => {
         re.uñas_cortadas, re.sin_lagañas, re.sin_fiebre, re.temperatura,
         re.sin_sintomas, re.sintomas_notas, re.panial_limpio, re.trae_uniforme,
         re.trae_bata, re.trae_termo, re.agua_suficiente, re.numero_retardo_mes,
+        -- Filtro de salida
+        rs.hora_salida, rs.es_anticipada AS salida_anticipada, rs.motivo_salida,
         -- Retardos del mes (siempre, aunque no haya entrada hoy)
         (SELECT COUNT(*) FROM registro_entrada rx
          WHERE rx.alumno_id = a.id AND rx.es_retardo = true
@@ -50,6 +52,7 @@ router.get('/mis-hijos', async (req, res, next) => {
       LEFT JOIN bitacora_diaria b  ON b.alumno_id  = a.id AND b.fecha  = CURRENT_DATE
       LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
       LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.hora_salida::date = CURRENT_DATE
       WHERE p.usuario_id = $1 AND a.deleted_at IS NULL
       ORDER BY a.id, a.nombre_completo
     `, [req.user.id]);
@@ -78,12 +81,21 @@ router.get('/mis-hijos', async (req, res, next) => {
         numero_retardo_mes: r.numero_retardo_mes,
       } : null;
 
+      const filtro_salida = r.hora_salida ? {
+        hora_salida: r.hora_salida,
+        salida_anticipada: r.salida_anticipada,
+        motivo_salida: r.motivo_salida,
+      } : null;
+
       return {
         ...r,
         bitacora_hoy,
         filtro_entrada,
+        filtro_salida,
         retardos_mes_total: parseInt(r.retardos_mes_total || 0),
         // Clean up individual fields
+        hora_salida: undefined,
+        salida_anticipada: undefined,
         estado_animo: undefined,
         actividad_realizada: undefined,
         comportamiento: undefined,
@@ -106,6 +118,9 @@ router.get('/mis-hijos', async (req, res, next) => {
         trae_termo: undefined,
         agua_suficiente: undefined,
         numero_retardo_mes: undefined,
+        hora_salida: undefined,
+        salida_anticipada: undefined,
+        motivo_salida: undefined,
       };
     });
 

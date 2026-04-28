@@ -395,6 +395,73 @@ router.post('/salida', async (req, res, next) => {
       }
     }
 
+    // Notificar a ambos tutores si es salida anticipada
+    if (es_anticipada) {
+      const tutoresResult = await query(`
+        SELECT p.nombre_completo AS padre_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+               a.nombre_completo AS alumno_nombre,
+               p.usuario_id
+        FROM alumnos a
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
+        JOIN padres p ON ap.padre_id = p.id
+        WHERE a.id = $1
+      `, [alumno_id]);
+
+      const horaTexto = new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' });
+
+      let quienRecoge = nombre_quien_recoge || null;
+      if (!quienRecoge && padre_id) {
+        const padreRes = await query(
+          'SELECT nombre_completo, parentesco FROM padres WHERE id = $1',
+          [padre_id]
+        );
+        if (padreRes.rows[0]) {
+          quienRecoge = `${padreRes.rows[0].nombre_completo} (${padreRes.rows[0].parentesco})`;
+        }
+      }
+      if (!quienRecoge && persona_autorizada_id) {
+        const autRes = await query(
+          'SELECT nombre_completo, parentesco FROM personas_autorizadas WHERE id = $1',
+          [persona_autorizada_id]
+        );
+        if (autRes.rows[0]) {
+          quienRecoge = `${autRes.rows[0].nombre_completo} (${autRes.rows[0].parentesco})`;
+        }
+      }
+      quienRecoge = quienRecoge || 'No especificado';
+
+      for (const tutor of tutoresResult.rows) {
+        // Notificación en-app
+        if (tutor.usuario_id) {
+          await query(`
+            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+            VALUES ($1, $2, $3, 'salida_anticipada', $4)
+          `, [
+            tutor.usuario_id,
+            `Salida anticipada — ${tutor.alumno_nombre}`,
+            `${tutor.alumno_nombre} fue recogido/a anticipadamente a las ${horaTexto} por ${quienRecoge}. Motivo: ${motivo_salida}`,
+            JSON.stringify({ alumno_id, quien_recoge: quienRecoge, motivo: motivo_salida }),
+          ]);
+        }
+        // WhatsApp
+        if (tutor.telefono) {
+          await enviarMensaje({
+            telefono: tutor.telefono,
+            clave: 'salida_anticipada',
+            variables: {
+              nombre_padre: tutor.padre_nombre.split(' ')[0],
+              nombre_alumno: tutor.alumno_nombre,
+              hora: horaTexto,
+              quien_recoge: quienRecoge,
+              motivo: motivo_salida,
+            },
+            alumnoId: alumno_id,
+          });
+        }
+      }
+    }
+
     // Detectar hermanos sin salida registrada hoy
     const hermanosSinSalirResult = await query(`
       SELECT a2.id, a2.nombre_completo, g.nombre AS grupo_nombre

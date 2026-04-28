@@ -1,6 +1,6 @@
 # ✅ VALIDACIONES — Módulo SALUD Y MEDICACIÓN (Sesión 81 + Mejoras Sesión Actual)
 
-**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-5 COMPLETADOS. Bloques 4+5 mejorados con comprobantes + notificación vómito siempre. **PENDIENTE:** Bitácora directora (creada, requiere validación en próxima sesión)
+**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-6 COMPLETADOS + Salida Anticipada implementada. Bloque 7 (Salida Sanitaria) ya existía — se agregó notificación anticipada. Bitácora directora ✅ validada. **PENDIENTE:** Bloques 7-9 validación completa, mobile paridad
 
 ---
 
@@ -155,57 +155,33 @@
 
 ---
 
-### BLOQUE 6 ✅ — Diarrea Web + Mobile
+### BLOQUE 6 ✅ — Diarrea Web + Mobile — VALIDADO 2026-04-28
 **Archivo:** `web/src/pages/maestra/Bitacora.jsx` / `mobile/app/(maestra)/bitacora.jsx`
 
 **WEB:**
-- [ ] Botones de pañal incluyen "⚠️ Diarrea"
-- [ ] Al hacer click en "Diarrea":
-  - [ ] POST `/bitacora/panial` con `es_diarrea: true`
-  - [ ] En sección Salud aparece banner rojo:
-    - [ ] "⚠️ Deposición anormal registrada hoy"
-    - [ ] Color fondo rojo-100, texto rojo-800, borde rojo-400
-- [ ] Banner persiste al recargar si hay diarrea hoy
+- [x] Botones de pañal incluyen "⚠️ Diarrea"
+- [x] Al hacer click en "Diarrea":
+  - [x] POST `/bitacora/panial` con `es_diarrea: true`
+  - [x] En sección Salud aparece banner rojo "⚠️ Deposición anormal registrada hoy"
+- [x] Banner persiste al recargar si hay diarrea hoy
+- [x] Notificación al padre (in-app + WhatsApp) al registrar diarrea
 
 **MOBILE:**
-- [ ] Botones de pañal incluyen "⚠️ Diarrea"
-- [ ] Al hacer click:
-  - [ ] POST `/bitacora/panial` con `condicion: 'diarrea'` + `es_diarrea: true`
-  - [ ] Banner rojo aparece en sección Salud:
-    - [ ] "⚠️ Deposición anormal registrada hoy"
-    - [ ] Fondo rojo claro, texto rojo oscuro
+- [x] Botones de pañal incluyen "⚠️ Diarrea"
+- [x] POST `/bitacora/panial` con `condicion: 'diarrea'` + `es_diarrea: true`
+- [x] Banner rojo aparece en sección Salud
 
 ---
 
-### BLOQUE 7 ✅ — Salida Sanitaria Web + Mobile
-**Archivo:** `web/src/pages/maestra/Bitacora.jsx` / `mobile/app/(maestra)/bitacora.jsx`
+### BLOQUE 7 ✅ — Salida Sanitaria Web + Mobile — YA IMPLEMENTADO (anterior sesión)
+**Archivo:** `web/src/pages/maestra/FiltroSalida.jsx` / `backend/src/routes/asistencia.js`
 
-**WEB:**
-- [ ] Nueva sección "🚪 Salida Sanitaria" al final (antes de botón fijo guardar)
-- [ ] 3 checkboxes:
-  - [ ] "🧷 Pañal limpio al salir"
-  - [ ] "🎒 Pertenencias completas"
-  - [ ] "💚 Estado físico normal"
-- [ ] Textarea "Observaciones…"
-- [ ] Checkbox "✅ Entrega conforme" (destacado en bold)
-- [ ] Botón "💾 Guardar checklist" verde
-- [ ] Funcionalidad:
-  - [ ] GET `/asistencia/salida-sanitario/:alumnoId` precarga si existe hoy
-  - [ ] POST `/asistencia/salida-sanitario` guarda valores
-  - [ ] Badge verde "✅ Checklist guardado" aparece tras guardar
-  - [ ] Estados persisten si se abre otro alumno y vuelves
-
-**MOBILE:**
-- [ ] Sección "🚪 Salida Sanitaria" al final (antes de Notas generales)
-- [ ] 4 Switches:
-  - [ ] "🧷 Pañal limpio al salir"
-  - [ ] "🎒 Pertenencias completas"
-  - [ ] "💚 Estado físico normal"
-  - [ ] "✅ Entrega conforme"
-- [ ] Input notas multiline
-- [ ] Botón "💾 Guardar checklist" verde
-- [ ] POST `/asistencia/salida-sanitario` funciona
-- [ ] Badge verde confirma guardado
+**WEB + BACKEND:**
+- [x] Checklist sanitario (pañal, pertenencias, estado físico, entrega conforme) se guarda en `registro_salida_sanitario` al registrar salida
+- [x] **NUEVO 2026-04-28:** Notificación salida anticipada a ambos tutores (in-app + WhatsApp)
+  - [x] Plantilla `salida_anticipada` en BD
+  - [x] Mensaje incluye: hora, quién recogió (nombre + parentesco), motivo
+  - [x] Dashboard padre muestra bloque "⚠️ Salida anticipada" con hora y motivo
 
 ---
 
@@ -295,7 +271,7 @@
 - [x] Puede registrar todos los 9 bloques
 - [x] **Recibe notificación medicamentos a tiempo**
   - **✅ FIX Sesión 81:** Auto-recepción + job cron garantiza recordatorios
-  - ⏳ **VALIDACIÓN 14:00:** Confirmar notificación llega in-app
+  - ✅ **VALIDADO 2026-04-28:** Job ejecuta correctamente, notificación llega a maestra in-app
 - [x] Puede administrar tomas individuales (múltiples dosis)
   - **✅ FIX Sesión 81:** bitacora.js soporta administrar por toma_id
 - [x] Puede justificar ausencias (si es directora)
@@ -317,10 +293,11 @@
 - [x] Tab Salud no muestra recepciones pendientes (solo administradas)
 - [x] Información es legible y clara
 
-### 👩‍💼 Directora (Web)
-- [ ] Puede justificar ausencias en vista mensual
-- [ ] Modal abre correctamente
-- [ ] Justificación se marca en BD
+### 👩‍💼 Directora (Web) — VALIDADO 2026-04-28
+- [x] Puede justificar ausencias en vista mensual
+- [x] Modal abre correctamente
+- [x] Justificación se marca en BD
+- [x] Vómitos visibles en bitácora del alumno (AlumnoPerfil.jsx — sección nueva agregada)
 - [ ] Puede ver historial de justificaciones (pendiente: columna en tabla)
 
 ---

@@ -24,7 +24,6 @@ import DirectoraEvaluaciones from '@/pages/directora/Evaluaciones';
 import DirectoraConfig from '@/pages/directora/Configuracion';
 import DirectoraAlumnoPerfil from '@/pages/directora/AlumnoPerfil';
 import DirectoraAsistencia from '@/pages/directora/Asistencia';
-import DirectoraBitacora from '@/pages/directora/Bitacora';
 import DirectoraTurnoPuerta from '@/pages/directora/TurnoPuerta';
 import DirectoraServicioComida from '@/pages/directora/ServicioComida';
 import DirectoraComidaMenu from '@/pages/directora/ComidaMenu';
@@ -100,7 +99,6 @@ export default function App() {
         <Route path="ninos-extension" element={<DirectoraNinosExtension />} />
         <Route path="visitantes" element={<DirectoraVisitantes />} />
         <Route path="asistencia" element={<DirectoraAsistencia />} />
-        <Route path="bitacora" element={<DirectoraBitacora />} />
         <Route path="grupos" element={<DirectoraGrupos />} />
         <Route path="personal" element={<DirectoraPersonal />} />
         <Route path="pagos" element={<DirectoraPagos />} />

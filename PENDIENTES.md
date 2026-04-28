@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX (Mejoras Salud) → Próxima: XX (Validación Bitácora Directora + Bloques 6-7)
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+1 → Próxima: Mobile paridad (vómitos bitácora directora + salida anticipada)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -36,7 +36,6 @@
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
 - [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
-- [ ] **Protocolo Salida Anticipada:** Formulario motivo + hora + quién retira + firma digital tutor + notificación al otro padre.
 - [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
 ### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (✅ COMPLETADO EN SESIONES 82 + 84)

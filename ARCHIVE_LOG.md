@@ -1,7 +1,53 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada + Vómitos Directora)
+
+---
+
+## ✅ SESIÓN XX+1 (2026-04-28) — Salida Anticipada + Correcciones Bitácora Directora (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO
+
+### Funcionalidades Implementadas:
+
+**1 — Notificación Salida Anticipada** ✅
+- BD: Plantilla `salida_anticipada` insertada en `plantillas_whatsapp`
+- Backend: `backend/src/routes/asistencia.js` — POST `/asistencia/salida` notifica a ambos tutores cuando `es_anticipada = true`
+  - Resolución de nombre: busca en `padres` o `personas_autorizadas` según tipo de quien recoge
+  - Notificación in-app (INSERT en `notificaciones`) + WhatsApp por tutor
+  - Mensaje incluye: hora, quién recogió (nombre + parentesco), motivo
+- Frontend: `web/src/pages/padre/Dashboard.jsx` — bloque "⚠️ Salida anticipada" con hora y motivo
+
+**2 — Dashboard Padre muestra estado de salida** ✅
+- Backend: `backend/src/routes/alumnos.js` — GET `/alumnos/mis-hijos` ahora incluye `filtro_salida` (hora_salida, salida_anticipada, motivo_salida) via LEFT JOIN con `registro_salida`
+- Frontend: `web/src/pages/padre/Dashboard.jsx` — bloque visible en HijoCard, diferenciado por color (amarillo=anticipada, azul=normal)
+
+**3 — Vómitos visibles en Bitácora Directora (AlumnoPerfil)** ✅
+- Archivo: `web/src/pages/directora/AlumnoPerfil.jsx`
+- Sección "🤢 Vómitos" agregada en `BitacoraDirectora` — muestra hora, intensidad (emoji diferenciado) y notas
+- Estaba faltando aunque el backend ya devolvía `data.vomitos`
+
+**4 — Menú "Bitácora" eliminado del sidebar Directora** ✅
+- `web/src/layouts/DirectoraLayout.jsx` — eliminado item del menú y import `BookOpen`
+- `web/src/App.jsx` — eliminada ruta `/directora/bitacora` e import `DirectoraBitacora`
+- La bitácora se consulta en Alumnos (AlumnoPerfil → pestaña Bitácora)
+
+### Archivos Modificados:
+- `backend/src/routes/asistencia.js` — Notificación salida anticipada (ambos tutores, nombre+parentesco)
+- `backend/src/routes/alumnos.js` — JOIN registro_salida en mis-hijos, expone filtro_salida
+- `web/src/pages/directora/AlumnoPerfil.jsx` — Sección vómitos en BitacoraDirectora
+- `web/src/pages/padre/Dashboard.jsx` — Bloque salida en HijoCard
+- `web/src/layouts/DirectoraLayout.jsx` — Eliminado menú Bitácora
+- `web/src/App.jsx` — Eliminada ruta y import DirectoraBitacora
+
+### Validado:
+- ✅ Salida anticipada Sofía Reyes Mendoza → notificación in-app llega al padre con nombre de quien recogió y motivo
+- ✅ Dashboard padre muestra "⚠️ Salida anticipada" con hora y motivo
+- ✅ Vómitos de Sofía visibles en bitácora directora (AlumnoPerfil)
+- ✅ Menú sidebar directora ya no tiene sección "Bitácora"
+- ✅ Diarrea validada (ya estaba implementada desde sesión anterior)
+- ✅ Job medicamentos 14:00 validado (sesión anterior)
 
 ---
 

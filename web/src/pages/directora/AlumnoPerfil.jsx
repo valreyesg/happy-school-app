@@ -789,6 +789,30 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
             </div>
           )}
 
+          {/* Vómitos */}
+          {data?.vomitos?.length > 0 && (
+            <div className="card-hs">
+              <h3 className="text-xs font-black text-orange-600 uppercase tracking-wider mb-3">🤢 Vómitos</h3>
+              <div className="space-y-2">
+                {data.vomitos.map((v, i) => (
+                  <div key={i} className="bg-orange-50 rounded-lg p-3 text-sm border border-orange-200">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="font-black text-orange-700">
+                          {v.hora ? new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
+                        </p>
+                        <p className="text-xs capitalize text-orange-600 font-semibold">
+                          {v.intensidad === 'fuerte' ? '🚨 Fuerte' : v.intensidad === 'moderado' ? '🤮 Moderado' : '🤢 Leve'}
+                        </p>
+                      </div>
+                      {v.notas && <p className="text-xs text-gray-700">{v.notas}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Medicamentos */}
           {data?.medicamentos?.length > 0 && (
             <div className="card-hs">

@@ -153,6 +153,30 @@ function HijoCard({ hijo }) {
         </div>
       ) : null}
 
+      {/* Filtro de salida */}
+      {hijo.filtro_salida && (
+        <div className={`mx-4 mt-3 mb-1 rounded-2xl border p-4 flex items-start gap-3 ${
+          hijo.filtro_salida.salida_anticipada
+            ? 'bg-amber-50 border-amber-200'
+            : 'bg-blue-50 border-blue-100'
+        }`}>
+          <span className="text-2xl mt-0.5">{hijo.filtro_salida.salida_anticipada ? '⚠️' : '🚪'}</span>
+          <div className="flex-1">
+            <p className={`text-sm font-black ${hijo.filtro_salida.salida_anticipada ? 'text-amber-700' : 'text-blue-700'}`}>
+              {hijo.filtro_salida.salida_anticipada ? 'Salida anticipada' : 'Ya salió'}
+            </p>
+            <p className="text-xs text-gray-500 font-semibold">
+              {new Date(hijo.filtro_salida.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+            </p>
+            {hijo.filtro_salida.salida_anticipada && hijo.filtro_salida.motivo_salida && (
+              <p className="text-xs text-amber-700 mt-1">
+                {hijo.filtro_salida.motivo_salida}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Bitácora del día */}
       {bit ? (
         <div className="p-5 space-y-3">

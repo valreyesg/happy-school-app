@@ -1,6 +1,6 @@
 # ✅ VALIDACIONES — Módulo SALUD Y MEDICACIÓN (Sesión 81 + Mejoras Sesión Actual)
 
-**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-6 COMPLETADOS + Salida Anticipada implementada. Bloque 7 (Salida Sanitaria) ya existía — se agregó notificación anticipada. Bitácora directora ✅ validada. **PENDIENTE:** Bloques 7-9 validación completa, mobile paridad
+**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-9 COMPLETADOS (web + mobile). Sesión XX mejoras Bloques 4-5 ✅. Salida Anticipada ✅. Insumos Pañales Mobile (Bloque 3) ✅. Vómito Mobile (Bloque 5B) ✅. **PENDIENTE:** Directora historial justificaciones (columna tabla), casos edge validación
 
 ---
 
@@ -84,10 +84,12 @@
   - [x] Si marcado → stock = 5
   - [x] Si desmarcado → stock = saldo de ayer
 
-**MOBILE:**
-- [ ] Misma sección con colores dinámicos (pendiente implementar)
-- [ ] GET `/insumos/:alumnoId` se ejecuta correctamente (pendiente validar)
-- [ ] Botón solicitar toallitas (pendiente implementar)
+**MOBILE — ✅ COMPLETADO 2026-04-28:**
+- [x] Misma sección con colores dinámicos (bloque morado "Pañales hoy" con cantidad)
+- [x] GET `/insumos/:alumnoId` devuelve `{ stock, solicitudes_toallitas }` — query corregida
+- [x] Botón "🧻 Solicitar toallitas húmedas" funcional (naranja, mutation POST)
+- [x] Banner amarillo si hay solicitud pendiente
+- [x] Colores correctos: verde >=3, amarillo >=1, rojo <1
 
 ---
 
@@ -139,19 +141,20 @@
 
 ---
 
-### BLOQUE 5B ✅ — Vómito Mobile
+### BLOQUE 5B ✅ — Vómito Mobile — COMPLETADO 2026-04-28
 **Archivo:** `mobile/app/(maestra)/bitacora.jsx`
 
-- [ ] Sección "Salud" incluye subsección "🤢 Vómitos del día" (si existen)
-  - [ ] Cada vómito: hora + intensidad + notas
-- [ ] Botón "🤢 + Registrar vómito" o "🤢 Cancelar" (toggle)
-- [ ] Al expandir:
-  - [ ] Label "Intensidad"
-  - [ ] 3 botones: Leve/Moderado/Fuerte (se resaltan al seleccionar)
-  - [ ] Input notas multiline
-  - [ ] Botón "💾 Guardar" naranja
-- [ ] POST `/bitacora/vomito` funciona
-- [ ] Vómito aparece en lista tras guardar
+- [x] Sección "Salud" incluye subsección "🤢 Episodios de vómito" (si existen)
+  - [x] Cada vómito: tarjeta naranja con hora + intensidad + notas
+- [x] Botón "🤢 + Registrar vómito" o "🤢 Cancelar" (toggle)
+- [x] Al expandir:
+  - [x] Label "Intensidad"
+  - [x] 3 botones: Leve/Moderado/Fuerte (naranjas `#EA580C` al seleccionar)
+  - [x] Input notas multiline
+  - [x] Botón "💾 Guardar" naranja
+- [x] POST `/bitacora/vomito` incluye `bitacora_id` (mejora backend)
+- [x] Intensidades desde catálogo API (fallback hardcodeado si falla)
+- [x] Vómito aparece como tarjeta naranja tras guardar
 
 ---
 

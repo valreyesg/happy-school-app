@@ -214,11 +214,13 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   });
 
   // ── Insumos ──
-  const { data: insumosData = [] } = useQuery({
+  const { data: insumosData = {} } = useQuery({
     queryKey: ['insumos', alumnoId],
-    queryFn: () => api.get(`/insumos/${alumnoId}`).then(r => r.data).catch(() => []),
+    queryFn: () => api.get(`/insumos/${alumnoId}`).then(r => r.data).catch(() => ({})),
     enabled: !!usaPanial,
   });
+  const stockDiario = insumosData?.stock ?? null;
+  const solicitudesToallitas = insumosData?.solicitudes_toallitas ?? [];
 
   const panialMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/panial', body),
@@ -226,6 +228,15 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
       queryClient.invalidateQueries(['bitacora-data', alumnoId, fecha]);
       queryClient.invalidateQueries(['insumos', alumnoId]);
     },
+  });
+
+  const toallitasMutation = useMutation({
+    mutationFn: () => api.post(`/insumos/${alumnoId}/solicitar-toallitas`),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['insumos', alumnoId]);
+      Alert.alert('✅', 'Solicitud enviada al papá.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo enviar la solicitud.'),
   });
 
   // ── Guardar bitácora ──
@@ -295,6 +306,16 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const [vomitoIntensidad, setVomitoIntensidad] = useState('');
   const [vomitoNotas, setVomitoNotas] = useState('');
 
+  const { data: vomitosCatalogo } = useQuery({
+    queryKey: ['catalogos', 'vomito-intensidad'],
+    queryFn: () => api.get('/catalogos/vomito-intensidad').then(r => r.data.items),
+  });
+  const INTENSIDADES_VOMITO = vomitosCatalogo ?? [
+    { key: 'leve', label: 'Leve' },
+    { key: 'moderado', label: 'Moderado' },
+    { key: 'fuerte', label: 'Fuerte' },
+  ];
+
   const [salidaSanitaria, setSalidaSanitaria] = useState({ panial_limpio: false, pertenencias_ok: false, estado_fisico_ok: false, notas: '', entrega_conforme: false });
   const [salidaGuardada, setSalidaGuardada] = useState(false);
 
@@ -321,7 +342,12 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
       Alert.alert('', 'Selecciona la intensidad');
       return;
     }
-    vomitoMutation.mutate({ alumno_id: alumnoId, intensidad: vomitoIntensidad, notas: vomitoNotas });
+    vomitoMutation.mutate({
+      alumno_id: alumnoId,
+      bitacora_id: bitacoraExistente?.bitacora?.id ?? null,
+      intensidad: vomitoIntensidad,
+      notas: vomitoNotas,
+    });
   };
 
   const recepcionMutation = useMutation({
@@ -420,18 +446,20 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         {/* Pañal (solo Maternal) */}
         {usaPanial && (
           <Seccion titulo="Cambios de pañal">
-            {insumosData.length > 0 && (
-              <View style={{ backgroundColor: '#F3F4F6', padding: 10, borderRadius: 8, marginBottom: 12 }}>
-                <Text style={{ fontSize: 12, fontWeight: '900', color: '#6B7280', marginBottom: 6, textTransform: 'uppercase' }}>Stock disponible</Text>
-                {insumosData.map((ins, i) => {
-                  const colorStock = ins.cantidad_actual >= 10 ? '#059669' : ins.cantidad_actual >= 5 ? '#D97706' : '#DC2626';
-                  return (
-                    <View key={i} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                      <Text style={{ fontSize: 13, color: '#4B5563', fontWeight: '600' }}>{ins.tipo}:</Text>
-                      <Text style={{ fontSize: 14, fontWeight: '900', color: colorStock }}>{ins.cantidad_actual}</Text>
-                    </View>
-                  );
-                })}
+            {stockDiario && (
+              <View style={{ backgroundColor: '#F3F0FF', padding: 10, borderRadius: 8, marginBottom: 12, borderWidth: 2, borderColor: '#D8B4FE', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={{ fontSize: 12, fontWeight: '900', color: '#7C3AED', textTransform: 'uppercase' }}>Pañales hoy</Text>
+                <Text style={{ fontSize: 18, fontWeight: '900', color: stockDiario.cantidad >= 3 ? '#059669' : stockDiario.cantidad >= 1 ? '#D97706' : '#DC2626' }}>
+                  {stockDiario.cantidad} {stockDiario.cantidad === 1 ? 'pañal' : 'pañales'}
+                </Text>
+              </View>
+            )}
+            {stockDiario?.no_registrado && (
+              <Text style={{ fontSize: 12, color: '#9CA3AF', fontWeight: '600', marginBottom: 8 }}>Sin registro de entrada aún</Text>
+            )}
+            {solicitudesToallitas.length > 0 && (
+              <View style={{ backgroundColor: '#FEFCE8', padding: 10, borderRadius: 8, marginBottom: 12, borderWidth: 1, borderColor: '#FDE047' }}>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#A16207' }}>🧻 Solicitud de toallitas enviada al papá</Text>
               </View>
             )}
             <Text style={s.panialSub}>Registros de hoy:</Text>
@@ -456,6 +484,15 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
                 </TouchableOpacity>
               ))}
             </View>
+            {solicitudesToallitas.length === 0 && (
+              <TouchableOpacity
+                onPress={() => toallitasMutation.mutate()}
+                disabled={toallitasMutation.isPending}
+                style={{ marginTop: 10, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: '#FBBF24', borderRadius: 10, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>🧻 Solicitar toallitas húmedas</Text>
+              </TouchableOpacity>
+            )}
           </Seccion>
         )}
 
@@ -640,13 +677,14 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
 
           {/* Vómitos */}
           {bitacoraExistente?.vomitos?.length > 0 && (
-            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
-              <Text style={{ fontSize: 12, fontWeight: '900', color: '#B45309', marginBottom: 8 }}>🤢 Vómitos del día</Text>
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 2, borderTopColor: '#FED7AA' }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: '#C2410C', marginBottom: 8, textTransform: 'uppercase' }}>🤢 Episodios de vómito</Text>
               {bitacoraExistente.vomitos.map((v, i) => (
-                <Text key={i} style={{ fontSize: 13, color: '#4A5568', marginBottom: 4 }}>
-                  {v.hora?.substring(0, 5)} — {v.intensidad}
-                  {v.notas ? ` · ${v.notas}` : ''}
-                </Text>
+                <View key={i} style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#FFF7ED', borderRadius: 12, marginBottom: 6, borderWidth: 1, borderColor: '#FED7AA' }}>
+                  <Text style={{ fontWeight: '900', color: '#9A3412', fontSize: 13 }}>Intensidad: {v.intensidad}</Text>
+                  <Text style={{ fontSize: 12, color: '#C2410C', marginTop: 2 }}>{v.hora?.substring(0, 5)}</Text>
+                  {v.notas ? <Text style={{ fontSize: 12, color: '#EA580C', marginTop: 4 }}>{v.notas}</Text> : null}
+                </View>
               ))}
             </View>
           )}
@@ -664,22 +702,22 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
               <Text style={s.subLabel}>Intensidad</Text>
               <View style={{ flexDirection: 'row', gap: 8, marginBottom: 8 }}>
-                {['leve', 'moderado', 'fuerte'].map((nivel) => (
+                {INTENSIDADES_VOMITO.map((int) => (
                   <TouchableOpacity
-                    key={nivel}
-                    onPress={() => setVomitoIntensidad(nivel)}
+                    key={int.key}
+                    onPress={() => setVomitoIntensidad(int.key)}
                     style={{
                       flex: 1,
                       paddingVertical: 10,
                       borderRadius: 8,
                       alignItems: 'center',
-                      backgroundColor: vomitoIntensidad === nivel ? '#805AD5' : '#EDF2F7',
+                      backgroundColor: vomitoIntensidad === int.key ? '#EA580C' : '#FFF7ED',
                       borderWidth: 1,
-                      borderColor: vomitoIntensidad === nivel ? '#805AD5' : '#CBD5E0',
+                      borderColor: vomitoIntensidad === int.key ? '#EA580C' : '#FED7AA',
                     }}
                   >
-                    <Text style={{ color: vomitoIntensidad === nivel ? '#fff' : '#4A5568', fontWeight: '700', fontSize: 13 }}>
-                      {nivel.charAt(0).toUpperCase() + nivel.slice(1)}
+                    <Text style={{ color: vomitoIntensidad === int.key ? '#fff' : '#C2410C', fontWeight: '700', fontSize: 13 }}>
+                      {int.label}
                     </Text>
                   </TouchableOpacity>
                 ))}

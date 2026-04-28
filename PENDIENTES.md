@@ -18,6 +18,7 @@
 ### Integraciones Pendientes:
 - [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos)
 - [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes
+- [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp para vómitos y administración de medicamentos (in-app ya existe, falta WhatsApp)
 
 ### Casos Edge Pendientes de Validación:
 - [ ] Alumno CON pañal pero SIN insumos en stock → Comportamiento cuando stock = 0

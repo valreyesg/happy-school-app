@@ -274,12 +274,14 @@
 - [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` — ⏳ PENDIENTE (no documentado en implementación)
 - [x] **Pañal (Diarrea) → Padre:** Padre ve banner diarrea en Tab Salud — ✅ SESIÓN XX+1: "Diarrea validada (ya estaba implementada)"
 - [x] **Vómito → Padre:** Padre ve lista de vómitos en Tab Salud — ✅ SESIÓN XX: "Bloque 8: Tab Salud mejorado para mostrar listado de vómitos"
-- [x] **Vómito intensidad fuerte → Notificación:** Backend env WhatsApp a papá — ✅ SESIÓN XX: "Notificación Vómito SIEMPRE (cualquier intensidad)"
+- [x] **Vómito intensidad fuerte → Notificación in-app:** Padre recibe notificación in-app cualquier intensidad — ✅ SESIÓN XX: "Notificación Vómito SIEMPRE (cualquier intensidad)"
+- [ ] **Vómito → Notificación WhatsApp:** Backend env WhatsApp a papá — ⏳ PENDIENTE (WhatsApp aún no integrado)
 - [x] **Medicamento recepción → Job:** A la hora programada, maestra recibe notificación si NO administrado
   - **✅ FIX Sesión 81:** Auto-recepción garantiza `rm.recibido = true`, job ahora encuentra medicamentos
   - ✅ **VALIDADO SESIÓN XX+1:** "Job medicamentos 14:00 validado"
-- [x] **Medicamento administración → Padre:** Padre recibe notificación (WhatsApp + in-app) cuando se administra
+- [x] **Medicamento administración → Padre (in-app):** Padre recibe notificación in-app cuando se administra
   - **✅ FIX Sesión 81:** bitacora.js línea 681-717 envía notificación al papá
+- [ ] **Medicamento administración → Padre (WhatsApp):** Envío WhatsApp al papá — ⏳ PENDIENTE (WhatsApp aún no integrado)
 - [ ] **Salida Sanitaria → Reporte:** (futuro) Data se usa en reportes de salida — ⏳ FUTURO (no implementado aún)
 - [x] **Paridad Web ↔ Mobile:** Mismos datos se muestran en ambas plataformas
   - **✅ FIX Sesión 81:** horarios múltiples sincronizados en web + mobile

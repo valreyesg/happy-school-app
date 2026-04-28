@@ -1,10 +1,9 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX (Insumos) → Próxima: ???
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX (Mejoras Salud) → Próxima: XX (Validación Bitácora Directora + Bloques 6-7)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
-
 
 ## 🎨 UX/UI AUDIT Y MEJORA
 

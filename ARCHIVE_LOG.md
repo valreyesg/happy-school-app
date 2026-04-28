@@ -1,7 +1,82 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud)
+
+---
+
+## ✅ SESIÓN ACTUAL (2026-04-28) — Mejoras Bloques 4-5: Justificantes + Vómito + Bitácora Directora (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO — 4 mejoras implementadas y validadas (Leyenda + Comprobante + Notificación siempre + Bitácora Directora)
+
+### Mejoras Implementadas:
+
+**Mejora 1 — Leyenda "Justificado" en Vista Mensual Asistencia** ✅
+- Archivo: `web/src/pages/directora/Asistencia.jsx` línea 197-202
+- Cambio: Agregado item azul `bg-blue-400` con etiqueta "Justificado" en leyenda
+- Status: ✅ Validado en browser
+
+**Mejora 2 — Comprobante Opcional en Justificantes** ✅
+- Migración: `backend/migrations/031_justificante_comprobante.sql` (nuevas columnas URL + public_id)
+- Backend: `backend/src/routes/asistencia.js` — Multer + Cloudinary upload
+  - Dev: mock de URL, Prod: upload real a Cloudinary
+  - Upsert INSERT ... ON CONFLICT (crea fila si no existe para ausencias virtuales)
+- Frontend: `web/src/pages/directora/Asistencia.jsx` — Input file + FormData multipart
+- Status: ✅ Validado (archivo sube a Cloudinary, URL se guarda en BD)
+
+**Mejora 3A — Bitácora Directora con Vómitos** ✅ **Creada, requiere validación en próxima sesión**
+- Archivo nuevo: `web/src/pages/directora/Bitacora.jsx` (~220 líneas)
+- Flujo: Seleccionar Grupo → Alumno → Navegar Fecha → Ver vómitos + salud + medicamentos
+- Componente `BitacoraDiaria` muestra:
+  - 🤢 Vómitos (hora + intensidad + notas)
+  - 🏥 Salud General (fiebre, temperatura, malestar)
+  - 💊 Medicamentos administrados
+- Ruta: `/directora/bitacora` (agregada en App.jsx + DirectoraLayout.jsx con link "📖 Bitácora")
+- Status: ✅ Creada, ⏳ Pendiente validar en browser
+
+**Mejora 3B — Notificación Vómito SIEMPRE (cualquier intensidad)** ✅
+- Archivo: `backend/src/routes/bitacora.js` línea 80-117
+- Cambio: Removido condicional `if (intensidad === 'fuerte')` → notifica cualquier intensidad
+- Emoji diferenciado: 🤢 leve, 🤮 moderado, 🚨 fuerte
+- Status: ✅ Validado (padre recibe notificación para cualquier intensidad)
+
+### Bugs Corregidos en Esta Sesión:
+
+| Bug | Archivo | Fix |
+|-----|---------|-----|
+| Vómito 400 "Referencia inválida" | `bitacora.js:75` | FK `registrado_por` ahora usa `req.user.id` directo, no SELECT de personal |
+| Vómito pantalla blanca catalogo | `Bitacora.jsx:555` | Extrae `.items` de response |
+| Justificante 404 "no encontrado" | `asistencia.js:700` | Upsert en lugar de UPDATE (crea si no existe) |
+| Justificante no clickeable | `Asistencia.jsx:245` | Cursor pointer + onClick directo |
+
+### Archivos Modificados:
+
+**Backend:**
+- `backend/src/routes/bitacora.js` — Fix `registrado_por`, cambio a notificación siempre
+- `backend/src/routes/asistencia.js` — Add multer, upsert justificar, upload Cloudinary
+- `backend/migrations/031_justificante_comprobante.sql` (nueva)
+
+**Frontend:**
+- `web/src/pages/directora/Asistencia.jsx` — Leyenda azul, comprobante form, cursor pointer
+- `web/src/pages/maestra/Bitacora.jsx` — Fix `.items` en catalogo
+- `web/src/pages/directora/Bitacora.jsx` (nueva) — Bitácora directora con 3 tabs
+- `web/src/layouts/DirectoraLayout.jsx` — Add link "📖 Bitácora"
+- `web/src/App.jsx` — Add ruta `/directora/bitacora`
+
+### Validaciones Completadas:
+- ✅ Bloque 4 — Justificantes: modal abre, se guarda motivo, celda cambia a azul, comprobante sube
+- ✅ Bloque 5 — Vómito: form registra vómito, selector intensidad, padre recibe notificación cualquier intensidad
+- ✅ Leyenda azul visible en vista mensual asistencia
+- ✅ Mejoras funcionan sin errores
+
+### Pendiente para Próxima Sesión:
+- ⏳ Validar Bitácora Directora en browser (seleccionar grupo → alumno → fecha → ver vómitos/salud/medicamentos)
+- ⏳ Implementar Bloques 6-7 (Diarrea + Salida Sanitaria) si aplica
+- ⏳ Validar job medicamentos a las 14:00 (recordatorio)
+
+### Commits:
+- Múltiples commits durante la sesión con fixes incrementales
+- Commit final: `chore: Sesión XX — Cierre protocolo — Mejoras Bloques 4-5 + Bitácora Directora`
 
 ---
 

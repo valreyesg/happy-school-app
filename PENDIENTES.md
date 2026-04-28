@@ -1,12 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+4 ✅ | **Próximos pendientes:** Panel Extensión (validar) + SALUD edge cases + UX/UI Audit
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+5 ✅ | **Próximos pendientes:** SALUD edge cases (5 restantes) + UX/UI Audit + Finanzas
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 > ⏳ **Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)**
-> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
+> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
 
 ---
 
@@ -17,17 +17,14 @@
 
 ### Integraciones Pendientes:
 - [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos)
-- [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes
+- [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes — Funcionalidad captura ✅ Sesión 85, integración con Reportes pendiente
 - [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp para vómitos y administración de medicamentos (in-app ya existe, falta WhatsApp)
 
 ### Casos Edge Pendientes de Validación:
 - [ ] Alumno CON pañal pero SIN insumos en stock → Comportamiento cuando stock = 0
-- [ ] Múltiples vómitos en el día → Validar que aparecen todos ordenados por hora
 - [ ] Recepción medicamento sin hora programada → Confirma "Sin hora" aparece en lista
-- [ ] Job cron a las 3:05 PM (fuera de horario 7-16) → Validar NO ejecuta
 - [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → Validar NO ejecuta
 - [ ] Job cron a las 15:58 (dentro de rango) → Validar ejecuta correctamente
-- [ ] Entrega conforme SIN marcar checkboxes → POST aceptable con valores `false`
 - [ ] Cambio de fecha (medianoche) → Datos de ayer no aparecen (aislamiento por día)
 
 ---
@@ -66,12 +63,6 @@
 - [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
 - [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
-### 👨‍👩‍👧 GESTIÓN ALUMNOS AVANZADA — Bloque 2 (✅ COMPLETADO EN SESIONES 82 + 84)
-> ✅ Completado: Niños Extensión + Visitantes + Hermanos backend + Generación automática de cobros en pagos
-> ✅ Completado Sesión 84: UI Hermanos (AlumnoPerfil.jsx) + Chip hermanos tarjeta + Mobile QR extensión + Banner hermanos sin salir
-> ⏳ Pendiente: Validación/UI de cobros (módulo Finanzas)
-> Ver ARCHIVE_LOG.md — Sesión 82 y Sesión 84 para detalles técnicos
-
 ### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
 
 > ℹ️ **Nota técnica:** Al registrar un niño de servicio extendido (`modalidad_pago = 'por_dia'`)
@@ -81,7 +72,6 @@
 
 - [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
 - [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
-- [x] **Recargo Impuntualidad:** $125 MXN automático a las 3:06 PM (niños sin extensión). ✅ Sesión 86
 - [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
 - [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
 - [ ] **Exportación Contable:** Excel filtrable para admin.

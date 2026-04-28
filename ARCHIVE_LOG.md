@@ -1,7 +1,31 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza Pendientes)
+
+---
+
+## ✅ SESIÓN XX+5 (2026-04-28) — Validaciones Edge SALUD + Limpieza PENDIENTES (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO
+
+### Casos Edge Validados en Browser:
+- ✅ **Múltiples vómitos en el día** → Aparecen todos ordenados por hora correctamente
+- ✅ **Job cron a las 3:05 PM** (fuera de horario 7-16) → NO ejecuta (validado)
+- ✅ **Entrega conforme SIN checkboxes** → POST acepta valores `false` sin error
+- ✅ **Panel Extensión / Recargo $125** → Salida tardía detecta y aplica recargo automático (Sesión 86, validado en browser hoy)
+
+### Limpieza PENDIENTES.md:
+- Movida sección "GESTIÓN ALUMNOS AVANZADA Bloque 2" (completada Sesiones 82+84) fuera de PENDIENTES
+- Movido "Recargo Impuntualidad ✅" fuera de lista activa de FINANZAS
+- PENDIENTES.md queda solo con tareas genuinamente futuras
+
+### Pendiente para mañana (casos edge restantes):
+- [ ] Alumno CON pañal pero SIN insumos en stock → stock = 0
+- [ ] Recepción medicamento sin hora programada → "Sin hora" en lista
+- [ ] Job cron a las 10:00 AM sábado → NO ejecuta
+- [ ] Job cron a las 15:58 → ejecuta correctamente
+- [ ] Cambio de fecha medianoche → aislamiento por día
 
 ---
 

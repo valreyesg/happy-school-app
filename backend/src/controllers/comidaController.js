@@ -183,14 +183,23 @@ exports.confirmarComida = async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
     }
 
+    // Leer precios de BD con fallback a valores históricos
+    const preciosResult = await query(
+      `SELECT clave, valor FROM configuracion_general
+       WHERE clave IN ('precio_comida_semana', 'precio_comida_dia')`
+    );
+    const preciosCfg = Object.fromEntries(preciosResult.rows.map(r => [r.clave, parseFloat(r.valor)]));
+    const PRECIO_SEMANA = preciosCfg.precio_comida_semana ?? 250;
+    const PRECIO_DIA    = preciosCfg.precio_comida_dia    ?? 50;
+
     let monto = 0;
     if (modalidad === 'semana_completa') {
-      monto = 250;
+      monto = PRECIO_SEMANA;
     } else if (modalidad === 'dias_especificos') {
       if (!dias_seleccionados || dias_seleccionados.length === 0) {
         return res.status(400).json({ error: 'Debe seleccionar al menos un día' });
       }
-      monto = 50 * dias_seleccionados.length;
+      monto = PRECIO_DIA * dias_seleccionados.length;
     }
 
     // Si es transferencia, debe haber comprobante

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+5 ✅ | **Próximos pendientes:** SALUD edge cases (5 restantes) + UX/UI Audit + Finanzas
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+6 ✅ | **Próximos pendientes:** Catálogos FASE 4-6 + SALUD edge cases (mañana) + Pañal→Insumos (mañana)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -16,7 +16,7 @@
 > Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+3
 
 ### Integraciones Pendientes:
-- [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos)
+- [ ] **[MAÑANA] Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos) — Implementación + Validación
 - [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes — Funcionalidad captura ✅ Sesión 85, integración con Reportes pendiente
 - [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp para vómitos y administración de medicamentos (in-app ya existe, falta WhatsApp)
 
@@ -29,6 +29,33 @@
 
 ---
 
+
+## 🗂️ CATÁLOGOS ADMINISTRABLES — Panel Directora (EN PROGRESO — Sesión XX+6)
+
+> ℹ️ **Auditoría completa realizada.** Se encontraron 35+ items hardcodeados entre web, mobile y backend.
+> Arquitectura diseñada con regla de oro: **nada se elimina físicamente, solo se inactiva** (historial inmutable).
+
+### ✅ COMPLETADO esta sesión:
+- ✅ **FASE 1:** Migración 041 — Tabla `catalogos` + `configuracion_historial` + 15 tipos insertados en BD
+- ✅ **FASE 2:** Backend `GET /api/catalogos/:tipo` migrado a BD (mismo contrato, fallback al JS si falla)
+- ✅ **FASE 2:** Endpoints CRUD: `GET/POST/PUT/DELETE /api/catalogos/:tipo` con protecciones de sistema
+- ✅ **FASE 3:** `GET/PUT /api/config/negocio` — precios comida, semáforo, docs requeridos, límites
+- ✅ **FASE 3:** `GET /api/config/negocio/historial` — log de quién cambió qué y cuándo
+- ✅ **FASE 3:** `semaforoAlumno` en `pagos.js` lee umbrales dinámicos de BD (fallback 1/30/60)
+- ✅ **FASE 3:** `comidaController.js` lee precios de BD (fallback 250/50)
+- ✅ **FASE 3:** Dashboard morosos lee `max_morosos_dashboard` de BD (fallback 10)
+- ✅ **FASE 4 parcial:** Componente `CatalogoEditor.jsx` creado
+
+### ⏳ PENDIENTE próxima sesión:
+- [ ] **FASE 4:** Crear `web/src/pages/directora/Catalogos.jsx` (página principal con 5 tabs)
+- [ ] **FASE 4:** Agregar ruta `/directora/catalogos` en `App.jsx` y link en sidebar `DirectoraLayout.jsx`
+- [ ] **FASE 5:** `useCatalogo.js` — cambiar `staleTime: Infinity` a 30 min + invalidación al guardar
+- [ ] **FASE 5:** `ComidaSemanal.jsx` (padre) — leer precios de `GET /api/config/negocio`
+- [ ] **FASE 5:** `FiltroEntrada.jsx` (maestra) — reemplazar `monto / 50` por `monto / PRECIO_DIA` dinámico
+- [ ] **FASE 6:** Mobile — crear `useCatalogo` hook + reemplazar arrays hardcodeados + precios dinámicos
+- [ ] **Validar todo** en browser (catálogos, precios, semáforo, historial de cambios)
+
+---
 
 ## 🎨 UX/UI AUDIT Y MEJORA
 

@@ -102,4 +102,88 @@ router.put('/notificaciones', authorize('directora'), async (req, res) => {
   }
 });
 
+// ── Claves de configuración de negocio ───────────────────────────────────────
+const CLAVES_NEGOCIO = [
+  'precio_comida_semana',
+  'precio_comida_dia',
+  'semaforo_dias_amarillo',
+  'semaforo_dias_rojo',
+  'semaforo_dias_suspendido',
+  'docs_requeridos_alumno',
+  'max_tutores_por_alumno',
+  'max_morosos_dashboard',
+  'dia_registro_comida',
+];
+
+// GET /api/config/negocio — lectura para todos los roles autenticados
+router.get('/negocio', async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT clave, valor, descripcion FROM configuracion_general WHERE clave = ANY($1) ORDER BY clave`,
+      [CLAVES_NEGOCIO]
+    );
+    const config = {};
+    result.rows.forEach(r => { config[r.clave] = r.valor; });
+    res.json(config);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener configuración de negocio' });
+  }
+});
+
+// PUT /api/config/negocio — solo directora, guarda historial de cambios
+router.put('/negocio', authorize('directora'), async (req, res) => {
+  const cambios = req.body;
+  const clavesCambio = Object.keys(cambios).filter(k => CLAVES_NEGOCIO.includes(k));
+
+  if (clavesCambio.length === 0) {
+    return res.status(400).json({ error: 'No hay claves válidas para actualizar' });
+  }
+
+  try {
+    for (const clave of clavesCambio) {
+      // Leer valor anterior para historial
+      const anterior = await query(
+        `SELECT valor FROM configuracion_general WHERE clave = $1`, [clave]
+      );
+      const valorAntes = anterior.rows[0]?.valor ?? null;
+      const valorNuevo = String(cambios[clave]);
+
+      await query(
+        `UPDATE configuracion_general SET valor = $1, updated_at = NOW() WHERE clave = $2`,
+        [valorNuevo, clave]
+      );
+
+      // Guardar en historial
+      await query(
+        `INSERT INTO configuracion_historial (clave, valor_antes, valor_nuevo, cambiado_por)
+         VALUES ($1, $2, $3, $4)`,
+        [clave, valorAntes, valorNuevo, req.user.id]
+      );
+    }
+    res.json({ ok: true, actualizadas: clavesCambio });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar configuración de negocio' });
+  }
+});
+
+// GET /api/config/negocio/historial — solo directora
+router.get('/negocio/historial', authorize('directora'), async (req, res) => {
+  try {
+    const result = await query(`
+      SELECT h.clave, h.valor_antes, h.valor_nuevo, h.cambiado_at,
+             u.nombre AS cambiado_por_nombre
+      FROM configuracion_historial h
+      LEFT JOIN usuarios u ON h.cambiado_por = u.id
+      ORDER BY h.cambiado_at DESC
+      LIMIT 100
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener historial' });
+  }
+});
+
 module.exports = router;

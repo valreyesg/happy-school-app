@@ -1,7 +1,62 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza Pendientes)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4)
+
+---
+
+## ⏳ SESIÓN XX+6 (2026-04-28) — Catálogos Administrables: Auditoría + FASES 1-3 + inicio FASE 4 (75% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 75% — FASES 1-3 backend completas, FASE 4 web en progreso
+
+### Trabajo realizado:
+
+**Auditoría de hardcodeados — Resultados:**
+- **35+ items hardcodeados** encontrados en web, mobile y backend
+- Clasificados en: CRÍTICOS (precios, umbrales), ALTOS (catálogos de dominio), MEDIOS (límites operativos)
+- Catálogos de sistema identificados (ligados a ENUMs de BD): roles-personal, estados-alumno, comportamiento, checklists de entrada/salida
+- Regla de oro establecida: **nada se elimina físicamente, solo se inactiva** — historial siempre conservado
+
+**FASE 1 — Migración 041** ✅
+- Tabla `catalogos` con campos: tipo, key, label, emoji, color, orden, activo, es_sistema, editable_key, inactivado_at
+- Tabla `configuracion_historial` para auditoría de cambios de precio/configuración
+- 15 tipos de catálogos insertados (72 registros totales)
+- 9 claves nuevas en `configuracion_general`: precios comida, umbrales semáforo, docs requeridos, límites operativos
+- `ON CONFLICT DO NOTHING` en todos los INSERTs — seguro de re-ejecutar
+
+**FASE 2 — Backend endpoints catálogos** ✅
+- `GET /api/catalogos/:tipo` → ahora lee de BD (mismo contrato de respuesta, fallback al objeto JS si BD falla)
+- `GET /api/catalogos` → lista todos los tipos con conteo activos/inactivos (solo directora)
+- `GET /api/catalogos/:tipo/admin` → items incluyendo inactivos para gestión
+- `POST /api/catalogos/:tipo` → crear item nuevo con validación (rechaza en tipos de sistema)
+- `PUT /api/catalogos/:tipo/:key` → editar label/emoji/color/orden/activo; bloquea key si es_sistema
+- `DELETE /api/catalogos/:tipo/:key` → soft delete (activo=false + inactivado_at); rechaza si es_sistema=true; mínimo 1 activo
+- `PUT /api/catalogos/:tipo/reorder` → reordenar con [{key, orden}]
+
+**FASE 3 — Config negocio dinámica** ✅
+- `GET /api/config/negocio` → lee 9 claves de configuracion_general (accesible todos los roles)
+- `PUT /api/config/negocio` → actualiza claves + guarda en `configuracion_historial` (solo directora)
+- `GET /api/config/negocio/historial` → log de quién cambió qué y cuándo (solo directora)
+- `backend/src/routes/pagos.js` → `semaforoAlumno()` ahora lee umbrales de BD (fallback 1/30/60 días)
+- `backend/src/routes/pagos.js` → dashboard morosos usa `max_morosos_dashboard` de BD (fallback 10)
+- `backend/src/controllers/comidaController.js` → precios $250/$50 leen de BD (fallback garantizado)
+
+**FASE 4 — UI Web (INICIO)** ⏳
+- `web/src/components/directora/CatalogoEditor.jsx` creado — componente reutilizable con: edición inline label/emoji, toggle activo/inactivo, reordenar con flechas, protección de sistema (🔒), sección de inactivos colapsable con opción de reactivar, formulario de nuevo item
+
+### Pendiente para continuar (próxima sesión):
+- FASE 4: `Catalogos.jsx` (página con 5 tabs) + ruta + link sidebar
+- FASE 5: `useCatalogo.js` staleTime + `ComidaSemanal.jsx` + `FiltroEntrada.jsx` precios dinámicos
+- FASE 6: Mobile hook + arrays dinámicos
+
+### Archivos modificados:
+- `backend/migrations/041_catalogos_administrables.sql` (nuevo)
+- `backend/src/routes/catalogos.js` — reescritura completa + CRUD
+- `backend/src/routes/config.js` — endpoints /negocio + /historial
+- `backend/src/routes/pagos.js` — getSemaforoConfig() + max_morosos dinámico
+- `backend/src/controllers/comidaController.js` — precios dinámicos
+- `web/src/components/directora/CatalogoEditor.jsx` (nuevo)
+- `PENDIENTES.md` — sección catálogos actualizada
 
 ---
 

@@ -29,13 +29,30 @@ function calcularRecargo(concepto, mes, anio) {
   return { monto_recargo: 0, dias_atraso: 0 };
 }
 
-function semaforoAlumno(pagos) {
+async function getSemaforoConfig() {
+  try {
+    const result = await query(
+      `SELECT clave, valor FROM configuracion_general
+       WHERE clave IN ('semaforo_dias_amarillo','semaforo_dias_rojo','semaforo_dias_suspendido')`
+    );
+    const m = Object.fromEntries(result.rows.map(r => [r.clave, parseInt(r.valor)]));
+    return {
+      amarillo:   m.semaforo_dias_amarillo   ?? 1,
+      rojo:       m.semaforo_dias_rojo       ?? 30,
+      suspendido: m.semaforo_dias_suspendido ?? 60,
+    };
+  } catch {
+    return { amarillo: 1, rojo: 30, suspendido: 60 };
+  }
+}
+
+function semaforoAlumno(pagos, cfg = { amarillo: 1, rojo: 30, suspendido: 60 }) {
   if (!pagos.length) return 'verde';
   const maxAtraso = Math.max(...pagos.map(p => p.dias_atraso || 0));
   const tieneVencido = pagos.some(p => p.estado === 'vencido');
-  if (maxAtraso >= 60 || (tieneVencido && maxAtraso >= 30)) return 'suspendido';
-  if (maxAtraso >= 30 || tieneVencido) return 'rojo';
-  if (maxAtraso >= 1) return 'amarillo';
+  if (maxAtraso >= cfg.suspendido || (tieneVencido && maxAtraso >= cfg.rojo)) return 'suspendido';
+  if (maxAtraso >= cfg.rojo || tieneVencido) return 'rojo';
+  if (maxAtraso >= cfg.amarillo) return 'amarillo';
   return 'verde';
 }
 
@@ -151,21 +168,27 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
         ORDER BY g.nombre
       `, [m, a]),
 
-      query(`
-        SELECT a.id, a.nombre_completo, a.foto_url,
-          g.nombre AS grupo, g.color_hex,
-          COUNT(p.id) AS pagos_vencidos,
-          MAX(p.dias_atraso) AS max_dias_atraso,
-          SUM(p.monto_total) AS deuda_total
-        FROM alumnos a
-        JOIN grupos g ON a.grupo_id = g.id
-        JOIN pagos p ON p.alumno_id = a.id AND p.estado = 'vencido'
-          AND p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
-        WHERE a.deleted_at IS NULL
-        GROUP BY a.id, a.nombre_completo, a.foto_url, g.nombre, g.color_hex
-        ORDER BY max_dias_atraso DESC
-        LIMIT 10
-      `, [m, a]),
+      (async () => {
+        const cfgMax = await query(
+          `SELECT valor FROM configuracion_general WHERE clave = 'max_morosos_dashboard'`
+        );
+        const maxMorosos = parseInt(cfgMax.rows[0]?.valor ?? '10');
+        return query(`
+          SELECT a.id, a.nombre_completo, a.foto_url,
+            g.nombre AS grupo, g.color_hex,
+            COUNT(p.id) AS pagos_vencidos,
+            MAX(p.dias_atraso) AS max_dias_atraso,
+            SUM(p.monto_total) AS deuda_total
+          FROM alumnos a
+          JOIN grupos g ON a.grupo_id = g.id
+          JOIN pagos p ON p.alumno_id = a.id AND p.estado = 'vencido'
+            AND p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
+          WHERE a.deleted_at IS NULL
+          GROUP BY a.id, a.nombre_completo, a.foto_url, g.nombre, g.color_hex
+          ORDER BY max_dias_atraso DESC
+          LIMIT $3
+        `, [m, a, maxMorosos]);
+      })(),
     ]);
 
     res.json({
@@ -222,10 +245,11 @@ router.get('/estado/:alumnoId', async (req, res, next) => {
 
     const pagosList = pagos.rows;
     const pendientesVencidos = pagosList.filter(p => ['pendiente', 'vencido'].includes(p.estado));
+    const semaforoCfg = await getSemaforoConfig();
 
     res.json({
       alumno: alumno.rows[0],
-      semaforo: semaforoAlumno(pendientesVencidos),
+      semaforo: semaforoAlumno(pendientesVencidos, semaforoCfg),
       saldo_pendiente: pendientesVencidos.reduce((s, p) => s + parseFloat(p.monto_total), 0),
       pagos: pagosList,
       comida_semanal: comida.rows,

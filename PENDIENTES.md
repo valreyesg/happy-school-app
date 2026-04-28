@@ -5,6 +5,11 @@
 
 ---
 
+> ⏳ **Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)**
+> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
+
+---
+
 ## 🎨 UX/UI AUDIT Y MEJORA
 
 - [ ] **Revisar y mejorar UX/UI completa (web + mobile)**
@@ -98,7 +103,3 @@
 - [ ] **Pruebas UX + Performance:** Optimización completa.
 
 ---
-
----
-
-> Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)

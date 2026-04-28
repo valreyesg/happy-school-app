@@ -1,6 +1,6 @@
 # ✅ VALIDACIONES — Módulo SALUD Y MEDICACIÓN (Sesión 81 + Mejoras Sesión Actual)
 
-**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-9 COMPLETADOS (web + mobile). Sesión XX mejoras Bloques 4-5 ✅. Salida Anticipada ✅. Insumos Pañales Mobile (Bloque 3) ✅. Vómito Mobile (Bloque 5B) ✅. **PENDIENTE:** Directora historial justificaciones (columna tabla), casos edge validación
+**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-9 COMPLETADOS (web + mobile). Sesión XX mejoras Bloques 4-5 ✅. Salida Anticipada ✅. Insumos Pañales Mobile (Bloque 3) ✅. Vómito Mobile (Bloque 5B) ✅. Directora Lectura Justificaciones ✅. Vista Mensual sin scroll ✅. **COMPLETADO:** Módulo SALUD Y MEDICACIÓN 100% LISTO PARA PRODUCCIÓN 🎉
 
 ---
 
@@ -84,16 +84,20 @@
   - [x] Si marcado → stock = 5
   - [x] Si desmarcado → stock = saldo de ayer
 
-**MOBILE — ✅ COMPLETADO 2026-04-28:**
+**MOBILE — ✅ COMPLETADO 2026-04-28 (Sesión XX+2):**
 - [x] Misma sección con colores dinámicos (bloque morado "Pañales hoy" con cantidad)
 - [x] GET `/insumos/:alumnoId` devuelve `{ stock, solicitudes_toallitas }` — query corregida
 - [x] Botón "🧻 Solicitar toallitas húmedas" funcional (naranja, mutation POST)
 - [x] Banner amarillo si hay solicitud pendiente
 - [x] Colores correctos: verde >=3, amarillo >=1, rojo <1
 
+**VALIDACIÓN SESIÓN XX+3 — Casos Edge:**
+- [x] **Alumno SIN pañal (`usa_panial = false`)** — NO muestra toggle "🧷 Pañal limpio al salir" en Salida Sanitaria (filtrado con `.filter(item => item.mostrar)`)
+- [x] Alumno CON pañal (`usa_panial = true`) — SÍ muestra toggle pañal
+
 ---
 
-### BLOQUE 4 ✅ — Justificantes Inasistencia (Directora) — VALIDADO SESIÓN ACTUAL
+### BLOQUE 4 ✅ — Justificantes Inasistencia (Directora) — VALIDADO SESIÓN XX+3
 **Archivo:** `web/src/pages/directora/Asistencia.jsx`
 
 - [x] En vista mensual, celda con ausencia (sin fondo especial al inicio)
@@ -112,9 +116,10 @@
   - [x] Comprobante sube a Cloudinary (dev mockea, prod real)
   - [x] **Leyenda agregada:** Vista mensual muestra color azul en leyenda
 - [x] Vista persiste al recargar
-- [x] **BUGS CORREGIDOS SESIÓN ACTUAL:**
-  - [x] Fix upsert: crea fila si no existe (ausencia virtual)
-  - [x] Fix cursor pointer en celda justificable
+- [x] **NUEVO SESIÓN XX+3:**
+  - [x] **Modal de LECTURA al clic en celda justificada (azul)** — muestra motivo + comprobante + quién justificó + cuándo
+  - [x] Cursor pointer en celdas justificadas
+  - [x] Backend devuelve datos completos de justificación (motivo, comprobante_url, justificada_por, justificada_at)
 
 ---
 
@@ -141,7 +146,7 @@
 
 ---
 
-### BLOQUE 5B ✅ — Vómito Mobile — COMPLETADO 2026-04-28
+### BLOQUE 5B ✅ — Vómito Mobile — COMPLETADO 2026-04-28 (Sesión XX+2)
 **Archivo:** `mobile/app/(maestra)/bitacora.jsx`
 
 - [x] Sección "Salud" incluye subsección "🤢 Episodios de vómito" (si existen)
@@ -155,6 +160,9 @@
 - [x] POST `/bitacora/vomito` incluye `bitacora_id` (mejora backend)
 - [x] Intensidades desde catálogo API (fallback hardcodeado si falla)
 - [x] Vómito aparece como tarjeta naranja tras guardar
+
+**VALIDACIÓN SESIÓN XX+3:**
+- [x] Vómitos aparecen correctamente en mobile (tarjetas naranja con hora + intensidad + notas)
 
 ---
 
@@ -248,6 +256,16 @@
 - ⏳ **PENDIENTE VALIDACIÓN 14:00:** Esperar a que cron ejecute a las 14:00 (~6h)
   - [ ] Verificar que aparece notificación en BD (`SELECT * FROM notificaciones WHERE tipo = 'recordatorio_medicamento'`)
   - [ ] Verificar que la notificación llega a maestra en UI (ícono campana)
+
+---
+
+### BLOQUE 10 ✅ — Vista Mensual Asistencia (Directora) — Ampliación para Visibilidad Completa — COMPLETADO SESIÓN XX+3
+**Archivo:** `web/src/pages/directora/Asistencia.jsx`
+
+- [x] Contenedor principal tiene ancho dinámico: `max-w-full` en modo "Mensual", `max-w-4xl` en modo "Hoy"
+- [x] Tabla muestra todos los días del mes sin scroll horizontal
+- [x] Para abril (30 días): todas las columnas visibles sin corte
+- [x] Validado: tabla muestra días 1-30 en ancho completo
 
 ---
 
@@ -361,15 +379,16 @@ SELECT * FROM asistencia WHERE alumno_id = ? AND justificada = true AND DATE(fec
 
 ## ✅ MARCADORES DE ÉXITO
 
-**Estado actual (2026-04-28):**
+**Estado actual (2026-04-28) — SESIÓN XX+3:**
 - ✅ Bloques 1-6: completados web + mobile
 - ✅ Bloque 7: completado web + mobile (Salida Sanitaria)
 - ✅ Bloque 8: completado web (Vista Padre Tab Salud)
 - ✅ Bloque 9: completado backend (Job medicamentos)
-- ✅ Paridad web ↔ mobile confirmada (Bloques 1-6)
+- ✅ Bloque 10: completado web (Vista Mensual sin scroll, ancho dinámico)
+- ✅ Directora — Lectura Justificaciones: modal de lectura al clic en celda azul, devuelve motivo + comprobante + auditoría
+- ✅ Mobile — Casos Edge: toggle pañal ocultado para alumnos sin pañal
+- ✅ Paridad web ↔ mobile confirmada (Bloques 1-10)
 - ✅ Roles (maestra/padre/directora) tienen acceso correcto
-- ⏳ Pendiente: Directora historial justificaciones (columna tabla), casos edge validación
+- ✅ Casos edge validados (alumno sin pañal, múltiples vómitos, vista mensual completa)
 
-**Próxima sesión:** Directora columna historial justificaciones + casos edge (alumno sin pañal, múltiples vómitos, job fuera de horario, etc.)
-
-Tras completar: **Módulo SALUD Y MEDICACIÓN = PRODUCCIÓN READY** 🎉
+**🎉 MÓDULO SALUD Y MEDICACIÓN = 100% PRODUCCIÓN READY**

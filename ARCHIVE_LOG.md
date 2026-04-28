@@ -73,17 +73,10 @@
 - Base lista para nuevos agregados sin duplicidades
 
 ### Validaciones Completadas:
-- ✅ Padres/Tutores: 6/7 items validados (falta: foto)
-- ✅ Hermanos: 4/4 items validados
-- ⏳ Panel Extensión: PENDIENTE (4 items)
-- ✅ 4 bugs críticos resueltos
-- ✅ Arquitectura BD consistente
-
-### Validaciones Completadas:
-- ✅ Sesión 81 validada 100% en browser
-- ✅ Todos los 19 items de Padres/Tutores/Hermanos/Extensión funcionales
-- ✅ 4 bugs críticos resueltos
-- ✅ Arquitectura BD consistente (cada alumno = registro separado en padres, evita contaminación cruzada)
+- ✅ Padres/Tutores: 6/7 items validados en browser (falta: subir foto del tutor)
+- ✅ Hermanos: 4/4 items validados en browser
+- ⏳ Panel Extensión Vespertina: PENDIENTE (4 items — banner, 3 grupos, toggle, mensaje)
+- ✅ 4 bugs críticos solucionados + arquitectura BD consistente
 
 ---
 

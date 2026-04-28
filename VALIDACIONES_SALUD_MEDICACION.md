@@ -1,6 +1,6 @@
-# ✅ VALIDACIONES — Módulo SALUD Y MEDICACIÓN (Sesión 81)
+# ✅ VALIDACIONES — Módulo SALUD Y MEDICACIÓN (Sesión 81 + Mejoras Sesión Actual)
 
-**Última actualización:** 2026-04-28 | **Estado:** Implementado + fixes aplicados (Sesión 84). Bloques 1-5 validados. Sesión 80 pendiente para bloques 6-7
+**Última actualización:** 2026-04-28 | **Estado:** Bloques 1-5 COMPLETADOS. Bloques 4+5 mejorados con comprobantes + notificación vómito siempre. **PENDIENTE:** Bitácora directora (creada, requiere validación en próxima sesión)
 
 ---
 
@@ -91,39 +91,51 @@
 
 ---
 
-### BLOQUE 4 ✅ — Justificantes Inasistencia (Directora)
+### BLOQUE 4 ✅ — Justificantes Inasistencia (Directora) — VALIDADO SESIÓN ACTUAL
 **Archivo:** `web/src/pages/directora/Asistencia.jsx`
 
-- [ ] En vista mensual, celda con ausencia (sin fondo especial al inicio)
-- [ ] Al hover sobre celda ausente:
-  - [ ] Aparece botón "Justificar" en tooltip
-  - [ ] Botón es clickeable
-- [ ] Modal abre con:
-  - [ ] Nombre del alumno + fecha
-  - [ ] Textarea "Motivo de la justificación…"
-  - [ ] Botones: "💾 Justificar" + "✕ Cancelar"
-- [ ] Al justificar:
-  - [ ] PATCH `/asistencia/:alumnoId/justificar` con motivo
-  - [ ] Celda pinta azul 📋 "Justificado"
-  - [ ] Motivo se almacena en BD
-- [ ] Vista persiste al recargar
+- [x] En vista mensual, celda con ausencia (sin fondo especial al inicio)
+- [x] Al click sobre celda ausente (cambio: click en lugar de hover para mejor UX):
+  - [x] Click abre modal directo
+  - [x] Celda cambia a amarillo al hover para indicar interactividad
+- [x] Modal abre con:
+  - [x] Nombre del alumno + fecha
+  - [x] Textarea "Motivo de la justificación…"
+  - [x] **NUEVO:** Input file opcional para adjuntar comprobante (imagen/PDF)
+  - [x] Botones: "💾 Justificar" + "✕ Cancelar"
+- [x] Al justificar:
+  - [x] PATCH `/asistencia/:alumnoId/justificar` con motivo + comprobante opcional
+  - [x] Celda pinta azul 📋 "Justificado"
+  - [x] Motivo se almacena en BD
+  - [x] Comprobante sube a Cloudinary (dev mockea, prod real)
+  - [x] **Leyenda agregada:** Vista mensual muestra color azul en leyenda
+- [x] Vista persiste al recargar
+- [x] **BUGS CORREGIDOS SESIÓN ACTUAL:**
+  - [x] Fix upsert: crea fila si no existe (ausencia virtual)
+  - [x] Fix cursor pointer en celda justificable
 
 ---
 
-### BLOQUE 5 ✅ — Vómito Web
+### BLOQUE 5 ✅ — Vómito Web — VALIDADO SESIÓN ACTUAL
 **Archivo:** `web/src/pages/maestra/Bitacora.jsx`
 
-- [ ] Sección "🌡️ Salud" tiene título dinámico: "🌡️ Salud 🤢" si hay vómitos
-- [ ] Lista de vómitos del día (si existen):
-  - [ ] Cada vómito: hora + intensidad + notas (si existen)
-  - [ ] Color naranja claro
-- [ ] Botón "+ Registrar vómito" abre form
-- [ ] Form con:
-  - [ ] Selector intensidad (3 botones: Leve/Moderado/Fuerte)
-  - [ ] Textarea notas (opcional)
-  - [ ] Botón "💾 Guardar vómito"
-- [ ] POST `/bitacora/vomito` → registro aparece en lista inmediatamente
-- [ ] Form colapsa tras guardar
+- [x] Sección "🌡️ Salud" tiene título dinámico: "🌡️ Salud 🤢" si hay vómitos
+- [x] Lista de vómitos del día (si existen):
+  - [x] Cada vómito: hora + intensidad + notas (si existen)
+  - [x] Color naranja claro
+- [x] Botón "+ Registrar vómito" abre form
+- [x] Form con:
+  - [x] Selector intensidad (3 botones: Leve/Moderado/Fuerte)
+  - [x] Textarea notas (opcional)
+  - [x] Botón "💾 Guardar vómito"
+- [x] POST `/bitacora/vomito` → registro aparece en lista inmediatamente
+- [x] Form colapsa tras guardar
+- [x] **BUGS CORREGIDOS SESIÓN ACTUAL:**
+  - [x] Fix catalogo intensidad: extrae `.items` del response
+  - [x] Fix FK `registrado_por`: usa `req.user.id` (usuarios) en lugar de `personal.id`
+  - [x] Fix upsert bitácora: crea si no existe
+  - [x] **NUEVA FUNCIONALIDAD:** Notificación padre SIEMPRE (antes solo `fuerte`)
+    - [x] Notificación con emoji diferenciado por intensidad (🤢 leve, 🤮 moderado, 🚨 fuerte)
 
 ---
 

@@ -136,6 +136,7 @@ function VistaMensual({ grupoId }) {
   const [anio, setAnio] = useState(hoy.getFullYear());
   const [justificandoModal, setJustificandoModal] = useState(null);
   const [motivoJustificacion, setMotivoJustificacion] = useState('');
+  const [comprobanteFile, setComprobanteFile] = useState(null);
 
   const { data: alumnos = [], isLoading } = useQuery({
     queryKey: ['asistencia-mensual', grupoId, mes, anio],
@@ -144,12 +145,20 @@ function VistaMensual({ grupoId }) {
   });
 
   const justificarMutation = useMutation({
-    mutationFn: ({ alumnoId, fecha, motivo }) =>
-      api.patch(`/asistencia/${alumnoId}/justificar`, { fecha, motivo }).then(r => r.data),
+    mutationFn: ({ alumnoId, fecha, motivo, comprobante }) => {
+      const formData = new FormData();
+      formData.append('fecha', fecha);
+      formData.append('motivo', motivo);
+      if (comprobante) formData.append('comprobante', comprobante);
+      return api.patch(`/asistencia/${alumnoId}/justificar`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      }).then(r => r.data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['asistencia-mensual', grupoId, mes, anio] });
       setJustificandoModal(null);
       setMotivoJustificacion('');
+      setComprobanteFile(null);
       toast.success('✅ Ausencia justificada');
     },
     onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
@@ -164,6 +173,7 @@ function VistaMensual({ grupoId }) {
       alumnoId: justificandoModal.alumnoId,
       fecha: justificandoModal.fecha,
       motivo: motivoJustificacion,
+      comprobante: comprobanteFile,
     });
   };
 
@@ -198,6 +208,7 @@ function VistaMensual({ grupoId }) {
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-400 inline-block" /> Presente</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-400 inline-block" /> Retardo</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> No entró</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 inline-block" /> Justificado</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Sin dato</span>
       </div>
 
@@ -242,24 +253,21 @@ function VistaMensual({ grupoId }) {
                       const isAusente = !estado || (!d.esFinde && !cfg);
                       const fecha = `${anio}-${pad(mes)}-${pad(d.num)}`;
                       return (
-                        <td key={d.num} className={`text-center py-1 relative group ${d.esFinde ? 'opacity-30' : ''}`}>
+                        <td
+                          key={d.num}
+                          className={`text-center py-1 relative group ${d.esFinde ? 'opacity-30' : ''} ${isAusente && !d.esFinde ? 'cursor-pointer' : ''}`}
+                          onClick={() => {
+                            if (isAusente && !d.esFinde) {
+                              setJustificandoModal({ alumnoId: alumno.id, fecha });
+                              setMotivoJustificacion('');
+                            }
+                          }}
+                          title={isAusente && !d.esFinde ? 'Click para justificar ausencia' : undefined}
+                        >
                           {cfg
                             ? <span className={`inline-block w-5 h-5 rounded ${cfg.bg}`} title={cfg.title} />
-                            : <span className="inline-block w-5 h-5 rounded bg-gray-200 opacity-40" />
+                            : <span className={`inline-block w-5 h-5 rounded ${isAusente && !d.esFinde ? 'bg-gray-200 hover:bg-yellow-200 transition-colors' : 'bg-gray-200 opacity-40'}`} />
                           }
-                          {isAusente && !d.esFinde && (
-                            <div className="invisible group-hover:visible absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs whitespace-nowrap z-20">
-                              <button
-                                onClick={() => {
-                                  setJustificandoModal({ alumnoId: alumno.id, fecha });
-                                  setMotivoJustificacion('');
-                                }}
-                                className="underline hover:no-underline"
-                              >
-                                Justificar
-                              </button>
-                            </div>
-                          )}
                         </td>
                       );
                     })}
@@ -298,6 +306,19 @@ function VistaMensual({ grupoId }) {
               rows={3}
               className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none"
             />
+            <div className="space-y-2">
+              <label className="block">
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={e => setComprobanteFile(e.target.files?.[0] || null)}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </label>
+              {comprobanteFile && (
+                <p className="text-xs text-green-600 font-semibold">✅ {comprobanteFile.name}</p>
+              )}
+            </div>
             <div className="flex gap-2">
               <button
                 onClick={justificarAusencia}
@@ -310,6 +331,7 @@ function VistaMensual({ grupoId }) {
                 onClick={() => {
                   setJustificandoModal(null);
                   setMotivoJustificacion('');
+                  setComprobanteFile(null);
                 }}
                 disabled={justificarMutation.isPending}
                 className="px-4 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 disabled:opacity-50 transition-all"

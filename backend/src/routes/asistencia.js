@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje, notificarRetardo } = require('../services/whatsappService');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.use(authenticate);
 
@@ -683,8 +687,8 @@ router.get('/filtro-entrada/:alumno_id', async (req, res, next) => {
 });
 
 // ── PATCH /asistencia/:alumnoId/justificar ───────────────────────────────────
-// Marcar una falta como justificada
-router.patch('/:alumnoId/justificar', authorize('directora', 'administrativo'), async (req, res, next) => {
+// Marcar una falta como justificada con comprobante opcional
+router.patch('/:alumnoId/justificar', upload.single('comprobante'), authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
     const { alumnoId } = req.params;
     const { fecha, motivo } = req.body;
@@ -696,21 +700,32 @@ router.patch('/:alumnoId/justificar', authorize('directora', 'administrativo'), 
     );
     const justificadaPor = personalResult.rows[0]?.id || null;
 
-    // Actualizar asistencia
-    const result = await query(`
-      UPDATE asistencia
-      SET estado = 'justificado',
-          justificacion_motivo = $1,
-          justificada_por = $2,
-          justificada_at = NOW(),
-          updated_at = NOW()
-      WHERE alumno_id = $3 AND fecha = $4::date
-      RETURNING *
-    `, [motivo, justificadaPor, alumnoId, fecha]);
+    let comprobanteUrl = null;
+    let comprobantePublicId = null;
 
-    if (!result.rows.length) {
-      return res.status(404).json({ error: 'Registro de asistencia no encontrado' });
+    if (req.file) {
+      const uploadResult = await uploadToCloudinary(req.file.buffer, {
+        folder: 'justificantes',
+        resource_type: 'auto',
+      });
+      comprobanteUrl = uploadResult.secure_url;
+      comprobantePublicId = uploadResult.public_id;
     }
+
+    // Upsert: crea la fila si no existe (ausencia virtual), o actualiza si ya existe
+    const result = await query(`
+      INSERT INTO asistencia (alumno_id, fecha, estado, justificacion_motivo, justificada_por, justificada_at, justificacion_comprobante_url, justificacion_comprobante_public_id)
+      VALUES ($3, $4::date, 'justificado', $1, $2, NOW(), $5, $6)
+      ON CONFLICT (alumno_id, fecha) DO UPDATE
+        SET estado = 'justificado',
+            justificacion_motivo = EXCLUDED.justificacion_motivo,
+            justificada_por = EXCLUDED.justificada_por,
+            justificada_at = NOW(),
+            justificacion_comprobante_url = EXCLUDED.justificacion_comprobante_url,
+            justificacion_comprobante_public_id = EXCLUDED.justificacion_comprobante_public_id,
+            updated_at = NOW()
+      RETURNING *
+    `, [motivo, justificadaPor, alumnoId, fecha, comprobanteUrl, comprobantePublicId]);
 
     res.json(result.rows[0]);
   } catch (err) { next(err); }

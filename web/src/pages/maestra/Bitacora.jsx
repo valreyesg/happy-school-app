@@ -552,7 +552,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const [vomitoNotas, setVomitoNotas] = useState('');
   const { data: vomitosCatalogo } = useQuery({
     queryKey: ['catalogos', 'vomito-intensidad'],
-    queryFn: () => api.get('/catalogos/vomito-intensidad').then(r => r.data),
+    queryFn: () => api.get('/catalogos/vomito-intensidad').then(r => r.data.items),
   });
 
   const vomitoMutation = useMutation({
@@ -571,6 +571,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     if (!vomitoIntensidad) { toast.error('Selecciona la intensidad'); return; }
     vomitoMutation.mutate({
       alumno_id: alumno.id,
+      bitacora_id: data?.bitacora?.id ?? null,
       intensidad: vomitoIntensidad,
       notas: vomitoNotas,
     });

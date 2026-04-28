@@ -55,52 +55,66 @@ router.get('/actividades-grupo', async (req, res, next) => {
 // Registrar episodio de vómito
 router.post('/vomito', async (req, res, next) => {
   try {
-    const { alumno_id, bitacora_id, intensidad, notas } = req.body;
+    const { alumno_id, intensidad, notas } = req.body;
+    let { bitacora_id } = req.body;
+
+    if (!bitacora_id) {
+      const personalResult = await query('SELECT id FROM personal WHERE usuario_id = $1', [req.user.id]);
+      const maestraId = personalResult.rows[0]?.id || null;
+      const hoy = new Date().toISOString().substring(0, 10);
+      const bResult = await query(`
+        INSERT INTO bitacora_diaria (alumno_id, fecha, maestra_id)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (alumno_id, fecha) DO UPDATE SET updated_at = NOW()
+        RETURNING id
+      `, [alumno_id, hoy, maestraId]);
+      bitacora_id = bResult.rows[0].id;
+    }
 
     const result = await query(`
       INSERT INTO registro_vomito (alumno_id, bitacora_id, intensidad, notas, registrado_por)
-      SELECT $1, $2, $3, $4, personal.id
-      FROM personal WHERE personal.usuario_id = $5
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *
     `, [alumno_id, bitacora_id, intensidad, notas, req.user.id]);
 
-    // Si intensidad es 'fuerte', notificar al padre
-    if (intensidad === 'fuerte') {
-      const padreResult = await query(`
-        SELECT a.nombre_completo AS alumno_nombre,
-               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-               p.nombre_completo AS padre_nombre,
-               u.id AS usuario_id
-        FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
-        JOIN padres p ON ap.padre_id = p.id
-        JOIN usuarios u ON p.usuario_id = u.id
-        WHERE a.id = $1 LIMIT 1
-      `, [alumno_id]);
+    // Notificar al padre de vómito (cualquier intensidad)
+    const padreResult = await query(`
+      SELECT a.nombre_completo AS alumno_nombre,
+             COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             p.nombre_completo AS padre_nombre,
+             u.id AS usuario_id
+      FROM alumnos a
+      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN padres p ON ap.padre_id = p.id
+      JOIN usuarios u ON p.usuario_id = u.id
+      WHERE a.id = $1 LIMIT 1
+    `, [alumno_id]);
 
-      if (padreResult.rows.length > 0) {
-        const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
-        await enviarMensaje({
-          telefono,
-          clave: 'alerta_salud',
-          variables: {
-            nombre_padre: padre_nombre.split(' ')[0],
-            nombre_alumno: alumno_nombre,
-            tipo_alerta: 'Vómito fuerte',
-          },
-          alumnoId: alumno_id,
-        });
-        if (usuario_id) {
-          await query(`
-            INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
-            VALUES ($1, $2, $3, 'alerta_vomito', $4)
-          `, [
-            usuario_id,
-            `⚠️ Alerta de salud — ${alumno_nombre}`,
-            `Vómito fuerte registrado en ${alumno_nombre}.`,
-            JSON.stringify({ alumno_id, tipo: 'vomito_fuerte' }),
-          ]);
-        }
+    if (padreResult.rows.length > 0) {
+      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+      const tipoAlerta = intensidad === 'fuerte' ? 'Vómito fuerte' : intensidad === 'moderado' ? 'Vómito moderado' : 'Vómito leve';
+      const emoji = intensidad === 'fuerte' ? '🚨' : intensidad === 'moderado' ? '🤮' : '🤢';
+
+      await enviarMensaje({
+        telefono,
+        clave: 'alerta_salud',
+        variables: {
+          nombre_padre: padre_nombre.split(' ')[0],
+          nombre_alumno: alumno_nombre,
+          tipo_alerta: tipoAlerta,
+        },
+        alumnoId: alumno_id,
+      });
+      if (usuario_id) {
+        await query(`
+          INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+          VALUES ($1, $2, $3, 'alerta_vomito', $4)
+        `, [
+          usuario_id,
+          `${emoji} Alerta de salud — ${alumno_nombre}`,
+          `${tipoAlerta} registrado en ${alumno_nombre}.`,
+          JSON.stringify({ alumno_id, tipo: 'vomito', intensidad }),
+        ]);
       }
     }
 

@@ -10,6 +10,27 @@
 
 ---
 
+## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge + integraciones)
+
+> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados y validados. Pendiente: casos edge y validaciones especiales. 
+> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+3
+
+### Integraciones Pendientes:
+- [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos)
+- [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes
+
+### Casos Edge Pendientes de Validación:
+- [ ] Alumno CON pañal pero SIN insumos en stock → Comportamiento cuando stock = 0
+- [ ] Múltiples vómitos en el día → Validar que aparecen todos ordenados por hora
+- [ ] Recepción medicamento sin hora programada → Confirma "Sin hora" aparece en lista
+- [ ] Job cron a las 3:05 PM (fuera de horario 7-16) → Validar NO ejecuta
+- [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → Validar NO ejecuta
+- [ ] Job cron a las 15:58 (dentro de rango) → Validar ejecuta correctamente
+- [ ] Entrega conforme SIN marcar checkboxes → POST aceptable con valores `false`
+- [ ] Cambio de fecha (medianoche) → Datos de ayer no aparecen (aislamiento por día)
+
+---
+
 ## 🎨 UX/UI AUDIT Y MEJORA
 
 - [ ] **Revisar y mejorar UX/UI completa (web + mobile)**

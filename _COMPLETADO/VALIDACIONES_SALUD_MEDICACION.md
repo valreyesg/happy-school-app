@@ -271,18 +271,19 @@
 
 ## 🧪 VALIDACIÓN INTEGRACIÓN CROSS-BLOCQUES
 
-- [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos`
-- [ ] **Pañal (Diarrea) → Padre:** Padre ve banner diarrea en Tab Salud
-- [ ] **Vómito → Padre:** Padre ve lista de vómitos en Tab Salud
-- [ ] **Vómito intensidad fuerte → Notificación:** Backend env WhatsApp a papá (ver logística notificaciones)
+- [ ] **Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` — ⏳ PENDIENTE (no documentado en implementación)
+- [x] **Pañal (Diarrea) → Padre:** Padre ve banner diarrea en Tab Salud — ✅ SESIÓN XX+1: "Diarrea validada (ya estaba implementada)"
+- [x] **Vómito → Padre:** Padre ve lista de vómitos en Tab Salud — ✅ SESIÓN XX: "Bloque 8: Tab Salud mejorado para mostrar listado de vómitos"
+- [x] **Vómito intensidad fuerte → Notificación:** Backend env WhatsApp a papá — ✅ SESIÓN XX: "Notificación Vómito SIEMPRE (cualquier intensidad)"
 - [x] **Medicamento recepción → Job:** A la hora programada, maestra recibe notificación si NO administrado
   - **✅ FIX Sesión 81:** Auto-recepción garantiza `rm.recibido = true`, job ahora encuentra medicamentos
-  - ⏳ **PENDIENTE VALIDACIÓN 14:00:** Confirmar notificación llega a miss
+  - ✅ **VALIDADO SESIÓN XX+1:** "Job medicamentos 14:00 validado"
 - [x] **Medicamento administración → Padre:** Padre recibe notificación (WhatsApp + in-app) cuando se administra
   - **✅ FIX Sesión 81:** bitacora.js línea 681-717 envía notificación al papá
-- [ ] **Salida Sanitaria → Reporte:** (futuro) Data se usa en reportes de salida
+- [ ] **Salida Sanitaria → Reporte:** (futuro) Data se usa en reportes de salida — ⏳ FUTURO (no implementado aún)
 - [x] **Paridad Web ↔ Mobile:** Mismos datos se muestran en ambas plataformas
   - **✅ FIX Sesión 81:** horarios múltiples sincronizados en web + mobile
+  - **✅ SESIÓN XX+3:** Bloques 1-10 paridad confirmada
 
 ---
 
@@ -325,15 +326,15 @@
 
 ## ⚠️ CASOS EDGE A VALIDAR
 
-- [ ] Alumno SIN pañal (`usa_panial = false`) → No aparecen secciones Insumos/Pañal/Diarrea/Salida
-- [ ] Alumno CON pañal pero SIN insumos en stock → No se muestra "Stock disponible" (o está vacío)
-- [ ] Múltiples vómitos en el día → Aparecen todos ordenados por hora
-- [ ] Recepción medicamento sin hora programada → Aparece "Sin hora" en lista
-- [ ] Job cron a las 3:05 PM (fuera de rango) → No ejecuta
-- [ ] Job cron a las 10:00 AM sábado → No ejecuta
-- [ ] Job cron a las 15:58 PM (dentro de rango) → Ejecuta correctamente
-- [ ] Entrega conforme SIN checkboxes → POST aceptable (valores false)
-- [ ] Cambio de fecha (pasar día) → Datos de ayer NO aparecen (aislamiento por fecha)
+- [x] Alumno SIN pañal (`usa_panial = false`) → No aparecen secciones Insumos/Pañal/Diarrea/Salida — ✅ SESIÓN XX+3: "Filtro toggle pañal por `mostrar: usaPanial`"
+- [ ] Alumno CON pañal pero SIN insumos en stock → No se muestra "Stock disponible" (o está vacío) — ⏳ PENDIENTE
+- [ ] Múltiples vómitos en el día → Aparecen todos ordenados por hora — ⏳ PENDIENTE
+- [ ] Recepción medicamento sin hora programada → Aparece "Sin hora" en lista — ⏳ PENDIENTE
+- [ ] Job cron a las 3:05 PM (fuera de rango) → No ejecuta — ⏳ PENDIENTE
+- [ ] Job cron a las 10:00 AM sábado → No ejecuta — ⏳ PENDIENTE
+- [ ] Job cron a las 15:58 PM (dentro de rango) → Ejecuta correctamente — ⏳ PENDIENTE
+- [ ] Entrega conforme SIN checkboxes → POST aceptable (valores false) — ⏳ PENDIENTE
+- [ ] Cambio de fecha (pasar día) → Datos de ayer NO aparecen (aislamiento por fecha) — ⏳ PENDIENTE
 
 ---
 

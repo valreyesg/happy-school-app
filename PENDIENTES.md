@@ -1,24 +1,10 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** 86
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX (Insumos) → Próxima: ???
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🟡 VALIDACIONES PENDIENTES — (ejecutar hoy 2026-04-28)
-
-### Sesión XX: Solicitud Toallitas Húmedas
-1. **FiltroEntrada de Sofía Reyes Mendoza**
-   - [ ] Debe aparecer banner amarillo "🧻 Pendiente: llevar toallitas"
-   - [ ] Presionar "✅ Las trajo hoy" → debe marcar como resuelta y desaparecer banner
-   - [ ] **NOTA:** La query de solicitudes busca `fecha = CURRENT_DATE` — si necesita mostrar solicitudes de ayer, cambiar a `fecha <= CURRENT_DATE`
-
-2. **Stock sin pañales**
-   - [ ] Desmarcar "Trajo pañales hoy" en entrada
-   - [ ] Abrir bitácora → stock debe ser "4 pañales" (saldo de ayer)
-   - [ ] Registrar cambio → stock baja a "3 pañales"
-
----
 
 ## 🎨 UX/UI AUDIT Y MEJORA
 

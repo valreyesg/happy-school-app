@@ -1,7 +1,7 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-27 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos)
 
 ---
 
@@ -53,6 +53,73 @@
 - ⏳ Notificación a padres en portal (campanita) cuando se genera recargo
 - ⏳ Notificación WhatsApp a padres (opcional, requiere plantilla)
 - ⏳ Panel directora para condonar recargos (PENDIENTES.md línea 72)
+
+---
+
+## ✅ SESIÓN XX — Insumos: Persistencia y Visualización Pañales + Toallitas (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO Y VALIDADO — Persistencia de pañales y toallitas traídos en entrada, visible en 3 bitácoras
+
+### Implementado:
+
+**BD — Migración 040:**
+- ✅ Nueva columna `trajo_toallitas BOOLEAN DEFAULT false` en `registro_entrada`
+- Se marca cuando el padre entrega toallitas en FiltroEntrada
+
+**Backend — `routes/insumos.js`:**
+- ✅ PUT `/insumos/solicitudes/:solicitudId/recibida` — Al marcar "Las trajo hoy":
+  - Resuelve la solicitud en `insumos_solicitudes`
+  - **Crea o actualiza** `registro_entrada` con `trajo_toallitas = true` usando `INSERT ... ON CONFLICT`
+  - Maneja caso donde `registro_entrada` aún no existe (padre entrega en salida, no entrada)
+
+**Backend — `routes/asistencia.js`:**
+- ✅ GET `/asistencia/filtro-entrada/:alumnoId?fecha=YYYY-MM-DD` — Expone 2 nuevas columnas:
+  - `trajo_paniales` (ya existía, ahora visible)
+  - `trajo_toallitas` (nueva)
+
+**Frontend — Bitácora del Padre** (`pages/padre/Bitacora.jsx`):
+- ✅ Tab "Entrada" → Checklist: agrega 2 píldoras condicionales:
+  - `Trajo pañales` — aparece si `usa_panial && entradaMostrada.trajo_paniales`
+  - `Trajo toallitas` — aparece si `entradaMostrada.trajo_toallitas`
+- ✅ **Fix:** Cambió lógica para usar siempre `entradaHistorica` (query dinámica) en lugar de datos cacheados (`entradaHoy`)
+
+**Frontend — Bitácora de la Maestra** (`pages/maestra/Bitacora.jsx`):
+- ✅ Agregó query dinámica a `/asistencia/filtro-entrada/:alumnoId`
+- ✅ Bloque pañales → notas visuales (badges):
+  - Verde: `🧷 Trajo pañales hoy` si `trajo_paniales = true`
+  - Azul: `🧻 Trajo toallitas hoy` si `trajo_toallitas = true`
+
+**Frontend — Bitácora de la Directora** (`pages/directora/AlumnoPerfil.jsx`):
+- ✅ Agregó query dinámica a `/asistencia/filtro-entrada/:alumnoId`
+- ✅ Nueva sección visual: `🧷 Insumos traídos`
+  - Badges verdes/azules con pañales y toallitas traídos
+  - Solo aparece si hay datos
+
+### Validaciones completadas:
+- ✅ FiltroEntrada: presionó "Las trajo hoy" en banner de toallitas
+- ✅ BD: `trajo_toallitas` marcado como `true` en `registro_entrada`
+- ✅ Bitácora Maestra: muestra badge azul `🧻 Trajo toallitas hoy`
+- ✅ Bitácora Padre: muestra píldora `Trajo toallitas` en checklist entrada
+- ✅ Bitácora Directora: muestra sección `Insumos traídos` con badge toallitas
+- ✅ Alumno: Sofía Reyes Mendoza (ID: `a35cebfa-88be-45f0-b72a-83afdf77e18b`)
+
+### Archivos modificados:
+- `backend/migrations/040_trajo_toallitas_entrada.sql` (nueva)
+- `backend/src/routes/insumos.js` (PUT `/insumos/solicitudes/:id/recibida`)
+- `backend/src/routes/asistencia.js` (GET `/asistencia/filtro-entrada/:alumnoId`)
+- `web/src/pages/padre/Bitacora.jsx` (fix lógica entrada, 2 píldoras)
+- `web/src/pages/maestra/Bitacora.jsx` (query entrada, badges)
+- `web/src/pages/directora/AlumnoPerfil.jsx` (query entrada, sección insumos)
+
+### Commit:
+- Hash: `63e0927` — `feat: Sesión XX — Persistencia y visualización de insumos (pañales/toallitas) en bitácoras`
+
+### Notas técnicas:
+- **Problema:** Al marcar "Las trajo hoy" ANTES de registrar entrada, no existía `registro_entrada` aún
+- **Solución:** `INSERT ... ON CONFLICT (alumno_id, fecha) DO UPDATE` crea o actualiza el registro
+- **Por qué aparecía en maestra pero no en padre:** Padre usaba datos cacheados (`entradaHoy`), ahora usa query dinámica
+- Stock diario sigue en tabla separada (`insumos_stock_diario`), se descuenta por cambios de pañal
+- Solicitudes de toallitas siguen en tabla separada (`insumos_solicitudes`), se resuelven en entrada
 
 ---
 

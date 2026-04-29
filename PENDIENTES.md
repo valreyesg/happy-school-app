@@ -5,11 +5,11 @@
 
 ---
 
-## ✅ VALIDACIÓN UX/UI — FASES 1-3.5 (Sesiones XX+15/XX+16 — COMPLETADAS)
+## ✅ VALIDACIÓN UX/UI — FASES 1-5.1 (Sesiones XX+15/XX+16 — COMPLETADAS)
 
-> **Estado:** IMPLEMENTADO — Cambios completados. PENDIENTE: Validación en browser por Valeria
-> **Sesión:** XX+15/XX+16 — Homogenización web + componentes base mobile + ANIMO keys
-> **Bloqueante:** NO — cambios solo de estilos y display, sin funcionalidad afectada
+> **Estado:** IMPLEMENTADO — Cambios completados. PENDIENTE: Validación en browser + device por Valeria
+> **Sesión:** XX+15/XX+16 — Homogenización web + componentes base mobile + ANIMO keys + AppShell paridad
+> **Bloqueante:** NO — cambios solo de estilos y estructura, sin funcionalidad afectada
 
 ### ✅ Cambios implementados:
 
@@ -98,9 +98,45 @@
 
 ---
 
+## 🔧 VALIDACIÓN APPSHELL — Paridad web (por Valeria en browser)
+
+**FASE 5.1 — AppShell compartido (http://localhost:5173 en los 3 portales):**
+
+**Portal PADRE (http://localhost:5173/padre):**
+- [ ] Header SIEMPRE visible (antes solo en móvil) — contiene Menu hamburguesa, Logo móvil, NotificationBell
+- [ ] NotificationBell visible en MÓVIL (nuevo — antes solo en desktop)
+- [ ] NotificationBell visible en DESKTOP (confirmar sigue ahí)
+- [ ] Sidebar rojo correcto con nav activo en rojo
+- [ ] Sidebar toggle móvil funciona, logout responde
+- [ ] NO hay topbar desktop separado (antes: `hidden lg:flex` con campanita)
+
+**Portal MAESTRA (http://localhost:5173/maestra):**
+- [ ] Header SIEMPRE visible (igual que antes — sin cambios) — Menu, Logo móvil, NotificationBell
+- [ ] NotificationBell visible en MÓVIL Y DESKTOP (confirmar sigue igual)
+- [ ] Sidebar verde correcto con nav activo en verde
+- [ ] Sidebar toggle móvil funciona, logout responde
+
+**Portal DIRECTORA (http://localhost:5173/directora):**
+- [ ] Header SIEMPRE visible (antes solo en móvil) — contiene Menu hamburguesa, Logo móvil, NotificationBell
+- [ ] NotificationBell visible en MÓVIL (NUEVO — antes ausente)
+- [ ] NotificationBell visible en DESKTOP (NUEVO — antes ausente)
+- [ ] Sidebar púrpura correcto con nav activo en púrpura
+- [ ] Sidebar toggle móvil funciona, logout responde
+
+**GENERAL (Los 3 portales):**
+- [ ] Logout hover color consistente: fondo rojo claro + texto rojo (antes: Padre era hs-red/10)
+- [ ] Footer con `space-y-2` entre avatar y botón logout (antes: solo en Padre)
+- [ ] Responsive correcto: en móvil (< 1024px), el header y sidebar se comportan igual en los 3
+- [ ] En desktop (≥ 1024px), el sidebar es sidebar (no se oculta), header visible, NotificationBell siempre visible
+- [ ] Consola browser: SIN errores de clase Tailwind no reconocidas (ej: `bg-hs-red`, `text-hs-green`, etc.)
+
+**Conclusión AppShell:** ✅ Cuando hayas validado todos los items, confirmar aquí para cerrar validación.
+
+---
+
 ## 🎨 FASES UX/UI PENDIENTES — Próximas sesiones
 
-> **Estado:** FASES 1-4.4 + 3.5 COMPLETADAS (Sesión XX+16)
+> **Estado:** FASES 1-4.5 + 3.5 + 5.1 COMPLETADAS (Sesión XX+16)
 > **Próximo:** FASE 4.5 (limpiar TODOs) + FASE 5 (refactores mayores)
 > **Tiempo estimado:** 2-3 sesiones (limpieza + AppShell + modales)
 
@@ -125,6 +161,25 @@
 **Pendiente validación en device/emulador (por Valeria)**
 
 ### ✅ FASE 4.5 — Limpiar comentarios obsoletos (COMPLETADA Sesión XX+16)
+
+- Sin TODOs encontrados en mobile/FASES 4.x — código ya estaba limpio
+
+### ✅ FASE 5.1 — Extraer AppShell compartido (web) (COMPLETADA Sesión XX+16)
+
+**Cambios ejecutados:**
+- [x] Creado `web/src/layouts/AppShell.jsx` — estructura unificada para los 3 portales
+- [x] Refactorizado `PadreLayout.jsx` (22 líneas, -88 líneas duplicadas)
+- [x] Refactorizado `MaestraLayout.jsx` (20 líneas, -89 líneas duplicadas)
+- [x] Refactorizado `DirectoraLayout.jsx` (25 líneas, -86 líneas duplicadas)
+
+**Paridad alcanzada:**
+- Header siempre visible en los 3 portales (antes: Padre solo móvil, Directora solo móvil)
+- NotificationBell visible móvil + desktop en los 3 (antes: Padre desktop solo, Directora ausente)
+- Logout hover color consistente: `hover:bg-red-50 hover:text-red-500` en los 3
+- Footer con `space-y-2` en los 3 (antes: solo en Padre)
+- Código duplicado eliminado: ~126 líneas (330 → 240 total)
+
+**Pendiente validación en browser (ver checklist "VALIDACIÓN APPSHELL" arriba)**
 
 > Sin TODOs encontrados en mobile/FASES 4.x — código limpio
 

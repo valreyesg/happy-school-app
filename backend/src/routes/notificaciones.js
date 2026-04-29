@@ -76,7 +76,7 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
       padresResult = await query(`
         SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre
         FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
         JOIN usuarios u ON p.usuario_id = u.id
         WHERE a.deleted_at IS NULL
@@ -85,7 +85,7 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
       padresResult = await query(`
         SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre
         FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
         JOIN usuarios u ON p.usuario_id = u.id
         WHERE a.grupo_id = ANY($1::uuid[]) AND a.deleted_at IS NULL

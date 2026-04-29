@@ -1,7 +1,57 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-29 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos)
+**Última actualización:** 2026-04-29 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → **XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos)**
+
+---
+
+## ✅ SESIÓN XX+11 (2026-04-29) — Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos (COMPLETADO)
+
+**Fecha:** 2026-04-29 | **Estado:** ✅ COMPLETADO Y VALIDADO EN BROWSER
+
+### BLOQUE 1 — Documentos INE en formulario tutores ✅
+- `web/src/pages/directora/AlumnoPerfil.jsx` — SeccionPadres
+  - Nuevo tutor y editar tutor: 3 campos de imagen (Foto, INE frente, INE reverso)
+  - Grid 3 columnas con upload dashed border
+  - Al guardar: POST a `/alumnos/{alumnoId}/padres/{padreId}/documentos` con FormData
+
+### BLOQUE 2 — Notificaciones a todos los padres ✅
+- `backend/src/routes/bitacora.js` — Vómito, Diarrea, Bitácora lista, Incidente: loop sobre TODOS los padres del alumno (eliminado filtro `es_tutor_principal = true`)
+- `backend/src/routes/asistencia.js` — Retardo en entrada: mismo patrón
+- `backend/src/routes/notificaciones.js` — Aviso extraordinario: eliminado filtro es_tutor_principal en ambas branches (sin/con grupo_ids)
+
+### BLOQUE 3 — Configuración notificaciones ampliada ✅
+- `web/src/pages/directora/Configuracion.jsx` — `TIPOS_NOTIFICACION` expandido de 5 a 12 tipos
+  - Nuevos: entrada_rechazada, salida_anticipada, alerta_vomito, alerta_diarrea, solicitud_toallitas, solicitud_paniales, bitacora_lista, tarea_cancelada
+- `web/src/components/NotificacionModal.jsx` — `CONFIG_TIPO` con estilos específicos para los 12 tipos
+- `backend/src/routes/tareas.js` — Bug fix: tarea cancelada ahora usa tipo `tarea_cancelada` (antes usaba `tarea_nueva`)
+
+### BLOQUE 4a — Parentesco en formularios (dropdown) ✅
+- `web/src/pages/directora/AlumnoPerfil.jsx` — SeccionPadres y SeccionPersonasAutorizadas
+  - `useCatalogo('parentesco')` en 3 formularios: editar tutor, nuevo tutor, nueva persona autorizada
+  - `<select>` en lugar de `<input>` texto libre
+
+### BLOQUE 4b — Alergias multi-select en formulario alumno ✅
+- `web/src/pages/directora/Alumnos.jsx` — ModalAlumno
+  - `useCatalogo('alergias')` con checkboxes para cada alergia del catálogo
+  - Campo "Otras alergias" para texto libre adicional
+  - Concatenación: alergias seleccionadas + otras → `form.alergias` (string)
+
+### BLOQUE 5 — Categorías de Eventos en Configuración ✅
+- **Backend** (`backend/src/routes/calendario.js`) — 3 rutas nuevas:
+  - `GET /categorias/admin` — lista activos+inactivos (directora)
+  - `PUT /categorias/:id` — editar o cambiar activo (COALESCE + UNIQUE constraint)
+  - `DELETE /categorias/:id` — soft-delete
+- **Web** — Componente `CategoriasEventoCard` agregado al final del tab Catálogos en `Configuracion.jsx`
+  - Lista activas con botones Editar / Desactivar
+  - Inactivas colapsadas con botón Reactivar
+  - Usa `ModalCategoria` existente para crear/editar
+- `web/src/components/directora/ModalCategoria.jsx` — Modal nuevo con campos nombre, color_hex (picker + hex), icono emoji
+- Calendatio.jsx limpiado: panel "Gestionar categorías" removido, imports simplificados
+
+### Validación ✅
+- Configuración → Catálogos → 📅 Categorías de eventos visible y funcional
+- CRUD completo: crear, editar, desactivar, reactivar validado en browser
 
 ---
 

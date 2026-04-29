@@ -319,6 +319,7 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
 function ModalAlumno({ alumno, grupos, onCerrar }) {
   const queryClient = useQueryClient();
   const esEdicion = !!alumno;
+  const { items: alergiasItems } = useCatalogo('alergias');
 
   const [form, setForm] = useState({
     nombre_completo:       alumno?.nombre_completo       || '',
@@ -333,14 +334,38 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
     medico_telefono:       alumno?.medico_telefono       || '',
     notas:                 alumno?.notas                 || '',
   });
+  const [alergiasSeleccionadas, setAlergiasSeleccionadas] = useState(() => {
+    if (!form.alergias) return [];
+    return form.alergias.split(',').map(a => a.trim()).filter(Boolean);
+  });
+  const [alergiasOtras, setAlergiasOtras] = useState(() => {
+    if (!form.alergias) return '';
+    const catalogoKeys = alergiasItems.map(a => a.key);
+    const noEnCatalogo = form.alergias.split(',').map(a => a.trim()).filter(a => !catalogoKeys.includes(a) && a);
+    return noEnCatalogo.join(', ');
+  });
 
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(alumno?.foto_url || null);
 
   const set = (campo, valor) => setForm(prev => ({ ...prev, [campo]: valor }));
 
+  const toggleAlergia = (alergia) => {
+    setAlergiasSeleccionadas(prev =>
+      prev.includes(alergia)
+        ? prev.filter(a => a !== alergia)
+        : [...prev, alergia]
+    );
+  };
+
+  const sincronizarAlergias = () => {
+    const todas = [...alergiasSeleccionadas, ...(alergiasOtras ? alergiasOtras.split(',').map(a => a.trim()) : [])].filter(Boolean);
+    set('alergias', todas.join(', '));
+  };
+
   const guardar = useMutation({
     mutationFn: async () => {
+      sincronizarAlergias();
       if (!form.curp || form.curp.trim() === '') {
         throw new Error('La CURP es obligatoria');
       }
@@ -506,13 +531,29 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
           <fieldset className="space-y-4">
             <legend className="text-sm font-black text-gray-500 uppercase tracking-wide">Salud</legend>
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">⚠️ Alergias</label>
-              <input
-                className="input-hs"
-                placeholder="Ej: mariscos, cacahuates, lácteos..."
-                value={form.alergias}
-                onChange={e => set('alergias', e.target.value)}
-              />
+              <label className="block text-sm font-bold text-gray-700 mb-3">⚠️ Alergias</label>
+              <div className="space-y-2 mb-3">
+                {alergiasItems.map(allergia => (
+                  <label key={allergia.key} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={alergiasSeleccionadas.includes(allergia.key)}
+                      onChange={() => toggleAlergia(allergia.key)}
+                      className="w-4 h-4 rounded border-gray-300"
+                    />
+                    <span className="text-sm text-gray-700">{allergia.emoji} {allergia.label}</span>
+                  </label>
+                ))}
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Otras alergias</label>
+                <input
+                  className="input-hs text-sm"
+                  placeholder="Separadas por comas (Ej: mariscos, cacahuates…)"
+                  value={alergiasOtras}
+                  onChange={e => setAlergiasOtras(e.target.value)}
+                />
+              </div>
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">Condiciones especiales</label>

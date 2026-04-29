@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-29 | **Sesión XX+10:** ✅ COMPLETADA | **Próximos pendientes:** Categorías Eventos UI + Unificar Parentesco + SALUD edge cases
+**Última actualización:** 2026-04-29 | **Sesión XX+11:** ✅ COMPLETADA | **Próximos pendientes:** SALUD edge cases + UX/UI Audit + Finanzas
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -24,20 +24,6 @@
 - [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp (in-app ya existe)
 
 ---
-
----
-
-## 🗂️ CATÁLOGOS ADMINISTRABLES — CATEGORÍAS EVENTOS (⏳ ÚLTIMA TAREA PENDIENTE)
-
-> ℹ️ **FASES 1-6 y 3/4 catálogos completados en sesiones XX+6 a XX+10.**
-> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesión XX+10
-
-### ⏳ Categorías de Eventos (pendiente UI — backend endpoint `/calendario/categorias` ya existe)
-- [ ] Agregar sección de gestión en `web/src/pages/directora/Calendario.jsx`
-  - Lista de categorías existentes
-  - Botones: Crear, Editar, Inactivar
-  - Modal para crear/editar (nombre, color, icono)
-- [ ] Validación en browser
 
 ---
 

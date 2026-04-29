@@ -434,7 +434,7 @@ router.delete('/:id', authorize('maestra_titular', 'maestra_especial'), async (r
       for (const padre of padresResult.rows) {
         await query(`
           INSERT INTO notificaciones (usuario_id, tipo, titulo, cuerpo, datos_extra)
-          VALUES ($1, 'tarea_nueva', $2, $3, $4)
+          VALUES ($1, 'tarea_cancelada', $2, $3, $4)
         `, [padre.id, `Tarea cancelada: ${tarea.titulo}`, `La tarea "${tarea.titulo}" fue eliminada por la maestra.`, JSON.stringify({ alumno_nombre: padre.alumno_nombre })]);
 
         if (padre.telefono) {

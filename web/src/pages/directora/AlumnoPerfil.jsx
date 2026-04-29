@@ -156,10 +156,20 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const fotoRefs = useRef({});
+  const [fotoNuevaRef, setFotoNuevaRef] = useState(null);
+  const [ineFrente, setIneFrente] = useState(null);
+  const [ineReverso, setIneReverso] = useState(null);
+  const [fotoEditarRef, setFotoEditarRef] = useState(null);
+  const [ineEditarFrente, setIneEditarFrente] = useState(null);
+  const [ineEditarReverso, setIneEditarReverso] = useState(null);
+  const { items: parentescoItems } = useCatalogo('parentesco');
 
   const iniciarEdicion = (p) => {
     setEditandoId(p.id);
     setFormEditar({ nombre_completo: p.nombre_completo, parentesco: p.parentesco, telefono: p.telefono, telefono_whatsapp: p.telefono_whatsapp || '', email: p.email || '' });
+    setFotoEditarRef(null);
+    setIneEditarFrente(null);
+    setIneEditarReverso(null);
     setError('');
   };
 
@@ -168,8 +178,19 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
     setError('');
     try {
       await api.put(`/alumnos/${alumnoId}/padres/${padreId}`, formEditar);
+      // Subir archivos si existen
+      if (fotoEditarRef || ineEditarFrente || ineEditarReverso) {
+        const fd = new FormData();
+        if (fotoEditarRef) fd.append('foto', fotoEditarRef);
+        if (ineEditarFrente) fd.append('ine_frente', ineEditarFrente);
+        if (ineEditarReverso) fd.append('ine_reverso', ineEditarReverso);
+        await api.post(`/alumnos/${alumnoId}/padres/${padreId}/documentos`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      }
       queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
       setEditandoId(null);
+      setFotoEditarRef(null);
+      setIneEditarFrente(null);
+      setIneEditarReverso(null);
       toast.success('Tutor actualizado');
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al guardar');
@@ -198,10 +219,20 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
     }
     setSaving(true);
     try {
-      await api.post(`/alumnos/${alumnoId}/padres`, formNuevo);
+      const resultado = await api.post(`/alumnos/${alumnoId}/padres`, formNuevo);
+      const padreId = resultado.data.id;
+      // Subir archivos si existen
+      if (fotoNuevaRef || ineFrente || ineReverso) {
+        const fd = new FormData();
+        if (fotoNuevaRef) fd.append('foto', fotoNuevaRef);
+        if (ineFrente) fd.append('ine_frente', ineFrente);
+        if (ineReverso) fd.append('ine_reverso', ineReverso);
+        await api.post(`/alumnos/${alumnoId}/padres/${padreId}/documentos`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      }
       queryClient.invalidateQueries(['alumno-perfil', alumnoId]);
       setMostrarFormNuevo(false);
       setFormNuevo({ nombre_completo: '', parentesco: '', telefono: '', telefono_whatsapp: '', email: '', es_tutor_principal: false });
+      setFotoNuevaRef(null); setIneFrente(null); setIneReverso(null);
       toast.success('Tutor agregado');
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al agregar');
@@ -247,7 +278,12 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Parentesco</label>
-                    <input className="input-hs w-full" placeholder="Mamá, Papá, Tutor…" value={formEditar.parentesco} onChange={e => setFormEditar(f => ({ ...f, parentesco: e.target.value }))} />
+                    <select className="input-hs w-full" value={formEditar.parentesco} onChange={e => setFormEditar(f => ({ ...f, parentesco: e.target.value }))}>
+                      <option value="">— Selecciona —</option>
+                      {parentescoItems.map(p => (
+                        <option key={p.key} value={p.key}>{p.emoji} {p.label}</option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono</label>
@@ -261,6 +297,18 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
                     <input className="input-hs w-full" type="email" value={formEditar.email} onChange={e => setFormEditar(f => ({ ...f, email: e.target.value }))} />
                   </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: 'Foto', key: 'foto', setter: setFotoEditarRef, val: fotoEditarRef },
+                    { label: 'INE frente', key: 'ine_frente', setter: setIneEditarFrente, val: ineEditarFrente },
+                    { label: 'INE reverso', key: 'ine_reverso', setter: setIneEditarReverso, val: ineEditarReverso },
+                  ].map(({ label, key, setter, val }) => (
+                    <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-xl p-3 cursor-pointer hover:bg-blue-100 transition-colors">
+                      <span className="text-xs font-bold text-blue-600 text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={e => setter(e.target.files[0])} />
+                    </label>
+                  ))}
                 </div>
                 <div className="flex gap-2">
                   <button className="btn-hs btn-hs-ghost flex-1" onClick={() => setEditandoId(null)}>Cancelar</button>
@@ -302,7 +350,12 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Parentesco *</label>
-              <input className="input-hs w-full" placeholder="Mamá, Papá, Abuela…" value={formNuevo.parentesco} onChange={e => setFormNuevo(f => ({ ...f, parentesco: e.target.value }))} />
+              <select className="input-hs w-full" value={formNuevo.parentesco} onChange={e => setFormNuevo(f => ({ ...f, parentesco: e.target.value }))}>
+                <option value="">— Selecciona —</option>
+                {parentescoItems.map(p => (
+                  <option key={p.key} value={p.key}>{p.emoji} {p.label}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono *</label>
@@ -316,6 +369,18 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
               <input className="input-hs w-full" type="email" value={formNuevo.email} onChange={e => setFormNuevo(f => ({ ...f, email: e.target.value }))} />
             </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: 'Foto', key: 'foto', setter: setFotoNuevaRef, val: fotoNuevaRef },
+              { label: 'INE frente', key: 'ine_frente', setter: setIneFrente, val: ineFrente },
+              { label: 'INE reverso', key: 'ine_reverso', setter: setIneReverso, val: ineReverso },
+            ].map(({ label, key, setter, val }) => (
+              <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-xl p-3 cursor-pointer hover:bg-blue-100 transition-colors">
+                <span className="text-xs font-bold text-blue-600 text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
+                <input type="file" accept="image/*" className="hidden" onChange={e => setter(e.target.files[0])} />
+              </label>
+            ))}
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={formNuevo.es_tutor_principal} onChange={e => setFormNuevo(f => ({ ...f, es_tutor_principal: e.target.checked }))} />
@@ -466,6 +531,7 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
+  const { items: parentescoItems } = useCatalogo('parentesco');
 
   const guardar = async () => {
     setError('');
@@ -550,7 +616,12 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Parentesco *</label>
-              <input className="input-hs w-full" placeholder="Mamá, Abuelo…" value={form.parentesco} onChange={e => setForm(f => ({ ...f, parentesco: e.target.value }))} />
+              <select className="input-hs w-full" value={form.parentesco} onChange={e => setForm(f => ({ ...f, parentesco: e.target.value }))}>
+                <option value="">— Selecciona —</option>
+                {parentescoItems.map(p => (
+                  <option key={p.key} value={p.key}>{p.emoji} {p.label}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Teléfono *</label>

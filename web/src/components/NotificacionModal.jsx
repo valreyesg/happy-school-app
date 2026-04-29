@@ -1,6 +1,42 @@
 import React from 'react';
 
 const CONFIG_TIPO = {
+  entrada_rechazada: {
+    color: '#C53030',
+    bgLight: '#FFF5F5',
+    icono: '🚫',
+    label: 'Entrada rechazada',
+  },
+  salida_anticipada: {
+    color: '#7C2D12',
+    bgLight: '#FEF3C7',
+    icono: '🚪',
+    label: 'Salida anticipada',
+  },
+  alerta_vomito: {
+    color: '#D69E2E',
+    bgLight: '#FEF3C7',
+    icono: '🤢',
+    label: 'Alerta de vómito',
+  },
+  alerta_diarrea: {
+    color: '#F56565',
+    bgLight: '#FFF5F5',
+    icono: '⚠️',
+    label: 'Alerta de salud',
+  },
+  solicitud_toallitas: {
+    color: '#0987A0',
+    bgLight: '#E0F2FE',
+    icono: '🧻',
+    label: 'Solicitud de toallitas',
+  },
+  solicitud_paniales: {
+    color: '#0891B2',
+    bgLight: '#ECFDF5',
+    icono: '🍼',
+    label: 'Solicitud de pañales',
+  },
   incidente: {
     color: '#E53E3E',
     bgLight: '#FFF5F5',
@@ -12,6 +48,30 @@ const CONFIG_TIPO = {
     bgLight: '#FFFAF0',
     icono: '📢',
     label: 'Aviso',
+  },
+  bitacora_lista: {
+    color: '#38A169',
+    bgLight: '#F0FDF4',
+    icono: '📝',
+    label: 'Bitácora lista',
+  },
+  medicamento: {
+    color: '#9F7AEA',
+    bgLight: '#FAF5FF',
+    icono: '💊',
+    label: 'Medicamento',
+  },
+  tarea_nueva: {
+    color: '#3182CE',
+    bgLight: '#EBF8FF',
+    icono: '📚',
+    label: 'Tarea nueva',
+  },
+  tarea_cancelada: {
+    color: '#718096',
+    bgLight: '#F7FAFC',
+    icono: '📋',
+    label: 'Tarea cancelada',
   },
 };
 

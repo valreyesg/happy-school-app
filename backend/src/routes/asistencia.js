@@ -137,20 +137,19 @@ router.post('/entrada', async (req, res, next) => {
         AND recibido = false
     `, [alumno_id]);
 
-    // Notificaciones WhatsApp
-    const alumnoResult = await query(`
+    // Notificaciones WhatsApp — a todos los padres
+    const alumnosResult = await query(`
       SELECT a.nombre_completo, p.nombre_completo AS padre_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
              u.id AS usuario_id
       FROM alumnos a
-      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
       JOIN padres p ON ap.padre_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
-      WHERE a.id = $1 LIMIT 1
+      WHERE a.id = $1
     `, [alumno_id]);
 
-    if (alumnoResult.rows.length > 0) {
-      const info = alumnoResult.rows[0];
+    for (const info of alumnosResult.rows) {
       if (esRetardo && puedeEntrar) {
         await enviarMensaje({
           telefono: info.telefono,

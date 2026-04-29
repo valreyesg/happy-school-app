@@ -27,6 +27,51 @@ router.post('/categorias', authorize('directora'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── GET /calendario/categorias/admin ──────────────────────────────────────────
+// Lista activos e inactivos (solo directora)
+router.get('/categorias/admin', authorize('directora'), async (req, res, next) => {
+  try {
+    const result = await query('SELECT * FROM categorias_evento ORDER BY activo DESC, nombre ASC');
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+// ── PUT /calendario/categorias/:id ───────────────────────────────────────────
+// Editar categoría o cambiar activo
+router.put('/categorias/:id', authorize('directora'), async (req, res, next) => {
+  try {
+    const { nombre, color_hex, icono, activo } = req.body;
+    // Si solo se envía activo (reactivar/inactivar)
+    if (activo !== undefined && !nombre && !color_hex && !icono) {
+      await query('UPDATE categorias_evento SET activo = $1 WHERE id = $2', [activo, req.params.id]);
+      return res.json({ ok: true });
+    }
+    const result = await query(
+      `UPDATE categorias_evento
+       SET nombre = COALESCE($1, nombre),
+           color_hex = COALESCE($2, color_hex),
+           icono = COALESCE($3, icono)
+       WHERE id = $4
+       RETURNING *`,
+      [nombre || null, color_hex || null, icono || null, req.params.id]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'Categoría no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Ya existe una categoría con ese nombre' });
+    next(err);
+  }
+});
+
+// ── DELETE /calendario/categorias/:id ─────────────────────────────────────────
+// Soft-delete: inactivar categoría
+router.delete('/categorias/:id', authorize('directora'), async (req, res, next) => {
+  try {
+    await query('UPDATE categorias_evento SET activo = false WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
 // ── GET /calendario/export-pdf ────────────────────────────────────────────────
 // ?mes=YYYY-MM  genera un PDF del calendario mensual con diseño infantil
 router.get('/export-pdf', async (req, res, next) => {

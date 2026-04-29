@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, Save, Bell, Clock, BookOpen } from 'lucide-react';
+import { Settings, Save, Bell, Clock, BookOpen, Pencil, EyeOff, Plus } from 'lucide-react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
 import CatalogoEditor from '@/components/directora/CatalogoEditor';
+import ModalCategoria from '@/components/directora/ModalCategoria';
 
 const CAMPOS = [
   {
@@ -42,11 +43,18 @@ const CAMPOS = [
 ];
 
 const TIPOS_NOTIFICACION = [
+  { tipo: 'entrada_rechazada',    label: 'Entrada rechazada',         icono: '🚫' },
+  { tipo: 'salida_anticipada',    label: 'Salida anticipada',         icono: '🚪' },
+  { tipo: 'alerta_vomito',        label: 'Alerta de vómito',          icono: '🤢' },
+  { tipo: 'alerta_diarrea',       label: 'Alerta de diarrea',         icono: '⚠️' },
+  { tipo: 'solicitud_toallitas',  label: 'Solicitud de toallitas',    icono: '🧻' },
+  { tipo: 'solicitud_paniales',   label: 'Solicitud de pañales',      icono: '🍼' },
   { tipo: 'incidente',            label: 'Incidente escolar',         icono: '🚨' },
   { tipo: 'aviso_extraordinario', label: 'Aviso extraordinario',      icono: '📢' },
-  { tipo: 'bitacora_lista',       label: 'Bitácora del día lista',     icono: '📝' },
+  { tipo: 'bitacora_lista',       label: 'Bitácora del día lista',    icono: '📝' },
   { tipo: 'medicamento',          label: 'Medicamento administrado',   icono: '💊' },
-  { tipo: 'tarea_nueva',          label: 'Tarea nueva publicada',      icono: '📚' },
+  { tipo: 'tarea_nueva',          label: 'Tarea nueva publicada',     icono: '📚' },
+  { tipo: 'tarea_cancelada',      label: 'Tarea cancelada',           icono: '📋' },
 ];
 
 const COLOR_MAP = {
@@ -383,6 +391,7 @@ export default function Configuracion() {
           {CATALOGOS_CONFIG.map(({ tipo, titulo }) => (
             <CatalogoTabInline key={tipo} tipo={tipo} titulo={titulo} />
           ))}
+          <CategoriasEventoCard />
         </div>
       )}
     </div>
@@ -411,5 +420,130 @@ function CatalogoTabInline({ tipo, titulo }) {
       items={items}
       onRefresh={() => qc.invalidateQueries({ queryKey: ['catalogo-admin', tipo] })}
     />
+  );
+}
+
+function CategoriasEventoCard() {
+  const qc = useQueryClient();
+  const [modalCat, setModalCat] = useState(null); // null | 'nuevo' | categoria
+
+  const { data: cats = [], isLoading } = useQuery({
+    queryKey: ['cal-categorias-admin'],
+    queryFn: () => api.get('/calendario/categorias/admin').then(r => r.data),
+  });
+
+  const invalidar = () => qc.invalidateQueries({ queryKey: ['cal-categorias-admin'] });
+
+  const crearMut = useMutation({
+    mutationFn: (body) => api.post('/calendario/categorias', body).then(r => r.data),
+    onSuccess: () => { toast.success('Categoría creada'); invalidar(); },
+    onError: (e) => toast.error(e.response?.data?.error || 'Error al crear'),
+  });
+
+  const editarMut = useMutation({
+    mutationFn: ({ id, ...body }) => api.put(`/calendario/categorias/${id}`, body).then(r => r.data),
+    onSuccess: () => { toast.success('Categoría actualizada'); invalidar(); },
+    onError: (e) => toast.error(e.response?.data?.error || 'Error al guardar'),
+  });
+
+  const inactivarMut = useMutation({
+    mutationFn: (id) => api.delete(`/calendario/categorias/${id}`).then(r => r.data),
+    onSuccess: () => { toast.success('Categoría desactivada'); invalidar(); },
+  });
+
+  const reactivarMut = useMutation({
+    mutationFn: (id) => api.put(`/calendario/categorias/${id}`, { activo: true }).then(r => r.data),
+    onSuccess: () => { toast.success('Categoría reactivada'); invalidar(); },
+  });
+
+  const handleSave = (form) => {
+    if (modalCat === 'nuevo') return crearMut.mutateAsync(form);
+    return editarMut.mutateAsync({ id: modalCat.id, ...form });
+  };
+
+  const activas = cats.filter(c => c.activo);
+  const inactivas = cats.filter(c => !c.activo);
+
+  return (
+    <>
+      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h3 className="font-black text-gray-800 text-sm">📅 Categorías de eventos</h3>
+          <button
+            onClick={() => setModalCat('nuevo')}
+            className="flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-xl transition-all"
+          >
+            <Plus size={14} />
+            Nueva
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin w-6 h-6 border-3 border-purple-500 border-t-transparent rounded-full" />
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {activas.map(cat => (
+              <div key={cat.id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors">
+                <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color_hex }} />
+                <span className="text-lg w-7 text-center">{cat.icono || '📅'}</span>
+                <span className="flex-1 text-sm font-semibold text-gray-700">{cat.nombre}</span>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setModalCat(cat)}
+                    className="p-1.5 text-gray-400 hover:text-purple-600 rounded-lg transition-colors"
+                    title="Editar"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => inactivarMut.mutate(cat.id)}
+                    className="p-1.5 text-gray-300 hover:text-red-400 rounded-lg transition-colors"
+                    title="Desactivar"
+                  >
+                    <EyeOff size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {activas.length === 0 && (
+              <p className="px-5 py-4 text-sm text-gray-400">No hay categorías activas.</p>
+            )}
+          </div>
+        )}
+
+        {inactivas.length > 0 && (
+          <details className="border-t border-gray-100">
+            <summary className="px-5 py-2 text-xs text-gray-400 font-semibold cursor-pointer hover:bg-gray-50 select-none">
+              {inactivas.length} inactiva(s)
+            </summary>
+            <div className="divide-y divide-gray-50 bg-gray-50/50">
+              {inactivas.map(cat => (
+                <div key={cat.id} className="flex items-center gap-3 px-5 py-2.5 opacity-60">
+                  <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: cat.color_hex }} />
+                  <span className="text-lg w-7 text-center">{cat.icono || '📅'}</span>
+                  <span className="flex-1 text-sm text-gray-500 line-through">{cat.nombre}</span>
+                  <button
+                    onClick={() => reactivarMut.mutate(cat.id)}
+                    className="text-xs font-bold text-purple-600 hover:underline"
+                  >
+                    Reactivar
+                  </button>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
+      </div>
+
+      {modalCat && (
+        <ModalCategoria
+          categoria={modalCat === 'nuevo' ? null : modalCat}
+          onClose={() => setModalCat(null)}
+          onSave={async (form) => { await handleSave(form); setModalCat(null); }}
+        />
+      )}
+    </>
   );
 }

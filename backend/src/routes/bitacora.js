@@ -77,24 +77,23 @@ router.post('/vomito', async (req, res, next) => {
       RETURNING *
     `, [alumno_id, bitacora_id, intensidad, notas, req.user.id]);
 
-    // Notificar al padre de vómito (cualquier intensidad)
-    const padreResult = await query(`
+    // Notificar a todos los padres de vómito (cualquier intensidad)
+    const padresResult = await query(`
       SELECT a.nombre_completo AS alumno_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
              p.nombre_completo AS padre_nombre,
              u.id AS usuario_id
       FROM alumnos a
-      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
       JOIN padres p ON ap.padre_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
-      WHERE a.id = $1 LIMIT 1
+      WHERE a.id = $1
     `, [alumno_id]);
 
-    if (padreResult.rows.length > 0) {
-      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
-      const tipoAlerta = intensidad === 'fuerte' ? 'Vómito fuerte' : intensidad === 'moderado' ? 'Vómito moderado' : 'Vómito leve';
-      const emoji = intensidad === 'fuerte' ? '🚨' : intensidad === 'moderado' ? '🤮' : '🤢';
+    const tipoAlerta = intensidad === 'fuerte' ? 'Vómito fuerte' : intensidad === 'moderado' ? 'Vómito moderado' : 'Vómito leve';
+    const emoji = intensidad === 'fuerte' ? '🚨' : intensidad === 'moderado' ? '🤮' : '🤢';
 
+    for (const { alumno_nombre, telefono, padre_nombre, usuario_id } of padresResult.rows) {
       await enviarMensaje({
         telefono,
         clave: 'alerta_salud',
@@ -353,20 +352,19 @@ router.post('/guardar', async (req, res, next) => {
     );
 
     if (yaNotificado.rows.length === 0) {
-      const padreResult = await query(`
+      const padresResult = await query(`
         SELECT a.nombre_completo AS alumno_nombre,
                COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
                p.nombre_completo AS padre_nombre,
                u.id AS usuario_id
         FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
         JOIN usuarios u ON p.usuario_id = u.id
-        WHERE a.id = $1 LIMIT 1
+        WHERE a.id = $1
       `, [alumno_id]);
 
-      if (padreResult.rows.length > 0) {
-        const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+      for (const { alumno_nombre, telefono, padre_nombre, usuario_id } of padresResult.rows) {
         await enviarMensaje({
           telefono,
           clave: 'bitacora_lista',
@@ -419,20 +417,17 @@ router.post('/panial', async (req, res, next) => {
 
     // Si es_diarrea === true, notificar al padre
     if (es_diarrea) {
-      const padreResult = await query(`
+      const padresResult = await query(`
         SELECT a.nombre_completo AS alumno_nombre,
-               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-               p.nombre_completo AS padre_nombre,
                u.id AS usuario_id
         FROM alumnos a
-        JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+        JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
         JOIN usuarios u ON p.usuario_id = u.id
-        WHERE a.id = $1 LIMIT 1
+        WHERE a.id = $1
       `, [alumno_id]);
 
-        if (padreResult.rows.length > 0) {
-        const { alumno_nombre, usuario_id } = padreResult.rows[0];
+      for (const { alumno_nombre, usuario_id } of padresResult.rows) {
         if (usuario_id) {
           await query(`
             INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
@@ -832,21 +827,20 @@ router.post('/incidente', async (req, res, next) => {
       VALUES ($1, $2, $3, NULL, $4) RETURNING *
     `, [alumno_id, descripcion, acciones_tomadas, maestraId]);
 
-    // Notificar al padre
-    const padreResult = await query(`
+    // Notificar a todos los padres
+    const padresResult = await query(`
       SELECT a.nombre_completo AS alumno_nombre,
              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
              p.nombre_completo AS padre_nombre,
              u.id AS usuario_id
       FROM alumnos a
-      JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
       JOIN padres p ON ap.padre_id = p.id
       JOIN usuarios u ON p.usuario_id = u.id
-      WHERE a.id = $1 LIMIT 1
+      WHERE a.id = $1
     `, [alumno_id]);
 
-    if (padreResult.rows.length > 0) {
-      const { alumno_nombre, telefono, padre_nombre, usuario_id } = padreResult.rows[0];
+    for (const { alumno_nombre, telefono, padre_nombre, usuario_id } of padresResult.rows) {
       await enviarMensaje({
         telefono,
         clave: 'incidente',

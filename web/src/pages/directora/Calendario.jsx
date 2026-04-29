@@ -489,6 +489,7 @@ export default function DirectoraCalendario() {
           onDelete={() => eliminarMutation.mutate(detalle.id)}
         />
       )}
+
     </div>
   );
 }

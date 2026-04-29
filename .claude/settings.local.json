@@ -655,7 +655,11 @@
       "Bash(psql -h localhost -U postgres -d happy_school -t -c \"SELECT name FROM pgmigrations ORDER BY run_on;\")",
       "Bash(docker -v)",
       "Bash(psql -h localhost -U postgres -d happy_school)",
-      "Bash(pkill -f \"node.*backend\\\\|node.*5001\")"
+      "Bash(pkill -f \"node.*backend\\\\|node.*5001\")",
+      "Bash(curl -s http://localhost:5001/api/catalogos/niveles)",
+      "Bash(curl -v http://localhost:5173)",
+      "Bash(curl -s http://localhost:3001/calendario/categorias -H \"Authorization: Bearer test\")",
+      "PowerShell(Get-Process -Name node -ErrorAction SilentlyContinue)"
     ],
     "additionalDirectories": [
       "\\tmp",

@@ -3237,6 +3237,56 @@ APP-KINDER/
 
 ---
 
+## ✅ CATÁLOGOS DINÁMICOS — FASES 1-6 COMPLETADAS (Sesiones XX+6, XX+7, XX+8, XX+10, XX+11)
+
+**Fecha:** 2026-04-29 | **Estado:** ✅ 6 FASES COMPLETADAS
+
+**Resumen:** Sistema de catálogos dinámicos implementado en 6 fases. Backend endpoints, tablas BD, UI web para editar, hooks mobile y web con React Query. 4 catálogos principales operacionales: Niveles, Alergias, Parentesco, Categorías Eventos.
+
+### FASES COMPLETADAS:
+
+**FASE 1-3 — Backend endpoints + tablas (Sesiones XX+6, XX+7, XX+8)**
+- Endpoints GET/PUT/DELETE catálogos
+- Tablas dinámicas: niveles, animo, cuanto, comportamiento, condiciones_panial, parentesco, alergias, categorías_eventos
+- Validaciones y soft-delete
+
+**FASE 4 — Panel Directora UI (Sesión XX+7)**
+- `Configuracion.jsx` → Tab "Catálogos"
+- CRUD completo: crear, editar, desactivar, reactivar
+- Cards por catálogo con estados
+
+**FASE 5 — Hook `useCatalogo` web (Sesión XX+8)**
+- React Query con staleTime 30 min
+- Invalidación al guardar
+- Fallback a constants si offline
+- Integrado en 5+ componentes (Bitácora, Personal, Alumnos, Grupos, Ciclos)
+
+**FASE 6 — Hook `useCatalogo` mobile (Sesión XX+10)**
+- React Query + fallback constants
+- Integrado en bitácora maestra, bitácora padre, dashboard padre
+- 3/4 catálogos en mobile (Niveles, Alergias, Parentesco)
+
+**SESIÓN XX+11 — Integración final**
+- Docs INE tutores (foto, INE frente, INE reverso)
+- Notificaciones expandidas a 12 tipos
+- Parentesco dropdown en formularios
+- Alergias multi-select
+- Categorías Eventos UI en Calendario
+- Integración completa de catálogos en todo el sistema
+
+### Catálogos Operacionales:
+- ✅ Niveles (Maternal, Prekinder, Kinder 1-3)
+- ✅ Alergias (7 valores: Lactosa, Gluten, Maní, Huevo, Mariscos, Frutos secos, Sin alergias)
+- ✅ Parentesco (8 valores: Mamá, Papá, Abuela/o, Tía/o, Tutor/a, Otro)
+- ✅ Categorías Eventos (tabla propia, CRUD en Calendario)
+
+### Próximas tareas (FASE 7):
+- [ ] Auditoría hardcodeados (estatus, grados, roles, tipos pago, etc)
+- [ ] Crear tablas dinámicas para catálogos nuevos
+- [ ] Panel settings editable
+
+---
+
 ## 🐛 BUGS HISTÓRICOS — NUNCA REPETIR
 
 > Leer antes de escribir queries, rutas o cambios de schema.

@@ -120,20 +120,10 @@ CLOUDINARY_API_SECRET=placeholder
 
 ## 🎯 LARGO PLAZO — Futuro (2-3 meses)
 
-### 🗂️ CATÁLOGOS DINÁMICOS — FASES 1-6 COMPLETADAS (Sesiones XX+6, XX+7, XX+8, XX+10, XX+11)
+### 🗂️ CATÁLOGOS DINÁMICOS — FASE 7 PENDIENTE (Auditoría Hardcoded + Settings)
 
-**Estado:** ✅ 6 FASES COMPLETADAS | ⏳ 1 FASE PENDIENTE
+Ver FASES 1-6 completadas en [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
 
-#### ✅ COMPLETADAS:
-- **FASE 1-3:** Backend endpoints + tablas catálogos (niveles, animo, cuanto, comportamiento, condiciones_panial, parentesco, alergias, categorías_eventos)
-- **FASE 4:** Panel Directora UI para editar catálogos (web)
-- **FASE 5:** Hook `useCatalogo` web + staleTime management + invalidación al guardar
-- **FASE 6:** Hook `useCatalogo` mobile (React Query, fallback constants) + 3/4 catálogos en mobile
-- **SESIÓN XX+11:** Integración final + Docs INE tutores + Notificaciones 12 tipos + Categorías Eventos UI
-
-**Catálogos implementados:** Niveles, Alergias, Parentesco, Categorías Eventos (UI Calendario falta)
-
-#### ⏳ FASE 7 PENDIENTE — Auditoría Hardcoded + Settings
 - [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Tipos Pago, Motivos Salida, Emojis, etc.
   - Identificar arrays hardcodeados en componentes
   - Priorizar por frecuencia de uso

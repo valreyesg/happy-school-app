@@ -4,6 +4,27 @@
 
 ---
 
+## 🚨 ANTES DE CUALQUIER TAREA — EJECUTAR `/preflight` OBLIGATORIO
+
+Cuando Valeria pida una tarea de desarrollo, **ejecuto `/preflight` ANTES de tocar código**:
+
+```
+/preflight [descripción de tarea]
+```
+
+El skill verifica:
+1. **Alcance:** ¿Backend, web, mobile, BD?
+2. **Schema:** ¿Existen las columnas que voy a usar? (NO inventar)
+3. **Endpoints:** ¿Existen? ¿Están en web Y mobile?
+4. **Componentes:** ¿Existen los archivos? ¿Están importados?
+5. **Mobile:** ¿Cambio funcional? → **También en mobile**
+6. **Regresiones:** ¿Quién usa lo que voy a cambiar?
+7. **Bugs previos:** ¿Es repetición de bug viejo?
+
+**Si algo falla → pregunto a Valeria antes de proceder.**
+
+---
+
 ## 🚨 AL INICIAR SESIÓN — OBLIGATORIO
 
 **ANTES de cualquier otra acción**, ejecutar el protocolo de servidores:
@@ -106,6 +127,34 @@ No procedo a validación en browser. **Arreglo primero:**
 Mostrar resumen visual (qué cambió, dónde, paridad web↔mobile, puertos validados).
 
 Luego: **"Cambios validados. Valida en browser en http://localhost:5173/..."**
+
+---
+
+## 📋 ORDEN OBLIGATORIO DE SKILLS EN CADA TAREA
+
+```
+Valeria describe tarea
+    ↓
+1️⃣  /preflight [tarea]     ← Verificar que es seguro proceder
+    ↓
+2️⃣  [Desarrollo + edits]   ← Hacer cambios en web/backend/mobile
+    ↓
+3️⃣  /validate              ← Reiniciar servers, confirmar cambios
+    ↓
+4️⃣  Pedir validación       ← "Cambios validados. Valida en browser"
+    ↓
+Valeria valida y confirma
+    ↓
+Siguiente tarea
+    ↓
+    ...
+    ↓
+Fin de sesión
+    ↓
+5️⃣  /cierre                ← Limpiar PENDIENTES, commit
+```
+
+**NUNCA saltar pasos. SIEMPRE en este orden.**
 
 ---
 

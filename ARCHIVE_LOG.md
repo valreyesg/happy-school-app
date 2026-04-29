@@ -3174,6 +3174,69 @@ APP-KINDER/
 
 ---
 
+## ✅ SESIÓN XX+13 — USUARIOS PADRES + CAMBIO CONTRASEÑA (2026-04-29)
+
+**Fecha:** 2026-04-29
+
+**Archivos modificados:**
+- `backend/src/routes/padres.js` — Email institucional, preview, GET mejorado
+- `backend/src/controllers/authController.js` — Validación contraseña
+- `web/src/pages/directora/Usuarios.jsx` — Tabs por nivel, agrupación, badges
+- `web/src/pages/LoginPage.jsx` — Modal primer login
+- `web/src/pages/Perfil.jsx` — Página perfil + cambio contraseña
+- `web/src/layouts/PerfilLayout.jsx` — Layout para perfil (NUEVO)
+- `web/src/layouts/PadreLayout.jsx` — Link a "Mi Perfil"
+- `web/src/App.jsx` — Ruta /perfil
+
+**Bloques Implementados (12/12):**
+
+1. ✅ Backend: Email institucional generado automáticamente (tutor_nombre@happyschool.edu.mx)
+2. ✅ Backend: GET /padres/:id/preview-email para previsualizar antes de crear
+3. ✅ Backend: POST /padres/:id/crear-cuenta usa email institucional
+4. ✅ Backend: GET /padres retorna nivel, grupo, es_tutor_principal, hijos ordenados
+5. ✅ Web: Tabs por Nivel (Maternal, Kinder 1, 2, 3)
+6. ✅ Web: Padres agrupados por alumno (mamá y papá juntos)
+7. ✅ Web: Tarjetas con badges (nombre hijo, grupo, "👤 Principal" si es tutor)
+8. ✅ Web: Modal de cambio de contraseña al PRIMER LOGIN (bloqueante)
+9. ✅ Web: Página /perfil con layout completo (sidebar, volver, logout)
+10. ✅ Web: Opción cambiar contraseña en /perfil (accesible después)
+11. ✅ Backend: Validación contraseña: 8 caracteres mínimo, letras y números
+12. ✅ Web: Validación contraseña en cliente y servidor
+
+**Resumen de Estado:**
+- **Implementación:** 12/12 bloques ✅
+- **Compilación:** 100% ✅
+- **Validación funcional:** 100% ✅
+  - Creación de cuentas de padres
+  - Cambio de contraseña al primer login
+  - Cambio de contraseña desde /perfil
+  - Tabs y agrupación por nivel/grupo
+  - Badges de tutor principal y grupo
+
+**Mejoras Realizadas vs. XX+12:**
+- Email institucional generado automáticamente (no reutiliza email personal)
+- Tabs por nivel (como en Alumnos)
+- Padres agrupados por alumno (mamá y papá juntos)
+- Modal bloqueante de cambio contraseña al primer login
+- Página /perfil accesible desde menú lateral
+- Validación de contraseña: 8 caracteres, letras y números
+- Layout consistente con el portal
+
+**Resumen Técnico:**
+
+| Componente | Cambio |
+|-----------|--------|
+| Email generación | Algoritmo hash sobre primer nombre hijo + timestamp fallback |
+| Validación password | `/[a-zA-Z]/` + `/[0-9]/` + 8 char mínimo |
+| GET /padres | Incluye `nivel_nombre`, `grupo_nombre`, array `hijos` con es_tutor_principal |
+| Frontend agrupación | `useMemo` agrupa por nivel → grupo |
+| Badges | Mostrar nombre hijo, grupo, tutor principal indicator |
+
+**Commits:**
+- `39c392d` — feat: Sesión XX+13 — Usuarios Padres + Cambio Contraseña (COMPLETADO)
+
+---
+
 ## 🐛 BUGS HISTÓRICOS — NUNCA REPETIR
 
 > Leer antes de escribir queries, rutas o cambios de schema.

@@ -1,7 +1,23 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA)
+**Última actualización:** 2026-04-29 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos)
+
+---
+
+## ✅ SESIÓN XX+9 (2026-04-29) — Validación Pañal → Insumos (COMPLETADO)
+
+**Fecha:** 2026-04-29 | **Estado:** ✅ VALIDADO — Integración Pañal→Insumos funcional
+
+### Validación realizada:
+- ✅ **Pañal → Insumos:** Al registrar cambio de pañal, stock se decrementa correctamente en `insumos_movimientos`
+  - Flujo: Bitácora padre → Registrar pañal → Stock de insumo se reduce automáticamente
+  - Comportamiento: Funcional, sin errores
+
+### Próximas tareas:
+- ⏳ Casos edge SALUD (5 validaciones pendientes)
+- ⏳ FASE 6 mobile — Catálogos dinámicos
+- ⏳ 4 catálogos nuevos — Niveles, Alergias, Parentesco, Categorías Eventos
 
 ---
 

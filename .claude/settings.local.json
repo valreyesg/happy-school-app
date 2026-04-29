@@ -637,7 +637,19 @@
       "Bash(curl -s http://localhost:3001/api/catalogos/comportamiento/admin)",
       "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(i['key'], i['es_sistema'], i['activo']\\) for i in data.get\\('items',[]\\)]\")",
       "Bash(curl -s --max-time 3 \"http://localhost:3001/api/catalogos/comportamiento/admin\")",
-      "Bash(curl -s --max-time 3 \"http://localhost:3000/api/catalogos/comportamiento/admin\")"
+      "Bash(curl -s --max-time 3 \"http://localhost:3000/api/catalogos/comportamiento/admin\")",
+      "Bash(git log *)",
+      "Bash(awk 'NR==2 {print $2}')",
+      "Bash(curl -s http://localhost:3001/ping)",
+      "PowerShell(\"Procesos node detenidos\")",
+      "Bash(curl -s -X POST http://localhost:3001/api/insumos/test/solicitar-paniales -H \"Content-Type: application/json\" -H \"Authorization: Bearer test\")",
+      "Bash(curl -s -X POST http://localhost:3000/api/insumos/c75e11fa-56ac-4f97-be92-bfec0517602b/solicitar-paniales -H 'Content-Type: application/json' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')",
+      "PowerShell(\"Todos los procesos node detenidos\")",
+      "Bash(psql -U postgres -d happy_school -c \"SELECT id, alumno_id, tipo, fecha, resuelta FROM insumos_solicitudes ORDER BY created_at DESC LIMIT 5;\")",
+      "Bash(curl -s -H \"Authorization: Bearer test\" http://localhost:3000/api/insumos/c75e11fa-56ac-4f97-be92-bfec0517602b)",
+      "Bash(node revert_toallitas.js)",
+      "PowerShell(\"Procesos detenidos\")",
+      "PowerShell(\"Web detenido\")"
     ],
     "additionalDirectories": [
       "\\tmp",

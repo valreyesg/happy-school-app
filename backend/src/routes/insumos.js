@@ -24,16 +24,25 @@ router.get('/:alumnoId', async (req, res, next) => {
       : { cantidad: null, no_registrado: true };
 
     // Obtener solicitudes de toallitas pendientes del día
-    const solicitudesResult = await query(
+    const solicitudesToallitasResult = await query(
       `SELECT id, fecha, created_at FROM insumos_solicitudes
-       WHERE alumno_id = $1 AND fecha <= CURRENT_DATE AND resuelta = false
+       WHERE alumno_id = $1 AND tipo = 'toallita' AND fecha <= CURRENT_DATE AND resuelta = false
+       ORDER BY created_at DESC`,
+      [alumnoId]
+    );
+
+    // Obtener solicitudes de pañales pendientes del día
+    const solicitudesPanialesResult = await query(
+      `SELECT id, fecha, created_at FROM insumos_solicitudes
+       WHERE alumno_id = $1 AND tipo = 'panial' AND fecha <= CURRENT_DATE AND resuelta = false
        ORDER BY created_at DESC`,
       [alumnoId]
     );
 
     res.json({
       stock,
-      solicitudes_toallitas: solicitudesResult.rows || [],
+      solicitudes_toallitas: solicitudesToallitasResult.rows || [],
+      solicitudes_paniales: solicitudesPanialesResult.rows || [],
     });
   } catch (err) { next(err); }
 });
@@ -107,6 +116,86 @@ router.post('/:alumnoId/solicitar-toallitas', async (req, res, next) => {
           info.usuario_id,
           `Necesitas llevar toallitas — ${info.alumno_nombre}`,
           'La escuela necesita que lleves toallitas mañana',
+          JSON.stringify({ alumno_id: alumnoId }),
+        ]
+      );
+    } catch (err) {
+      console.error('[insumos] Error insertando notificación:', err.message);
+    }
+
+    res.json(solicitud);
+  } catch (err) { next(err); }
+});
+
+// ── POST /insumos/:alumnoId/solicitar-paniales ───────────────────────────
+// Crear solicitud de pañales cuando stock = 0 + enviar notificación al papá
+router.post('/:alumnoId/solicitar-paniales', async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+
+    // Verificar si ya existe solicitud de pañales no resuelta hoy
+    const existente = await query(
+      `SELECT id FROM insumos_solicitudes
+       WHERE alumno_id = $1 AND tipo = 'panial' AND fecha = CURRENT_DATE AND resuelta = false`,
+      [alumnoId]
+    );
+
+    if (existente.rows.length > 0) {
+      return res.status(400).json({
+        error: 'Ya existe una solicitud de pañales pendiente para hoy',
+      });
+    }
+
+    // Crear solicitud
+    const solicitudResult = await query(
+      `INSERT INTO insumos_solicitudes (alumno_id, tipo, registrado_por)
+       VALUES ($1, 'panial', $2) RETURNING *`,
+      [alumnoId, req.user.id]
+    );
+    const solicitud = solicitudResult.rows[0];
+
+    // Obtener datos del padre tutor principal
+    const padreResult = await query(
+      `SELECT p.nombre_completo, COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+              u.id AS usuario_id, a.nombre_completo AS alumno_nombre
+       FROM alumnos a
+       JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
+       JOIN padres p ON ap.padre_id = p.id
+       JOIN usuarios u ON p.usuario_id = u.id
+       WHERE a.id = $1 LIMIT 1`,
+      [alumnoId]
+    );
+
+    if (padreResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Padre tutor principal no encontrado' });
+    }
+
+    const info = padreResult.rows[0];
+
+    // Enviar notificación WhatsApp
+    try {
+      await enviarMensaje({
+        telefono: info.telefono,
+        clave: 'solicitud_paniales',
+        variables: {
+          nombre_padre: info.nombre_completo.split(' ')[0],
+          nombre_alumno: info.alumno_nombre,
+        },
+        alumnoId,
+      });
+    } catch (err) {
+      console.error('[insumos] Error enviando WhatsApp solicitud_paniales:', err.message);
+    }
+
+    // Insertar notificación en-app al padre
+    try {
+      await query(
+        `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+         VALUES ($1, $2, $3, 'solicitud_paniales', $4)`,
+        [
+          info.usuario_id,
+          `Necesitas llevar pañales — ${info.alumno_nombre}`,
+          'La escuela necesita que lleves pañales mañana. El stock actual es 0.',
           JSON.stringify({ alumno_id: alumnoId }),
         ]
       );

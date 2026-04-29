@@ -638,6 +638,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   });
   const stockDiario = insumosData?.stock ?? null;
   const solicitudesToallitas = insumosData?.solicitudes_toallitas ?? [];
+  const solicitudesPaniales = insumosData?.solicitudes_paniales ?? [];
 
   // Datos de entrada (trajo_paniales, trajo_toallitas)
   const { data: entradaData } = useQuery({
@@ -669,7 +670,17 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     mutationFn: () => api.post(`/insumos/${alumno.id}/solicitar-toallitas`).then(r => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['insumos', alumno.id] });
-      toast.success('✅ Solicitud enviada al papá');
+      toast.success('✅ Solicitud de toallitas enviada');
+    },
+    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
+  });
+
+  // Solicitar pañales
+  const panialesMutation = useMutation({
+    mutationFn: () => api.post(`/insumos/${alumno.id}/solicitar-paniales`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['insumos', alumno.id] });
+      toast.success('✅ Solicitud de pañales enviada');
     },
     onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
   });
@@ -837,10 +848,17 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             </div>
           )}
 
+          {/* Alerta solicitud de pañales */}
+          {solicitudesPaniales.length > 0 && (
+            <div className="mb-3 px-3 py-2 bg-red-50 rounded-xl border border-red-200 text-xs font-bold text-red-700">
+              🧷 Solicitud de pañales enviada
+            </div>
+          )}
+
           {/* Alerta solicitud de toallitas */}
           {solicitudesToallitas.length > 0 && (
             <div className="mb-3 px-3 py-2 bg-yellow-50 rounded-xl border border-yellow-200 text-xs font-bold text-yellow-700">
-              🧻 Solicitud de toallitas enviada al papá
+              🧻 Solicitud de toallitas enviada
             </div>
           )}
 
@@ -875,15 +893,34 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             ))}
           </div>
 
-          {/* Botón solicitar toallitas */}
-          {solicitudesToallitas.length === 0 && !soloLectura && (
-            <button
-              onClick={() => toallitasMutation.mutate()}
-              disabled={toallitasMutation.isPending}
-              className="mt-3 w-full px-3 py-2 bg-yellow-400 text-white rounded-xl font-bold text-sm hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              🧻 Solicitar toallitas húmedas
-            </button>
+          {/* Botones de solicitud */}
+          {(stockDiario?.cantidad === 0 || solicitudesToallitas.length === 0) && !soloLectura && (
+            <div className="flex gap-2 mt-3">
+              {/* Solicitar pañales (si stock = 0 y NO hay solicitud pendiente) */}
+              {stockDiario?.cantidad === 0 && solicitudesPaniales.length === 0 && (
+                <button
+                  onClick={() => panialesMutation.mutate()}
+                  disabled={panialesMutation.isPending}
+                  className={`px-3 py-2 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    solicitudesToallitas.length === 0 ? 'flex-1' : 'w-full'
+                  }`}
+                >
+                  🧷 Solicitar pañales
+                </button>
+              )}
+              {/* Solicitar toallitas */}
+              {solicitudesToallitas.length === 0 && (
+                <button
+                  onClick={() => toallitasMutation.mutate()}
+                  disabled={toallitasMutation.isPending}
+                  className={`px-3 py-2 bg-yellow-400 text-white rounded-xl font-bold text-sm hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    stockDiario?.cantidad === 0 ? 'flex-1' : 'w-full'
+                  }`}
+                >
+                  🧻 Solicitar toallitas húmedas
+                </button>
+              )}
+            </div>
           )}
         </Seccion>
       )}
@@ -1151,8 +1188,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
       {/* Medicamentos */}
       <Seccion titulo={`💊 Medicamentos${data?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
-        {/* Tomas pendientes */}
-        {data?.recepciones_medicamento?.length > 0 && (
+        {/* Tomas pendientes (medicamentos con horas programadas) */}
+        {data?.recepciones_medicamento?.some(r => r.tomas && r.tomas.some(t => !t.administrado)) && (
           <div className="space-y-2 mb-3 border-b-2 border-orange-200 pb-3">
             <p className="text-xs font-black text-orange-600 uppercase">⏳ Tomas pendientes</p>
             {data.recepciones_medicamento
@@ -1177,9 +1214,29 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                     </div>
                   ))
               )}
-            {!data.recepciones_medicamento.some(r => r.tomas && r.tomas.some(t => !t.administrado)) && (
-              <p className="text-xs text-orange-400 italic">Todas las tomas fueron administradas</p>
-            )}
+          </div>
+        )}
+
+        {/* Medicamentos sin hora programada */}
+        {data?.recepciones_medicamento?.some(r => (!r.tomas || r.tomas.length === 0) && !r.administrado) && (
+          <div className="space-y-2 mb-3 border-b-2 border-yellow-200 pb-3">
+            <p className="text-xs font-black text-yellow-700 uppercase">⏱️ Sin hora programada</p>
+            {data.recepciones_medicamento
+              .filter(r => (!r.tomas || r.tomas.length === 0) && !r.administrado)
+              .map((rec, i) => (
+                <div key={i} className="flex items-start gap-2 px-3 py-2 bg-yellow-50 rounded-xl text-sm border border-yellow-200">
+                  <span className="text-yellow-500 text-lg">💊</span>
+                  <div className="flex-1">
+                    <p className="font-black text-yellow-800">{rec.nombre} — {rec.dosis}</p>
+                    <p className="text-xs text-yellow-600">Para administrar cuando sea posible</p>
+                  </div>
+                  <button onClick={() => administrarRecepcionMutation.mutate({ recepcionId: rec.id, tomaId: null })}
+                    disabled={administrarRecepcionMutation.isPending}
+                    className="px-3 py-1 rounded-lg bg-yellow-600 text-white font-bold text-xs hover:bg-yellow-700 disabled:opacity-50 whitespace-nowrap">
+                    Administrar
+                  </button>
+                </div>
+              ))}
           </div>
         )}
 

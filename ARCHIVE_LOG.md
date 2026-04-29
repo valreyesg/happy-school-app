@@ -5,17 +5,35 @@
 
 ---
 
-## ✅ SESIÓN XX+9 (2026-04-29) — Validación Pañal → Insumos (COMPLETADO)
+## ✅ SESIÓN XX+9 (2026-04-29) — Solicitud Pañales + Medicamento Sin Hora (COMPLETADO)
 
-**Fecha:** 2026-04-29 | **Estado:** ✅ VALIDADO — Integración Pañal→Insumos funcional
+**Fecha:** 2026-04-29 | **Estado:** ✅ COMPLETADO — Dos features críticas implementadas y validadas
 
-### Validación realizada:
-- ✅ **Pañal → Insumos:** Al registrar cambio de pañal, stock se decrementa correctamente en `insumos_movimientos`
-  - Flujo: Bitácora padre → Registrar pañal → Stock de insumo se reduce automáticamente
-  - Comportamiento: Funcional, sin errores
+### 1️⃣ **Solicitud de Pañales** ✅
+- **Problema identificado:** Stock = 0 pero sin botón para solicitar pañales al papá
+- **Solución implementada:**
+  - Backend: POST `/insumos/:alumnoId/solicitar-paniales` → crea solicitud tipo 'panial'
+  - Frontend: Botón rojo "🧷 Solicitar pañales" aparece cuando stock = 0
+  - Badge rojo "Solicitud de pañales enviada" cuando ya existe solicitud
+  - Notificación al papá: WhatsApp + en-app modal urgente
+- **Validado:** ✅ Funcional en bitácora maestra de Camila Torres García (Kinder 1B)
+
+### 2️⃣ **Medicamento Sin Hora Programada** ✅
+- **Problema identificado:** Medicamento recibido SIN hora mostraba "⏳ Tomas pendientes" (falso)
+- **Solución implementada:**
+  - Nueva sección "⏱️ Sin hora programada" en tab SALUD bitácora maestra
+  - Separada de "⏳ Tomas pendientes" (solo con horas programadas)
+  - Botón "Administrar" envía `tomaId: null` al backend
+  - Backend marca recepción como administrada directamente (si no hay toma específica)
+- **Validado:** ✅ Funcional sin errores
+
+### 3️⃣ **Notificaciones al Papá** ✅
+- **Problema identificado:** Notificaciones se creaban pero no se veían en UI papá
+- **Solución:** Agregados tipos urgentes `solicitud_paniales` + `solicitud_toallitas` a config
+- **Resultado:** Papá verá modal urgente + notificación en campanita al recargar
 
 ### Próximas tareas:
-- ⏳ Casos edge SALUD (5 validaciones pendientes)
+- ⏳ Casos edge SALUD: Job cron (sábado, rango), cambio fecha (medianoche)
 - ⏳ FASE 6 mobile — Catálogos dinámicos
 - ⏳ 4 catálogos nuevos — Niveles, Alergias, Parentesco, Categorías Eventos
 

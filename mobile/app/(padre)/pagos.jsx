@@ -1,13 +1,19 @@
 import { useState, useCallback } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator, FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useFocusEffect } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -226,14 +232,14 @@ const s = StyleSheet.create({
 });
 
 const p = StyleSheet.create({
-  contenedor:    { backgroundColor: '#fff', marginHorizontal: 16, marginTop: 16, borderRadius: 20, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 3 },
+  contenedor:    { backgroundColor: COLORS.white, marginHorizontal: 16, marginTop: 16, borderRadius: RADIUS.xl, padding: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.07, shadowRadius: 8, elevation: 3 },
   alumnoHeader:  { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16 },
   avatarBox:     { width: 44, height: 44, borderRadius: 22, backgroundColor: '#E9D8FD', alignItems: 'center', justifyContent: 'center' },
   avatarTxt:     { fontSize: 20, fontWeight: '900', color: '#805AD5' },
   alumnoNombre:  { fontSize: 15, fontWeight: '900', color: '#2D3748' },
-  grupoBadge:    { flexDirection: 'row', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginTop: 4 },
+  grupoBadge:    { flexDirection: 'row', alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: RADIUS.md, marginTop: 4 },
   grupoTxt:      { fontSize: 11, fontWeight: '800' },
-  sfBox:         { alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12 },
+  sfBox:         { alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: RADIUS.md },
   sfIcon:        { fontSize: 20 },
   sfLabel:       { fontSize: 10, fontWeight: '900', marginTop: 2 },
 
@@ -246,7 +252,7 @@ const p = StyleSheet.create({
   seccionTitulo: { fontSize: 13, fontWeight: '900', color: '#4A5568', marginBottom: 8 },
   comidaFila:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#F0F4F8' },
   comidaSemana:  { fontSize: 12, fontWeight: '600', color: '#4A5568' },
-  comidaBadge:   { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 },
+  comidaBadge:   { paddingHorizontal: 10, paddingVertical: 3, borderRadius: RADIUS.xl },
 
   navRow:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   navBtn:    { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F7FAFC', alignItems: 'center', justifyContent: 'center' },
@@ -258,10 +264,10 @@ const p = StyleSheet.create({
 });
 
 const t = StyleSheet.create({
-  card:       { backgroundColor: '#fff', borderRadius: 14, padding: 14, marginBottom: 10, borderLeftWidth: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  card:       { backgroundColor: COLORS.white, borderRadius: 14, padding: 14, marginBottom: 10, borderLeftWidth: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
   cardTop:    { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   concepto:   { fontSize: 13, fontWeight: '900', color: '#2D3748', flex: 1, marginRight: 8 },
-  badge:      { paddingHorizontal: 10, paddingVertical: 3, borderRadius: 20 },
+  badge:      { paddingHorizontal: 10, paddingVertical: 3, borderRadius: RADIUS.xl },
   badgeTxt:   { fontSize: 11, fontWeight: '800' },
   monto:      { fontSize: 22, fontWeight: '900', color: '#2D3748', marginVertical: 2 },
   recargo:    { fontSize: 11, color: '#E53E3E', fontWeight: '700' },

@@ -85,12 +85,12 @@ function EstadoAviso({ avisoId, titulo, fechaEnvio, expandido, onToggle }) {
       >
         <div className="text-left">
           <p className="text-sm font-black text-gray-800">{titulo}</p>
-          <p className="text-xs font-semibold text-orange-500 mt-0.5">📅 Enviado: {fechaEnvio}</p>
+          <p className="text-xs font-semibold text-hs-orange mt-0.5">📅 Enviado: {fechaEnvio}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0 ml-3">
           {data && (
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-              data.pendientes === 0 ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
+              data.pendientes === 0 ? 'bg-green-100 text-green-700' : 'bg-hs-orange/20 text-hs-orange-dark'
             }`}>
               {data.pendientes === 0 ? '✓ Todos leyeron' : `${data.pendientes} sin leer`}
             </span>
@@ -136,7 +136,7 @@ function EstadoAviso({ avisoId, titulo, fechaEnvio, expandido, onToggle }) {
                       onClick={() => setTab('sin-leer')}
                       className={`px-3 py-2 text-xs font-bold border-b-2 transition-colors ${
                         tab === 'sin-leer'
-                          ? 'text-orange-600 border-orange-600'
+                          ? 'text-hs-orange-dark border-orange-600'
                           : 'text-gray-500 border-transparent hover:text-gray-700'
                       }`}
                     >
@@ -280,8 +280,8 @@ export default function AvisoExtraordinario() {
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <div className="p-2 bg-orange-100 rounded-xl">
-          <Megaphone className="w-6 h-6 text-orange-600" />
+        <div className="p-2 bg-hs-orange/20 rounded-xl">
+          <Megaphone className="w-6 h-6 text-hs-orange-dark" />
         </div>
         <div>
           <h1 className="text-xl font-black text-gray-800">Aviso Extraordinario</h1>
@@ -308,7 +308,7 @@ export default function AvisoExtraordinario() {
 
       {/* Destinatarios */}
       <div className="card-hs p-5 space-y-3">
-        <h2 className="text-xs font-black text-orange-500 uppercase tracking-wide flex items-center gap-1">
+        <h2 className="text-xs font-black text-hs-orange uppercase tracking-wide flex items-center gap-1">
           <Users className="w-4 h-4" /> Destinatarios
         </h2>
 
@@ -316,7 +316,7 @@ export default function AvisoExtraordinario() {
           onClick={() => setGruposSeleccionados([])}
           className={`w-full text-left px-4 py-3 rounded-xl border-2 font-bold text-sm transition-all ${
             todosSeleccionados
-              ? 'border-orange-400 bg-orange-50 text-orange-700'
+              ? 'border-orange-400 bg-hs-orange/10 text-hs-orange-dark'
               : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
           }`}
         >
@@ -332,7 +332,7 @@ export default function AvisoExtraordinario() {
                 onClick={() => toggleGrupo(g.id)}
                 className={`text-left px-4 py-3 rounded-xl border-2 font-bold text-sm transition-all ${
                   sel
-                    ? 'border-orange-400 bg-orange-50 text-orange-700'
+                    ? 'border-orange-400 bg-hs-orange/10 text-hs-orange-dark'
                     : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                 }`}
               >
@@ -346,7 +346,7 @@ export default function AvisoExtraordinario() {
 
       {/* Mensaje */}
       <div className="card-hs p-5 space-y-4">
-        <h2 className="text-xs font-black text-orange-500 uppercase tracking-wide">Mensaje</h2>
+        <h2 className="text-xs font-black text-hs-orange uppercase tracking-wide">Mensaje</h2>
 
         <div className="space-y-1">
           <label className="text-sm font-semibold text-gray-600">Título</label>
@@ -378,7 +378,7 @@ export default function AvisoExtraordinario() {
       <button
         onClick={() => mutation.mutate()}
         disabled={!titulo.trim() || !cuerpo.trim() || mutation.isPending}
-        className="w-full flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black py-3.5 rounded-xl transition-all shadow-sm"
+        className="w-full flex items-center justify-center gap-2 bg-hs-orange hover:bg-hs-orange-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-black py-3.5 rounded-xl transition-all shadow-sm"
       >
         <Send className="w-5 h-5" />
         {mutation.isPending

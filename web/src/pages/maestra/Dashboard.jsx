@@ -20,7 +20,7 @@ const BADGE_CONFIG = {
   retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: '⏰', label: 'Retardo' },
   no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    icon: '🚫', label: 'No entró' },
   ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   icon: '⬜', label: 'Ausente' },
-  justificado:{ bg: 'bg-blue-100',   text: 'text-blue-700',   icon: '📝', label: 'Justificado' },
+  justificado:{ bg: 'bg-blue-100',   text: 'text-hs-blue-dark',   icon: '📝', label: 'Justificado' },
 };
 
 function EstadoBadge({ estado }) {
@@ -36,7 +36,7 @@ function BitacoraBadge({ alumno }) {
   const guardada = alumno.estado_animo !== null;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-      guardada ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-400'
+      guardada ? 'bg-hs-purple/20 text-hs-purple-dark' : 'bg-gray-100 text-gray-400'
     }`}>
       {guardada ? '📋 Guardada' : '⏳ Pendiente'}
     </span>
@@ -186,12 +186,12 @@ export default function MaestraDashboard() {
       {turnoHoy?.tiene_turno && (
         <Link
           to="/maestra/filtro-entrada"
-          className="block bg-purple-50 border-2 border-purple-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-purple-100 transition-colors"
+          className="block bg-hs-purple/10 border-2 border-hs-purple/30 rounded-2xl p-4 flex items-center gap-3 hover:bg-hs-purple/20 transition-colors"
         >
           <span className="text-2xl">🚪</span>
           <div className="flex-1">
             <p className="font-black text-purple-800 text-sm">¡Hoy tienes turno de puerta!</p>
-            <p className="text-xs text-purple-600 font-semibold">Toca para abrir el Filtro de Entrada de todos los grupos →</p>
+            <p className="text-xs text-hs-purple font-semibold">Toca para abrir el Filtro de Entrada de todos los grupos →</p>
           </div>
         </Link>
       )}
@@ -243,34 +243,34 @@ export default function MaestraDashboard() {
       {/* Banner salidas anticipadas */}
       {salidasAnticipadas.length > 0 && (
         <Link to="/maestra/filtro-salida"
-          className="block bg-orange-50 border-2 border-orange-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-orange-100 transition-colors">
-          <AlertTriangle size={22} className="text-orange-500 shrink-0" />
+          className="block bg-hs-orange/10 border-2 border-orange-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-hs-orange/20 transition-colors">
+          <AlertTriangle size={22} className="text-hs-orange shrink-0" />
           <div className="flex-1">
             <p className="font-black text-orange-800 text-sm">
               {salidasAnticipadas.length} salida{salidasAnticipadas.length > 1 ? 's' : ''} anticipada{salidasAnticipadas.length > 1 ? 's' : ''} hoy
             </p>
-            <p className="text-xs text-orange-600 font-semibold">
+            <p className="text-xs text-hs-orange-dark font-semibold">
               {salidasAnticipadas.map(a => a.nombre_completo.split(' ')[0]).join(', ')} — antes de las {horaSalidaNormal}
             </p>
           </div>
-          <span className="text-2xl font-black text-orange-500">{salidasAnticipadas.length}</span>
+          <span className="text-2xl font-black text-hs-orange">{salidasAnticipadas.length}</span>
         </Link>
       )}
 
       {/* Banner tareas hoy */}
       {tareasHoy && tareasHoy.length > 0 && (
         <Link to="/maestra/tareas"
-          className="block bg-blue-50 border-2 border-blue-300 rounded-2xl p-4 flex items-center gap-3 hover:bg-blue-100 transition-colors">
+          className="block bg-hs-blue/10 border-2 border-hs-blue/40 rounded-2xl p-4 flex items-center gap-3 hover:bg-hs-blue/20 transition-colors">
           <span className="text-2xl">📋</span>
           <div className="flex-1">
-            <p className="font-black text-blue-800 text-sm">
+            <p className="font-black text-hs-blue-dark text-sm">
               {tareasHoy.length} tarea{tareasHoy.length > 1 ? 's' : ''} por recibir hoy
             </p>
-            <p className="text-xs text-blue-600 font-semibold">
+            <p className="text-xs text-hs-blue-dark font-semibold">
               {tareasHoy.map(t => t.titulo).join(', ')} — ver detalle →
             </p>
           </div>
-          <span className="text-2xl font-black text-blue-500">{tareasHoy.length}</span>
+          <span className="text-2xl font-black text-hs-blue">{tareasHoy.length}</span>
         </Link>
       )}
 
@@ -318,8 +318,8 @@ export default function MaestraDashboard() {
         <StatCard icon={Users}      value={`${enEscuela}/${totalAlumnos}`} label="En escuela hoy"      color="bg-green-500" />
         <StatCard icon={Clock}      value={retardos}                       label="Retardos"             color="bg-yellow-500" />
         <StatCard icon={UserX}      value={ausentes}                       label="Ausentes"             color="bg-red-400" />
-        <StatCard icon={UserX}      value={noEntradaRetardos}              label="Sin entrada (retardos)" color="bg-orange-500" />
-        <StatCard icon={BookOpen}   value={`${bitacorasGuardadas}/${totalAlumnos}`} label="Bitácoras guardadas" color="bg-purple-500" />
+        <StatCard icon={UserX}      value={noEntradaRetardos}              label="Sin entrada (retardos)" color="bg-hs-orange" />
+        <StatCard icon={BookOpen}   value={`${bitacorasGuardadas}/${totalAlumnos}`} label="Bitácoras guardadas" color="bg-hs-purple" />
       </div>
 
       {/* Comida — Lista detallada */}
@@ -436,7 +436,7 @@ export default function MaestraDashboard() {
                         {alumno.foto_url ? (
                           <img src={alumno.foto_url} alt="" className="w-10 h-10 rounded-xl object-cover" />
                         ) : (
-                          <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-lg">
+                          <div className="w-10 h-10 rounded-xl bg-hs-purple/20 flex items-center justify-center text-lg">
                             👧🏻
                           </div>
                         )}
@@ -475,7 +475,7 @@ export default function MaestraDashboard() {
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
                             (() => {
                               const h = new Date(alumno.hora_salida).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Mexico_City' });
-                              return h < horaSalidaNormal ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700';
+                              return h < horaSalidaNormal ? 'bg-hs-orange/20 text-hs-orange-dark' : 'bg-blue-100 text-hs-blue-dark';
                             })()
                           }`}>
                             <LogOut size={10} />

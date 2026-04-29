@@ -27,12 +27,12 @@ function Contador({ label, value, onChange }) {
       <span className="font-bold text-gray-700">{label}</span>
       <div className="flex items-center gap-3">
         <button onClick={() => onChange(Math.max(0, value - 1))}
-          className="w-9 h-9 rounded-full bg-hs-purple text-white font-black text-xl flex items-center justify-center hover:bg-purple-700">
+          className="w-9 h-9 rounded-full bg-hs-purple text-white font-black text-xl flex items-center justify-center hover:bg-hs-purple-dark">
           −
         </button>
         <span className="text-2xl font-black text-gray-800 w-8 text-center">{value}</span>
         <button onClick={() => onChange(value + 1)}
-          className="w-9 h-9 rounded-full bg-hs-purple text-white font-black text-xl flex items-center justify-center hover:bg-purple-700">
+          className="w-9 h-9 rounded-full bg-hs-purple text-white font-black text-xl flex items-center justify-center hover:bg-hs-purple-dark">
           +
         </button>
       </div>
@@ -97,7 +97,7 @@ function ActividadesParticipacionGuardar({ alumnoId, fecha, bitacoraId, activida
     <button
       onClick={() => guardarMutation.mutate()}
       disabled={guardarMutation.isPending || Object.keys(actividadesParticipacion).length === 0}
-      className="w-full py-3 rounded-xl font-black text-sm bg-purple-500 text-white hover:bg-purple-600 disabled:opacity-50 transition-all"
+      className="w-full py-3 rounded-xl font-black text-sm bg-hs-purple text-white hover:bg-hs-purple-dark disabled:opacity-50 transition-all"
     >
       {guardarMutation.isPending ? 'Guardando...' : '💾 Guardar participación'}
     </button>
@@ -175,7 +175,7 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
       {!mostrar && actividadesGrupo?.length > 0 && (
         <div className="space-y-1 text-xs">
           {actividadesGrupo.map((a, i) => (
-            <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-purple-50 rounded-lg">
+            <div key={i} className="flex items-center gap-2 px-2 py-1.5 bg-hs-purple/10 rounded-lg">
               {a.foto_url && <img src={a.foto_url} alt="" className="w-6 h-6 rounded object-cover flex-shrink-0" />}
               <p className="text-gray-700 font-semibold flex-1 min-w-0 line-clamp-1">{a.descripcion}</p>
             </div>
@@ -186,7 +186,7 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
       {mostrar && (
         <div className="space-y-2">
           {actividadesCaptua.map((act, idx) => (
-            <div key={idx} className="space-y-2 p-2 bg-purple-50 rounded-lg border border-purple-200">
+            <div key={idx} className="space-y-2 p-2 bg-hs-purple/10 rounded-lg border border-hs-purple/20">
               <textarea
                 rows={2}
                 placeholder={`Actividad ${idx + 1}...`}
@@ -213,7 +213,7 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
                   className="hidden"
                   id={`foto-${idx}`}
                 />
-                <label htmlFor={`foto-${idx}`} className="flex-1 px-2 py-1 text-xs font-bold border border-dashed border-purple-300 text-purple-600 rounded cursor-pointer hover:bg-purple-50">
+                <label htmlFor={`foto-${idx}`} className="flex-1 px-2 py-1 text-xs font-bold border border-dashed border-hs-purple/30 text-hs-purple rounded cursor-pointer hover:bg-hs-purple/10">
                   📷 Foto
                 </label>
                 {actividadesCaptua.length > 1 && (
@@ -229,14 +229,14 @@ function CaptuaActividadesGrupo({ grupoId, fecha, mostrar, setMostrar }) {
           ))}
           <button
             onClick={() => setActividadesCaptua(prev => [...prev, { descripcion: '', orden: prev.length + 1, fotoFile: null, fotoPreview: null }])}
-            className="w-full py-1.5 text-xs font-bold border-2 border-dashed border-purple-300 text-purple-600 rounded hover:bg-purple-50"
+            className="w-full py-1.5 text-xs font-bold border-2 border-dashed border-hs-purple/30 text-hs-purple rounded hover:bg-hs-purple/10"
           >
             + Agregar
           </button>
           <button
             onClick={guardarActividades}
             disabled={guardarMutation.isPending}
-            className="w-full py-2 rounded-lg font-black text-xs bg-hs-purple text-white hover:bg-purple-700 disabled:opacity-50 transition-all"
+            className="w-full py-2 rounded-lg font-black text-xs bg-hs-purple text-white hover:bg-hs-purple-dark disabled:opacity-50 transition-all"
           >
             {guardarMutation.isPending ? 'Guardando...' : '💾 Guardar actividades'}
           </button>
@@ -825,8 +825,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         <Seccion titulo="👶🏻 Cambios de pañal">
           {/* Bloque stock diario */}
           {stockDiario && (
-            <div className="mb-3 px-3 py-2 bg-purple-50 rounded-xl border-2 border-purple-200 flex items-center justify-between">
-              <span className="text-xs font-black text-purple-600 uppercase">Pañales hoy</span>
+            <div className="mb-3 px-3 py-2 bg-hs-purple/10 rounded-xl border-2 border-hs-purple/20 flex items-center justify-between">
+              <span className="text-xs font-black text-hs-purple uppercase">Pañales hoy</span>
               <span className={`font-black text-lg ${getColorInsumo(stockDiario.cantidad)}`}>
                 {stockDiario.cantidad} {stockDiario.cantidad === 1 ? 'pañal' : 'pañales'}
               </span>
@@ -843,7 +843,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                 <span className="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold">🧷 Trajo pañales hoy</span>
               )}
               {entradaData.trajo_toallitas && (
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-bold">🧻 Trajo toallitas hoy</span>
+                <span className="px-2 py-1 bg-blue-100 text-hs-blue-dark rounded-lg text-xs font-bold">🧻 Trajo toallitas hoy</span>
               )}
             </div>
           )}
@@ -867,12 +867,12 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             <div className="space-y-1 mb-3">
               <p className="text-xs font-black text-gray-400">Registros de hoy</p>
               {data.panial.map((p, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-purple-50 rounded-xl text-sm">
-                  <span className="font-bold text-purple-700">
+                <div key={i} className="flex items-center gap-2 px-3 py-2 bg-hs-purple/10 rounded-xl text-sm">
+                  <span className="font-bold text-hs-purple-dark">
                     {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   <span className="text-gray-700 font-semibold">{PANIAL_LABEL[p.condicion]?.label ?? p.condicion}</span>
-                  {p.tiene_irritacion && <span className="text-orange-500 font-bold">⚠️ irritación</span>}
+                  {p.tiene_irritacion && <span className="text-hs-orange font-bold">⚠️ irritación</span>}
                 </div>
               ))}
             </div>
@@ -886,7 +886,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                 key={c.key}
                 onClick={() => panialMutation.mutate({ alumno_id: alumno.id, condicion: c.key, tiene_irritacion: false, es_diarrea: c.key === 'diarrea', notas: '' })}
                 disabled={panialMutation.isPending || soloLectura}
-                className="px-4 py-2 bg-hs-purple text-white rounded-xl font-bold text-sm hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-hs-purple text-white rounded-xl font-bold text-sm hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {c.label}
               </button>
@@ -948,7 +948,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         <Seccion titulo="🍽️ Alimentación (4 Tiempos)">
           <div className="space-y-4">
             {(TIEMPOS_COMIDA || []).filter(t => t.key !== 'comida_extra' || tuvExtensionEnFecha).map(tiempoInfo => (
-              <div key={tiempoInfo.key} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-purple-50/50">
+              <div key={tiempoInfo.key} className="border-2 border-hs-purple rounded-xl p-4 space-y-3 bg-hs-purple/10/50">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-black text-hs-purple">{tiempoInfo.emoji} {tiempoInfo.label}</p>
                   <p className="text-xs text-hs-purple font-bold">
@@ -998,7 +998,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         ) : (
           <div className="space-y-3">
             {data.actividades.map((act) => (
-              <div key={act.id} className="rounded-xl border-2 border-purple-100 overflow-hidden bg-purple-50">
+              <div key={act.id} className="rounded-xl border-2 border-purple-100 overflow-hidden bg-hs-purple/10">
                 {act.foto_url && (
                   <img src={act.foto_url} alt={act.descripcion} className="w-full h-32 object-cover" />
                 )}
@@ -1117,14 +1117,14 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         {/* Vómito */}
         {data?.vomitos?.length > 0 && (
           <div className="space-y-2 border-t-2 border-gray-200 pt-3 mt-3">
-            <p className="text-xs font-black text-orange-600 uppercase">🤢 Episodios de vómito</p>
+            <p className="text-xs font-black text-hs-orange-dark uppercase">🤢 Episodios de vómito</p>
             {data.vomitos.map((v, i) => (
-              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
-                <span className="text-orange-600 font-bold">🤢</span>
+              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-hs-orange/10 rounded-xl text-sm border border-hs-orange/30">
+                <span className="text-hs-orange-dark font-bold">🤢</span>
                 <div>
                   <p className="font-black text-orange-800">Intensidad: {v.intensidad}</p>
-                  <p className="text-xs text-orange-600">{new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
-                  {v.notas && <p className="text-xs text-orange-700 mt-1">{v.notas}</p>}
+                  <p className="text-xs text-hs-orange-dark">{new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</p>
+                  {v.notas && <p className="text-xs text-hs-orange-dark mt-1">{v.notas}</p>}
                 </div>
               </div>
             ))}
@@ -1132,29 +1132,29 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         )}
         {!soloLectura && (
           <button onClick={() => setMostrarFormVomito(!mostrarFormVomito)}
-            className="w-full mt-3 py-2 px-3 rounded-xl font-bold text-sm bg-orange-100 text-orange-700 hover:bg-orange-200 transition-all border-2 border-orange-300">
+            className="w-full mt-3 py-2 px-3 rounded-xl font-bold text-sm bg-hs-orange/20 text-hs-orange-dark hover:bg-orange-200 transition-all border-2 border-orange-300">
             + Registrar vómito
           </button>
         )}
         {mostrarFormVomito && (
-          <div className="space-y-2 border-t-2 border-orange-200 pt-3 mt-3">
+          <div className="space-y-2 border-t-2 border-hs-orange/30 pt-3 mt-3">
             <div className="flex flex-wrap gap-2">
               {vomitosCatalogo?.map(int => (
                 <button key={int.key}
                   onClick={() => setVomitoIntensidad(int.key)}
                   className={`px-4 py-2 rounded-xl font-bold text-sm transition-all
                     ${vomitoIntensidad === int.key
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-orange-50 text-orange-700 border-2 border-orange-200 hover:bg-orange-100'}`}>
+                      ? 'bg-hs-orange text-white'
+                      : 'bg-hs-orange/10 text-hs-orange-dark border-2 border-hs-orange/30 hover:bg-hs-orange/20'}`}>
                   {int.label}
                 </button>
               ))}
             </div>
             <textarea rows={2} placeholder="Notas adicionales (opcional)"
               value={vomitoNotas} onChange={e => setVomitoNotas(e.target.value)}
-              className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500 resize-none" />
+              className="w-full border-2 border-hs-orange/30 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500 resize-none" />
             <button onClick={registrarVomito} disabled={vomitoMutation.isPending}
-              className="w-full py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+              className="w-full py-3 rounded-xl font-black text-sm bg-hs-orange text-white hover:bg-hs-orange-dark disabled:opacity-50 transition-all">
               {vomitoMutation.isPending ? 'Registrando…' : '✅ Registrar vómito'}
             </button>
           </div>
@@ -1166,8 +1166,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         <Seccion titulo="📚 Tarea encargada">
           {tareasHoy.map(tarea => (
             <div key={tarea.id} className="space-y-3">
-              <div className="px-3 py-2 bg-blue-50 rounded-xl">
-                <p className="font-black text-blue-800 text-sm">{tarea.titulo}</p>
+              <div className="px-3 py-2 bg-hs-blue/10 rounded-xl">
+                <p className="font-black text-hs-blue-dark text-sm">{tarea.titulo}</p>
               </div>
               <SiNo
                 label="¿Entregó tarea?"
@@ -1190,25 +1190,25 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       <Seccion titulo={`💊 Medicamentos${data?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
         {/* Tomas pendientes (medicamentos con horas programadas) */}
         {data?.recepciones_medicamento?.some(r => r.tomas && r.tomas.some(t => !t.administrado)) && (
-          <div className="space-y-2 mb-3 border-b-2 border-orange-200 pb-3">
-            <p className="text-xs font-black text-orange-600 uppercase">⏳ Tomas pendientes</p>
+          <div className="space-y-2 mb-3 border-b-2 border-hs-orange/30 pb-3">
+            <p className="text-xs font-black text-hs-orange-dark uppercase">⏳ Tomas pendientes</p>
             {data.recepciones_medicamento
               .filter(r => r.tomas && r.tomas.some(t => !t.administrado))
               .flatMap(rec =>
                 rec.tomas
                   .filter(t => !t.administrado)
                   .map((toma, j) => (
-                    <div key={`${rec.id}-${j}`} className="flex items-start gap-2 px-3 py-2 bg-orange-50 rounded-xl text-sm border border-orange-200">
-                      <span className="text-orange-500 text-lg">💊</span>
+                    <div key={`${rec.id}-${j}`} className="flex items-start gap-2 px-3 py-2 bg-hs-orange/10 rounded-xl text-sm border border-hs-orange/30">
+                      <span className="text-hs-orange text-lg">💊</span>
                       <div className="flex-1">
                         <p className="font-black text-orange-800">{rec.nombre} — {rec.dosis}</p>
-                        <p className="text-xs text-orange-600">
+                        <p className="text-xs text-hs-orange-dark">
                           {toma.hora_programada.substring(0, 5)} {toma.administrado ? '✅' : '⏳'}
                         </p>
                       </div>
                       <button onClick={() => administrarRecepcionMutation.mutate({ recepcionId: rec.id, tomaId: toma.id })}
                         disabled={administrarRecepcionMutation.isPending}
-                        className="px-3 py-1 rounded-lg bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap">
+                        className="px-3 py-1 rounded-lg bg-hs-orange text-white font-bold text-xs hover:bg-hs-orange-dark disabled:opacity-50 whitespace-nowrap">
                         Administrar
                       </button>
                     </div>
@@ -1245,11 +1245,11 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
           <div className="space-y-2 mb-3">
             <p className="text-xs font-black text-green-600 uppercase">✅ Administrados</p>
             {data.medicamentos.map((m, i) => (
-              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-blue-50 rounded-xl text-sm">
-                <span className="text-blue-500 text-lg">💊</span>
+              <div key={i} className="flex items-start gap-2 px-3 py-2 bg-hs-blue/10 rounded-xl text-sm">
+                <span className="text-hs-blue text-lg">💊</span>
                 <div>
-                  <p className="font-black text-blue-800">{m.nombre} — {m.dosis}</p>
-                  <p className="text-xs text-blue-600">
+                  <p className="font-black text-hs-blue-dark">{m.nombre} — {m.dosis}</p>
+                  <p className="text-xs text-hs-blue-dark">
                     {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                     {m.notas && ` · ${m.notas}`}
                   </p>
@@ -1264,40 +1264,40 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
             <p className="text-xs font-black text-gray-400 uppercase">Registrar administración manual</p>
             <input type="text" placeholder="Nombre del medicamento *"
               value={medNombre} onChange={e => setMedNombre(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400" />
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50" />
             <input type="text" placeholder="Dosis (ej. 5ml, 1 tableta) *"
               value={medDosis} onChange={e => setMedDosis(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400" />
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50" />
             <textarea rows={2} placeholder="Notas (opcional)"
               value={medNotas} onChange={e => setMedNotas(e.target.value)}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none" />
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 resize-none" />
             <div className="flex gap-2">
               <button onClick={registrarMed} disabled={medMutation.isPending}
-                className="flex-1 py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all">
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-hs-blue text-white hover:bg-hs-blue-dark disabled:opacity-50 transition-all">
                 {medMutation.isPending ? 'Registrando…' : '💊 Administrar'}
               </button>
               <button onClick={abrirFormRecepcion} disabled={recepcionMutation.isPending}
-                className="flex-1 py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-hs-orange text-white hover:bg-hs-orange-dark disabled:opacity-50 transition-all">
                 📋 Registrar recepción
               </button>
             </div>
 
             {mostrarFormRecepcion && (
-              <div className="space-y-2 border-t-2 border-orange-200 pt-3 mt-3">
-                <p className="text-xs font-black text-orange-600 uppercase">Nueva recepción (traída por papá)</p>
+              <div className="space-y-2 border-t-2 border-hs-orange/30 pt-3 mt-3">
+                <p className="text-xs font-black text-hs-orange-dark uppercase">Nueva recepción (traída por papá)</p>
                 <input type="text" placeholder="Nombre del medicamento *"
                   value={recNombre} onChange={e => setRecNombre(e.target.value)}
-                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                  className="w-full border-2 border-hs-orange/30 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
                 <input type="text" placeholder="Dosis (ej. 5ml, 1 tableta) *"
                   value={recDosis} onChange={e => setRecDosis(e.target.value)}
-                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                  className="w-full border-2 border-hs-orange/30 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
                 <input type="time" placeholder="Hora programada (opcional)"
                   value={recHora} onChange={e => setRecHora(e.target.value)}
-                  className="w-full border-2 border-orange-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
+                  className="w-full border-2 border-hs-orange/30 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-500" />
                 <div className="flex gap-2">
                   <div className="flex-1">
                     <button onClick={() => recFotoRecetaRef.current?.click()}
-                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-orange-600 hover:bg-orange-50">
+                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-hs-orange-dark hover:bg-hs-orange/10">
                       📷 {recFotoReceta ? '✅ Receta' : 'Foto receta (opt)'}
                     </button>
                     <input ref={recFotoRecetaRef} type="file" accept="image/*" hidden
@@ -1305,7 +1305,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                   </div>
                   <div className="flex-1">
                     <button onClick={() => recFotoEnvaseRef.current?.click()}
-                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-orange-600 hover:bg-orange-50">
+                      className="w-full px-3 py-2 border-2 border-dashed border-orange-300 rounded-xl text-xs font-bold text-hs-orange-dark hover:bg-hs-orange/10">
                       📷 {recFotoEnvase ? '✅ Envase' : 'Foto envase (opt)'}
                     </button>
                     <input ref={recFotoEnvaseRef} type="file" accept="image/*" hidden
@@ -1314,7 +1314,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                 </div>
                 <div className="flex gap-2">
                   <button onClick={guardarRecepcion} disabled={recepcionMutation.isPending}
-                    className="flex-1 py-3 rounded-xl font-black text-sm bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 transition-all">
+                    className="flex-1 py-3 rounded-xl font-black text-sm bg-hs-orange text-white hover:bg-hs-orange-dark disabled:opacity-50 transition-all">
                     {recepcionMutation.isPending ? 'Guardando…' : '💾 Guardar recepción'}
                   </button>
                   <button onClick={() => setMostrarFormRecepcion(false)} disabled={recepcionMutation.isPending}
@@ -1395,8 +1395,8 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
               </div>
             ))}
             {salidaData.notas && (
-              <div className="px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
-                <p className="text-xs font-black text-blue-600 uppercase mb-1">Observaciones</p>
+              <div className="px-3 py-2 rounded-xl bg-hs-blue/10 border border-hs-blue/20">
+                <p className="text-xs font-black text-hs-blue-dark uppercase mb-1">Observaciones</p>
                 <p className="text-sm text-gray-700">{salidaData.notas}</p>
               </div>
             )}

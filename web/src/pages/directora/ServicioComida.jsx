@@ -150,8 +150,8 @@ function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
           {error && <p className="text-red-600 text-sm font-semibold bg-red-50 p-3 rounded-lg">{error}</p>}
 
           {DIAS_NOMBRE.map(dia => (
-            <div key={dia} className="border-2 border-purple-100 rounded-xl p-4 space-y-3 bg-purple-50/40">
-              <h4 className="text-sm font-black text-purple-700">{DIAS_LABEL[dia]}</h4>
+            <div key={dia} className="border-2 border-purple-100 rounded-xl p-4 space-y-3 bg-hs-purple/10/40">
+              <h4 className="text-sm font-black text-hs-purple-dark">{DIAS_LABEL[dia]}</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {TIEMPOS.map(tiempo => (
                   <div key={tiempo} className="space-y-1.5">
@@ -174,7 +174,7 @@ function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
                         if (!abierto) return (
                           <button type="button"
                             onClick={() => toggleExpandido(dia, tiempo)}
-                            className="px-2 py-0.5 rounded-lg text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-all">
+                            className="px-2 py-0.5 rounded-lg text-xs font-bold bg-hs-purple-dark text-white hover:bg-hs-purple-dark transition-all">
                             {etiqueta} ▾
                           </button>
                         );
@@ -182,13 +182,13 @@ function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
                           <>
                             <button type="button"
                               onClick={() => elegirNivel(dia, tiempo, 'todos')}
-                              className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${nivActuales.includes('todos') ? 'bg-purple-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                              className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${nivActuales.includes('todos') ? 'bg-hs-purple-dark text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
                               Todos
                             </button>
                             {nivelesUnicos.map(nivel => (
                               <button key={nivel} type="button"
                                 onClick={() => elegirNivel(dia, tiempo, nivel.toLowerCase())}
-                                className={`px-2 py-0.5 rounded-lg text-xs font-bold capitalize transition-all ${nivActuales.includes(nivel.toLowerCase()) ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
+                                className={`px-2 py-0.5 rounded-lg text-xs font-bold capitalize transition-all ${nivActuales.includes(nivel.toLowerCase()) ? 'bg-hs-blue-dark text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}>
                                 {nivel}
                               </button>
                             ))}
@@ -211,7 +211,7 @@ function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
-            <button type="submit" disabled={subirMenu.isPending} className="flex-1 py-3 rounded-xl bg-hs-purple hover:bg-purple-700 text-white font-black disabled:opacity-50">
+            <button type="submit" disabled={subirMenu.isPending} className="flex-1 py-3 rounded-xl bg-hs-purple hover:bg-hs-purple-dark text-white font-black disabled:opacity-50">
               {subirMenu.isPending ? '⏳ Guardando…' : '✅ Guardar menú'}
             </button>
           </div>
@@ -240,7 +240,7 @@ function TarjetaConfirmacion({ conf, actualizando, onToggle }) {
         <div className="flex items-center gap-2">
           <p className="font-black text-gray-800">{conf.nombre_completo}</p>
           {conf.nivel_nombre && (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-blue-100 text-blue-700">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-blue-100 text-hs-blue-dark">
               {conf.nivel_nombre}
             </span>
           )}
@@ -392,7 +392,7 @@ export default function ServicioComida() {
                 <p className="text-3xl font-black text-hs-purple">{stats.total_confirmados || 0}</p>
                 <p className="text-xs font-bold text-gray-500 mt-2">Confirmados</p>
               </div>
-              <div className="card-hs p-4 text-center border-l-4 border-green-500">
+              <div className="card-hs p-4 text-center border-l-4 border-hs-green">
                 <p className="text-3xl font-black text-green-600">{stats.pagados?.total ?? 0}</p>
                 <p className="text-xs font-bold text-gray-500 mt-1">Pagados</p>
                 <p className="text-xs text-gray-400 mt-1 leading-tight">
@@ -416,8 +416,8 @@ export default function ServicioComida() {
                 📊 Resumen de pagos {filtroNivel !== 'todos' ? `— ${filtroNivel}` : ''}
               </p>
               <div className="grid grid-cols-3 gap-3">
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-3 text-center">
-                  <p className="text-xl font-black text-blue-600">
+                <div className="bg-hs-blue/10 border-2 border-hs-blue/30 rounded-xl p-3 text-center">
+                  <p className="text-xl font-black text-hs-blue-dark">
                     ${confirmacionesFiltradas.filter(c => c.pago_verificado && c.metodo_pago === 'transferencia').reduce((s, c) => s + parseFloat(c.monto), 0)}
                   </p>
                   <p className="text-xs font-bold text-gray-500 mt-1">💳 Transferencia</p>
@@ -520,7 +520,7 @@ export default function ServicioComida() {
                 <div className="space-y-2">
                   {DIAS_NOMBRE.map(dia => (
                     <div key={dia} className="bg-gray-50 rounded-xl p-3">
-                      <p className="text-xs font-black text-purple-700 uppercase mb-2">{DIAS_LABEL[dia]}</p>
+                      <p className="text-xs font-black text-hs-purple-dark uppercase mb-2">{DIAS_LABEL[dia]}</p>
                       <div className="grid grid-cols-3 gap-2">
                         {TIEMPOS.map(t => menu.dias_menu[dia]?.[t]?.platillo ? (
                           <div key={t}>

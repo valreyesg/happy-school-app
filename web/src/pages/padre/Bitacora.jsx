@@ -378,10 +378,10 @@ export default function PadreBitacora() {
   const bitacoraFinalizada = avanceBitacora === 100;
 
   const TIEMPOS = {
-    desayuno: { label: 'Desayuno', emoji: '🥐', color: 'bg-orange-50 border-orange-200 text-orange-700' },
+    desayuno: { label: 'Desayuno', emoji: '🥐', color: 'bg-hs-orange/10 border-hs-orange/30 text-hs-orange-dark' },
     colacion: { label: 'Colación', emoji: '🍎', color: 'bg-green-50 border-green-200 text-green-700' },
     comida:   { label: 'Comida', emoji: '🍽️', color: 'bg-red-50 border-red-200 text-red-700' },
-    comida_extra: { label: 'Comida Extra', emoji: '🍜', color: 'bg-purple-50 border-purple-200 text-purple-700' },
+    comida_extra: { label: 'Comida Extra', emoji: '🍜', color: 'bg-hs-purple/10 border-hs-purple/20 text-hs-purple-dark' },
   };
 
 
@@ -401,7 +401,7 @@ export default function PadreBitacora() {
           <div className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap ${
             bitacoraFinalizada
               ? 'bg-green-100 text-green-700'
-              : 'bg-blue-100 text-blue-700'
+              : 'bg-blue-100 text-hs-blue-dark'
           }`}>
             {bitacoraFinalizada ? '✅ Finalizada' : `⏳ En curso (${avanceBitacora}%)`}
           </div>
@@ -449,12 +449,12 @@ export default function PadreBitacora() {
             <div className="space-y-4">
               {/* Declarar medicamento aunque no haya bitácora aún (solo hoy) */}
               {esHoyFecha && (
-                <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3">
+                <div className="bg-hs-purple/10 border border-hs-purple/20 rounded-2xl p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-black text-purple-700">💊 Medicamentos para hoy</p>
+                    <p className="text-sm font-black text-hs-purple-dark">💊 Medicamentos para hoy</p>
                     <button
                       onClick={() => setMostrarFormMed(v => !v)}
-                      className="text-xs font-bold text-purple-600 bg-white border border-purple-200 px-3 py-1.5 rounded-xl hover:bg-purple-50 transition-colors"
+                      className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-3 py-1.5 rounded-xl hover:bg-hs-purple/10 transition-colors"
                     >
                       {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
                     </button>
@@ -472,7 +472,7 @@ export default function PadreBitacora() {
                             <div className="flex items-center gap-2">
                               <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                                 r.tomas?.every(t => t.administrado) ? 'bg-green-100 text-green-700' :
-                                r.recibido ? 'bg-blue-100 text-blue-700' :
+                                r.recibido ? 'bg-blue-100 text-hs-blue-dark' :
                                 'bg-yellow-100 text-yellow-700'
                               }`}>
                                 {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
@@ -491,7 +491,7 @@ export default function PadreBitacora() {
                           {r.tomas?.length > 0 && (
                             <div className="flex flex-wrap gap-1">
                               {r.tomas.map((t, j) => (
-                                <span key={j} className="text-xs px-2 py-0.5 rounded bg-purple-50 text-purple-600 font-semibold">
+                                <span key={j} className="text-xs px-2 py-0.5 rounded bg-hs-purple/10 text-hs-purple font-semibold">
                                   {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
                                 </span>
                               ))}
@@ -527,7 +527,7 @@ export default function PadreBitacora() {
                           <p className="text-xs font-black text-gray-400 uppercase">Horas programadas</p>
                           <button
                             onClick={() => setHorasMed(h => [...h, ''])}
-                            className="text-xs font-bold text-purple-600 bg-white border border-purple-200 px-2 py-1 rounded-lg hover:bg-purple-50"
+                            className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-2 py-1 rounded-lg hover:bg-hs-purple/10"
                           >
                             ＋ Agregar hora
                           </button>
@@ -557,7 +557,7 @@ export default function PadreBitacora() {
                         <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
                         <button
                           onClick={() => fotoRecetaRef.current?.click()}
-                          className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-500 hover:border-purple-300'}`}
+                          className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-hs-purple/10 text-hs-purple-dark' : 'border-gray-300 text-gray-500 hover:border-hs-purple/30'}`}
                         >
                           {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
                         </button>
@@ -566,7 +566,7 @@ export default function PadreBitacora() {
                       <button
                         onClick={handleRegistrarMed}
                         disabled={recepcionMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-purple-500 text-white text-sm font-black hover:bg-purple-600 disabled:opacity-50 transition-colors"
+                        className="w-full py-2.5 rounded-xl bg-hs-purple text-white text-sm font-black hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
                       >
                         {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
                       </button>
@@ -641,9 +641,9 @@ export default function PadreBitacora() {
 
                             {/* Retardo */}
                             {entradaMostrada.es_retardo && (
-                              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-orange-50 border border-orange-200">
+                              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-hs-orange/10 border border-hs-orange/30">
                                 <span>⏰</span>
-                                <span className="text-sm font-bold text-orange-700">
+                                <span className="text-sm font-bold text-hs-orange-dark">
                                   Retardo #{entradaMostrada.numero_retardo_mes} del mes
                                 </span>
                               </div>
@@ -761,7 +761,7 @@ export default function PadreBitacora() {
                           <p className="text-xs font-black text-gray-500 uppercase">👶🏻 Cambios de pañal</p>
                           {panial.map((p, i) => (
                             <div key={i} className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-                              <span className="text-xs font-black text-purple-600 w-12">
+                              <span className="text-xs font-black text-hs-purple w-12">
                                 {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                               </span>
                               <span className="text-sm font-semibold text-gray-700">
@@ -796,12 +796,12 @@ export default function PadreBitacora() {
 
                       {/* ── Declarar medicamento (solo hoy) ── */}
                       {esHoyFecha && (
-                        <div className="bg-purple-50 border border-purple-200 rounded-2xl p-4 space-y-3">
+                        <div className="bg-hs-purple/10 border border-hs-purple/20 rounded-2xl p-4 space-y-3">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-black text-purple-700">💊 Medicamentos para hoy</p>
+                            <p className="text-sm font-black text-hs-purple-dark">💊 Medicamentos para hoy</p>
                             <button
                               onClick={() => setMostrarFormMed(v => !v)}
-                              className="text-xs font-bold text-purple-600 bg-white border border-purple-200 px-3 py-1.5 rounded-xl hover:bg-purple-50 transition-colors"
+                              className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-3 py-1.5 rounded-xl hover:bg-hs-purple/10 transition-colors"
                             >
                               {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
                             </button>
@@ -819,7 +819,7 @@ export default function PadreBitacora() {
                                     <div className="flex items-center gap-2">
                                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
                                         r.tomas?.every(t => t.administrado) ? 'bg-green-100 text-green-700' :
-                                        r.recibido ? 'bg-blue-100 text-blue-700' :
+                                        r.recibido ? 'bg-blue-100 text-hs-blue-dark' :
                                         'bg-yellow-100 text-yellow-700'
                                       }`}>
                                         {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
@@ -838,7 +838,7 @@ export default function PadreBitacora() {
                                   {r.tomas?.length > 0 && (
                                     <div className="flex flex-wrap gap-1">
                                       {r.tomas.map((t, j) => (
-                                        <span key={j} className="text-xs px-2 py-0.5 rounded bg-purple-50 text-purple-600 font-semibold">
+                                        <span key={j} className="text-xs px-2 py-0.5 rounded bg-hs-purple/10 text-hs-purple font-semibold">
                                           {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
                                         </span>
                                       ))}
@@ -874,7 +874,7 @@ export default function PadreBitacora() {
                                   <p className="text-xs font-black text-gray-400 uppercase">Horas programadas</p>
                                   <button
                                     onClick={() => setHorasMed(h => [...h, ''])}
-                                    className="text-xs font-bold text-purple-600 bg-white border border-purple-200 px-2 py-1 rounded-lg hover:bg-purple-50"
+                                    className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-2 py-1 rounded-lg hover:bg-hs-purple/10"
                                   >
                                     ＋ Agregar hora
                                   </button>
@@ -904,7 +904,7 @@ export default function PadreBitacora() {
                                 <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
                                 <button
                                   onClick={() => fotoRecetaRef.current?.click()}
-                                  className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-500 hover:border-purple-300'}`}
+                                  className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-hs-purple/10 text-hs-purple-dark' : 'border-gray-300 text-gray-500 hover:border-hs-purple/30'}`}
                                 >
                                   {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
                                 </button>
@@ -919,7 +919,7 @@ export default function PadreBitacora() {
                               <button
                                 onClick={handleRegistrarMed}
                                 disabled={recepcionMutation.isPending}
-                                className="w-full py-2.5 rounded-xl bg-purple-500 text-white text-sm font-black hover:bg-purple-600 disabled:opacity-50 transition-colors"
+                                className="w-full py-2.5 rounded-xl bg-hs-purple text-white text-sm font-black hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
                               >
                                 {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
                               </button>
@@ -946,9 +946,9 @@ export default function PadreBitacora() {
                         <div className="space-y-2">
                           <p className="text-xs font-black text-gray-500 uppercase">💊 Medicamentos</p>
                           {meds.map((m, i) => (
-                            <div key={i} className="bg-purple-50 rounded-xl p-3">
+                            <div key={i} className="bg-hs-purple/10 rounded-xl p-3">
                               <p className="font-black text-purple-800">{m.nombre}</p>
-                              <p className="text-xs text-purple-600 font-semibold mt-0.5">
+                              <p className="text-xs text-hs-purple font-semibold mt-0.5">
                                 Dosis: {m.dosis} · {new Date(m.hora_administracion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                               </p>
                               {m.notas && <p className="text-xs text-gray-500 mt-1">{m.notas}</p>}
@@ -958,9 +958,9 @@ export default function PadreBitacora() {
                       )}
                       {data?.vomitos?.length > 0 && (
                         <div className="space-y-2">
-                          <h4 className="font-semibold text-orange-700">🤢 Vómitos</h4>
+                          <h4 className="font-semibold text-hs-orange-dark">🤢 Vómitos</h4>
                           {data.vomitos.map((v, i) => (
-                            <div key={i} className="bg-orange-50 rounded-lg p-3 text-sm">
+                            <div key={i} className="bg-hs-orange/10 rounded-lg p-3 text-sm">
                               <span className="font-medium">{v.hora?.substring(0, 5)}</span>
                               {' — '}<span className="capitalize">{v.intensidad}</span>
                               {v.notas && <span className="text-gray-600"> · {v.notas}</span>}
@@ -989,9 +989,9 @@ export default function PadreBitacora() {
                     return tareasHoy.length > 0 ? (
                       <div className="space-y-3">
                         {tareasHoy.map((t, i) => (
-                          <div key={i} className="bg-blue-50 border-l-4 border-blue-400 rounded-xl p-3 space-y-2">
-                            <p className="text-sm font-black text-blue-800">{t.titulo}</p>
-                            {t.descripcion && <p className="text-xs text-blue-600">{t.descripcion}</p>}
+                          <div key={i} className="bg-hs-blue/10 border-l-4 border-hs-blue/50 rounded-xl p-3 space-y-2">
+                            <p className="text-sm font-black text-hs-blue-dark">{t.titulo}</p>
+                            {t.descripcion && <p className="text-xs text-hs-blue-dark">{t.descripcion}</p>}
                             <div className="flex items-center gap-2">
                               <span className={`px-2 py-1 rounded-full text-xs font-bold ${
                                 t.completada
@@ -1036,7 +1036,7 @@ export default function PadreBitacora() {
                               <button
                                 onClick={() => setIncidenteFirmando(inc)}
                                 disabled={firmaMutation.isPending}
-                                className="w-full px-3 py-2 rounded-lg font-bold text-xs bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-colors"
+                                className="w-full px-3 py-2 rounded-lg font-bold text-xs bg-hs-blue text-white hover:bg-hs-blue-dark disabled:opacity-50 transition-colors"
                               >
                                 {firmaMutation.isPending ? '⏳ Firmando...' : '✍️ Firmar para confirmar enterado'}
                               </button>

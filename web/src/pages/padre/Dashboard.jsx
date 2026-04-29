@@ -20,8 +20,8 @@ const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto:
 const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 const COMPORTAMIENTO = {
   muy_bien:         { emoji: '⭐', label: 'Excelente', bg: 'bg-green-100',  text: 'text-green-700'  },
-  bien:             { emoji: '👍', label: 'Bien',      bg: 'bg-blue-100',   text: 'text-blue-700'   },
-  necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  bg: 'bg-orange-100', text: 'text-orange-700' },
+  bien:             { emoji: '👍', label: 'Bien',      bg: 'bg-blue-100',   text: 'text-hs-blue-dark'   },
+  necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  bg: 'bg-hs-orange/20', text: 'text-hs-orange-dark' },
 };
 
 function FiltroEntradaBadge({ item, label }) {
@@ -73,7 +73,7 @@ function HijoCard({ hijo }) {
           limitAlcanzado ? 'bg-red-50 border-red-100' :
           cercaDelLimite ? 'bg-yellow-50 border-yellow-100' :
           unRetardo ? 'bg-yellow-50 border-yellow-100' :
-          tieneRetardo ? 'bg-orange-50 border-orange-100' :
+          tieneRetardo ? 'bg-hs-orange/10 border-orange-100' :
           entrada?.puede_entrar ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'
         }`}>
           {/* Alerta unificada de retardos */}
@@ -158,11 +158,11 @@ function HijoCard({ hijo }) {
         <div className={`mx-4 mt-3 mb-1 rounded-2xl border p-4 flex items-start gap-3 ${
           hijo.filtro_salida.salida_anticipada
             ? 'bg-amber-50 border-amber-200'
-            : 'bg-blue-50 border-blue-100'
+            : 'bg-hs-blue/10 border-hs-blue/20'
         }`}>
           <span className="text-2xl mt-0.5">{hijo.filtro_salida.salida_anticipada ? '⚠️' : '🚪'}</span>
           <div className="flex-1">
-            <p className={`text-sm font-black ${hijo.filtro_salida.salida_anticipada ? 'text-amber-700' : 'text-blue-700'}`}>
+            <p className={`text-sm font-black ${hijo.filtro_salida.salida_anticipada ? 'text-amber-700' : 'text-hs-blue-dark'}`}>
               {hijo.filtro_salida.salida_anticipada ? 'Salida anticipada' : 'Ya salió'}
             </p>
             <p className="text-xs text-gray-500 font-semibold">
@@ -212,9 +212,9 @@ function HijoCard({ hijo }) {
 
             {/* Incidente */}
             {bit.incidentes_sin_firmar > 0 && (
-              <div className="flex flex-col items-center gap-2 bg-orange-50 border border-orange-200 rounded-xl px-3 py-2">
+              <div className="flex flex-col items-center gap-2 bg-hs-orange/10 border border-hs-orange/30 rounded-xl px-3 py-2">
                 <span className="text-3xl">⚠️</span>
-                <p className="text-xs font-black text-orange-600">
+                <p className="text-xs font-black text-hs-orange-dark">
                   {bit.incidentes_sin_firmar === 1 ? '1 incidente' : `${bit.incidentes_sin_firmar} incidentes`}
                 </p>
               </div>
@@ -273,7 +273,7 @@ function PagoResumenCard({ hijoId, hijoNombre }) {
     <Link to="/padre/pagos" className="card-hs px-4 py-3 flex items-center justify-between border border-green-100 hover:shadow-md transition-shadow">
       <div>
         <p className="text-xs font-bold text-gray-500">{hijoNombre.split(' ')[0]}</p>
-        <p className={`text-sm font-black ${semaforo === 'verde' ? 'text-green-600' : 'text-orange-600'}`}>
+        <p className={`text-sm font-black ${semaforo === 'verde' ? 'text-green-600' : 'text-hs-orange-dark'}`}>
           {estadoLabel}
         </p>
       </div>
@@ -315,7 +315,7 @@ function ModalEvento({ ev, onClose }) {
         <h3 className="text-xl font-black text-gray-800 mb-2">{ev.titulo}</h3>
 
         {/* Fecha */}
-        <p className="text-sm font-semibold text-blue-500 capitalize mb-1">
+        <p className="text-sm font-semibold text-hs-blue capitalize mb-1">
           📆 {fmtFecha(fechaInicio)}
           {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() && ` → ${fmtFecha(fechaFin)}`}
         </p>
@@ -348,7 +348,7 @@ function ModalEvento({ ev, onClose }) {
           href={buildGoogleCalendarUrl(ev)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
         >
           <CalendarPlus size={15} />
           Añadir a Google Calendar
@@ -396,10 +396,10 @@ function TareaRecienteCard({ hijo }) {
   return (
     <>
       <details className="card-hs overflow-hidden">
-        <summary className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-3 border-b border-blue-200 cursor-pointer hover:from-blue-100 hover:to-blue-150 transition flex items-center gap-2 font-black text-sm text-blue-800 list-none">
+        <summary className="bg-gradient-to-r from-hs-blue/5 to-blue-100 px-4 py-3 border-b border-hs-blue/30 cursor-pointer hover:from-blue-100 hover:to-blue-150 transition flex items-center gap-2 font-black text-sm text-hs-blue-dark list-none">
           <span>▶</span>
           <span>📚 Tareas pendientes — {hijo.nombre_completo}</span>
-          <span className="ml-auto inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-200 text-xs font-bold text-blue-800">
+          <span className="ml-auto inline-flex items-center justify-center w-6 h-6 rounded-full bg-hs-blue/20 text-xs font-bold text-hs-blue-dark">
             {tareasPendientes.length}
           </span>
         </summary>
@@ -424,7 +424,7 @@ function TareaRecienteCard({ hijo }) {
 
                 {/* Contenido expandido */}
                 {isExpanded && (
-                  <div className="px-4 py-3 bg-gray-50 border-t border-blue-100 space-y-2">
+                  <div className="px-4 py-3 bg-gray-50 border-t border-hs-blue/20 space-y-2">
                     {tarea.descripcion && (
                       <p className="text-xs text-gray-700 whitespace-pre-wrap break-words">{tarea.descripcion}</p>
                     )}
@@ -432,7 +432,7 @@ function TareaRecienteCard({ hijo }) {
                     {tarea.foto_url && (
                       <button
                         onClick={() => setFotoModal(tarea.foto_url)}
-                        className="flex items-center gap-1 text-blue-600 hover:text-blue-700 font-semibold text-xs"
+                        className="flex items-center gap-1 text-hs-blue-dark hover:text-hs-blue-dark font-semibold text-xs"
                       >
                         <span>📎</span> Ver referencia
                       </button>
@@ -509,8 +509,8 @@ export default function PadreDashboard() {
       </div>
 
       {/* Recordatorio hora límite de entrada */}
-      <div className="bg-blue-50 border border-blue-200 rounded-2xl px-4 py-3">
-        <p className="text-sm font-bold text-blue-700">
+      <div className="bg-hs-blue/10 border border-hs-blue/30 rounded-2xl px-4 py-3">
+        <p className="text-sm font-bold text-hs-blue-dark">
           🚪 Se recuerda que la entrada es a más tardar a las <span className="font-black text-lg">{horaLimiteEntrada}</span> a.m.
         </p>
       </div>
@@ -547,12 +547,12 @@ export default function PadreDashboard() {
                 <button
                   key={ev.id}
                   onClick={() => setEventoSeleccionado(ev)}
-                  className="card-hs px-4 py-3 flex items-center gap-3 border border-blue-100 w-full text-left hover:shadow-md hover:border-blue-300 transition-all"
+                  className="card-hs px-4 py-3 flex items-center gap-3 border border-hs-blue/20 w-full text-left hover:shadow-md hover:border-hs-blue/40 transition-all"
                 >
                   <span className="text-xl">{ev.categoria_icono || '📅'}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-black text-gray-800 truncate">{ev.titulo}</p>
-                    <p className="text-xs font-semibold text-blue-500 capitalize">{etiqueta}</p>
+                    <p className="text-xs font-semibold text-hs-blue capitalize">{etiqueta}</p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <a
@@ -560,7 +560,7 @@ export default function PadreDashboard() {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={e => e.stopPropagation()}
-                      className="p-1.5 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="p-1.5 rounded-lg text-hs-blue hover:text-hs-blue-dark hover:bg-hs-blue/10 transition-colors"
                       title="Añadir a Google Calendar"
                     >
                       <CalendarPlus size={16} />

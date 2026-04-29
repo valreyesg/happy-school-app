@@ -303,7 +303,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                         disabled={loadingPreview}
                         className={`p-4 rounded-lg border-2 text-left transition disabled:opacity-50 disabled:cursor-not-allowed ${
                           cicloDestino?.id === ciclo.id
-                            ? 'border-green-500 bg-green-50'
+                            ? 'border-hs-green bg-green-50'
                             : 'border-gray-200 bg-white hover:border-green-300'
                         }`}
                       >
@@ -359,7 +359,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                             type="checkbox"
                             checked={!!gruposSeleccionados[grupo.id]}
                             onChange={e => setGruposSeleccionados(s => ({ ...s, [grupo.id]: e.target.checked }))}
-                            className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                            className="w-5 h-5 rounded border-gray-300 text-hs-purple focus:ring-purple-500"
                           />
                           <div className="flex-1">
                             <label className="block text-xs text-gray-500">{grupo.nivel}</label>
@@ -379,7 +379,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                         <p className="text-xs text-gray-500 font-semibold uppercase pt-2 border-t border-gray-100">Grupos nuevos</p>
                       )}
                       {gruposNuevos.map((gn, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-3 border border-dashed border-purple-300 bg-purple-50 rounded-lg">
+                        <div key={idx} className="flex items-center gap-3 p-3 border border-dashed border-hs-purple/30 bg-hs-purple/10 rounded-lg">
                           <div className="flex-1 grid grid-cols-2 gap-2">
                             <div>
                               <label className="block text-xs text-gray-500 mb-1">Nivel</label>
@@ -414,7 +414,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
 
                       <button
                         onClick={() => setGruposNuevos(prev => [...prev, { nombre_destino: '', nivel: 'Kinder 2', nivel_codigo: 'kinder2' }])}
-                        className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-purple-300 text-purple-600 font-semibold hover:bg-purple-50 text-sm"
+                        className="w-full py-2 px-4 rounded-lg border-2 border-dashed border-hs-purple/30 text-hs-purple font-semibold hover:bg-hs-purple/10 text-sm"
                       >
                         + Agregar grupo nuevo
                       </button>
@@ -441,7 +441,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
               <button
                 onClick={handleExport}
                 disabled={exporting}
-                className="w-full py-2 px-4 mt-4 rounded-lg border-2 border-blue-500 text-blue-600 font-semibold hover:bg-blue-50 disabled:opacity-50 transition"
+                className="w-full py-2 px-4 mt-4 rounded-lg border-2 border-hs-blue text-hs-blue-dark font-semibold hover:bg-hs-blue/10 disabled:opacity-50 transition"
               >
                 {exporting ? '⬇️ Exportando...' : '⬇️ Descargar respaldo del ciclo actual (grupos, maestras y alumnos)'}
               </button>
@@ -450,9 +450,9 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
 
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm font-semibold text-blue-900">✓ Ciclo destino seleccionado:</p>
-                <p className="text-sm text-blue-800 mt-1">
+              <div className="bg-hs-blue/10 p-4 rounded-lg border border-hs-blue/30">
+                <p className="text-sm font-semibold text-hs-blue-dark">✓ Ciclo destino seleccionado:</p>
+                <p className="text-sm text-hs-blue-dark mt-1">
                   <strong>{cicloDestino?.nombre}</strong> ({new Date(cicloDestino?.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloDestino?.fecha_fin).toLocaleDateString('es-MX')})
                 </p>
               </div>
@@ -480,7 +480,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                         <tr key={a.id} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="py-2 px-3 font-semibold text-gray-700">{a.nombre_completo}</td>
                           <td className="py-2 px-3 text-gray-600">{a.grupo_actual}</td>
-                          <td className="text-center text-purple-600">↑</td>
+                          <td className="text-center text-hs-purple">↑</td>
                           <td className="py-2 px-3">
                             {(a.nuevo_estado === 'egresado' || a.nuevo_estado === 'baja') ? (
                               <span className="text-gray-400 italic">—</span>
@@ -501,7 +501,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                           </td>
                           <td className="py-2 px-3">
                             {a.nivel_codigo === 'kinder3' ? (
-                              <span className="text-sm font-semibold text-purple-700">🎓 Egresado</span>
+                              <span className="text-sm font-semibold text-hs-purple-dark">🎓 Egresado</span>
                             ) : (
                               <select
                                 value={a.nuevo_estado}
@@ -567,7 +567,7 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
             <button
               onClick={() => setStep(step + 1)}
               disabled={step === 1 && !cicloDestino}
-              className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition"
+              className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-hs-blue-dark hover:bg-hs-blue-dark disabled:opacity-50 transition"
             >
               Siguiente →
             </button>
@@ -852,7 +852,7 @@ export default function CiclosEscolares() {
                             <button
                               onClick={() => handleAbrirPromocion(ciclo)}
                               disabled={previewMutation.isPending}
-                              className="inline-block py-2 px-4 rounded-lg text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition"
+                              className="inline-block py-2 px-4 rounded-lg text-sm font-bold text-white bg-hs-blue-dark hover:bg-hs-blue-dark disabled:opacity-50 transition"
                             >
                               Iniciar cierre →
                             </button>

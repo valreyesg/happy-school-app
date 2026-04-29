@@ -1,5 +1,7 @@
 import { Tabs } from 'expo-router';
+import { COLORS } from '@/constants/theme';
 import { View, Text } from 'react-native';
+import { COLORS } from '@/constants/theme';
 
 const TabIcon = ({ emoji, label, focused }) => (
   <View style={{ alignItems: 'center', gap: 2 }}>
@@ -16,7 +18,7 @@ export default function PadreTabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#fff',
+          backgroundColor: COLORS.white,
           borderTopWidth: 1,
           borderTopColor: '#FED7D7',
           height: 70,

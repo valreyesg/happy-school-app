@@ -10,8 +10,8 @@ const PALETA_NIVELES = [
   { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
   { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
   { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
-  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
-  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+  { bg: 'bg-blue-100',   text: 'text-hs-blue-dark',   ring: 'ring-hs-blue/30' },
+  { bg: 'bg-hs-purple/20', text: 'text-hs-purple-dark', ring: 'ring-purple-300' },
 ];
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -143,10 +143,10 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
         </div>
         <form onSubmit={submit} className="p-6 space-y-4">
           {alumno ? (
-            <div className="flex items-center gap-3 p-3 bg-purple-50 rounded-xl">
+            <div className="flex items-center gap-3 p-3 bg-hs-purple/10 rounded-xl">
               {alumno.foto_url
                 ? <img src={alumno.foto_url} className="w-10 h-10 rounded-full object-cover" alt="" />
-                : <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-purple-700 font-black">{alumno.nombre_completo?.[0]}</div>
+                : <div className="w-10 h-10 rounded-full bg-purple-200 flex items-center justify-center text-hs-purple-dark font-black">{alumno.nombre_completo?.[0]}</div>
               }
               <div>
                 <p className="font-black text-gray-800 text-sm">{alumno.nombre_completo}</p>
@@ -247,7 +247,7 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
                   )}
                   <div className="flex justify-between text-gray-900 border-t pt-1 mt-1">
                     <span className="font-black">Total a registrar</span>
-                    <span className="font-black text-purple-700">{fmt(totalPreview)}</span>
+                    <span className="font-black text-hs-purple-dark">{fmt(totalPreview)}</span>
                   </div>
                 </div>
               )}
@@ -262,7 +262,7 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
                   onClick={() => setForm(f => ({ ...f, metodo_pago: m.key }))}
                   className={`flex-1 py-2 rounded-xl text-sm font-bold capitalize transition-all ${
                     form.metodo_pago === m.key
-                      ? 'bg-purple-600 text-white'
+                      ? 'bg-hs-purple-dark text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}>
                   {m.label}
@@ -295,7 +295,7 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
             <button type="submit" disabled={mut.isPending}
-              className="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black disabled:opacity-50">
+              className="flex-1 py-3 rounded-xl bg-hs-purple-dark hover:bg-hs-purple-dark text-white font-black disabled:opacity-50">
               {mut.isPending ? 'Guardando…' : 'Registrar pago'}
             </button>
           </div>
@@ -391,7 +391,7 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
             </label>
             {error && <p className="text-red-600 text-sm">{error}</p>}
             <button onClick={() => crear.mutate(form)} disabled={crear.isPending}
-              className="w-full py-2 rounded-xl bg-purple-600 text-white font-black text-sm disabled:opacity-50">
+              className="w-full py-2 rounded-xl bg-hs-purple-dark text-white font-black text-sm disabled:opacity-50">
               {crear.isPending ? 'Guardando…' : '+ Agregar concepto'}
             </button>
           </div>
@@ -428,7 +428,7 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
           <div className="flex items-center gap-3">
             {alumno.foto_url
               ? <img src={alumno.foto_url} className="w-8 h-8 rounded-full object-cover" alt="" />
-              : <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-black text-sm">{alumno.nombre_completo?.[0]}</div>
+              : <div className="w-8 h-8 rounded-full bg-hs-purple/20 flex items-center justify-center text-hs-purple-dark font-black text-sm">{alumno.nombre_completo?.[0]}</div>
             }
             <span className="font-bold text-gray-800 text-sm">{alumno.nombre_completo}</span>
           </div>
@@ -621,11 +621,11 @@ export default function PagosDirectora() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <button onClick={() => setShowModalConceptos(true)}
-            className="px-4 py-2 rounded-xl border-2 border-purple-300 text-purple-700 font-bold text-sm hover:bg-purple-50">
+            className="px-4 py-2 rounded-xl border-2 border-hs-purple/30 text-hs-purple-dark font-bold text-sm hover:bg-hs-purple/10">
             ⚙️ Conceptos
           </button>
           <button onClick={() => generar.mutate()} disabled={generar.isPending}
-            className="px-4 py-2 rounded-xl border-2 border-blue-300 text-blue-700 font-bold text-sm hover:bg-blue-50">
+            className="px-4 py-2 rounded-xl border-2 border-hs-blue/40 text-hs-blue-dark font-bold text-sm hover:bg-hs-blue/10">
             📋 Generar mes
           </button>
           <button onClick={() => setShowModalPagoGlobal(true)} className="btn-hs">
@@ -647,7 +647,7 @@ export default function PagosDirectora() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Recaudado" valor={fmt(totales.recaudado)} sub={`${totales.pagados || 0} pagos`} color="border-green-500" />
+        <StatCard label="Recaudado" valor={fmt(totales.recaudado)} sub={`${totales.pagados || 0} pagos`} color="border-hs-green" />
         <StatCard label="Por cobrar" valor={fmt(totales.por_cobrar)} sub={`${totales.pendientes || 0} pendientes`} color="border-yellow-500" />
         <StatCard label="Vencido" valor={fmt(totales.vencido_total)} sub={`${totales.vencidos || 0} vencidos`} color="border-red-500" />
         <StatCard label="Recargos cobrados" valor={fmt(totales.recargos_cobrados)} sub="del mes" color="border-purple-500" />

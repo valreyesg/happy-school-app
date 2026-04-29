@@ -1,7 +1,121 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-29 — Sesión XX+14 | **Próximos pendientes:** Resolver Cloudinary + QR Temporal + UX/UI Audit
+**Última actualización:** 2026-04-29 — Sesión XX+15 | **Próximos pendientes:** Validación UX/UI (Sesión XX+15) + Cloudinary + QR Temporal
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
+
+---
+
+## ✅ VALIDACIÓN UX/UI — FASES 1-3.4 (Sesión XX+15 — COMPLETADAS)
+
+> **Estado:** IMPLEMENTADO — Cambios completados. PENDIENTE: Validación en browser por Valeria
+> **Sesión:** XX+15 — Homogenización web + componentes base mobile
+> **Bloqueante:** NO — cambios solo de estilos, sin funcionalidad afectada
+
+### ✅ Cambios implementados:
+
+#### **WEB — TOKENS Y COLORES:**
+- [x] **Agregados tokens:** `hs-blue` (#3B82F6) y `hs-orange` (#F97316) en web + mobile
+- [x] **Sidebar Padre:** Corregido `bg-red-500` → `bg-hs-red` (nav, avatar, etiqueta, logout)
+- [x] **Hovers:** 19 archivos actualizados `hover:bg-purple-700` → `hover:bg-hs-purple-dark`
+- [x] **Botones azules:** 54+ instancias `bg-blue-*` → `bg-hs-blue` (acciones informativas)
+- [x] **Botones naranjas:** 69 instancias `bg-orange-*` → `bg-hs-orange` (registrar vómito, medicamentos)
+- [x] **SelectorCiclo:** Actualizado a `input-hs` (coherencia con otros inputs)
+- [x] **Clases faltantes:** Definidas `.btn-hs-primary` y `.btn-hs-ghost` en index.css
+- [x] **Labels:** Clases `.label-hs` y `.label-hs-section` agregadas
+
+#### **MOBILE — COMPONENTES BASE:**
+- [x] **theme.js:** Fuente única de verdad para colores (COLORS, RADIUS, SCREEN_BG)
+- [x] **Button.jsx:** Componente reutilizable (variantes: primary, secondary, outline, ghost, danger)
+- [x] **ModalSheet.jsx:** Componente reutilizable para modales mobile
+- [x] **Modal.jsx (web):** Componente reutilizable para modales web
+
+---
+
+### 📋 CHECKLIST DE VALIDACIÓN EN BROWSER (por Valeria)
+
+**Portal PADRE (http://localhost:5173/padre):**
+- [ ] Sidebar rojo es el correcto (`#E53E3E`)
+- [ ] Navegación activa se ve en púrpura
+- [ ] Avatar es rojo correcto
+- [ ] Botón "Añadir a Google Calendar" es azul correcto (`#3B82F6`)
+- [ ] Banners informativos azules coherentes
+- [ ] Todos los botones tienen color visible sin hover
+
+**Portal MAESTRA (http://localhost:5173/maestra):**
+- [ ] Botones "Registrar vómito" naranjas (`#F97316`)
+- [ ] Botones "Administrar" naranjas coherentes
+- [ ] Hovers suaves en botones púrpura
+
+**Portal DIRECTORA (http://localhost:5173/directora):**
+- [ ] SelectorCiclo (en Alumnos) se ve como los otros inputs
+- [ ] Botones de modales púrpura con color visible
+- [ ] Badges en AlumnoPerfil se ven coherentes
+- [ ] Botón "Enviar aviso extraordinario" naranja correcto
+- [ ] Todos los tabs tienen color de fondo visible
+
+**GENERAL:**
+- [ ] App se siente más homogénea visualmente
+- [ ] NO hay botones invisibles esperando hover
+- [ ] Colores primarios (púrpura, rojo, azul, naranja) consistentes
+- [ ] Consola browser: SIN errores de Tailwind o CSS
+
+**Conclusión:** ✅ Cuando hayas validado todos los items, confirmar aquí para cerrar validación.
+
+---
+
+## 🎨 FASES UX/UI PENDIENTES — Próximas sesiones
+
+> **Estado:** FASES 1-4.3 COMPLETADAS (Sesión XX+15)
+> **Próximo:** FASE 4.4 + FASE 3.5 + FASE 5
+> **Tiempo estimado:** 2-3 sesiones (homogenización + refactores)
+
+### ⚠️ BLOQUEANTE ANTES DE CONTINUAR:
+
+**FASE 3.5 — ANIMO keys inconsistentes (REQUIERE CLARIDAD BD):**
+- Estado: BLOQUEADO — Necesita verificación en BD antes de unificar
+- Problema: `(maestra)/index.jsx` usa `inquieto, energico` pero `catalogos.js` usa `irritable, activo`
+- Acción: **Confirmar en BD cuál es la key correcta ANTES de siguiente sesión**
+- Archivos afectados:
+  - `mobile/app/(maestra)/index.jsx` línea 12 (EMOJIS_ANIMO)
+  - `mobile/app/(padre)/index.jsx` (CONDUCTA_STYLE inline)
+  - `mobile/src/constants/catalogos.js` (autoridad)
+
+### 📋 FASE 4.4 — Aplicar componente Button en mobile (PRÓXIMA SESIÓN)
+
+> Tiempo: ~1.5 horas | Riesgo: BAJO
+> Cambios solo visuales, sin funcionalidad afectada
+
+**Tareas:**
+- [ ] Migrar dashboard padre: reemplazar `TouchableOpacity` con componente `Button` (6 botones)
+- [ ] Migrar dashboard maestra: reemplazar `TouchableOpacity` con componente `Button` (7 botones)
+- [ ] Migrar pantallas prioritarias: pagos, asistencia (modalidad + guardar buttons)
+- [ ] Validar en device/emulador que botones se ven correctos
+- [ ] Verificar no hay regresiones (hovers, colores activos)
+
+**Archivos a modificar:**
+- `mobile/app/(padre)/index.jsx` — 6 TouchableOpacity → Button
+- `mobile/app/(maestra)/index.jsx` — 7 TouchableOpacity → Button
+- `mobile/app/(padre)/pagos.jsx` — 2 botones
+- `mobile/app/(maestra)/asistencia.jsx` — modal buttons
+
+### 📋 FASE 5 — Refactores mayores (SESIÓN XX+17+)
+
+> Tiempo: 4-8 horas | Riesgo: MEDIO-ALTO (requiere testing exhaustivo)
+
+**FASE 5.1 — Extraer AppShell compartido (web):**
+- [ ] Crear `web/src/components/ui/AppShell.jsx`
+- [ ] Migrar DirectoraLayout, MaestraLayout, PadreLayout a usarlo
+- [ ] Testing en los 3 portales
+- Riesgo: si hay bug, afecta los 3 portales simultáneamente
+
+**FASE 5.2 — Migrar modales web a Modal.jsx:**
+- [ ] Identificar todos los modales (15+ archivos)
+- [ ] Migrar uno por uno a usar componente Modal
+- [ ] Testing individual de cada modal
+
+**FASE 5.3 — Decisión sobre NativeWind mobile:**
+- [ ] Opción A (recomendada): Eliminar NativeWind, quedarse con StyleSheet + theme.js
+- [ ] Opción B: Adoptar NativeWind completamente (20+ horas, refactor mayor)
 
 ---
 

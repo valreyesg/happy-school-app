@@ -11,7 +11,7 @@ export default function SelectorCiclo({ value, onChange }) {
     <select
       value={value || ''}
       onChange={e => onChange(e.target.value || null)}
-      className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      className="input-hs text-sm py-2 px-3 w-auto min-w-[160px]"
     >
       <option value="">📅 Ciclo actual</option>
       {ciclos.filter(c => !c.activo).map(c => (

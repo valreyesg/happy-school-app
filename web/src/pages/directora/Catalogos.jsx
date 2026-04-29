@@ -83,8 +83,8 @@ export default function Catalogos() {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-          <BookOpen size={24} className="text-purple-600" />
+        <div className="w-12 h-12 rounded-2xl bg-hs-purple/20 flex items-center justify-center">
+          <BookOpen size={24} className="text-hs-purple" />
         </div>
         <div>
           <h1 className="text-2xl font-black text-gray-800">Catálogos Administrables 🗂️</h1>
@@ -100,7 +100,7 @@ export default function Catalogos() {
             onClick={() => setTab(id)}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-t-xl transition-colors whitespace-nowrap ${
               tab === id
-                ? 'bg-white border-2 border-b-white border-gray-200 text-purple-700 -mb-[2px]'
+                ? 'bg-white border-2 border-b-white border-gray-200 text-hs-purple-dark -mb-[2px]'
                 : 'text-gray-400 hover:text-gray-600'
             }`}
           >
@@ -265,8 +265,8 @@ export default function Catalogos() {
               </div>
 
               {/* Dashboard */}
-              <div className="rounded-2xl border-2 bg-blue-50 border-blue-200 p-5 space-y-4">
-                <h2 className="font-black text-base text-blue-800">📊 Dashboard</h2>
+              <div className="rounded-2xl border-2 bg-hs-blue/10 border-hs-blue/30 p-5 space-y-4">
+                <h2 className="font-black text-base text-hs-blue-dark">📊 Dashboard</h2>
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
                     Máx. padres morosos a mostrar
@@ -275,7 +275,7 @@ export default function Catalogos() {
                     type="number"
                     value={valoresConfig.max_morosos_dashboard ?? ''}
                     onChange={e => handleConfigChange('max_morosos_dashboard', e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 bg-white"
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 bg-white"
                     min="0"
                   />
                   <p className="text-xs text-gray-400 mt-1">Limitará la lista de padres morosos en la vista principal</p>
@@ -286,7 +286,7 @@ export default function Catalogos() {
               <button
                 onClick={() => mutationConfig.mutate(valoresConfig)}
                 disabled={mutationConfig.isPending}
-                className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+                className="w-full flex items-center justify-center gap-2 bg-hs-purple hover:bg-hs-purple-dark text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
               >
                 <Save size={18} />
                 {mutationConfig.isPending ? 'Guardando…' : configGuardado ? '¡Guardado! ✅' : 'Guardar configuración'}

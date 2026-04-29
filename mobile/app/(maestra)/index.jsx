@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
 
@@ -193,7 +194,7 @@ export default function MaestraDashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f7f8fc' },
+  container: { flex: 1, backgroundColor: COLORS.gray[50] },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8,
@@ -201,12 +202,12 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 24, fontWeight: '900', color: '#2D3748' },
   fecha: { fontSize: 14, fontWeight: '600', color: '#718096', marginTop: 2, textTransform: 'capitalize' },
   avatarMaestra: {
-    width: 48, height: 48, borderRadius: 16, backgroundColor: '#E9D5FF',
+    width: 48, height: 48, borderRadius: RADIUS.lg, backgroundColor: '#E9D5FF',
     alignItems: 'center', justifyContent: 'center',
   },
   qrBanner: {
     marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#805AD5', borderRadius: 20, padding: 16,
+    backgroundColor: '#805AD5', borderRadius: RADIUS.xl, padding: 16,
     flexDirection: 'row', alignItems: 'center', gap: 12,
     shadowColor: '#805AD5', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4, shadowRadius: 8, elevation: 6,
@@ -216,12 +217,12 @@ const styles = StyleSheet.create({
   qrBannerSub: { color: '#E9D5FF', fontWeight: '600', fontSize: 12, marginTop: 2 },
   tareasHoyBanner: {
     marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#DBEAFE', borderRadius: 20, padding: 16, borderLeftWidth: 4, borderLeftColor: '#3B82F6',
+    backgroundColor: '#DBEAFE', borderRadius: RADIUS.xl, padding: 16, borderLeftWidth: 4, borderLeftColor: '#3B82F6',
     flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   alertaBanner: {
     marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#FEE2E2', borderRadius: 20, padding: 16, borderLeftWidth: 4, borderLeftColor: '#EF4444',
+    backgroundColor: '#FEE2E2', borderRadius: RADIUS.xl, padding: 16, borderLeftWidth: 4, borderLeftColor: '#EF4444',
     flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   bannerEmoji: { fontSize: 28 },
@@ -240,24 +241,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   accionBtn: {
-    width: '46%', borderRadius: 20, borderWidth: 2,
+    width: '46%', borderRadius: RADIUS.xl, borderWidth: 2,
     padding: 20, alignItems: 'center', gap: 8,
   },
   accionLabel: { fontWeight: '800', fontSize: 14 },
   alumnosList: { paddingHorizontal: 16, gap: 8, paddingBottom: 24 },
   alumnoCard: {
-    backgroundColor: '#fff', borderRadius: 20, padding: 12,
+    backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: 12,
     flexDirection: 'row', alignItems: 'center', gap: 12,
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
   },
-  alumnoFoto: { width: 56, height: 56, borderRadius: 16 },
+  alumnoFoto: { width: 56, height: 56, borderRadius: RADIUS.lg },
   alumnoFotoPlaceholder: {
     backgroundColor: '#E9D5FF', alignItems: 'center', justifyContent: 'center',
   },
   alumnoNombre: { fontWeight: '800', fontSize: 15, color: '#2D3748' },
   alumnoAnimo: { fontSize: 13, fontWeight: '600', color: '#718096', marginTop: 2 },
   estadoBadge: {
-    width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center',
+    width: 36, height: 36, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center',
   },
 });

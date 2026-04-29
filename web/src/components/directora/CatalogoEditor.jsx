@@ -192,7 +192,7 @@ export default function CatalogoEditor({ tipo, titulo, items = [], onRefresh }) 
                 <button
                   onClick={() => mutEdit.mutate({ key: item.key, data: formEdit })}
                   disabled={mutEdit.isPending}
-                  className="p-1.5 bg-hs-purple text-white rounded-lg hover:bg-purple-700"
+                  className="p-1.5 bg-hs-purple text-white rounded-lg hover:bg-hs-purple-dark"
                 >
                   <Check size={14} />
                 </button>

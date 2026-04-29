@@ -403,7 +403,7 @@ export default function DirectoraCalendario() {
               return (
                 <div
                   key={i}
-                  className={`min-h-[80px] border-b border-r border-gray-50 p-1.5 cursor-pointer hover:bg-purple-50 transition-colors ${!dia ? 'bg-gray-50/50' : ''}`}
+                  className={`min-h-[80px] border-b border-r border-gray-50 p-1.5 cursor-pointer hover:bg-hs-purple/10 transition-colors ${!dia ? 'bg-gray-50/50' : ''}`}
                   onClick={() => {
                     if (!dia) return;
                     const f = `${year}-${String(month + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
@@ -413,7 +413,7 @@ export default function DirectoraCalendario() {
                 >
                   {dia && (
                     <>
-                      <div className={`text-xs font-black w-6 h-6 flex items-center justify-center rounded-full mb-1 ${esHoy(dia) ? 'bg-purple-600 text-white' : 'text-gray-600'}`}>
+                      <div className={`text-xs font-black w-6 h-6 flex items-center justify-center rounded-full mb-1 ${esHoy(dia) ? 'bg-hs-purple-dark text-white' : 'text-gray-600'}`}>
                         {dia}
                       </div>
                       <div className="space-y-0.5">

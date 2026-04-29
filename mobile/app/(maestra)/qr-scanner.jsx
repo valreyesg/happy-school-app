@@ -1,10 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image } from 'react-native';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useMutation } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '@/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 // Modo: 'entrada' o 'salida'
 export default function QRScannerScreen() {
@@ -369,7 +376,7 @@ const styles = StyleSheet.create({
   },
   backBtn: { padding: 4 },
   headerTitle: { flex: 1, color: '#fff', fontWeight: '900', fontSize: 16 },
-  modoBadge: { backgroundColor: '#ffffff30', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4 },
+  modoBadge: { backgroundColor: '#ffffff30', borderRadius: RADIUS.md, paddingHorizontal: 10, paddingVertical: 4 },
   modoText: { color: '#fff', fontWeight: '800', fontSize: 12 },
   cameraContainer: { flex: 1, position: 'relative' },
   scanOverlay: {
@@ -388,33 +395,33 @@ const styles = StyleSheet.create({
   cornerBR: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0 },
   scanHint: { color: '#fff', fontWeight: '700', fontSize: 14, marginTop: 24, textAlign: 'center' },
   // Checklist
-  checklistContainer: { flex: 1, backgroundColor: '#fff', padding: 16 },
+  checklistContainer: { flex: 1, backgroundColor: COLORS.white, padding: 16 },
   alumnoDetectadoHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 16,
-    padding: 16, backgroundColor: '#F7FAFC', borderRadius: 20, marginBottom: 16,
+    padding: 16, backgroundColor: '#F7FAFC', borderRadius: RADIUS.xl, marginBottom: 16,
   },
-  alumnoFotoGrande: { width: 80, height: 80, borderRadius: 20 },
+  alumnoFotoGrande: { width: 80, height: 80, borderRadius: RADIUS.xl },
   alumnoNombreGrande: { fontSize: 18, fontWeight: '900', color: '#2D3748' },
   alumnoGrupo: { fontSize: 14, fontWeight: '600', color: '#805AD5', marginTop: 2 },
   cumpleBanner: {
     backgroundColor: '#FEFCBF', borderWidth: 2, borderColor: '#F6E05E',
-    borderRadius: 16, padding: 12, marginBottom: 12, alignItems: 'center',
+    borderRadius: RADIUS.lg, padding: 12, marginBottom: 12, alignItems: 'center',
   },
   cumpleText: { fontWeight: '900', color: '#744210', fontSize: 15, textAlign: 'center' },
   checklist: { gap: 8, marginBottom: 16 },
   checkItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    padding: 12, borderRadius: 16,
+    padding: 12, borderRadius: RADIUS.lg,
   },
   checkLabel: { fontWeight: '700', fontSize: 14, color: '#2D3748', flex: 1 },
   checklistActions: { flexDirection: 'row', gap: 12 },
   cancelarBtn: {
-    flex: 1, padding: 16, borderRadius: 16, borderWidth: 2,
+    flex: 1, padding: 16, borderRadius: RADIUS.lg, borderWidth: 2,
     borderColor: '#E2E8F0', alignItems: 'center',
   },
   cancelarText: { fontWeight: '800', color: '#718096', fontSize: 15 },
   confirmarBtn: {
-    flex: 2, padding: 16, borderRadius: 16, backgroundColor: '#38A169', alignItems: 'center',
+    flex: 2, padding: 16, borderRadius: RADIUS.lg, backgroundColor: '#38A169', alignItems: 'center',
   },
   confirmarText: { fontWeight: '900', color: '#fff', fontSize: 15 },
   // Resultado
@@ -423,13 +430,13 @@ const styles = StyleSheet.create({
     padding: 24, gap: 12,
   },
   extensionBanner: {
-    width: '100%', backgroundColor: '#FBD38D', borderRadius: 16, padding: 14,
+    width: '100%', backgroundColor: '#FBD38D', borderRadius: RADIUS.lg, padding: 14,
     flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16,
   },
   extensionTitle: { fontSize: 14, fontWeight: '900', color: '#744210' },
   extensionSubtitle: { fontSize: 12, fontWeight: '600', color: '#975A16', marginTop: 2 },
   hermanosBanner: {
-    width: '100%', backgroundColor: '#FECACA', borderRadius: 16, padding: 14,
+    width: '100%', backgroundColor: '#FECACA', borderRadius: RADIUS.lg, padding: 14,
     flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 16,
     borderWidth: 2, borderColor: '#FCA5A5',
   },
@@ -439,18 +446,18 @@ const styles = StyleSheet.create({
   resultadoNombre: { fontSize: 20, fontWeight: '800', color: '#2D3748' },
   resultadoMotivo: { fontSize: 15, fontWeight: '600', color: '#C53030', textAlign: 'center' },
   retardoBadge: {
-    backgroundColor: '#FEFCBF', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 8,
+    backgroundColor: '#FEFCBF', borderRadius: RADIUS.lg, paddingHorizontal: 16, paddingVertical: 8,
   },
   retardoText: { color: '#744210', fontWeight: '800', fontSize: 14 },
   siguienteBtn: {
-    backgroundColor: '#805AD5', borderRadius: 20, paddingHorizontal: 32, paddingVertical: 16,
+    backgroundColor: '#805AD5', borderRadius: RADIUS.xl, paddingHorizontal: 32, paddingVertical: 16,
     marginTop: 8,
   },
   siguienteText: { color: '#fff', fontWeight: '900', fontSize: 16 },
   permissionText: { fontSize: 64 },
   permissionTitle: { fontSize: 18, fontWeight: '800', color: '#2D3748', textAlign: 'center' },
   permissionBtn: {
-    backgroundColor: '#805AD5', borderRadius: 16, paddingHorizontal: 24, paddingVertical: 14,
+    backgroundColor: '#805AD5', borderRadius: RADIUS.lg, paddingHorizontal: 24, paddingVertical: 14,
   },
   permissionBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
 });

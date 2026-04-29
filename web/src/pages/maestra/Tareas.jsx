@@ -114,7 +114,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
               type="text"
               value={form.titulo}
               onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
               placeholder="Ej: Tarea de matemática"
             />
           </div>
@@ -124,7 +124,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
             <textarea
               value={form.descripcion}
               onChange={(e) => setForm(p => ({ ...p, descripcion: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30 resize-none"
               placeholder="Detalles de la tarea"
               rows={3}
             />
@@ -136,7 +136,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
               type="date"
               value={form.fecha_limite}
               onChange={(e) => setForm(p => ({ ...p, fecha_limite: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
             />
           </div>
 
@@ -145,7 +145,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition"
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-hs-blue/50 transition"
             >
               <Upload size={24} className="mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600">Seleccionar foto</p>
@@ -175,7 +175,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
           <button
             onClick={() => mutation.mutate()}
             disabled={!form.titulo || mutation.isPending}
-            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 disabled:opacity-50"
+            className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
           >
             {mutation.isPending ? 'Guardando...' : 'Guardar'}
           </button>
@@ -240,7 +240,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
               type="text"
               value={form.titulo}
               onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
               placeholder="Ej: Tarea de matemática"
             />
           </div>
@@ -250,7 +250,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
             <textarea
               value={form.descripcion}
               onChange={(e) => setForm(p => ({ ...p, descripcion: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30 resize-none"
               placeholder="Detalles de la tarea"
               rows={3}
             />
@@ -262,7 +262,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
               type="date"
               value={form.fecha_limite}
               onChange={(e) => setForm(p => ({ ...p, fecha_limite: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
             />
           </div>
 
@@ -271,7 +271,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition"
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-hs-blue/50 transition"
             >
               <Upload size={24} className="mx-auto mb-2 text-gray-400" />
               <p className="text-sm text-gray-600">Seleccionar foto</p>
@@ -301,7 +301,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
           <button
             onClick={() => mutation.mutate()}
             disabled={!form.titulo || !grupoId || mutation.isPending}
-            className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 disabled:opacity-50"
+            className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
           >
             {mutation.isPending ? 'Creando...' : 'Crear'}
           </button>
@@ -428,7 +428,7 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
             <>
               <button
                 onClick={() => setShowEditModal(true)}
-                className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded hover:bg-blue-600"
+                className="px-3 py-1 bg-hs-blue text-white text-sm font-bold rounded hover:bg-hs-blue-dark"
               >
                 <Edit size={16} className="inline mr-1" />
                 Editar
@@ -478,7 +478,7 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
         {tarea.publicada && entregas && (
           <button
             onClick={() => setShowEntregas(true)}
-            className="inline-flex items-center gap-1 text-sm font-bold text-blue-700 hover:underline"
+            className="inline-flex items-center gap-1 text-sm font-bold text-hs-blue-dark hover:underline"
           >
             📊 {entregas.entregadas}/{entregas.total} entregaron
           </button>
@@ -586,7 +586,7 @@ export default function MaestraTareas() {
   const totalTareas = (tareas?.length) || 0;
 
   const TABS = [
-    { key: 'proximas', label: '📬 Próximas', count: porRecibir.length, color: 'text-blue-700' },
+    { key: 'proximas', label: '📬 Próximas', count: porRecibir.length, color: 'text-hs-blue-dark' },
     { key: 'vencidas', label: '🗂️ Vencidas', count: vencidas.length, color: 'text-red-600' },
     { key: 'borradores', label: '📤 Borradores', count: borradores.length, color: 'text-yellow-700' },
   ];
@@ -601,7 +601,7 @@ export default function MaestraTareas() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600"
+          className="flex items-center gap-2 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark"
         >
           <Plus size={20} />
           Nueva Tarea
@@ -645,7 +645,7 @@ export default function MaestraTareas() {
               grupos={gruposPorRecibir}
               indice={indicePorRecibir}
               setIndice={setIndicePorRecibir}
-              colorClass="text-blue-700"
+              colorClass="text-hs-blue-dark"
               emptyMsg="No hay tareas próximas"
               onSuccess={handleSuccess}
             />

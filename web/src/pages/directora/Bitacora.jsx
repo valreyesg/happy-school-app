@@ -13,16 +13,16 @@ function BitacoraDiaria({ data }) {
       {/* Vómitos */}
       {data.vomitos && data.vomitos.length > 0 && (
         <div className="card-hs p-4 space-y-3">
-          <h3 className="text-xs font-black text-orange-600 uppercase tracking-wide">🤢 Vómitos ({data.vomitos.length})</h3>
+          <h3 className="text-xs font-black text-hs-orange-dark uppercase tracking-wide">🤢 Vómitos ({data.vomitos.length})</h3>
           <div className="space-y-2">
             {data.vomitos.map((v, i) => (
-              <div key={i} className="bg-orange-50 rounded-lg p-3 text-sm border border-orange-200">
+              <div key={i} className="bg-hs-orange/10 rounded-lg p-3 text-sm border border-hs-orange/30">
                 <div className="flex justify-between items-start gap-2">
                   <div>
-                    <p className="font-black text-orange-700">
+                    <p className="font-black text-hs-orange-dark">
                       {v.hora ? new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
                     </p>
-                    <p className="text-xs capitalize text-orange-600 font-semibold">
+                    <p className="text-xs capitalize text-hs-orange-dark font-semibold">
                       {v.intensidad === 'fuerte' ? '🚨 Fuerte' : v.intensidad === 'moderado' ? '🤮 Moderado' : '🤢 Leve'}
                     </p>
                   </div>
@@ -37,7 +37,7 @@ function BitacoraDiaria({ data }) {
       {/* Salud General */}
       {(data.bitacora?.se_enfermo || data.bitacora?.tuvo_fiebre || data.bitacora?.temperatura) && (
         <div className="card-hs p-4 space-y-3">
-          <h3 className="text-xs font-black text-blue-600 uppercase tracking-wide">🏥 Salud</h3>
+          <h3 className="text-xs font-black text-hs-blue-dark uppercase tracking-wide">🏥 Salud</h3>
           <div className="space-y-2 text-sm">
             {data.bitacora?.tuvo_fiebre && (
               <div className="bg-red-50 px-3 py-2 rounded-lg border border-red-200">
@@ -45,7 +45,7 @@ function BitacoraDiaria({ data }) {
               </div>
             )}
             {data.bitacora?.temperatura && (
-              <div className="bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+              <div className="bg-hs-blue/10 px-3 py-2 rounded-lg border border-hs-blue/30">
                 <p className="text-sm"><span className="font-bold">Temperatura:</span> {data.bitacora.temperatura}°C</p>
               </div>
             )}
@@ -61,12 +61,12 @@ function BitacoraDiaria({ data }) {
       {/* Medicamentos */}
       {data.recepciones_medicamento && data.recepciones_medicamento.length > 0 && (
         <div className="card-hs p-4 space-y-3">
-          <h3 className="text-xs font-black text-purple-600 uppercase tracking-wide">💊 Medicamentos</h3>
+          <h3 className="text-xs font-black text-hs-purple uppercase tracking-wide">💊 Medicamentos</h3>
           <div className="space-y-2">
             {data.recepciones_medicamento.map((m, i) => (
-              <div key={i} className="bg-purple-50 rounded-lg p-3 text-sm border border-purple-200">
-                <p className="font-bold text-purple-700">{m.nombre}</p>
-                <p className="text-xs text-purple-600">📋 {m.dosis || 'Sin dosis'}</p>
+              <div key={i} className="bg-hs-purple/10 rounded-lg p-3 text-sm border border-hs-purple/20">
+                <p className="font-bold text-hs-purple-dark">{m.nombre}</p>
+                <p className="text-xs text-hs-purple">📋 {m.dosis || 'Sin dosis'}</p>
                 {m.horas && (
                   <p className="text-xs text-gray-600 mt-1">🕐 {Array.isArray(m.horas) ? m.horas.join(', ') : m.horas}</p>
                 )}
@@ -161,7 +161,7 @@ export default function BitacoraDirectora() {
                 onClick={() => setAlumnoSeleccionado(a.id)}
                 className={`flex items-center gap-3 p-3 rounded-xl text-left transition-all border-2 ${
                   alumnoSeleccionado === a.id
-                    ? 'bg-blue-50 border-blue-400'
+                    ? 'bg-hs-blue/10 border-hs-blue/50'
                     : 'bg-white border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -200,7 +200,7 @@ export default function BitacoraDirectora() {
       {/* Bitácora */}
       {alumnoSeleccionado && (
         <div className="space-y-4">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-4 border border-blue-200">
+          <div className="bg-gradient-to-r from-hs-blue/5 to-purple-50 rounded-2xl p-4 border border-hs-blue/30">
             <p className="text-sm text-gray-600">
               <span className="font-black">{alumnoActual?.nombre_completo}</span> {' · '}
               <span className="font-black">{grupoActual?.nombre}</span>

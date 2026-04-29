@@ -20,7 +20,7 @@ const ESTADO_STYLE = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',     emoji: '✅' },
   retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',       emoji: '⏰' },
   no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'No entró',      emoji: '🚫' },
-  justificado: { bg: 'bg-blue-100',  text: 'text-blue-700',   label: 'Justificado',   emoji: '📋' },
+  justificado: { bg: 'bg-blue-100',  text: 'text-hs-blue-dark',   label: 'Justificado',   emoji: '📋' },
   ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Sin registrar', emoji: '⬜' },
 };
 
@@ -28,7 +28,7 @@ const ESTADO_CELDA = {
   presente:   { bg: 'bg-green-400',  title: 'Presente' },
   retardo:    { bg: 'bg-yellow-400', title: 'Retardo' },
   no_entrada: { bg: 'bg-red-500',    title: 'No entró' },
-  justificado: { bg: 'bg-blue-400',  title: 'Justificado' },
+  justificado: { bg: 'bg-hs-blue',  title: 'Justificado' },
 };
 
 function Check({ val, label }) {
@@ -88,12 +88,12 @@ function FilaAlumno({ alumno }) {
               <Check val={alumno.sin_fiebre}   label="Sin fiebre" />
               <Check val={alumno.sin_sintomas} label="Sin síntomas" />
               {alumno.temperatura && (
-                <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-xl">
+                <span className="text-xs font-bold bg-hs-blue/10 text-hs-blue-dark px-2 py-1 rounded-xl">
                   🌡️ {alumno.temperatura}°C
                 </span>
               )}
               {!alumno.sin_sintomas && alumno.sintomas_notas && (
-                <span className="text-xs font-semibold text-orange-700 bg-orange-50 px-2 py-1 rounded-xl">
+                <span className="text-xs font-semibold text-hs-orange-dark bg-hs-orange/10 px-2 py-1 rounded-xl">
                   {alumno.sintomas_notas}
                 </span>
               )}
@@ -119,7 +119,7 @@ function FilaAlumno({ alumno }) {
             </div>
           </div>
           {alumno.qr_escaneado && (
-            <p className="text-xs font-semibold text-purple-600">📱 Entrada por QR</p>
+            <p className="text-xs font-semibold text-hs-purple">📱 Entrada por QR</p>
           )}
         </div>
       )}
@@ -209,7 +209,7 @@ function VistaMensual({ grupoId }) {
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-400 inline-block" /> Presente</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-400 inline-block" /> Retardo</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> No entró</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 inline-block" /> Justificado</span>
+        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-hs-blue inline-block" /> Justificado</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Sin dato</span>
       </div>
 
@@ -315,7 +315,7 @@ function VistaMensual({ grupoId }) {
               value={motivoJustificacion}
               onChange={e => setMotivoJustificacion(e.target.value)}
               rows={3}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 resize-none"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 resize-none"
             />
             <div className="space-y-2">
               <label className="block">
@@ -323,7 +323,7 @@ function VistaMensual({ grupoId }) {
                   type="file"
                   accept="image/*,application/pdf"
                   onChange={e => setComprobanteFile(e.target.files?.[0] || null)}
-                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-hs-blue/10 file:text-hs-blue-dark hover:file:bg-blue-100"
                 />
               </label>
               {comprobanteFile && (
@@ -334,7 +334,7 @@ function VistaMensual({ grupoId }) {
               <button
                 onClick={justificarAusencia}
                 disabled={justificarMutation.isPending}
-                className="flex-1 py-3 rounded-xl font-black text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 transition-all"
+                className="flex-1 py-3 rounded-xl font-black text-sm bg-hs-blue text-white hover:bg-hs-blue-dark disabled:opacity-50 transition-all"
               >
                 {justificarMutation.isPending ? 'Guardando…' : '💾 Justificar'}
               </button>
@@ -367,8 +367,8 @@ function VistaMensual({ grupoId }) {
                   .toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
               </strong>
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl px-3 py-3 text-sm text-gray-700">
-              <p className="font-black text-blue-700 mb-1">Motivo</p>
+            <div className="bg-hs-blue/10 border border-hs-blue/30 rounded-xl px-3 py-3 text-sm text-gray-700">
+              <p className="font-black text-hs-blue-dark mb-1">Motivo</p>
               <p>{viendoJustificacion.motivo || <span className="text-gray-400 italic">Sin motivo registrado</span>}</p>
             </div>
             {viendoJustificacion.comprobante_url && (
@@ -384,7 +384,7 @@ function VistaMensual({ grupoId }) {
                       href={viendoJustificacion.comprobante_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-600 font-semibold text-sm underline"
+                      className="text-hs-blue-dark font-semibold text-sm underline"
                     >
                       Ver documento
                     </a>

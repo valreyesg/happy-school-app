@@ -179,7 +179,7 @@ export default function TurnoPuerta() {
                   <button
                     onClick={() => asignar.mutate({ personal_id: p.id, turno: turnoVista })}
                     disabled={asignar.isPending}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-hs-purple text-white text-xs font-black hover:bg-purple-700 transition-all disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-hs-purple text-white text-xs font-black hover:bg-hs-purple-dark transition-all disabled:opacity-50"
                   >
                     <Plus size={14} /> Asignar
                   </button>
@@ -187,7 +187,7 @@ export default function TurnoPuerta() {
                     <button
                       onClick={() => asignarSemana.mutate({ personal_id: p.id, turno: turnoVista })}
                       disabled={asignarSemana.isPending}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-500 text-white text-xs font-black hover:bg-blue-600 transition-all disabled:opacity-50"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-hs-blue text-white text-xs font-black hover:bg-hs-blue-dark transition-all disabled:opacity-50"
                     >
                       <Plus size={14} /> Semana
                     </button>

@@ -297,7 +297,7 @@ function ModalCambiarPassword({ usuario, onConfirmar, isLoading }) {
         <button
           onClick={handleConfirmar}
           disabled={isLoading || !newPassword || !confirmPassword}
-          className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
         </button>

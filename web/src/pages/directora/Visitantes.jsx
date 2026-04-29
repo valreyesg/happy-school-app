@@ -73,7 +73,7 @@ export default function DirectoraVisitantes() {
         </div>
         <button
           onClick={() => setModalAbierto(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-hs-blue-dark text-white rounded-lg hover:bg-hs-blue-dark transition"
         >
           <Plus size={20} /> Registrar
         </button>
@@ -86,7 +86,7 @@ export default function DirectoraVisitantes() {
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
         />
       </div>
 
@@ -118,7 +118,7 @@ export default function DirectoraVisitantes() {
                     {v.grupo_nombre || '—'} • {v.tutor_nombre || '—'}
                   </p>
                   <div className="flex gap-2 mt-2 flex-wrap">
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                    <span className="px-2 py-1 text-xs bg-blue-100 text-hs-blue-dark rounded">
                       🕐 {formatHora(v.hora_entrada)}
                     </span>
                     {v.hora_salida && (
@@ -127,7 +127,7 @@ export default function DirectoraVisitantes() {
                       </span>
                     )}
                     {v.tiene_extension_dia && (
-                      <span className="px-2 py-1 text-xs bg-purple-100 text-purple-700 rounded">
+                      <span className="px-2 py-1 text-xs bg-hs-purple/20 text-hs-purple-dark rounded">
                         🌙 Extensión día
                       </span>
                     )}
@@ -141,7 +141,7 @@ export default function DirectoraVisitantes() {
                         <button
                           onClick={() => activarExtensionMutation.mutate(v.id)}
                           disabled={activarExtensionMutation.isPending}
-                          className="px-3 py-1 text-xs bg-purple-100 text-purple-700 rounded hover:bg-purple-200 transition disabled:opacity-50"
+                          className="px-3 py-1 text-xs bg-hs-purple/20 text-hs-purple-dark rounded hover:bg-hs-purple/30 transition disabled:opacity-50"
                         >
                           <Clock size={14} className="inline mr-1" /> Extensión
                         </button>
@@ -224,13 +224,13 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
             placeholder="Nombre del niño *"
             value={form.nombre}
             onChange={(e) => setForm(prev => ({ ...prev, nombre: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
             required
           />
           <select
             value={form.grupo_visitado_id}
             onChange={(e) => setForm(prev => ({ ...prev, grupo_visitado_id: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           >
             <option value="">Grupo visitado (opcional)</option>
             {grupos.map(g => (
@@ -242,21 +242,21 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
             placeholder="Nombre tutor (opcional)"
             value={form.tutor_nombre}
             onChange={(e) => setForm(prev => ({ ...prev, tutor_nombre: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="tel"
             placeholder="Teléfono tutor (opcional)"
             value={form.tutor_telefono}
             onChange={(e) => setForm(prev => ({ ...prev, tutor_telefono: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="text"
             placeholder="Notas (opcional)"
             value={form.notas}
             onChange={(e) => setForm(prev => ({ ...prev, notas: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <div>
             <label className="block text-sm font-medium mb-1">Foto (opcional)</label>
@@ -264,7 +264,7 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
               type="file"
               accept="image/*"
               onChange={(e) => setForm(prev => ({ ...prev, foto: e.target.files?.[0] || null }))}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
             />
           </div>
           <div className="flex gap-2">
@@ -278,7 +278,7 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition"
+              className="flex-1 px-4 py-2 bg-hs-blue-dark text-white rounded hover:bg-hs-blue-dark disabled:opacity-50 transition"
             >
               {isLoading ? '...' : 'Registrar'}
             </button>

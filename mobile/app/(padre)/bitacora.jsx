@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity,
   StyleSheet, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -307,7 +313,7 @@ export default function BitacoraPadreScreen() {
                     </View>
                   )}
                   {(data?.actividades || []).map((act, i) => (
-                    <View key={i} style={{ marginBottom: 12, borderRadius: 12, borderWidth: 2, borderColor: '#E9D8FD', overflow: 'hidden' }}>
+                    <View key={i} style={{ marginBottom: 12, borderRadius: RADIUS.md, borderWidth: 2, borderColor: '#E9D8FD', overflow: 'hidden' }}>
                       {act.descripcion ? <Text style={{ padding: 10, fontSize: 13, fontWeight: '700', color: '#4A5568' }}>{act.descripcion}</Text> : null}
                       {act.participo !== null && act.participo !== undefined && (
                         <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
@@ -474,7 +480,7 @@ const s = StyleSheet.create({
   // Ciclo
   cicloRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },
   cicloLabel: { fontSize: 12, fontWeight: '800', color: '#4A5568', paddingHorizontal: 16 },
-  cicloChip: { backgroundColor: '#FFF5F5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, borderWidth: 1, borderColor: '#FED7D7' },
+  cicloChip: { backgroundColor: '#FFF5F5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: '#FED7D7' },
   cicloChipActivo: { backgroundColor: '#E53E3E', borderColor: '#E53E3E' },
   cicloChipTxt: { fontSize: 11, fontWeight: '800', color: '#E53E3E' },
   cicloChipTxtActivo: { color: '#fff' },
@@ -494,18 +500,18 @@ const s = StyleSheet.create({
   animoSub: { fontSize: 12, color: '#A0AEC0', fontWeight: '600', marginTop: 4 },
 
   // Resumen rápido
-  resumenRow: { flexDirection: 'row', backgroundColor: '#fff', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#FED7D7' },
+  resumenRow: { flexDirection: 'row', backgroundColor: COLORS.white, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#FED7D7' },
   resumenItem: { flex: 1, alignItems: 'center' },
   resumenEmoji: { fontSize: 28 },
   resumenLabel: { fontSize: 10, fontWeight: '700', color: '#A0AEC0', marginTop: 4 },
   resumenDiv: { width: 1, backgroundColor: '#FED7D7', marginVertical: 4 },
 
   // Sección
-  seccion: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#fff', borderRadius: 16, padding: 16, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
+  seccion: { marginHorizontal: 16, marginTop: 16, backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 16, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2 },
   seccionTitulo: { fontSize: 13, fontWeight: '900', color: '#E53E3E', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
 
   // Tabs
-  tabsContainer: { marginHorizontal: 16, marginTop: 16, backgroundColor: '#fff', borderRadius: 16, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
+  tabsContainer: { marginHorizontal: 16, marginTop: 16, backgroundColor: COLORS.white, borderRadius: RADIUS.lg, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
   tabsBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
   tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 10, gap: 2, borderBottomWidth: 2, borderBottomColor: 'transparent' },
   tabBtnActivo: { borderBottomColor: '#E53E3E', backgroundColor: '#FFF5F5' },
@@ -525,7 +531,7 @@ const s = StyleSheet.create({
   textoNormal: { fontSize: 14, color: '#4A5568', marginBottom: 8, lineHeight: 20 },
 
   // Comportamiento
-  compBadge: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: 12, marginBottom: 8 },
+  compBadge: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12, borderRadius: RADIUS.md, marginBottom: 8 },
   compLabel: { fontSize: 16, fontWeight: '900' },
 
   // Baño
@@ -541,7 +547,7 @@ const s = StyleSheet.create({
 
   // Esfínteres
   pildoraRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pildora: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+  pildora: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.xl },
   pildoraTxt: { fontSize: 12, fontWeight: '700' },
 
   // Salud
@@ -549,13 +555,13 @@ const s = StyleSheet.create({
   alertaTxt: { fontSize: 14, fontWeight: '700', color: '#C53030' },
 
   // Medicamentos
-  medCard: { backgroundColor: '#FAF5FF', borderRadius: 10, padding: 12, marginBottom: 8 },
+  medCard: { backgroundColor: '#FAF5FF', borderRadius: RADIUS.md, padding: 12, marginBottom: 8 },
   medNombre: { fontSize: 15, fontWeight: '900', color: '#44337A' },
   medDetalle: { fontSize: 12, color: '#805AD5', fontWeight: '600', marginTop: 2 },
   medNotas: { fontSize: 12, color: '#718096', marginTop: 4 },
 
   // Notas
-  notasBox: { backgroundColor: '#FFFBEB', borderRadius: 10, padding: 14 },
+  notasBox: { backgroundColor: '#FFFBEB', borderRadius: RADIUS.md, padding: 14 },
   notasTxt: { fontSize: 14, color: '#4A5568', lineHeight: 22, fontStyle: 'italic' },
 
   maestraTxt: { textAlign: 'center', color: '#A0AEC0', fontSize: 12, fontWeight: '600', marginTop: 24, marginBottom: 8 },

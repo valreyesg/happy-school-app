@@ -91,7 +91,7 @@ function ModalEvento({ evento, onClose }) {
           href={buildGoogleCalendarUrl(evento)}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors mb-2"
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors mb-2"
         >
           <CalendarPlus size={15} />
           Añadir a Google Calendar
@@ -167,7 +167,7 @@ export default function PadreCalendario() {
         <button
           onClick={descargarPDF}
           disabled={descargando}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm text-purple-600 bg-purple-50 hover:bg-purple-100 transition-colors disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm text-hs-purple bg-hs-purple/10 hover:bg-hs-purple/20 transition-colors disabled:opacity-50"
         >
           <Download size={15} />
           {descargando ? 'Generando…' : 'PDF'}
@@ -207,12 +207,12 @@ export default function PadreCalendario() {
                 key={i}
                 className={`min-h-[64px] p-1 rounded-xl ${
                   day ? 'hover:bg-gray-50 cursor-default' : ''
-                } ${esHoy(day) ? 'bg-purple-50 ring-2 ring-purple-400 ring-inset' : ''}`}
+                } ${esHoy(day) ? 'bg-hs-purple/10 ring-2 ring-purple-400 ring-inset' : ''}`}
               >
                 {day && (
                   <>
                     <p className={`text-xs font-black mb-1 w-6 h-6 flex items-center justify-center rounded-full ${
-                      esHoy(day) ? 'bg-purple-500 text-white' : 'text-gray-600'
+                      esHoy(day) ? 'bg-hs-purple text-white' : 'text-gray-600'
                     }`}>
                       {day}
                     </p>

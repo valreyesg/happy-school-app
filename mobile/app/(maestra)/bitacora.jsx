@@ -1,13 +1,19 @@
 import { useState, useCallback, useEffect } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   StyleSheet, ActivityIndicator, Alert, Switch, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -494,7 +500,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               <TouchableOpacity
                 onPress={() => toallitasMutation.mutate()}
                 disabled={toallitasMutation.isPending}
-                style={{ marginTop: 10, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: '#FBBF24', borderRadius: 10, alignItems: 'center' }}
+                style={{ marginTop: 10, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: '#FBBF24', borderRadius: RADIUS.md, alignItems: 'center' }}
               >
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700' }}>🧻 Solicitar toallitas húmedas</Text>
               </TouchableOpacity>
@@ -686,7 +692,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 2, borderTopColor: '#FED7AA' }}>
               <Text style={{ fontSize: 12, fontWeight: '900', color: '#C2410C', marginBottom: 8, textTransform: 'uppercase' }}>🤢 Episodios de vómito</Text>
               {bitacoraExistente.vomitos.map((v, i) => (
-                <View key={i} style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#FFF7ED', borderRadius: 12, marginBottom: 6, borderWidth: 1, borderColor: '#FED7AA' }}>
+                <View key={i} style={{ paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#FFF7ED', borderRadius: RADIUS.md, marginBottom: 6, borderWidth: 1, borderColor: '#FED7AA' }}>
                   <Text style={{ fontWeight: '900', color: '#9A3412', fontSize: 13 }}>Intensidad: {v.intensidad}</Text>
                   <Text style={{ fontSize: 12, color: '#C2410C', marginTop: 2 }}>{v.hora?.substring(0, 5)}</Text>
                   {v.notas ? <Text style={{ fontSize: 12, color: '#EA580C', marginTop: 4 }}>{v.notas}</Text> : null}
@@ -697,7 +703,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
 
           <TouchableOpacity
             onPress={() => setMostrarFormVomito(!mostrarFormVomito)}
-            style={{ marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: mostrarFormVomito ? '#FEE2E2' : '#FEF3C7', borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#FED7AA' }}
+            style={{ marginTop: 12, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: mostrarFormVomito ? '#FEE2E2' : '#FEF3C7', borderRadius: RADIUS.md, alignItems: 'center', borderWidth: 1, borderColor: '#FED7AA' }}
           >
             <Text style={{ color: '#B45309', fontSize: 14, fontWeight: '700' }}>
               🤢 {mostrarFormVomito ? 'Cancelar' : '+ Registrar vómito'}
@@ -738,7 +744,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               <TouchableOpacity
                 onPress={registrarVomito}
                 disabled={vomitoMutation.isPending}
-                style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#F59E0B', borderRadius: 10, alignItems: 'center' }}
+                style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#F59E0B', borderRadius: RADIUS.md, alignItems: 'center' }}
               >
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar</Text>
               </TouchableOpacity>
@@ -789,7 +795,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             <TouchableOpacity
               onPress={abrirFormRecepcion}
               disabled={recepcionMutation.isPending}
-              style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: 10, alignItems: 'center' }}
+              style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: RADIUS.md, alignItems: 'center' }}
             >
               <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>📋 Nueva recepción</Text>
             </TouchableOpacity>
@@ -819,14 +825,14 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
                 <TouchableOpacity
                   onPress={guardarRecepcion}
                   disabled={recepcionMutation.isPending}
-                  style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: 10, alignItems: 'center' }}
+                  style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: RADIUS.md, alignItems: 'center' }}
                 >
                   <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setMostrarRecepcion(false)}
                   disabled={recepcionMutation.isPending}
-                  style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: 10, backgroundColor: '#E5E7EB', alignItems: 'center' }}
+                  style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: RADIUS.md, backgroundColor: '#E5E7EB', alignItems: 'center' }}
                 >
                   <Text style={{ color: '#374151', fontSize: 14, fontWeight: '700' }}>✕</Text>
                 </TouchableOpacity>
@@ -866,7 +872,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
           <TouchableOpacity
             onPress={() => salidaMutation.mutate({ alumno_id: alumnoId, ...salidaSanitaria })}
             disabled={salidaMutation.isPending}
-            style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#22C55E', borderRadius: 10, alignItems: 'center' }}
+            style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#22C55E', borderRadius: RADIUS.md, alignItems: 'center' }}
           >
             <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar checklist</Text>
           </TouchableOpacity>
@@ -910,7 +916,7 @@ export default function BitacoraScreen() {
   const { alumnoId, nombre, usaPanial, nivelCodigo } = params;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       {alumnoId ? (
         <FormularioBitacora
           alumnoId={alumnoId}
@@ -931,25 +937,25 @@ const s = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   loadingTxt: { marginTop: 12, color: '#718096', fontSize: 14, fontWeight: '600' },
 
-  header: { paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#fff' },
+  header: { paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: COLORS.white },
   headerTitulo: { fontSize: 20, fontWeight: '900', color: '#2D3748' },
   headerSub: { fontSize: 13, color: '#718096', marginTop: 2 },
   backBtn: { marginBottom: 4 },
   backTxt: { color: '#805AD5', fontSize: 14, fontWeight: '700' },
 
   // Selector alumno
-  alumnoCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginHorizontal: 16, marginTop: 12, backgroundColor: '#F7FAFC', borderRadius: 12, borderWidth: 1, borderColor: '#E2E8F0' },
+  alumnoCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginHorizontal: 16, marginTop: 12, backgroundColor: '#F7FAFC', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#E2E8F0' },
   avatarCircle: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   avatarTxt: { color: '#fff', fontSize: 18, fontWeight: '900' },
   alumnoNombre: { fontSize: 15, fontWeight: '700', color: '#2D3748' },
   alumnoSub: { fontSize: 12, color: '#718096', marginTop: 2 },
-  badgeVerde: { backgroundColor: '#C6F6D5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
-  badgeGris: { backgroundColor: '#EDF2F7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  badgeVerde: { backgroundColor: '#C6F6D5', paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.xl },
+  badgeGris: { backgroundColor: '#EDF2F7', paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.xl },
   badgeTxt: { fontSize: 11, fontWeight: '700', color: '#2D3748' },
   emptyTxt: { textAlign: 'center', color: '#A0AEC0', marginTop: 48, fontSize: 14 },
 
   // Sección
-  seccion: { marginTop: 20, marginHorizontal: 16, backgroundColor: '#F7FAFC', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#E2E8F0' },
+  seccion: { marginTop: 20, marginHorizontal: 16, backgroundColor: '#F7FAFC', borderRadius: RADIUS.md, padding: 16, borderWidth: 1, borderColor: '#E2E8F0' },
   seccionTitulo: { fontSize: 14, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
   extensionSubText: { fontSize: 12, fontWeight: '600', color: '#7C3AED', marginBottom: 12, fontStyle: 'italic' },
 
@@ -971,7 +977,7 @@ const s = StyleSheet.create({
   boolRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 6 },
   boolLabel: { fontSize: 14, color: '#4A5568', fontWeight: '600', flex: 1, marginRight: 8 },
   boolBtns: { flexDirection: 'row', gap: 8 },
-  boolBtn: { paddingHorizontal: 18, paddingVertical: 8, borderRadius: 20, backgroundColor: '#EDF2F7' },
+  boolBtn: { paddingHorizontal: 18, paddingVertical: 8, borderRadius: RADIUS.xl, backgroundColor: '#EDF2F7' },
   boolBtnSiOn: { backgroundColor: '#38A169' },
   boolBtnNoOn: { backgroundColor: '#E53E3E' },
   boolBtnTxt: { fontSize: 13, fontWeight: '700', color: '#4A5568' },
@@ -983,13 +989,13 @@ const s = StyleSheet.create({
   panialLog: { paddingVertical: 4, paddingHorizontal: 8, backgroundColor: '#EDF2F7', borderRadius: 6, marginBottom: 4 },
   panialLogTxt: { fontSize: 13, color: '#4A5568' },
   panialBtns: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  panialBtn: { paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#805AD5', borderRadius: 20 },
+  panialBtn: { paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#805AD5', borderRadius: RADIUS.xl },
   panialBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
 
   // Alimentación
   subLabel: { fontSize: 13, color: '#718096', fontWeight: '600', marginBottom: 8, marginTop: 4 },
   cuantoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
-  cuantoBtn: { flex: 1, alignItems: 'center', marginHorizontal: 3, paddingVertical: 8, borderRadius: 10, backgroundColor: '#EDF2F7' },
+  cuantoBtn: { flex: 1, alignItems: 'center', marginHorizontal: 3, paddingVertical: 8, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7' },
   cuantoBtnOn: { backgroundColor: '#B794F4' },
   cuantoEmoji: { fontSize: 22 },
   cuantoLabel: { fontSize: 10, fontWeight: '700', color: '#718096', marginTop: 4 },
@@ -997,7 +1003,7 @@ const s = StyleSheet.create({
 
   // Tarea
   siNoRow: { flexDirection: 'row', gap: 12 },
-  siNoBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: '#EDF2F7', alignItems: 'center' },
+  siNoBtn: { flex: 1, paddingVertical: 14, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7', alignItems: 'center' },
   siNoBtnSiOn: { backgroundColor: '#38A169' },
   siNoBtnNoOn: { backgroundColor: '#E53E3E' },
   siNoTxt: { fontSize: 14, fontWeight: '700', color: '#4A5568' },
@@ -1005,7 +1011,7 @@ const s = StyleSheet.create({
 
   // Comportamiento
   compRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  compBtn: { flex: 1, alignItems: 'center', marginHorizontal: 4, paddingVertical: 12, borderRadius: 12, backgroundColor: '#EDF2F7' },
+  compBtn: { flex: 1, alignItems: 'center', marginHorizontal: 4, paddingVertical: 12, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7' },
   compBtnOn: { backgroundColor: '#B794F4' },
   compEmoji: { fontSize: 24 },
   compLabel: { fontSize: 11, fontWeight: '700', color: '#718096', marginTop: 4 },
@@ -1016,10 +1022,10 @@ const s = StyleSheet.create({
   switchLabel: { fontSize: 14, color: '#4A5568', fontWeight: '600' },
 
   // Input
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#CBD5E0', borderRadius: 10, padding: 12, fontSize: 14, color: '#2D3748', marginTop: 8 },
+  input: { backgroundColor: COLORS.white, borderWidth: 1, borderColor: '#CBD5E0', borderRadius: RADIUS.md, padding: 12, fontSize: 14, color: '#2D3748', marginTop: 8 },
 
   // Footer
-  footerBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E2E8F0' },
+  footerBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
   guardarBtn: { backgroundColor: '#805AD5', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   guardarTxt: { color: '#fff', fontSize: 16, fontWeight: '900' },
 });

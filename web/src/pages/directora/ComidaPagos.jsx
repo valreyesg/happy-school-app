@@ -86,22 +86,22 @@ const ComidaPagos = () => {
         <p className="text-gray-500 font-semibold mt-1">Verifica quién pagó la comida de la semana</p>
       </div>
 
-      <div className="card-hs bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+      <div className="card-hs bg-gradient-to-r from-hs-blue/5 to-purple-50 border-2 border-hs-blue/30">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => handleCambiarSemana(-1)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 transition"
+              className="px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark transition"
             >
               ← Anterior
             </button>
             <div className="text-center">
               <p className="text-sm font-bold text-gray-600">Semana del</p>
-              <p className="text-lg font-black text-blue-700">{obtenerRangoSemana(semanaInicio)}</p>
+              <p className="text-lg font-black text-hs-blue-dark">{obtenerRangoSemana(semanaInicio)}</p>
             </div>
             <button
               onClick={() => handleCambiarSemana(1)}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 transition"
+              className="px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark transition"
             >
               Siguiente →
             </button>
@@ -111,8 +111,8 @@ const ComidaPagos = () => {
 
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="card-hs bg-purple-50 border-2 border-purple-200 text-center">
-            <div className="text-3xl font-black text-purple-600">{stats.total_confirmados}</div>
+          <div className="card-hs bg-hs-purple/10 border-2 border-hs-purple/20 text-center">
+            <div className="text-3xl font-black text-hs-purple">{stats.total_confirmados}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Total Confirmados</div>
           </div>
           <div className="card-hs bg-green-50 border-2 border-green-200 text-center">
@@ -123,8 +123,8 @@ const ComidaPagos = () => {
             <div className="text-3xl font-black text-red-600">⚠️ {stats.sin_verificar?.total}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Sin Verificar</div>
           </div>
-          <div className="card-hs bg-blue-50 border-2 border-blue-200 text-center">
-            <div className="text-3xl font-black text-blue-600">💳 {stats.pagados?.transferencia}</div>
+          <div className="card-hs bg-hs-blue/10 border-2 border-hs-blue/30 text-center">
+            <div className="text-3xl font-black text-hs-blue-dark">💳 {stats.pagados?.transferencia}</div>
             <div className="text-xs font-bold text-gray-600 mt-2">Transferencia</div>
           </div>
           <div className="card-hs bg-yellow-50 border-2 border-yellow-200 text-center">
@@ -162,7 +162,7 @@ const ComidaPagos = () => {
                   <div className="flex items-center gap-2">
                     <h3 className="font-black text-gray-800">{conf.nombre_alumno}</h3>
                     {conf.nivel_nombre && (
-                      <span className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-100 text-blue-700">
+                      <span className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-100 text-hs-blue-dark">
                         {conf.nivel_nombre}
                       </span>
                     )}
@@ -194,8 +194,8 @@ const ComidaPagos = () => {
                 <p className="text-sm font-black text-gray-600 uppercase tracking-wider mb-3">📊 Resumen de Pagos</p>
                 <div className="grid grid-cols-3 gap-3">
                   {/* Total recibido por transferencia */}
-                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-black text-blue-600">
+                  <div className="bg-hs-blue/10 border-2 border-hs-blue/30 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-black text-hs-blue-dark">
                       ${confirmaciones
                         .filter(c => c.pago_verificado && c.metodo_pago === 'transferencia')
                         .reduce((sum, c) => sum + c.monto, 0)}

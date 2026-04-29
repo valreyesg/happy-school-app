@@ -1,12 +1,17 @@
 import { useState, useCallback } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, TextInput,
   StyleSheet, ActivityIndicator, Alert, Modal, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useFocusEffect } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -197,7 +202,7 @@ export default function AsistenciaScreen() {
   const ausentes   = alumnos.filter(a => estadoAlumno(a) === 'ausente').length;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       {/* Header */}
       <View style={s.header}>
         <View>
@@ -301,7 +306,7 @@ const s = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
   headerTitulo: { fontSize: 22, fontWeight: '900', color: '#2D3748' },
   headerSub: { fontSize: 13, color: '#718096', marginTop: 2, fontWeight: '600' },
-  modoBadge: { backgroundColor: '#38A169', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20, marginTop: 2 },
+  modoBadge: { backgroundColor: '#38A169', paddingHorizontal: 12, paddingVertical: 5, borderRadius: RADIUS.xl, marginTop: 2 },
   modoBadgeTxt: { color: '#fff', fontSize: 12, fontWeight: '900' },
 
   resumen: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#FAFAFA' },
@@ -311,10 +316,10 @@ const s = StyleSheet.create({
   resumenDiv: { width: 1, backgroundColor: '#E2E8F0', marginVertical: 4 },
 
   buscadorRow: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4 },
-  buscador: { backgroundColor: '#F7FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#2D3748' },
+  buscador: { backgroundColor: '#F7FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: RADIUS.md, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#2D3748' },
 
   filtroRow: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8, gap: 8 },
-  filtroBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: 20, backgroundColor: '#EDF2F7' },
+  filtroBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: RADIUS.xl, backgroundColor: '#EDF2F7' },
   filtroBtnOn: { backgroundColor: '#805AD5' },
   filtroTxt: { fontSize: 12, fontWeight: '700', color: '#4A5568' },
   filtroTxtOn: { color: '#fff' },
@@ -325,7 +330,7 @@ const s = StyleSheet.create({
   avatarTxt: { color: '#fff', fontSize: 18, fontWeight: '900' },
   nombre: { fontSize: 15, fontWeight: '700', color: '#2D3748' },
   hora: { fontSize: 12, color: '#718096', marginTop: 2, fontWeight: '600' },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.xl },
   badgeTxt: { fontSize: 11, fontWeight: '800' },
 
   emptyTxt: { textAlign: 'center', color: '#A0AEC0', marginTop: 48, fontSize: 14, fontWeight: '600' },
@@ -334,17 +339,17 @@ const s = StyleSheet.create({
 // ─── Estilos del modal ────────────────────────────────────────────────────────
 const m = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet: { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 36 },
+  sheet: { backgroundColor: COLORS.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 36 },
   titulo: { fontSize: 18, fontWeight: '900', color: '#2D3748', marginBottom: 4 },
   nombre: { fontSize: 15, color: '#805AD5', fontWeight: '700', marginBottom: 16 },
   label: { fontSize: 12, fontWeight: '800', color: '#718096', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 12 },
   estadoRow: { flexDirection: 'row', gap: 8 },
-  estadoBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, borderWidth: 2, alignItems: 'center' },
+  estadoBtn: { flex: 1, paddingVertical: 10, borderRadius: RADIUS.md, borderWidth: 2, alignItems: 'center' },
   estadoBtnTxt: { fontSize: 12, fontWeight: '700', color: '#4A5568' },
-  input: { backgroundColor: '#F7FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 10, padding: 12, fontSize: 14, color: '#2D3748' },
+  input: { backgroundColor: '#F7FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: RADIUS.md, padding: 12, fontSize: 14, color: '#2D3748' },
   btnRow: { flexDirection: 'row', gap: 12, marginTop: 20 },
-  cancelBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: '#EDF2F7', alignItems: 'center' },
+  cancelBtn: { flex: 1, paddingVertical: 14, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7', alignItems: 'center' },
   cancelTxt: { fontSize: 14, fontWeight: '700', color: '#4A5568' },
-  guardarBtn: { flex: 1, paddingVertical: 14, borderRadius: 12, backgroundColor: '#805AD5', alignItems: 'center' },
+  guardarBtn: { flex: 1, paddingVertical: 14, borderRadius: RADIUS.md, backgroundColor: '#805AD5', alignItems: 'center' },
   guardarTxt: { fontSize: 14, fontWeight: '900', color: '#fff' },
 });

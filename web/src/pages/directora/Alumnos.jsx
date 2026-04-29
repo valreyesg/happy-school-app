@@ -15,8 +15,8 @@ const PALETA_NIVELES = [
   { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
   { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
   { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
-  { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
-  { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+  { bg: 'bg-blue-100',   text: 'text-hs-blue-dark',   ring: 'ring-hs-blue/30' },
+  { bg: 'bg-hs-purple/20', text: 'text-hs-purple-dark', ring: 'ring-purple-300' },
 ];
 
 // ─── Página principal ────────────────────────────────────────────────────────
@@ -260,7 +260,7 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
             <button
               onClick={handleRegenerar}
               disabled={regenerarMutation.isPending}
-              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-purple-700 disabled:opacity-50 transition-colors"
+              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
             >
               {regenerarMutation.isPending ? 'Generando...' : 'Generar QR'}
             </button>
@@ -289,7 +289,7 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
 
   const estadoBadge = {
     inscrito:   { cls: 'bg-green-100 text-green-700',  label: 'Inscrito' },
-    reinscrito: { cls: 'bg-blue-100 text-blue-700',    label: 'Reinscrito' },
+    reinscrito: { cls: 'bg-blue-100 text-hs-blue-dark',    label: 'Reinscrito' },
     baja:       { cls: 'bg-red-100 text-red-700',      label: 'Baja' },
     egresado:   { cls: 'bg-gray-100 text-gray-600',    label: 'Egresado' },
   }[alumno.estado] || { cls: 'bg-gray-100 text-gray-600', label: alumno.estado };
@@ -319,7 +319,7 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
             </span>
           )}
           {alumno.total_hermanos > 0 && (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-hs-blue-dark">
               👨‍👩‍👧 {alumno.total_hermanos} {alumno.total_hermanos === 1 ? 'hermano' : 'hermanos'}
             </span>
           )}

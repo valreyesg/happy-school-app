@@ -1,14 +1,21 @@
 import { useState, useRef } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal,
   TextInput, Image, ActivityIndicator, FlatList
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import * as ImagePicker from 'expo-image-picker';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '@/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 import Toast from 'react-native-toast-message';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 function getISOWeek(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -792,7 +799,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '900', color: '#2D3748' },
   subtitle: { fontSize: 14, fontWeight: '600', color: '#718096', marginTop: 4 },
   newBtn: {
-    width: 44, height: 44, borderRadius: 12, backgroundColor: '#3B82F6',
+    width: 44, height: 44, borderRadius: RADIUS.md, backgroundColor: '#3B82F6',
     alignItems: 'center', justifyContent: 'center',
   },
   tabsContainer: { marginBottom: 16, paddingHorizontal: 16 },
@@ -811,7 +818,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16, paddingVertical: 12,
   },
   tareaCard: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 12,
+    backgroundColor: COLORS.white, borderRadius: RADIUS.lg, padding: 12,
     marginHorizontal: 16, marginBottom: 4,
   },
   tareaTitle: { fontWeight: '800', fontSize: 16, color: '#2D3748' },
@@ -831,29 +838,29 @@ const styles = StyleSheet.create({
   formGroup: { marginBottom: 16 },
   label: { fontWeight: '800', fontSize: 14, color: '#2D3748', marginBottom: 6 },
   input: {
-    backgroundColor: '#fff', borderRadius: 10, borderWidth: 1, borderColor: '#E2E8F0',
+    backgroundColor: COLORS.white, borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#E2E8F0',
     paddingHorizontal: 12, paddingVertical: 8, fontSize: 14, color: '#2D3748'
   },
   fotoBtn: {
-    backgroundColor: '#F7F8FC', borderWidth: 2, borderColor: '#E2E8F0', borderRadius: 12,
+    backgroundColor: '#F7F8FC', borderWidth: 2, borderColor: '#E2E8F0', borderRadius: RADIUS.md,
     paddingVertical: 20, alignItems: 'center', justifyContent: 'center'
   },
   fotoBtnText: { fontWeight: '600', fontSize: 13, color: '#718096' },
-  preview: { width: '100%', height: 120, borderRadius: 10 },
+  preview: { width: '100%', height: 120, borderRadius: RADIUS.md },
   removeBtn: {
     position: 'absolute', top: 4, right: 4, width: 32, height: 32,
-    backgroundColor: '#EF4444', borderRadius: 16, alignItems: 'center', justifyContent: 'center'
+    backgroundColor: '#EF4444', borderRadius: RADIUS.lg, alignItems: 'center', justifyContent: 'center'
   },
   modalFooter: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 16 },
   btn: {
-    flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center', justifyContent: 'center'
+    flex: 1, paddingVertical: 10, borderRadius: RADIUS.md, alignItems: 'center', justifyContent: 'center'
   },
   centeredModal: {
     flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 16,
   },
   entregas: {
-    backgroundColor: '#fff', borderRadius: 20, padding: 16, maxHeight: '80%', width: '100%'
+    backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: 16, maxHeight: '80%', width: '100%'
   },
   entregas_header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   entregas_title: { fontWeight: '900', fontSize: 16, color: '#2D3748' },

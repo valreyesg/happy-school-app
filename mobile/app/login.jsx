@@ -1,11 +1,15 @@
 import { useState } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 export default function LoginScreen() {
   const { login } = useAuthStore();
@@ -119,7 +123,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: COLORS.white },
   scroll: { flexGrow: 1 },
   header: {
     alignItems: 'center',
@@ -138,7 +142,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 2,
     borderColor: '#E2E8F0',
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
@@ -154,7 +158,7 @@ const styles = StyleSheet.create({
   },
   loginBtn: {
     backgroundColor: '#805AD5',
-    borderRadius: 20,
+    borderRadius: RADIUS.xl,
     paddingVertical: 18,
     alignItems: 'center',
     marginTop: 8,

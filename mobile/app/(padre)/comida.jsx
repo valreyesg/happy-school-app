@@ -1,9 +1,41 @@
 import { useState, useEffect } from 'react';
 import { Stack } from 'expo-router';
-import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
+import { COLORS, RADIUS } from '@/constants/theme';
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: COLORS.gray[50], paddingHorizontal: 16, paddingVertical: 16 },
+  menuCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  menuTitle: { fontSize: 20, fontWeight: '900', color: COLORS.orange.DEFAULT, marginBottom: 12 },
+  menuText: { fontSize: 14, color: COLORS.gray[700], lineHeight: 24, marginBottom: 12 },
+  alertBox: { backgroundColor: COLORS.blue.bg, borderLeftColor: COLORS.blue.DEFAULT, borderLeftWidth: 4, paddingHorizontal: 16, paddingVertical: 16, borderRadius: RADIUS.xl, marginBottom: 24 },
+  alertText: { fontSize: 14, fontWeight: '700', color: COLORS.blue.DEFAULT },
+  formCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, paddingHorizontal: 24, paddingVertical: 24, shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+  formTitle: { fontSize: 24, fontWeight: '900', color: COLORS.orange.DEFAULT, marginBottom: 24 },
+  toggleButton: { borderWidth: 2, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24 },
+  toggleButtonActive: { borderColor: COLORS.orange.light, backgroundColor: COLORS.orange.bg },
+  toggleButtonInactive: { borderColor: COLORS.gray[200], backgroundColor: COLORS.white },
+  toggleText: { fontWeight: '700', fontSize: 16 },
+  sectionLabel: { fontWeight: '700', color: COLORS.gray[700], marginBottom: 12 },
+  optionButton: { borderWidth: 2, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 8 },
+  optionButtonActive: { borderColor: COLORS.orange.light, backgroundColor: COLORS.orange.bg },
+  optionButtonInactive: { borderColor: COLORS.gray[200], backgroundColor: COLORS.white },
+  daysContainer: { backgroundColor: COLORS.orange.bg, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24 },
+  daysGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  dayButton: { borderWidth: 2, borderRadius: RADIUS.lg, paddingHorizontal: 16, paddingVertical: 8 },
+  dayButtonActive: { borderColor: COLORS.orange.light, backgroundColor: COLORS.orange.light },
+  dayButtonInactive: { borderColor: COLORS.gray[300], backgroundColor: COLORS.white },
+  dayButtonText: { fontWeight: '700', fontSize: 14 },
+  totalBox: { backgroundColor: COLORS.orange.bg, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24 },
+  totalText: { fontSize: 18, fontWeight: '900', color: COLORS.orange.dark, textAlign: 'center' },
+  comprobantebox: { borderWidth: 2, borderStyle: 'dashed', borderColor: COLORS.blue.DEFAULT, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24, backgroundColor: COLORS.blue.bg },
+  comprobanteText: { textAlign: 'center', fontWeight: '700', color: COLORS.blue.DEFAULT },
+  submitButton: { backgroundColor: COLORS.orange.DEFAULT, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16 },
+  submitButtonText: { textAlign: 'center', fontWeight: '900', color: COLORS.white, fontSize: 18 },
+});
 
 const ComidaSemanal = () => {
   const { alumno } = useAuthStore();
@@ -136,16 +168,16 @@ const ComidaSemanal = () => {
   return (
     <>
       <Stack.Screen options={{ title: '🍽️ Comida Semanal' }} />
-      <ScrollView className="flex-1 bg-orange-50 p-4">
+      <ScrollView style={styles.container}>
         {/* Menú */}
         {menu && (
-          <View className="bg-white rounded-3xl p-4 mb-6 shadow-sm">
-            <Text className="text-xl font-black text-orange-600 mb-3">🍽️ Menú de la Semana</Text>
+          <View style={styles.menuCard}>
+            <Text style={styles.menuTitle}>🍽️ Menú de la Semana</Text>
             {menu.contenido_texto && (
-              <Text className="text-gray-700 text-sm leading-6 mb-3">{menu.contenido_texto}</Text>
+              <Text style={styles.menuText}>{menu.contenido_texto}</Text>
             )}
             {menu.archivo_menu_url && (
-              <Text className="text-xs text-orange-600 font-bold">
+              <Text style={{ fontSize: 12, color: COLORS.orange.DEFAULT, fontWeight: '700' }}>
                 📥 Ver menú completo (abre en navegador)
               </Text>
             )}
@@ -153,23 +185,21 @@ const ComidaSemanal = () => {
         )}
 
         {!esDomingo ? (
-          <View className="bg-blue-100 border-l-4 border-blue-500 p-4 rounded-2xl mb-6">
-            <Text className="text-sm font-bold text-blue-700">
+          <View style={styles.alertBox}>
+            <Text style={styles.alertText}>
               📅 El formulario está disponible solo los domingos
             </Text>
           </View>
         ) : (
-          <View className="bg-white rounded-3xl p-6 shadow-sm">
-            <Text className="text-2xl font-black text-orange-600 mb-6">Confirmar Servicio</Text>
+          <View style={styles.formCard}>
+            <Text style={styles.formTitle}>Confirmar Servicio</Text>
 
             {/* Deseo servicio */}
             <TouchableOpacity
               onPress={() => setDeseoServicio(!deseoServicio)}
-              className={`border-2 rounded-2xl p-4 mb-6 ${
-                deseoServicio ? 'border-orange-400 bg-orange-50' : 'border-gray-200 bg-white'
-              }`}
+              style={[styles.toggleButton, deseoServicio ? styles.toggleButtonActive : styles.toggleButtonInactive]}
             >
-              <Text className={`font-bold ${deseoServicio ? 'text-orange-600' : 'text-gray-700'}`}>
+              <Text style={[styles.toggleText, { color: deseoServicio ? COLORS.orange.DEFAULT : COLORS.gray[700] }]}>
                 {deseoServicio ? '✅' : '⬜'} Deseo servicio de comida próxima semana
               </Text>
             </TouchableOpacity>
@@ -177,44 +207,36 @@ const ComidaSemanal = () => {
             {deseoServicio && (
               <>
                 {/* Modalidad */}
-                <Text className="font-bold text-gray-700 mb-3">Tipo de servicio:</Text>
+                <Text style={styles.sectionLabel}>Tipo de servicio:</Text>
                 <TouchableOpacity
                   onPress={() => { setModalidad('semana_completa'); setDiasSeleccionados([]); }}
-                  className={`border-2 rounded-2xl p-3 mb-2 ${
-                    modalidad === 'semana_completa' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
-                  }`}
+                  style={[styles.optionButton, modalidad === 'semana_completa' ? styles.optionButtonActive : styles.optionButtonInactive]}
                 >
-                  <Text className="font-bold">
+                  <Text style={styles.toggleText}>
                     {modalidad === 'semana_completa' ? '✅' : '⬜'} Semana completa (L-V) – $250
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setModalidad('dias_especificos')}
-                  className={`border-2 rounded-2xl p-3 mb-4 ${
-                    modalidad === 'dias_especificos' ? 'border-orange-400 bg-orange-50' : 'border-gray-200'
-                  }`}
+                  style={[styles.optionButton, modalidad === 'dias_especificos' ? styles.optionButtonActive : styles.optionButtonInactive]}
                 >
-                  <Text className="font-bold">
+                  <Text style={styles.toggleText}>
                     {modalidad === 'dias_especificos' ? '✅' : '⬜'} Días específicos – $50/día
                   </Text>
                 </TouchableOpacity>
 
                 {/* Días */}
                 {modalidad === 'dias_especificos' && (
-                  <View className="bg-orange-50 rounded-2xl p-4 mb-6">
-                    <Text className="font-bold text-gray-700 mb-3">Selecciona días:</Text>
-                    <View className="flex-row flex-wrap gap-2">
+                  <View style={styles.daysContainer}>
+                    <Text style={[styles.sectionLabel, { marginBottom: 12 }]}>Selecciona días:</Text>
+                    <View style={styles.daysGrid}>
                       {diasSemana.map((dia, idx) => (
                         <TouchableOpacity
                           key={idx}
                           onPress={() => toggleDia(idx)}
-                          className={`border-2 rounded-xl px-4 py-2 ${
-                            diasSeleccionados.includes(idx)
-                              ? 'border-orange-400 bg-orange-200'
-                              : 'border-gray-300 bg-white'
-                          }`}
+                          style={[styles.dayButton, diasSeleccionados.includes(idx) ? styles.dayButtonActive : styles.dayButtonInactive]}
                         >
-                          <Text className="font-bold text-sm">{dia}</Text>
+                          <Text style={styles.dayButtonText}>{dia}</Text>
                         </TouchableOpacity>
                       ))}
                     </View>
@@ -222,24 +244,20 @@ const ComidaSemanal = () => {
                 )}
 
                 {/* Método pago */}
-                <Text className="font-bold text-gray-700 mb-3">Método de pago:</Text>
+                <Text style={styles.sectionLabel}>Método de pago:</Text>
                 <TouchableOpacity
                   onPress={() => setMetodoPago('transferencia')}
-                  className={`border-2 rounded-2xl p-3 mb-2 ${
-                    metodoPago === 'transferencia' ? 'border-blue-400 bg-blue-50' : 'border-gray-200'
-                  }`}
+                  style={[styles.optionButton, metodoPago === 'transferencia' ? { borderColor: COLORS.blue.DEFAULT, backgroundColor: COLORS.blue.bg } : styles.optionButtonInactive]}
                 >
-                  <Text className="font-bold">
+                  <Text style={styles.toggleText}>
                     {metodoPago === 'transferencia' ? '✅' : '⬜'} 💳 Transferencia
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => setMetodoPago('efectivo')}
-                  className={`border-2 rounded-2xl p-3 mb-4 ${
-                    metodoPago === 'efectivo' ? 'border-green-400 bg-green-50' : 'border-gray-200'
-                  }`}
+                  style={[styles.optionButton, metodoPago === 'efectivo' ? { borderColor: COLORS.green.DEFAULT, backgroundColor: COLORS.green.bg } : styles.optionButtonInactive]}
                 >
-                  <Text className="font-bold">
+                  <Text style={styles.toggleText}>
                     {metodoPago === 'efectivo' ? '✅' : '⬜'} 💵 Efectivo lunes
                   </Text>
                 </TouchableOpacity>
@@ -248,9 +266,9 @@ const ComidaSemanal = () => {
                 {metodoPago === 'transferencia' && (
                   <TouchableOpacity
                     onPress={seleccionarComprobante}
-                    className="border-2 border-dashed border-blue-300 rounded-2xl p-4 mb-6 bg-blue-50"
+                    style={styles.comprobantebox}
                   >
-                    <Text className="text-center font-bold text-blue-600">
+                    <Text style={styles.comprobanteText}>
                       {comprobante || confirmacion?.comprobante_pago_url
                         ? '✅ Comprobante adjuntado'
                         : '📎 Adjuntar comprobante'
@@ -260,8 +278,8 @@ const ComidaSemanal = () => {
                 )}
 
                 {/* Total */}
-                <View className="bg-orange-100 rounded-2xl p-4 mb-6">
-                  <Text className="text-center font-black text-orange-700 text-lg">
+                <View style={styles.totalBox}>
+                  <Text style={styles.totalText}>
                     Total: ${monto}
                   </Text>
                 </View>
@@ -271,12 +289,12 @@ const ComidaSemanal = () => {
             <TouchableOpacity
               onPress={handleConfirmar}
               disabled={loading}
-              className="bg-orange-500 rounded-2xl p-4"
+              style={styles.submitButton}
             >
               {loading ? (
-                <ActivityIndicator color="white" />
+                <ActivityIndicator color={COLORS.white} />
               ) : (
-                <Text className="text-center font-black text-white text-lg">✅ Confirmar</Text>
+                <Text style={styles.submitButtonText}>✅ Confirmar</Text>
               )}
             </TouchableOpacity>
           </View>

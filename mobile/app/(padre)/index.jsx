@@ -1,15 +1,24 @@
 import { useState } from 'react';
+import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
+import { COLORS, RADIUS } from '@/constants/theme';
 import api from '@/services/api';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '@/hooks/useCatalogo';
+import { COLORS, RADIUS } from '@/constants/theme';
 import NotificationBell from '@/components/NotificationBell';
+import { COLORS, RADIUS } from '@/constants/theme';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
+import { COLORS, RADIUS } from '@/constants/theme';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -423,7 +432,7 @@ function HijoCard({ hijo }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff8f8' },
+  container: { flex: 1, backgroundColor: COLORS.gray[50] },
   header: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8,
@@ -431,12 +440,12 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 24, fontWeight: '900', color: '#2D3748' },
   fecha: { fontSize: 13, fontWeight: '600', color: '#718096', textTransform: 'capitalize' },
   loadingCard: {
-    margin: 16, padding: 32, backgroundColor: '#fff', borderRadius: 24,
+    margin: 16, padding: 32, backgroundColor: COLORS.white, borderRadius: 24,
     alignItems: 'center', gap: 12,
   },
   loadingText: { fontWeight: '700', color: '#718096', fontSize: 16 },
   hijoCard: {
-    margin: 16, backgroundColor: '#fff', borderRadius: 24,
+    margin: 16, backgroundColor: COLORS.white, borderRadius: 24,
     shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12, shadowRadius: 12, elevation: 4,
     overflow: 'hidden',
@@ -445,7 +454,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 12,
     padding: 16, borderBottomWidth: 1, borderBottomColor: '#FED7D7',
   },
-  hijoFoto: { width: 72, height: 72, borderRadius: 20 },
+  hijoFoto: { width: 72, height: 72, borderRadius: RADIUS.xl },
   hijoFotoPlaceholder: {
     backgroundColor: '#FEE2E2', alignItems: 'center', justifyContent: 'center',
   },
@@ -464,7 +473,7 @@ const styles = StyleSheet.create({
   },
   eventoCard: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#fff', borderRadius: 14, padding: 12,
+    backgroundColor: COLORS.white, borderRadius: 14, padding: 12,
     marginBottom: 8, borderWidth: 1, borderColor: '#BEE3F8',
     shadowColor: '#3182CE', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06, shadowRadius: 6, elevation: 1,
@@ -476,7 +485,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, paddingBottom: 24,
   },
   accionBtn: {
-    width: '46%', borderRadius: 20, borderWidth: 2,
+    width: '46%', borderRadius: RADIUS.xl, borderWidth: 2,
     padding: 20, alignItems: 'center', gap: 8,
   },
   accionLabel: { fontWeight: '800', fontSize: 14 },
@@ -487,18 +496,18 @@ const styles = StyleSheet.create({
   animoLabelBox: { alignItems: 'center' },
   animoTitleLabel: { fontSize: 10, fontWeight: '700', color: '#A0AEC0', textTransform: 'uppercase' },
   animoNombre: { fontSize: 13, fontWeight: '700', color: '#4A5568', textTransform: 'capitalize' },
-  alertaRoja: { flexDirection: 'column', alignItems: 'center', backgroundColor: '#FFF5F5', borderRadius: 12, borderWidth: 1, borderColor: '#FED7D7', padding: 10, gap: 6 },
+  alertaRoja: { flexDirection: 'column', alignItems: 'center', backgroundColor: '#FFF5F5', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#FED7D7', padding: 10, gap: 6 },
   alertaEmoji: { fontSize: 28 },
   alertaTxt: { fontSize: 11, fontWeight: '800', color: '#C53030' },
-  alertaNaranja: { flexDirection: 'column', alignItems: 'center', backgroundColor: '#FFFAF0', borderRadius: 12, borderWidth: 1, borderColor: '#FEEBC8', padding: 10, gap: 6 },
+  alertaNaranja: { flexDirection: 'column', alignItems: 'center', backgroundColor: '#FFFAF0', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#FEEBC8', padding: 10, gap: 6 },
   alertaNaranjaTxt: { fontSize: 11, fontWeight: '800', color: '#C05621' },
-  notasBox: { backgroundColor: '#FFFFF0', borderRadius: 12, padding: 10 },
+  notasBox: { backgroundColor: '#FFFFF0', borderRadius: RADIUS.md, padding: 10 },
   notasTxt: { fontSize: 13, color: '#744210', fontStyle: 'italic' },
 
   // Modal evento
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   modalSheet: {
-    backgroundColor: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    backgroundColor: COLORS.white, borderTopLeftRadius: 28, borderTopRightRadius: 28,
     padding: 24, paddingBottom: 40,
   },
   modalHandle: {
@@ -510,7 +519,7 @@ const styles = StyleSheet.create({
   modalGrupo: { fontSize: 13, fontWeight: '600', color: '#718096', marginBottom: 8 },
   modalDescBox: { backgroundColor: '#F7FAFC', borderRadius: 14, padding: 14, marginTop: 8 },
   modalDesc: { fontSize: 14, color: '#4A5568', lineHeight: 22 },
-  categoriaBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 20 },
+  categoriaBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: RADIUS.xl },
   categoriaTxt: { fontSize: 11, fontWeight: '900', textTransform: 'uppercase', letterSpacing: 0.5 },
   modalCerrarBtn: {
     marginTop: 20, backgroundColor: '#EDF2F7', borderRadius: 14,

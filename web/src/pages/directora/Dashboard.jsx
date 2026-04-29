@@ -134,14 +134,14 @@ function ModalSalidasGrupo({ grupo, onClose }) {
             <p className="text-sm text-gray-400 font-semibold text-center py-6">Sin salidas registradas</p>
           ) : (
             grupo.salidas.map(s => (
-              <div key={s.id + s.hora_salida} className={`flex items-center gap-3 p-3 rounded-2xl ${s.es_anticipada ? 'bg-orange-50' : 'bg-gray-50'}`}>
+              <div key={s.id + s.hora_salida} className={`flex items-center gap-3 p-3 rounded-2xl ${s.es_anticipada ? 'bg-hs-orange/10' : 'bg-gray-50'}`}>
                 <span className="text-lg">{!s.autorizado ? '🚨' : s.es_anticipada ? '⚠️' : '✅'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-gray-800">{s.nombre_completo}</p>
                   {s.nombre_quien_recoge && <p className="text-xs text-gray-400 font-semibold truncate">Recogido por: {s.nombre_quien_recoge}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <span className={`font-black text-sm ${!s.autorizado ? 'text-red-600' : s.es_anticipada ? 'text-orange-600' : 'text-green-600'}`}>
+                  <span className={`font-black text-sm ${!s.autorizado ? 'text-red-600' : s.es_anticipada ? 'text-hs-orange-dark' : 'text-green-600'}`}>
                     {new Date(s.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
                   </span>
                   {s.es_anticipada && <p className="text-xs text-orange-400 font-semibold">anticipada</p>}
@@ -227,15 +227,15 @@ function PanelExtensionVespertina({ alumnos = [], forzarModoNormal, onToggle }) 
   return (
     <div className="space-y-4">
       {/* Banner modo extensión */}
-      <div className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-4 flex items-center gap-3">
+      <div className="bg-hs-purple/10 border-2 border-hs-purple/30 rounded-2xl p-4 flex items-center gap-3">
         <span className="text-2xl">⏰</span>
         <div className="flex-1">
           <p className="font-black text-purple-800">Vista de Extensión Activa</p>
-          <p className="text-xs text-purple-600 font-semibold">
+          <p className="text-xs text-hs-purple font-semibold">
             Son las {new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} — mostrando niños en la escuela después de las 3:06 PM
           </p>
         </div>
-        <button onClick={onToggle} className="text-xs text-purple-600 underline font-bold flex-shrink-0">
+        <button onClick={onToggle} className="text-xs text-hs-purple underline font-bold flex-shrink-0">
           {forzarModoNormal ? 'Modo extensión' : 'Ver todos'}
         </button>
       </div>
@@ -268,15 +268,15 @@ function PanelExtensionVespertina({ alumnos = [], forzarModoNormal, onToggle }) 
 
           {/* Sin extensión — salida pendiente */}
           {sinExtensionPendientes.length > 0 && (
-            <div className="card-hs border-2 border-orange-300 bg-orange-50">
+            <div className="card-hs border-2 border-orange-300 bg-hs-orange/10">
               <h3 className="font-black text-orange-800 mb-3 flex items-center gap-2">
                 <span className="text-lg">⚠️</span> Sin extensión — salida pendiente
                 <span className="ml-auto text-xs font-black px-2 py-0.5 rounded-full bg-orange-200 text-orange-800">{sinExtensionPendientes.length}</span>
               </h3>
-              <p className="text-xs text-orange-700 font-semibold mb-3">Al registrar su salida se generará cobro de estancia por día.</p>
+              <p className="text-xs text-hs-orange-dark font-semibold mb-3">Al registrar su salida se generará cobro de estancia por día.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {sinExtensionPendientes.map(a => (
-                  <div key={a.id} className="flex items-center gap-2 p-2 bg-white border border-orange-200 rounded-xl">
+                  <div key={a.id} className="flex items-center gap-2 p-2 bg-white border border-hs-orange/30 rounded-xl">
                     {a.foto_url
                       ? <img src={a.foto_url} alt={a.nombre_completo} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                       : <div className="w-9 h-9 rounded-full bg-orange-200 flex items-center justify-center text-orange-800 font-black text-sm flex-shrink-0">{a.nombre_completo.charAt(0)}</div>
@@ -357,7 +357,7 @@ function SalidasPorGrupo({ salidasHoy, asistenciaPorGrupo, isLoading, onCardClic
               {(g.anticipadas > 0 || g.noAutorizadas > 0) && (
                 <div className="mt-2 flex flex-wrap gap-1 justify-center">
                   {g.noAutorizadas > 0 && <span className="text-xs font-black px-1.5 py-0.5 bg-red-100 text-red-700 rounded">🚨 {g.noAutorizadas}</span>}
-                  {g.anticipadas > 0 && <span className="text-xs font-black px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded">⚠️ {g.anticipadas}</span>}
+                  {g.anticipadas > 0 && <span className="text-xs font-black px-1.5 py-0.5 bg-hs-orange/20 text-hs-orange-dark rounded">⚠️ {g.anticipadas}</span>}
                 </div>
               )}
               <div className="mt-2 text-lg">
@@ -731,7 +731,7 @@ export default function DirectoraDashboard() {
           </h2>
           <Link
             to="/directora/visitantes"
-            className="px-3 py-1 text-sm text-blue-600 hover:underline font-semibold"
+            className="px-3 py-1 text-sm text-hs-blue-dark hover:underline font-semibold"
           >
             Ver todos →
           </Link>
@@ -741,7 +741,7 @@ export default function DirectoraDashboard() {
         ) : (
           <div className="space-y-2">
             {visitantesHoy.map(v => (
-              <div key={v.id} className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+              <div key={v.id} className="flex items-center gap-3 p-3 bg-hs-orange/10 border border-hs-orange/30 rounded-lg">
                 {v.foto_url && (
                   <img src={v.foto_url} alt={v.nombre} className="w-10 h-10 rounded-full object-cover" />
                 )}
@@ -754,9 +754,9 @@ export default function DirectoraDashboard() {
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">✅ Salida</span>
                   ) : (
                     <>
-                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">✓ Entrada</span>
+                      <span className="text-xs bg-blue-100 text-hs-blue-dark px-2 py-1 rounded">✓ Entrada</span>
                       {v.tiene_extension_dia && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">🌙 Ext</span>
+                        <span className="text-xs bg-hs-purple/20 text-hs-purple-dark px-2 py-1 rounded">🌙 Ext</span>
                       )}
                     </>
                   )}

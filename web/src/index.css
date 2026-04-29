@@ -48,6 +48,23 @@
     @apply btn-hs border-2 border-hs-purple text-hs-purple hover:bg-hs-purple hover:text-white;
   }
 
+  .btn-hs-primary {
+    @apply bg-hs-purple text-white hover:bg-hs-purple-dark focus:ring-hs-purple/30 shadow-hs;
+  }
+
+  .btn-hs-ghost {
+    @apply border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300;
+  }
+
+  /* Labels */
+  .label-hs {
+    @apply text-sm font-bold text-gray-700;
+  }
+
+  .label-hs-section {
+    @apply text-xs font-black uppercase tracking-wider text-gray-500;
+  }
+
   /* Cards */
   .card-hs {
     @apply bg-white rounded-3xl shadow-hs p-6 border border-gray-100;

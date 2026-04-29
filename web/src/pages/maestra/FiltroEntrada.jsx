@@ -274,10 +274,10 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           {/* Sección Medicamentos */}
           {medicamentosPendientes.length > 0 && (
             <>
-              <p className="text-xs font-black text-orange-600 uppercase tracking-wider pt-2">💊 Medicamentos — recibir del papá</p>
+              <p className="text-xs font-black text-hs-orange-dark uppercase tracking-wider pt-2">💊 Medicamentos — recibir del papá</p>
               <div className="space-y-2">
                 {medicamentosPendientes.map((med) => (
-                  <div key={med.id} className={`flex items-start gap-2 px-3 py-2 rounded-2xl text-sm border-2 transition-all ${med.recibido ? 'bg-green-50 border-green-200' : 'bg-orange-50 border-orange-200'}`}>
+                  <div key={med.id} className={`flex items-start gap-2 px-3 py-2 rounded-2xl text-sm border-2 transition-all ${med.recibido ? 'bg-green-50 border-green-200' : 'bg-hs-orange/10 border-hs-orange/30'}`}>
                     <span className="text-lg">{med.recibido ? '✅' : '💊'}</span>
                     <div className="flex-1 min-w-0">
                       <p className="font-black text-gray-800">{med.nombre} — {med.dosis}</p>
@@ -291,7 +291,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
                       <button
                         onClick={() => recibirMedMutation.mutate(med.id)}
                         disabled={recibirMedMutation.isPending}
-                        className="px-3 py-1.5 rounded-xl bg-orange-500 text-white font-bold text-xs hover:bg-orange-600 disabled:opacity-50 whitespace-nowrap"
+                        className="px-3 py-1.5 rounded-xl bg-hs-orange text-white font-bold text-xs hover:bg-hs-orange-dark disabled:opacity-50 whitespace-nowrap"
                       >
                         Recibir
                       </button>
@@ -308,7 +308,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
 
         <div className="p-5 border-t border-gray-100">
           <button onClick={handleSubmit} disabled={mutation.isPending}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg bg-hs-purple hover:bg-purple-700 disabled:opacity-50 transition-all">
+            className="w-full py-4 rounded-2xl font-black text-white text-lg bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 transition-all">
             {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
           </button>
         </div>
@@ -494,9 +494,9 @@ export default function FiltroEntrada() {
     <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
       {/* Banner solo lectura */}
       {soloLectura && (
-        <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-3 flex items-center gap-2">
+        <div className="bg-hs-blue/10 border-2 border-hs-blue/40 rounded-2xl p-3 flex items-center gap-2">
           <span className="text-xl">📋</span>
-          <p className="text-sm font-bold text-blue-800">Consultando día anterior — solo lectura</p>
+          <p className="text-sm font-bold text-hs-blue-dark">Consultando día anterior — solo lectura</p>
         </div>
       )}
 
@@ -527,7 +527,7 @@ export default function FiltroEntrada() {
           {!soloLectura && (
             <button
               onClick={() => setShowQR(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-purple-700 transition-all shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark transition-all shadow-sm"
             >
               <QrCode size={16} />
               Escanear QR

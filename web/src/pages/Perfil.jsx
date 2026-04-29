@@ -104,7 +104,7 @@ function PerfilContent() {
         </p>
         <button
           onClick={() => setModalAbierto(true)}
-          className="px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold hover:bg-purple-700 transition-colors"
+          className="px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold hover:bg-hs-purple-dark transition-colors"
         >
           🔐 Cambiar contraseña
         </button>
@@ -197,7 +197,7 @@ function PerfilContent() {
               <button
                 onClick={handleConfirmar}
                 disabled={cambiarPassword.isPending || !currentPassword || !newPassword || !confirmPassword}
-                className="flex-1 px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {cambiarPassword.isPending ? 'Cambiando...' : 'Cambiar'}
               </button>

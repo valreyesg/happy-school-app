@@ -194,7 +194,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
             onClick={handleSubmit}
             disabled={mutation.isPending}
             className="w-full py-4 rounded-2xl font-black text-white text-lg transition-all
-              bg-hs-purple hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
           </button>
@@ -263,12 +263,12 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
               <Check val={alumno.sin_fiebre}   label="Sin fiebre" />
               <Check val={alumno.sin_sintomas} label="Sin síntomas" />
               {alumno.temperatura && (
-                <span className="text-xs font-bold bg-blue-50 text-blue-700 px-2 py-1 rounded-xl">
+                <span className="text-xs font-bold bg-hs-blue/10 text-hs-blue-dark px-2 py-1 rounded-xl">
                   🌡️ {alumno.temperatura}°C
                 </span>
               )}
               {!alumno.sin_sintomas && alumno.sintomas_notas && (
-                <span className="text-xs font-semibold text-orange-700 bg-orange-50 px-2 py-1 rounded-xl">
+                <span className="text-xs font-semibold text-hs-orange-dark bg-hs-orange/10 px-2 py-1 rounded-xl">
                   {alumno.sintomas_notas}
                 </span>
               )}
@@ -292,7 +292,7 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
             </div>
           </div>
           {alumno.qr_escaneado && (
-            <p className="text-xs font-semibold text-purple-600">📱 Entrada por QR</p>
+            <p className="text-xs font-semibold text-hs-purple">📱 Entrada por QR</p>
           )}
         </div>
       )}
@@ -339,9 +339,9 @@ export default function MaestraAsistencia() {
     <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
       {/* Banner solo lectura */}
       {soloLectura && (
-        <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-3 flex items-center gap-2">
+        <div className="bg-hs-blue/10 border-2 border-hs-blue/40 rounded-2xl p-3 flex items-center gap-2">
           <span className="text-xl">📋</span>
-          <p className="text-sm font-bold text-blue-800">Consultando día anterior — solo lectura</p>
+          <p className="text-sm font-bold text-hs-blue-dark">Consultando día anterior — solo lectura</p>
         </div>
       )}
 

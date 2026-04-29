@@ -159,8 +159,8 @@ const ComidaSemanal = () => {
       )}
 
       {!esDomingo ? (
-        <div className="card-hs bg-blue-50 border-2 border-blue-200">
-          <p className="text-sm font-bold text-blue-700">
+        <div className="card-hs bg-hs-blue/10 border-2 border-hs-blue/30">
+          <p className="text-sm font-bold text-hs-blue-dark">
             📅 El formulario está disponible solo los domingos para confirmar servicio la próxima semana
           </p>
         </div>
@@ -174,7 +174,7 @@ const ComidaSemanal = () => {
             </div>
           )}
           {success && (
-            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-xl text-sm font-semibold">
+            <div className="bg-green-100 border-l-4 border-hs-green text-green-700 p-4 rounded-xl text-sm font-semibold">
               {success}
             </div>
           )}
@@ -253,7 +253,7 @@ const ComidaSemanal = () => {
                     type="button"
                     onClick={() => setMetodoPago('transferencia')}
                     className={`w-full flex items-center gap-3 p-3 rounded-2xl border-2 transition-all font-bold text-sm text-left
-                      ${metodoPago === 'transferencia' ? 'border-blue-300 bg-blue-50 text-blue-700' : 'border-gray-200 bg-white text-gray-600'}`}
+                      ${metodoPago === 'transferencia' ? 'border-hs-blue/40 bg-hs-blue/10 text-hs-blue-dark' : 'border-gray-200 bg-white text-gray-600'}`}
                   >
                     <span className="text-lg">{metodoPago === 'transferencia' ? '✅' : '⬜'}</span>
                     <span>💳 Transferencia bancaria</span>

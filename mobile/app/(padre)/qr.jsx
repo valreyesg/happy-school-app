@@ -1,8 +1,13 @@
 import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
+import { RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { RADIUS } from '@/constants/theme';
 import { useQuery } from '@tanstack/react-query';
+import { RADIUS } from '@/constants/theme';
 import api from '@/services/api';
+import { RADIUS } from '@/constants/theme';
 import { useState } from 'react';
+import { RADIUS } from '@/constants/theme';
 
 export default function PadreQRScreen() {
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -152,7 +157,7 @@ const styles = StyleSheet.create({
   tab: {
     paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 20,
+    borderRadius: RADIUS.xl,
     fontSize: 14,
     fontWeight: '600',
     textAlignVertical: 'center',
@@ -191,7 +196,7 @@ const styles = StyleSheet.create({
   qrContainer: {
     width: 280,
     height: 280,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     borderWidth: 2,
     borderColor: '#E2E8F0',
     padding: 8,
@@ -216,7 +221,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 32,
     paddingHorizontal: 16,
-    borderRadius: 16,
+    borderRadius: RADIUS.lg,
     backgroundColor: '#F7FAFC',
     borderWidth: 2,
     borderColor: '#CBD5E0',

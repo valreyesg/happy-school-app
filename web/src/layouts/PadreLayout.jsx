@@ -49,8 +49,8 @@ export default function PadreLayout() {
                 flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm
                 transition-all duration-200
                 ${isActive
-                  ? 'bg-red-500 text-white shadow-hs'
-                  : 'text-gray-600 hover:bg-red-50 hover:text-red-500'}
+                  ? 'bg-hs-red text-white shadow-hs'
+                  : 'text-gray-600 hover:bg-hs-red/10 hover:text-hs-red'}
               `}
             >
               <Icon size={20} />
@@ -65,17 +65,17 @@ export default function PadreLayout() {
             onClick={() => setSidebarOpen(false)}
             className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-10 h-10 rounded-2xl bg-red-500 flex items-center justify-center text-white font-black">
+            <div className="w-10 h-10 rounded-2xl bg-hs-red flex items-center justify-center text-white font-black">
               {usuario?.nombre?.[0] || 'P'}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-black text-gray-800 truncate">{usuario?.nombre}</p>
-              <p className="text-xs text-red-500 font-semibold">Padre / Tutor</p>
+              <p className="text-xs text-hs-red font-semibold">Padre / Tutor</p>
             </div>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-2xl text-sm font-bold text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-2xl text-sm font-bold text-gray-500 hover:bg-hs-red/10 hover:text-hs-red transition-all"
           >
             <LogOut size={18} />
             Cerrar sesión

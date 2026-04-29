@@ -91,7 +91,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
 
           {/* Datos personales */}
           <fieldset className="space-y-3">
-            <legend className="text-xs font-black text-purple-600 uppercase tracking-wider mb-2">Datos personales</legend>
+            <legend className="text-xs font-black text-hs-purple uppercase tracking-wider mb-2">Datos personales</legend>
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre completo *</label>
@@ -120,7 +120,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
 
           {/* Cuenta de acceso */}
           <fieldset className="space-y-3">
-            <legend className="text-xs font-black text-purple-600 uppercase tracking-wider mb-2">Cuenta de acceso</legend>
+            <legend className="text-xs font-black text-hs-purple uppercase tracking-wider mb-2">Cuenta de acceso</legend>
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email *</label>
@@ -159,7 +159,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
           {/* Asignación de grupo */}
           {(form.rol_principal === 'maestra_titular' || form.rol_principal === 'maestra_especial') && (
             <fieldset className="space-y-3">
-              <legend className="text-xs font-black text-purple-600 uppercase tracking-wider mb-2">Asignación de grupo</legend>
+              <legend className="text-xs font-black text-hs-purple uppercase tracking-wider mb-2">Asignación de grupo</legend>
 
               {/* Grupos actuales (edición) */}
               {!esNuevo && persona?.grupos_asignados?.length > 0 && (
@@ -254,7 +254,7 @@ function TarjetaPersonal({ persona, roles, onEdit, onReset }) {
 
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-purple-200 flex items-center justify-center flex-shrink-0 text-xl font-black text-purple-700">
+        <div className="w-12 h-12 rounded-full bg-purple-200 flex items-center justify-center flex-shrink-0 text-xl font-black text-hs-purple-dark">
           {persona.nombre_completo.charAt(0)}
         </div>
 

@@ -69,7 +69,7 @@ export default function DirectoraNinosExtension() {
         </div>
         <button
           onClick={abrirCrear}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          className="flex items-center gap-2 px-4 py-2 bg-hs-blue-dark text-white rounded-lg hover:bg-hs-blue-dark transition"
         >
           <Plus size={20} /> Agregar
         </button>
@@ -81,7 +81,7 @@ export default function DirectoraNinosExtension() {
         placeholder="Buscar por nombre..."
         value={buscar}
         onChange={(e) => setBuscar(e.target.value)}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
       />
 
       {/* Lista de niños */}
@@ -117,7 +117,7 @@ export default function DirectoraNinosExtension() {
                     }`}>
                       {nino.activo ? '✓ Activo' : '✗ Inactivo'}
                     </span>
-                    <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded">
+                    <span className="px-2 py-1 text-xs bg-blue-100 text-hs-blue-dark rounded">
                       {nino.modalidad_pago === 'por_dia' ? '💳 Por día' : '📅 Mensual'}
                     </span>
                   </div>
@@ -133,7 +133,7 @@ export default function DirectoraNinosExtension() {
                   </button>
                   <button
                     onClick={() => abrirEditar(nino)}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+                    className="px-3 py-1 text-sm bg-blue-100 text-hs-blue-dark rounded hover:bg-hs-blue/30 transition"
                   >
                     Editar
                   </button>
@@ -191,7 +191,7 @@ export default function DirectoraNinosExtension() {
               <a
                 href={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(mostrarQR.qr_codigo || `HAPPYSCHOOL:EXT:${mostrarQR.id}`)}`}
                 download={`qr-${mostrarQR.nombre_completo}.png`}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-hs-blue-dark text-white rounded hover:bg-hs-blue-dark transition"
               >
                 <Download size={18} /> Descargar
               </a>
@@ -257,14 +257,14 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
             value={form.nombre_completo}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="date"
             name="fecha_nacimiento"
             value={form.fecha_nacimiento}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="text"
@@ -273,7 +273,7 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
             value={form.tutor_nombre}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="tel"
@@ -282,7 +282,7 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
             value={form.tutor_telefono}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <input
             type="email"
@@ -290,13 +290,13 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
             placeholder="Email tutor (opcional)"
             value={form.tutor_email}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           />
           <select
             name="modalidad_pago"
             value={form.modalidad_pago}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
           >
             <option value="mensual">Mensual</option>
             <option value="por_dia">Por día</option>
@@ -307,7 +307,7 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
               type="file"
               accept="image/*"
               onChange={handleFotoChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
             />
           </div>
           <div className="flex gap-2">
@@ -321,7 +321,7 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 transition"
+              className="flex-1 px-4 py-2 bg-hs-blue-dark text-white rounded hover:bg-hs-blue-dark disabled:opacity-50 transition"
             >
               {isLoading ? '...' : 'Guardar'}
             </button>

@@ -114,7 +114,7 @@ function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, sub
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <a href={doc.url} target="_blank" rel="noreferrer" className="text-purple-600 hover:text-purple-800 text-xs font-bold">
+                  <a href={doc.url} target="_blank" rel="noreferrer" className="text-hs-purple hover:text-purple-800 text-xs font-bold">
                     Ver
                   </a>
                   <button
@@ -269,7 +269,7 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
         {padres.map(p => (
           <div key={p.id} className="border border-gray-100 rounded-xl overflow-hidden">
             {editandoId === p.id ? (
-              <div className="p-4 bg-blue-50 space-y-3">
+              <div className="p-4 bg-hs-blue/10 space-y-3">
                 {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
@@ -304,8 +304,8 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
                     { label: 'INE frente', key: 'ine_frente', setter: setIneEditarFrente, val: ineEditarFrente },
                     { label: 'INE reverso', key: 'ine_reverso', setter: setIneEditarReverso, val: ineEditarReverso },
                   ].map(({ label, key, setter, val }) => (
-                    <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-xl p-3 cursor-pointer hover:bg-blue-100 transition-colors">
-                      <span className="text-xs font-bold text-blue-600 text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
+                    <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-hs-blue/40 rounded-xl p-3 cursor-pointer hover:bg-hs-blue/20 transition-colors">
+                      <span className="text-xs font-bold text-hs-blue-dark text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
                       <input type="file" accept="image/*" className="hidden" onChange={e => setter(e.target.files[0])} />
                     </label>
                   ))}
@@ -319,19 +319,19 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
               <div className="flex items-center gap-4 p-3 bg-gray-50">
                 <label className="cursor-pointer flex-shrink-0" title="Cambiar foto">
                   {p.foto_url
-                    ? <img src={p.foto_url} alt={p.nombre_completo} className="w-12 h-12 rounded-full object-cover border-2 border-blue-200" />
-                    : <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-black text-lg">{p.nombre_completo.charAt(0)}</div>
+                    ? <img src={p.foto_url} alt={p.nombre_completo} className="w-12 h-12 rounded-full object-cover border-2 border-hs-blue/30" />
+                    : <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-hs-blue-dark font-black text-lg">{p.nombre_completo.charAt(0)}</div>
                   }
                   <input type="file" accept="image/*" className="hidden" ref={el => fotoRefs.current[p.id] = el} onChange={e => e.target.files[0] && subirFoto(p.id, e.target.files[0])} />
                 </label>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-gray-800 truncate">
                     {p.nombre_completo}
-                    {p.es_tutor_principal && <span className="ml-2 text-xs bg-blue-100 text-blue-700 font-black px-2 py-0.5 rounded-full">Tutor principal</span>}
+                    {p.es_tutor_principal && <span className="ml-2 text-xs bg-blue-100 text-hs-blue-dark font-black px-2 py-0.5 rounded-full">Tutor principal</span>}
                   </p>
                   <p className="text-xs text-gray-500 font-semibold">{p.parentesco}{p.email ? ` · ${p.email}` : ''}{p.telefono ? ` · ${p.telefono}` : ''}</p>
                 </div>
-                <button onClick={() => iniciarEdicion(p)} className="text-blue-500 hover:text-blue-700 text-xs font-bold flex-shrink-0">Editar</button>
+                <button onClick={() => iniciarEdicion(p)} className="text-hs-blue hover:text-hs-blue-dark text-xs font-bold flex-shrink-0">Editar</button>
                 <button onClick={() => desactivarTutor(p.id, p.nombre_completo)} className="text-red-400 hover:text-red-600 text-xs font-bold flex-shrink-0">Desactivar</button>
               </div>
             )}
@@ -340,8 +340,8 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
       </div>
 
       {mostrarFormNuevo && (
-        <div className="border border-blue-200 rounded-xl p-4 bg-blue-50 space-y-3">
-          <p className="text-xs font-black text-blue-700 uppercase tracking-wider">Agregar tutor</p>
+        <div className="border border-hs-blue/30 rounded-xl p-4 bg-hs-blue/10 space-y-3">
+          <p className="text-xs font-black text-hs-blue-dark uppercase tracking-wider">Agregar tutor</p>
           {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
@@ -376,8 +376,8 @@ function SeccionPadres({ alumnoId, padres = [], queryClient }) {
               { label: 'INE frente', key: 'ine_frente', setter: setIneFrente, val: ineFrente },
               { label: 'INE reverso', key: 'ine_reverso', setter: setIneReverso, val: ineReverso },
             ].map(({ label, key, setter, val }) => (
-              <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-blue-300 rounded-xl p-3 cursor-pointer hover:bg-blue-100 transition-colors">
-                <span className="text-xs font-bold text-blue-600 text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
+              <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-hs-blue/40 rounded-xl p-3 cursor-pointer hover:bg-hs-blue/20 transition-colors">
+                <span className="text-xs font-bold text-hs-blue-dark text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={e => setter(e.target.files[0])} />
               </label>
             ))}
@@ -475,7 +475,7 @@ function SeccionHermanos({ alumnoId }) {
               <p className="font-bold text-gray-800 truncate">{h.nombre_completo}</p>
               <p className="text-xs text-gray-500 font-semibold">{h.grupo_nombre}</p>
             </div>
-            <span className="text-xs text-purple-600 font-bold flex-shrink-0">Ver perfil →</span>
+            <span className="text-xs text-hs-purple font-bold flex-shrink-0">Ver perfil →</span>
           </div>
         ))}
       </div>
@@ -595,7 +595,7 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
             </div>
             <div className="flex gap-2">
               {p.ine_frente_url && (
-                <a href={p.ine_frente_url} target="_blank" rel="noreferrer" className="text-xs text-purple-600 font-bold">INE</a>
+                <a href={p.ine_frente_url} target="_blank" rel="noreferrer" className="text-xs text-hs-purple font-bold">INE</a>
               )}
               <button onClick={() => onEliminar(p.id)} className="text-red-400 hover:text-red-600 text-xs font-bold">
                 Quitar
@@ -607,7 +607,7 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
 
       {/* Formulario agregar */}
       {mostrarForm && (
-        <div className="border border-purple-200 rounded-xl p-4 bg-purple-50 space-y-3">
+        <div className="border border-hs-purple/20 rounded-xl p-4 bg-hs-purple/10 space-y-3">
           {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
@@ -634,8 +634,8 @@ function SeccionPersonasAutorizadas({ alumnoId, personas = [], onEliminar }) {
               { label: 'INE frente *', key: 'ine_frente', setter: setIneFrente, val: ineFrente },
               { label: 'INE reverso *', key: 'ine_reverso', setter: setIneReverso, val: ineReverso },
             ].map(({ label, key, setter, val }) => (
-              <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-purple-300 rounded-xl p-3 cursor-pointer hover:bg-purple-100 transition-colors">
-                <span className="text-xs font-bold text-purple-600 text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
+              <label key={key} className="flex flex-col items-center justify-center border-2 border-dashed border-hs-purple/30 rounded-xl p-3 cursor-pointer hover:bg-hs-purple/20 transition-colors">
+                <span className="text-xs font-bold text-hs-purple text-center">{val ? '✓ ' + val.name.slice(0, 12) : label}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={e => setter(e.target.files[0])} />
               </label>
             ))}
@@ -769,7 +769,7 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
                   <span className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-sm font-bold">Trajo pañales</span>
                 )}
                 {entradaData.trajo_toallitas && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm font-bold">Trajo toallitas</span>
+                  <span className="px-3 py-1 bg-blue-100 text-hs-blue-dark rounded-lg text-sm font-bold">Trajo toallitas</span>
                 )}
               </div>
             </div>
@@ -833,11 +833,11 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
                 <div className="space-y-1">
                   {data.panial.map((p, i) => (
                     <div key={i} className="flex items-center gap-3 py-1.5 border-b border-gray-100 last:border-0">
-                      <span className="text-xs font-bold text-purple-600 min-w-14">
+                      <span className="text-xs font-bold text-hs-purple min-w-14">
                         {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       <span className="text-sm font-semibold text-gray-700">{PANIAL_MAP[p.condicion]?.label ?? p.condicion}</span>
-                      {p.tiene_irritacion && <span className="text-xs text-orange-500 font-bold">⚠️ irritación</span>}
+                      {p.tiene_irritacion && <span className="text-xs text-hs-orange font-bold">⚠️ irritación</span>}
                     </div>
                   ))}
                 </div>
@@ -878,16 +878,16 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
           {/* Vómitos */}
           {data?.vomitos?.length > 0 && (
             <div className="card-hs">
-              <h3 className="text-xs font-black text-orange-600 uppercase tracking-wider mb-3">🤢 Vómitos</h3>
+              <h3 className="text-xs font-black text-hs-orange-dark uppercase tracking-wider mb-3">🤢 Vómitos</h3>
               <div className="space-y-2">
                 {data.vomitos.map((v, i) => (
-                  <div key={i} className="bg-orange-50 rounded-lg p-3 text-sm border border-orange-200">
+                  <div key={i} className="bg-hs-orange/10 rounded-lg p-3 text-sm border border-hs-orange/30">
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <p className="font-black text-orange-700">
+                        <p className="font-black text-hs-orange-dark">
                           {v.hora ? new Date(v.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'Sin hora'}
                         </p>
-                        <p className="text-xs capitalize text-orange-600 font-semibold">
+                        <p className="text-xs capitalize text-hs-orange-dark font-semibold">
                           {v.intensidad === 'fuerte' ? '🚨 Fuerte' : v.intensidad === 'moderado' ? '🤮 Moderado' : '🤢 Leve'}
                         </p>
                       </div>
@@ -1101,7 +1101,7 @@ function TabExtension({ alumnoId }) {
   return (
     <div className="space-y-4">
       {/* Estado actual */}
-      <div className={`card-hs p-4 border-l-4 ${tieneExtension ? 'border-green-500' : altaFutura ? 'border-blue-400' : 'border-gray-300'}`}>
+      <div className={`card-hs p-4 border-l-4 ${tieneExtension ? 'border-hs-green' : altaFutura ? 'border-hs-blue/50' : 'border-gray-300'}`}>
         <div>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Estado actual</p>
           {tieneExtension ? (
@@ -1121,8 +1121,8 @@ function TabExtension({ alumnoId }) {
             </>
           ) : altaFutura ? (
             <>
-              <p className="text-xl font-black text-blue-500">📅 Sin servicio actualmente</p>
-              <p className="text-xs text-blue-600 font-semibold mt-1">
+              <p className="text-xl font-black text-hs-blue">📅 Sin servicio actualmente</p>
+              <p className="text-xs text-hs-blue-dark font-semibold mt-1">
                 Inicia en {MESES[parseInt(altaFutura.mes_inicio) - 1]} {altaFutura.anio_inicio}
                 {finEfectivo ? ` hasta ${MESES[finEfectivo.mes - 1]} ${finEfectivo.anio}` : ''}
               </p>
@@ -1203,7 +1203,7 @@ function TabExtension({ alumnoId }) {
                   </select>
                 </div>
                 <div className="flex items-end">
-                  <p className="text-sm font-bold text-hs-purple bg-purple-50 rounded px-3 py-2 w-full text-center">
+                  <p className="text-sm font-bold text-hs-purple bg-hs-purple/10 rounded px-3 py-2 w-full text-center">
                     {mesesGenerados} mes{mesesGenerados !== 1 ? 'es' : ''}
                   </p>
                 </div>
@@ -1268,7 +1268,7 @@ function TabExtension({ alumnoId }) {
         </div>
 
         <button onClick={() => registrar.mutate()} disabled={registrar.isPending}
-          className="w-full py-2 bg-hs-purple text-white rounded-lg font-black hover:bg-purple-700 transition-all disabled:opacity-50">
+          className="w-full py-2 bg-hs-purple text-white rounded-lg font-black hover:bg-hs-purple-dark transition-all disabled:opacity-50">
           {registrar.isPending ? '…' : accion === 'alta' ? '✅ Dar de Alta' : '❌ Dar de Baja'}
         </button>
       </div>
@@ -1281,7 +1281,7 @@ function TabExtension({ alumnoId }) {
         ) : (
           <div className="space-y-2">
             {historial.map(h => (
-              <div key={h.id} className={`border-l-4 rounded-lg p-3 ${h.accion === 'alta' ? 'border-green-500 bg-green-50' : 'border-red-400 bg-red-50'}`}>
+              <div key={h.id} className={`border-l-4 rounded-lg p-3 ${h.accion === 'alta' ? 'border-hs-green bg-green-50' : 'border-red-400 bg-red-50'}`}>
                 <p className="font-bold text-gray-800">
                   {h.accion === 'alta' ? '➕ Alta' : '➖ Baja'}
                   {h.mes_inicio && ` — ${MESES[h.mes_inicio - 1]} ${h.anio_inicio}`}
@@ -1371,7 +1371,7 @@ export default function DirectoraAlumnoPerfil() {
       {/* Breadcrumb */}
       <button
         onClick={() => navigate('/directora/alumnos')}
-        className="text-purple-600 hover:text-purple-800 text-sm font-bold mb-4 flex items-center gap-1"
+        className="text-hs-purple hover:text-purple-800 text-sm font-bold mb-4 flex items-center gap-1"
       >
         ← Regresar a Alumnos
       </button>
@@ -1383,7 +1383,7 @@ export default function DirectoraAlumnoPerfil() {
         )}
         <div className="flex items-start gap-5 mt-1">
           {/* Foto */}
-          <div className="w-20 h-20 rounded-2xl bg-purple-100 flex items-center justify-center flex-shrink-0 text-3xl font-black text-purple-700 overflow-hidden">
+          <div className="w-20 h-20 rounded-2xl bg-hs-purple/20 flex items-center justify-center flex-shrink-0 text-3xl font-black text-hs-purple-dark overflow-hidden">
             {alumno.foto_url
               ? <img src={alumno.foto_url} alt={alumno.nombre_completo} className="w-full h-full object-cover" />
               : alumno.nombre_completo.charAt(0)
@@ -1396,7 +1396,7 @@ export default function DirectoraAlumnoPerfil() {
                 <h1 className="text-2xl font-black text-gray-800">{alumno.nombre_completo}</h1>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
                   {alumno.grupo_nombre && (
-                    <span className="text-xs font-black px-2 py-0.5 rounded-full bg-purple-100 text-purple-700">
+                    <span className="text-xs font-black px-2 py-0.5 rounded-full bg-hs-purple/20 text-hs-purple-dark">
                       {alumno.grupo_nombre}
                     </span>
                   )}
@@ -1422,7 +1422,7 @@ export default function DirectoraAlumnoPerfil() {
                 <span className="font-bold text-amber-600">⚠️ Alergias: {alumno.alergias}</span>
               )}
               {alumno.condiciones_especiales && (
-                <span className="font-semibold text-blue-600">ℹ️ {alumno.condiciones_especiales}</span>
+                <span className="font-semibold text-hs-blue-dark">ℹ️ {alumno.condiciones_especiales}</span>
               )}
               {alumno.usa_panial && (
                 <span className="font-bold text-pink-500">👶🏻 Usa pañal</span>

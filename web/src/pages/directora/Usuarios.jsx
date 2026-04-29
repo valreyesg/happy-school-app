@@ -9,8 +9,8 @@ const PALETA_NIVELES = [
   { bg: 'bg-pink-100',   text: 'text-pink-700' },
   { bg: 'bg-yellow-100', text: 'text-yellow-700' },
   { bg: 'bg-green-100',  text: 'text-green-700' },
-  { bg: 'bg-blue-100',   text: 'text-blue-700' },
-  { bg: 'bg-purple-100', text: 'text-purple-700' },
+  { bg: 'bg-blue-100',   text: 'text-hs-blue-dark' },
+  { bg: 'bg-hs-purple/20', text: 'text-hs-purple-dark' },
 ];
 
 // ─── Página principal ────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export default function DirectoraUsuarios() {
       {!isLoading && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="card-hs p-4 text-center">
-            <p className="text-2xl font-black text-blue-600">{totalPadres}</p>
+            <p className="text-2xl font-black text-hs-blue-dark">{totalPadres}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Total</p>
           </div>
           <div className="card-hs p-4 text-center">
@@ -240,7 +240,7 @@ function TarjetaPadre({ padre }) {
         {padre.email_institucional && (
           <div className="mb-4 pl-16">
             <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Usuario del portal</p>
-            <p className="font-mono text-sm font-bold text-blue-700">{padre.email_institucional}</p>
+            <p className="font-mono text-sm font-bold text-hs-blue-dark">{padre.email_institucional}</p>
           </div>
         )}
 
@@ -251,10 +251,10 @@ function TarjetaPadre({ padre }) {
             <div className="flex flex-wrap gap-2">
               {padre.hijos.map((hijo, idx) => (
                 <div key={idx} className="flex items-center gap-1">
-                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-hs-blue-dark">
                     {hijo.nombre}
                   </span>
-                  <span className="text-xs font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+                  <span className="text-xs font-bold px-2 py-1 rounded-full bg-hs-purple/20 text-hs-purple-dark">
                     {hijo.grupo}
                   </span>
                   {hijo.es_tutor_principal && (
@@ -358,18 +358,18 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
             </p>
 
             <div className="space-y-3 mb-6">
-              <div className="p-4 bg-blue-50 rounded-2xl border-2 border-blue-200">
-                <p className="text-xs text-blue-600 font-semibold mb-1">📧 Usuario del portal</p>
+              <div className="p-4 bg-hs-blue/10 rounded-2xl border-2 border-hs-blue/30">
+                <p className="text-xs text-hs-blue-dark font-semibold mb-1">📧 Usuario del portal</p>
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-mono text-sm font-bold text-blue-800">{resultado.email_institucional}</p>
+                  <p className="font-mono text-sm font-bold text-hs-blue-dark">{resultado.email_institucional}</p>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(resultado.email_institucional);
                       toast.success('Copiado');
                     }}
-                    className="p-1.5 hover:bg-blue-200 rounded-lg transition-colors"
+                    className="p-1.5 hover:bg-hs-blue/30 rounded-lg transition-colors"
                   >
-                    <Copy size={16} className="text-blue-600" />
+                    <Copy size={16} className="text-hs-blue-dark" />
                   </button>
                 </div>
               </div>
@@ -407,7 +407,7 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
 
             <button
               onClick={onCancelar}
-              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-purple-700"
+              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark"
             >
               Cerrar
             </button>
@@ -429,7 +429,7 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
           <div className="text-left space-y-3 mb-6 p-4 bg-gray-50 rounded-2xl">
             <div>
               <p className="text-xs text-gray-500 font-semibold mb-1">📧 Usuario del portal</p>
-              <p className="text-sm font-mono font-bold text-blue-700">{previewData || 'Cargando...'}</p>
+              <p className="text-sm font-mono font-bold text-hs-blue-dark">{previewData || 'Cargando...'}</p>
             </div>
             <div>
               <p className="text-xs text-gray-500 font-semibold mb-1">📞 Email de contacto</p>

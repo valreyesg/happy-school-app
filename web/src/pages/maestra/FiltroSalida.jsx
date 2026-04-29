@@ -171,9 +171,9 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
           <div className="p-5 space-y-4">
             {/* Badge extensión */}
             {alumno.tiene_extension && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl">
+              <div className="flex items-center gap-2 px-3 py-2 bg-hs-blue/10 border border-hs-blue/30 rounded-xl">
                 <span className="text-sm">⏳</span>
-                <p className="text-xs font-bold text-blue-700">
+                <p className="text-xs font-bold text-hs-blue-dark">
                   Extensión de horario · Salida hasta {alumno.hora_salida_extension || '18:00'}
                 </p>
               </div>
@@ -238,7 +238,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
                     onClick={() => setSeleccion(op.id)}
                     className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 text-sm font-bold text-left transition-all
                       ${seleccion === op.id
-                        ? 'border-hs-purple bg-purple-50 text-hs-purple'
+                        ? 'border-hs-purple bg-hs-purple/10 text-hs-purple'
                         : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
                     <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center
                       ${seleccion === op.id ? 'border-hs-purple bg-hs-purple' : 'border-gray-300'}`}>
@@ -314,7 +314,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
           )}
           <button onClick={paso === 1 ? handleIrPaso2 : handleSubmit} disabled={mutation.isPending}
             className={`${paso === 2 ? 'flex-1' : 'w-full'} py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
-              ${anticipada && paso === 1 ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-purple-700'}`}>
+              ${anticipada && paso === 1 ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-hs-purple-dark'}`}>
             {mutation.isPending ? 'Registrando...' : paso === 1 ? '→ Siguiente' : '🚪 Confirmar Salida'}
           </button>
         </div>
@@ -333,7 +333,7 @@ function TarjetaAlumno({ alumno, onTap }) {
       className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all
         ${yaSalio
           ? 'border-gray-100 bg-gray-50 opacity-50 cursor-default'
-          : 'border-orange-200 bg-white hover:border-orange-400 hover:shadow-md cursor-pointer active:scale-95'}`}
+          : 'border-hs-orange/30 bg-white hover:border-orange-400 hover:shadow-md cursor-pointer active:scale-95'}`}
     >
       <AvatarAlumno alumno={alumno} size="md" />
       <div className="flex-1 min-w-0">
@@ -343,7 +343,7 @@ function TarjetaAlumno({ alumno, onTap }) {
             <><Clock size={11} /> Entró {horaTexto(alumno.hora_entrada)}</>
           )}
           {alumno.tiene_extension && (
-            <span className="ml-1 text-blue-500 font-bold">⏳ Ext.</span>
+            <span className="ml-1 text-hs-blue font-bold">⏳ Ext.</span>
           )}
         </p>
       </div>
@@ -352,7 +352,7 @@ function TarjetaAlumno({ alumno, onTap }) {
           ✅ {horaTexto(alumno.hora_salida)}
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-orange-100 text-orange-700">
+        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-hs-orange/20 text-hs-orange-dark">
           🏫 En escuela
         </span>
       )}
@@ -486,9 +486,9 @@ export default function FiltroSalida() {
     <div className="space-y-5 animate-fade-in max-w-2xl mx-auto">
       {/* Banner solo lectura */}
       {soloLectura && (
-        <div className="bg-blue-50 border-2 border-blue-300 rounded-2xl p-3 flex items-center gap-2">
+        <div className="bg-hs-blue/10 border-2 border-hs-blue/40 rounded-2xl p-3 flex items-center gap-2">
           <span className="text-xl">📋</span>
-          <p className="text-sm font-bold text-blue-800">Consultando día anterior — solo lectura</p>
+          <p className="text-sm font-bold text-hs-blue-dark">Consultando día anterior — solo lectura</p>
         </div>
       )}
 
@@ -517,7 +517,7 @@ export default function FiltroSalida() {
         {!soloLectura && (
           <button
             onClick={() => setShowQR(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-500 text-white font-bold text-sm hover:bg-orange-600 transition-all shadow-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-hs-orange text-white font-bold text-sm hover:bg-hs-orange-dark transition-all shadow-sm"
           >
             <QrCode size={16} />
             Escanear QR
@@ -539,7 +539,7 @@ export default function FiltroSalida() {
       {!isLoading && (
         <div className="grid grid-cols-2 gap-3">
           <div className="card-hs p-4 text-center">
-            <p className="text-3xl font-black text-orange-500">{enEscuela}</p>
+            <p className="text-3xl font-black text-hs-orange">{enEscuela}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">En escuela</p>
           </div>
           <div className="card-hs p-4 text-center">

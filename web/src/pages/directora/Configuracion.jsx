@@ -58,10 +58,10 @@ const TIPOS_NOTIFICACION = [
 ];
 
 const COLOR_MAP = {
-  blue:   { bg: 'bg-blue-50',   border: 'border-blue-200',   title: 'text-blue-800'   },
+  blue:   { bg: 'bg-hs-blue/10',   border: 'border-hs-blue/30',   title: 'text-hs-blue-dark'   },
   green:  { bg: 'bg-green-50',  border: 'border-green-200',  title: 'text-green-800'  },
   yellow: { bg: 'bg-yellow-50', border: 'border-yellow-200', title: 'text-yellow-800' },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-200', title: 'text-purple-800' },
+  purple: { bg: 'bg-hs-purple/10', border: 'border-hs-purple/20', title: 'text-purple-800' },
 };
 
 const TABS = [
@@ -186,8 +186,8 @@ export default function Configuracion() {
     <div className={`space-y-6 animate-fade-in ${tab !== 'catalogos' ? 'max-w-2xl mx-auto' : ''}`}>
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
-          <Settings size={24} className="text-purple-600" />
+        <div className="w-12 h-12 rounded-2xl bg-hs-purple/20 flex items-center justify-center">
+          <Settings size={24} className="text-hs-purple" />
         </div>
         <div>
           <h1 className="text-2xl font-black text-gray-800">Configuración ⚙️</h1>
@@ -203,7 +203,7 @@ export default function Configuracion() {
             onClick={() => setTab(id)}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-t-xl transition-colors ${
               tab === id
-                ? 'bg-white border-2 border-b-white border-gray-200 text-purple-700 -mb-[2px]'
+                ? 'bg-white border-2 border-b-white border-gray-200 text-hs-purple-dark -mb-[2px]'
                 : 'text-gray-400 hover:text-gray-600'
             }`}
           >
@@ -304,8 +304,8 @@ export default function Configuracion() {
             </div>
 
             {/* Dashboard */}
-            <div className="rounded-2xl border-2 bg-blue-50 border-blue-200 p-5 space-y-4">
-              <h2 className="font-black text-base text-blue-800">📊 Dashboard</h2>
+            <div className="rounded-2xl border-2 bg-hs-blue/10 border-hs-blue/30 p-5 space-y-4">
+              <h2 className="font-black text-base text-hs-blue-dark">📊 Dashboard</h2>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">
                   Máx. padres morosos a mostrar
@@ -314,7 +314,7 @@ export default function Configuracion() {
                   type="number"
                   value={valoresConfig.max_morosos_dashboard ?? ''}
                   onChange={e => handleConfigChange('max_morosos_dashboard', e.target.value)}
-                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 bg-white"
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 bg-white"
                   min="0"
                 />
                 <p className="text-xs text-gray-400 mt-1">Limitará la lista de padres morosos en la vista principal</p>
@@ -329,7 +329,7 @@ export default function Configuracion() {
               mutationConfig.mutate(valoresConfig);
             }}
             disabled={mutation.isLoading || mutationConfig.isPending}
-            className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 bg-hs-purple hover:bg-hs-purple-dark text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
           >
             <Save size={18} />
             {mutation.isLoading || mutationConfig.isPending ? 'Guardando…' : guardado || configGuardado ? '¡Guardado! ✅' : 'Guardar horarios y reglas'}
@@ -471,7 +471,7 @@ function CategoriasEventoCard() {
           <h3 className="font-black text-gray-800 text-sm">📅 Categorías de eventos</h3>
           <button
             onClick={() => setModalCat('nuevo')}
-            className="flex items-center gap-1.5 text-xs font-bold text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-xl transition-all"
+            className="flex items-center gap-1.5 text-xs font-bold text-hs-purple hover:bg-hs-purple/20 px-3 py-1.5 rounded-xl transition-all"
           >
             <Plus size={14} />
             Nueva
@@ -492,7 +492,7 @@ function CategoriasEventoCard() {
                 <div className="flex gap-1">
                   <button
                     onClick={() => setModalCat(cat)}
-                    className="p-1.5 text-gray-400 hover:text-purple-600 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-400 hover:text-hs-purple rounded-lg transition-colors"
                     title="Editar"
                   >
                     <Pencil size={14} />
@@ -526,7 +526,7 @@ function CategoriasEventoCard() {
                   <span className="flex-1 text-sm text-gray-500 line-through">{cat.nombre}</span>
                   <button
                     onClick={() => reactivarMut.mutate(cat.id)}
-                    className="text-xs font-bold text-purple-600 hover:underline"
+                    className="text-xs font-bold text-hs-purple hover:underline"
                   >
                     Reactivar
                   </button>

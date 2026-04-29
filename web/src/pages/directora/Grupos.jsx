@@ -9,8 +9,8 @@ const NIVEL_COLORES = {
   maternal:  { bg: 'bg-pink-100',   text: 'text-pink-700',   ring: 'ring-pink-300' },
   prekinder: { bg: 'bg-yellow-100', text: 'text-yellow-700', ring: 'ring-yellow-300' },
   kinder1:   { bg: 'bg-green-100',  text: 'text-green-700',  ring: 'ring-green-300' },
-  kinder2:   { bg: 'bg-blue-100',   text: 'text-blue-700',   ring: 'ring-blue-300' },
-  kinder3:   { bg: 'bg-purple-100', text: 'text-purple-700', ring: 'ring-purple-300' },
+  kinder2:   { bg: 'bg-blue-100',   text: 'text-hs-blue-dark',   ring: 'ring-hs-blue/30' },
+  kinder3:   { bg: 'bg-hs-purple/20', text: 'text-hs-purple-dark', ring: 'ring-purple-300' },
 };
 
 function colorNivel(nivel) {
@@ -192,7 +192,7 @@ function TarjetaGrupo({ grupo, maestras, onEdit, soloLectura }) {
         {!soloLectura && (
           <button
             onClick={() => onEdit(grupo)}
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-purple-600 p-1 rounded-lg hover:bg-purple-50"
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-hs-purple p-1 rounded-lg hover:bg-hs-purple/10"
             title="Editar"
           >
             ✏️
@@ -293,7 +293,7 @@ export default function DirectoraGrupos() {
               {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
             </p>
             {cicloActualData && (
-              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-bold text-hs-purple bg-hs-purple/10 px-2.5 py-1 rounded-full">
                 📅 {cicloActualData}
               </span>
             )}

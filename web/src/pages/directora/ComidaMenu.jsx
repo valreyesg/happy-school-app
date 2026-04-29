@@ -117,7 +117,7 @@ const ComidaMenu = () => {
             </div>
           )}
           {success && (
-            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-xl text-sm font-semibold">
+            <div className="bg-green-100 border-l-4 border-hs-green text-green-700 p-4 rounded-xl text-sm font-semibold">
               {success}
             </div>
           )}
@@ -137,8 +137,8 @@ const ComidaMenu = () => {
             <label className="block text-sm font-black text-gray-600 mb-3 uppercase tracking-wide">Menú Semanal por Día y Tiempo</label>
             <div className="space-y-4">
               {DIAS_NOMBRE.map(dia => (
-                <div key={dia} className="border-2 border-purple-200 rounded-xl p-4 space-y-3 bg-purple-50">
-                  <h4 className="text-sm font-bold text-purple-700 capitalize">{dia.replace('miercoles','miércoles').replace('viernes','viernes')}</h4>
+                <div key={dia} className="border-2 border-hs-purple/20 rounded-xl p-4 space-y-3 bg-hs-purple/10">
+                  <h4 className="text-sm font-bold text-hs-purple-dark capitalize">{dia.replace('miercoles','miércoles').replace('viernes','viernes')}</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {TIEMPOS_COMIDA.map(tiempo => (
                       <div key={tiempo} className="space-y-2">
@@ -164,7 +164,7 @@ const ComidaMenu = () => {
                               })}
                               className={`px-2 py-1 rounded-lg text-xs font-bold transition-all ${
                                 dias[dia][tiempo]?.niveles?.includes('todos')
-                                  ? 'bg-purple-600 text-white'
+                                  ? 'bg-hs-purple-dark text-white'
                                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                               }`}
                             >
@@ -190,7 +190,7 @@ const ComidaMenu = () => {
                                     })}
                                     className={`px-2 py-1 rounded-lg text-xs font-bold transition-all capitalize ${
                                       dias[dia][tiempo]?.niveles?.includes(nivel.id)
-                                        ? 'bg-blue-600 text-white'
+                                        ? 'bg-hs-blue-dark text-white'
                                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                     }`}
                                   >
@@ -241,8 +241,8 @@ const ComidaMenu = () => {
         </form>
       )}
 
-      <div className="card-hs bg-blue-50 border-2 border-blue-200">
-        <p className="text-sm font-bold text-blue-700">
+      <div className="card-hs bg-hs-blue/10 border-2 border-hs-blue/30">
+        <p className="text-sm font-bold text-hs-blue-dark">
           💡 El menú publicado será visible en el portal de papás cuando confirmen el servicio de comida
         </p>
       </div>

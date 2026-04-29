@@ -4,13 +4,9 @@
 
 ---
 
-## 🚨 ANTES DE CUALQUIER TAREA — EJECUTAR `/preflight` OBLIGATORIO
+## 🚨 AUTOMÁTICO: `/preflight` al inicio de cada tarea
 
-Cuando Valeria pida una tarea de desarrollo, **ejecuto `/preflight` ANTES de tocar código**:
-
-```
-/preflight [descripción de tarea]
-```
+Cuando Valeria describe una tarea de desarrollo, **YO EJECUTO AUTOMÁTICAMENTE `/preflight`** antes de tocar código. Tú no necesitas pedir nada.
 
 El skill verifica:
 1. **Alcance:** ¿Backend, web, mobile, BD?
@@ -21,7 +17,7 @@ El skill verifica:
 6. **Regresiones:** ¿Quién usa lo que voy a cambiar?
 7. **Bugs previos:** ¿Es repetición de bug viejo?
 
-**Si algo falla → pregunto a Valeria antes de proceder.**
+**Si algo falla en `/preflight` → Te pregunto antes de proceder. Si todo OK → Procedo con desarrollo sin esperar aprobación.**
 
 ---
 
@@ -88,11 +84,11 @@ Ver memoria: [Sesión 74 — Paridad Web ↔ Mobile](memory/sesion_74_paridad_mo
 
 ---
 
-## 🚨 DESPUÉS DE CADA CAMBIO — EJECUTAR `/validate` OBLIGATORIO
+## 🚨 AUTOMÁTICO: `/validate` después de cada cambio
 
-**NUNCA** pedir validación en browser sin ejecutar `/validate` primero.
+Después de cualquier cambio en código, **YO EJECUTO AUTOMÁTICAMENTE `/validate`**. Tú no necesitas pedirlo.
 
-El skill `/validate` ejecuta automáticamente:
+El skill `/validate` verifica automáticamente:
 
 1. **Confirmar archivo editado** → Grep para verificar que el cambio quedó en el archivo
 2. **Validar código sin errores** → Leer bloque completo, revisar tipos, parseFloat()
@@ -116,55 +112,69 @@ grep "Local:" /tmp/web.log  # DEBE mostrar 5173, nunca otro puerto
 
 ### Cuando falla `/validate`
 
-No procedo a validación en browser. **Arreglo primero:**
-- ¿Archivo no existe? → Re-editar
-- ¿Backend no responde? → Reiniciar
-- ¿Vite en puerto equivocado? → Matar y reiniciar
-- ¿Solo en web, no en mobile? → Hacer cambio en mobile ahora
+**NO procedo a pedir validación.** Arreglo automáticamente:
+- ¿Archivo no existe? → Re-editar y re-validar
+- ¿Backend no responde? → Reiniciar y re-validar
+- ¿Vite en puerto equivocado? → Matar, reiniciar y re-validar
+- ¿Solo en web, no en mobile? → Editar mobile y re-validar
 
-### Solo después de `/validate` ✅
+### Solo cuando `/validate` ✅ (AUTOMÁTICO)
 
-Mostrar resumen visual (qué cambió, dónde, paridad web↔mobile, puertos validados).
+Muestro resumen visual: qué cambió, dónde, paridad web↔mobile, puertos validados.
 
 Luego: **"Cambios validados. Valida en browser en http://localhost:5173/..."**
 
+(No espero aprobación, procedo automáticamente cuando `/validate` pasa.)
+
 ---
 
-## 📋 ORDEN OBLIGATORIO DE SKILLS EN CADA TAREA
+## 📋 FLUJO AUTOMÁTICO (excepto `/cierre`)
 
 ```
 Valeria describe tarea
     ↓
-1️⃣  /preflight [tarea]     ← Verificar que es seguro proceder
+1️⃣  /preflight [AUTOMÁTICO]    ← Audito antes de tocar
+    ├─ Si falla → Pregunto a Valeria
+    └─ Si OK → Continúo sin esperar
     ↓
-2️⃣  [Desarrollo + edits]   ← Hacer cambios en web/backend/mobile
+2️⃣  [Desarrollo + edits]        ← Hago cambios en web/backend/mobile
     ↓
-3️⃣  /validate              ← Reiniciar servers, confirmar cambios
+3️⃣  /validate [AUTOMÁTICO]      ← Valido después de cada cambio
+    ├─ Si falla → Arreglo automáticamente y re-valido
+    └─ Si OK → Continúo
     ↓
-4️⃣  Pedir validación       ← "Cambios validados. Valida en browser"
+4️⃣  "Cambios validados. Valida en browser"
     ↓
 Valeria valida y confirma
     ↓
-Siguiente tarea
+5️⃣  /regress [AUTOMÁTICO si algo se rompe]
+    └─ Si Valeria reporta problema → Audito y arreglo
+    ↓
+Siguiente tarea (volver a paso 1)
     ↓
     ...
     ↓
 Fin de sesión
     ↓
-5️⃣  /cierre                ← Limpiar PENDIENTES, commit
+6️⃣  Valeria dice: "ejecuta protocolo de cierre" [MANUAL]
+    └─ Yo ejecuto /cierre manualmente
 ```
 
-**NUNCA saltar pasos. SIEMPRE en este orden.**
+**REGLA SIMPLE:**
+- `/preflight`, `/validate`, `/regress` → **YO automáticamente en el momento correcto**
+- `/cierre` → **TÚ lo pides explícitamente**
 
 ---
 
-## 📝 PROTOCOLO DE CIERRE DE SESIÓN — AL FINAL
+## 📝 PROTOCOLO DE CIERRE DE SESIÓN — MANUAL, TÚ LO PIDES
 
-Ejecutar comando `/cierre`:
+Cuando termines sesión y digas **"ejecuta protocolo de cierre"**:
 - Mover tareas completadas de `PENDIENTES.md` → `ARCHIVE_LOG.md`
 - Eliminar esas secciones de `PENDIENTES.md`
 - Actualizar memoria relevante
 - Commit git con mensaje de sesión completada
+
+Ver detalles en: `.claude/skills/cierre.md`
 
 ---
 

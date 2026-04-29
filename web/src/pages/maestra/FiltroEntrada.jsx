@@ -447,16 +447,31 @@ export default function FiltroEntrada() {
 
   const grupos = data?.grupos ?? [];
 
-  const handleQRScan = useCallback((alumnoId) => {
+  const handleQRScan = useCallback(async (rawQrData) => {
     setShowQR(false);
-    const todos = grupos.flatMap(g => g.alumnos);
-    const alumno = todos.find(a => a.id === alumnoId);
-    if (!alumno) { toast.error('Alumno no encontrado'); return; }
-    if (alumno.estado_asistencia !== 'ausente') {
-      toast(`${alumno.nombre_completo.split(' ')[0]} ya fue registrado ✅`);
+    const partes = rawQrData.split(':');
+    if (partes[0] !== 'HAPPYSCHOOL' || partes[1] !== 'ALUMNO' || !partes[2]) {
+      toast.error('QR no reconocido');
       return;
     }
-    setAlumnoSeleccionado({ ...alumno, qr_escaneado: true });
+    const alumnoId = partes[2]; // UUID correcto
+    const todos = grupos.flatMap(g => g.alumnos);
+    const alumnoLocal = todos.find(a => a.id === alumnoId);
+    if (alumnoLocal) {
+      if (alumnoLocal.estado_asistencia !== 'ausente') {
+        toast(`${alumnoLocal.nombre_completo.split(' ')[0]} ya fue registrado ✅`);
+        return;
+      }
+      setAlumnoSeleccionado({ ...alumnoLocal, qr_escaneado: true });
+      return;
+    }
+    // Si no está en lista local, llamar al backend
+    try {
+      const { data } = await api.get(`/alumnos/por-qr/${encodeURIComponent(rawQrData)}`);
+      setAlumnoSeleccionado({ ...data, qr_escaneado: true });
+    } catch {
+      toast.error('Alumno no encontrado en el sistema');
+    }
   }, [grupos]);
 
   // Stats globales

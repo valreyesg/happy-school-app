@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { to: '/directora/visitantes',  icon: Eye,             label: 'Visitantes' },
   { to: '/directora/grupos',     icon: GraduationCap,   label: 'Grupos' },
   { to: '/directora/personal',    icon: UserCheck,       label: 'Personal' },
+  { to: '/directora/usuarios',    icon: UserCheck,       label: 'Usuarios — Padres' },
   { to: '/directora/pagos',       icon: CreditCard,      label: 'Pagos' },
   { to: '/directora/calendario',  icon: Calendar,        label: 'Calendario' },
   { to: '/directora/ciclos',      icon: Clock,           label: 'Ciclos' },

@@ -202,23 +202,85 @@ export default function DirectoraAlumnos() {
   );
 }
 
+// ─── Modal QR ─────────────────────────────────────────────────────────────────
+
+function ModalQR({ alumno, onCerrar, regenerarMutation }) {
+  const [qrUrl, setQrUrl] = useState(alumno.qr_code_url);
+
+  const handleRegenerar = () => {
+    regenerarMutation.mutate(undefined, {
+      onSuccess: (res) => {
+        setQrUrl(res.qr_code_url || alumno.qr_code_url);
+      },
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCerrar} />
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-black text-gray-800">QR de acceso</h2>
+          <button onClick={onCerrar} className="p-2 rounded-xl hover:bg-gray-100">
+            <X size={20} className="text-gray-500" />
+          </button>
+        </div>
+
+        <p className="font-bold text-gray-700 mb-4">{alumno.nombre_completo}</p>
+
+        {qrUrl ? (
+          <>
+            <img
+              src={qrUrl}
+              alt="QR del alumno"
+              className="w-56 h-56 mx-auto rounded-2xl border-4 border-hs-purple/20 object-contain"
+            />
+            <div className="flex gap-3 mt-5">
+              <button
+                onClick={() => window.open(qrUrl, '_blank')}
+                className="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors"
+              >
+                Descargar
+              </button>
+              <button
+                onClick={handleRegenerar}
+                disabled={regenerarMutation.isPending}
+                className="flex-1 px-4 py-2 rounded-2xl border-2 border-amber-200 text-amber-600 font-bold text-sm hover:bg-amber-50 disabled:opacity-50 transition-colors"
+              >
+                {regenerarMutation.isPending ? 'Generando...' : 'Regenerar QR'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="py-8">
+            <div className="text-5xl mb-4">📱</div>
+            <p className="text-sm text-gray-500 font-semibold mb-4">
+              Este alumno no tiene QR generado todavía.
+            </p>
+            <button
+              onClick={handleRegenerar}
+              disabled={regenerarMutation.isPending}
+              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-purple-700 disabled:opacity-50 transition-colors"
+            >
+              {regenerarMutation.isPending ? 'Generando...' : 'Generar QR'}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── Tarjeta de alumno ────────────────────────────────────────────────────────
 
 function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
-  const descargarQR = async () => {
-    if (!alumno.qr_code_url) {
-      toast.error('Este alumno no tiene QR generado aún');
-      return;
-    }
-    window.open(alumno.qr_code_url, '_blank');
-  };
+  const [mostrarQR, setMostrarQR] = useState(false);
 
   const regenerarQR = useMutation({
     mutationFn: () => api.post(`/alumnos/${alumno.id}/regenerar-qr`),
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success('QR regenerado correctamente');
       queryClient.invalidateQueries(['alumnos']);
     },
@@ -294,7 +356,7 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
         {!soloLectura && (
           <>
             <button
-              onClick={descargarQR}
+              onClick={() => setMostrarQR(true)}
               title="Ver QR"
               className="p-2 rounded-xl hover:bg-hs-purple/10 text-hs-purple transition-colors"
             >
@@ -309,6 +371,14 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
             </button>
           </>
         )}
+
+      {mostrarQR && (
+        <ModalQR
+          alumno={alumno}
+          onCerrar={() => setMostrarQR(false)}
+          regenerarMutation={regenerarQR}
+        />
+      )}
       </div>
     </div>
   );

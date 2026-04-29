@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Clock, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, Clock, AlertTriangle, ChevronLeft, ChevronRight, QrCode } from 'lucide-react';
+import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
@@ -359,6 +360,54 @@ function TarjetaAlumno({ alumno, onTap }) {
   );
 }
 
+// ── QR Scanner ────────────────────────────────────────────────────────────
+
+function QRScannerModal({ onScan, onClose }) {
+  const qrRef = useRef(null);
+  const scannerRef = useRef(null);
+  const scannedRef = useRef(false);
+
+  useEffect(() => {
+    const scannerId = 'qr-filtro-salida';
+    const scanner = new Html5Qrcode(scannerId);
+    scannerRef.current = scanner;
+
+    scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => {
+        if (scannedRef.current) return;
+        scannedRef.current = true;
+        scanner.stop().catch(() => {});
+        onScan(decodedText.trim());
+      },
+      () => {}
+    ).catch(() => {
+      toast.error('No se pudo acceder a la cámara');
+      onClose();
+    });
+
+    return () => {
+      scanner.stop().catch(() => {});
+    };
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <p className="font-black text-gray-800">📱 Escanear QR del alumno</p>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+        </div>
+        <div id="qr-filtro-salida" ref={qrRef} className="w-full" />
+        <p className="text-center text-xs text-gray-400 font-semibold py-3 px-5">
+          Apunta la cámara al código QR de la credencial del alumno
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ── Vista principal ────────────────────────────────────────────────────────────
 
 export default function FiltroSalida() {
@@ -374,6 +423,7 @@ export default function FiltroSalida() {
   const soloLectura = fecha < hoy;
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const [showQR, setShowQR] = useState(false);
 
   const irDia = (delta) => {
     const d = new Date(fecha + 'T12:00:00');
@@ -403,6 +453,33 @@ export default function FiltroSalida() {
             .filter(g => g.alumnos.length > 0)
     : grupos;
 
+  const handleQRScan = useCallback(async (rawQrData) => {
+    setShowQR(false);
+    const partes = rawQrData.split(':');
+    if (partes[0] !== 'HAPPYSCHOOL' || partes[1] !== 'ALUMNO' || !partes[2]) {
+      toast.error('QR no reconocido');
+      return;
+    }
+    const alumnoId = partes[2]; // UUID correcto
+    const todos = grupos.flatMap(g => g.alumnos);
+    const alumnoLocal = todos.find(a => a.id === alumnoId);
+    if (alumnoLocal) {
+      if (alumnoLocal.salida_id) {
+        toast(`${alumnoLocal.nombre_completo.split(' ')[0]} ya salió ✅`);
+        return;
+      }
+      setAlumnoSeleccionado(alumnoLocal);
+      return;
+    }
+    // Si no está en lista local, llamar al backend
+    try {
+      const { data } = await api.get(`/alumnos/por-qr/${encodeURIComponent(rawQrData)}`);
+      setAlumnoSeleccionado(data);
+    } catch {
+      toast.error('Alumno no encontrado en el sistema');
+    }
+  }, [grupos]);
+
   const fechaFormatted = new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
@@ -416,25 +493,36 @@ export default function FiltroSalida() {
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => irDia(-1)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
-          disabled={fecha <= '2024-01-01'}
-        >
-          <ChevronLeft size={20} className="text-gray-600" />
-        </button>
-        <div>
-          <h1 className="text-2xl font-black text-gray-800">Registro de Salida 🚪</h1>
-          <p className="text-gray-500 font-semibold capitalize mt-0.5">{fechaFormatted}</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => irDia(-1)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+            disabled={fecha <= '2024-01-01'}
+          >
+            <ChevronLeft size={20} className="text-gray-600" />
+          </button>
+          <div>
+            <h1 className="text-2xl font-black text-gray-800">Registro de Salida 🚪</h1>
+            <p className="text-gray-500 font-semibold capitalize mt-0.5">{fechaFormatted}</p>
+          </div>
+          <button
+            onClick={() => irDia(1)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
+            disabled={fecha >= hoy}
+          >
+            <ChevronRight size={20} className="text-gray-600" />
+          </button>
         </div>
-        <button
-          onClick={() => irDia(1)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-all disabled:opacity-50"
-          disabled={fecha >= hoy}
-        >
-          <ChevronRight size={20} className="text-gray-600" />
-        </button>
+        {!soloLectura && (
+          <button
+            onClick={() => setShowQR(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-orange-500 text-white font-bold text-sm hover:bg-orange-600 transition-all shadow-sm"
+          >
+            <QrCode size={16} />
+            Escanear QR
+          </button>
+        )}
       </div>
 
       {/* Banner salida anticipada (global) */}
@@ -509,6 +597,13 @@ export default function FiltroSalida() {
           horaInicioCobro={horaInicioCobro}
           onClose={() => setAlumnoSeleccionado(null)}
           onSuccess={() => setAlumnoSeleccionado(null)}
+        />
+      )}
+
+      {showQR && (
+        <QRScannerModal
+          onScan={handleQRScan}
+          onClose={() => setShowQR(false)}
         />
       )}
     </div>

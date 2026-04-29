@@ -23,6 +23,7 @@ const tareasRoutes = require('./tareas');
 const insumosRoutes = require('./insumos');
 const ninosExtensionRoutes = require('./ninos_extension');
 const visitantesRoutes = require('./visitantes');
+const padresRoutes = require('./padres');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -46,5 +47,6 @@ router.use('/tareas', tareasRoutes);
 router.use('/insumos', insumosRoutes);
 router.use('/ninos-extension', ninosExtensionRoutes);
 router.use('/visitantes', visitantesRoutes);
+router.use('/padres', padresRoutes);
 
 module.exports = router;

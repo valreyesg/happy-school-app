@@ -24,6 +24,7 @@ router.get('/mis-hijos', async (req, res, next) => {
     const result = await query(`
       SELECT DISTINCT ON (a.id)
         a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
+        a.qr_code_url, a.qr_code_data,
         g.nombre AS grupo_nombre, g.color_hex,
         b.estado_animo, b.actividad_realizada, b.comportamiento, b.notas,
         b.tuvo_fiebre,

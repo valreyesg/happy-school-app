@@ -126,10 +126,14 @@ export default function Configuracion() {
   });
 
   const mutationConfig = useMutation({
-    mutationFn: (data) => api.put('/config/negocio', data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      await api.put('/config/negocio', data);
+      // Hacer un GET inmediato para refrescar los datos
+      return api.get('/config/negocio').then(r => r.data);
+    },
+    onSuccess: (data) => {
       setConfigValues(null);
-      qc.invalidateQueries({ queryKey: ['config-negocio'] });
+      qc.setQueryData(['config-negocio'], data);
       setConfigGuardado(true);
       toast.success('Precios y límites guardados ✅');
       setTimeout(() => setConfigGuardado(false), 3000);
@@ -231,12 +235,12 @@ export default function Configuracion() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
-                    Precio mensual ($)
+                    Precio semanal ($)
                   </label>
                   <input
                     type="number"
-                    value={valoresConfig.precio_comida_mensual ?? ''}
-                    onChange={e => handleConfigChange('precio_comida_mensual', e.target.value)}
+                    value={valoresConfig.precio_comida_semana ?? ''}
+                    onChange={e => handleConfigChange('precio_comida_semana', e.target.value)}
                     className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-yellow-400 bg-white"
                     min="0"
                   />
@@ -260,39 +264,27 @@ export default function Configuracion() {
             <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
               <h2 className="font-black text-base text-red-800">🚨 Semáforo de morosidad</h2>
               <p className="text-xs text-gray-600">Define en qué días de atraso cambia el nivel de riesgo</p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-green-700 mb-1">
-                    Días verde (sin alerta)
-                  </label>
-                  <input
-                    type="number"
-                    value={valoresConfig.dias_verde ?? ''}
-                    onChange={e => handleConfigChange('dias_verde', e.target.value)}
-                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-green-400 bg-white"
-                    min="0"
-                  />
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-yellow-700 mb-1">
                     Días amarillo (alerta)
                   </label>
                   <input
                     type="number"
-                    value={valoresConfig.dias_amarillo ?? ''}
-                    onChange={e => handleConfigChange('dias_amarillo', e.target.value)}
+                    value={valoresConfig.semaforo_dias_amarillo ?? ''}
+                    onChange={e => handleConfigChange('semaforo_dias_amarillo', e.target.value)}
                     className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-yellow-400 bg-white"
                     min="0"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-red-700 mb-1">
-                    Días rojo (crítico)
+                    Días suspendido (crítico)
                   </label>
                   <input
                     type="number"
-                    value={valoresConfig.dias_rojo ?? ''}
-                    onChange={e => handleConfigChange('dias_rojo', e.target.value)}
+                    value={valoresConfig.semaforo_dias_suspendido ?? ''}
+                    onChange={e => handleConfigChange('semaforo_dias_suspendido', e.target.value)}
                     className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-400 bg-white"
                     min="0"
                   />

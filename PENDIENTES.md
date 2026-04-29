@@ -10,28 +10,12 @@
 
 ---
 
-## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
+## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge - PRÓXIMA SESIÓN)
 
-> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Pendiente: casos edge de validación (mañana).
-> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+3
+> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Todos los casos edge completados.
+> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+9
 
-### Casos Edge Pendientes de Validar (COMPLETADO):
-- [x] **Alumno CON pañal pero SIN insumos en stock** → ✅ VALIDADO y COMPLETADO
-  - Botón "Solicitar pañales" se activa cuando stock = 0
-  - Badge rojo aparece cuando solicitud está enviada
-  - Botón desaparece después de enviar solicitud
-  
-- [x] **Recepción medicamento sin hora programada** → ✅ VALIDADO y COMPLETADO
-  - Nueva sección "⏱️ Sin hora programada" en bitácora maestra
-  - Separado de "Tomas pendientes"
-  - Botón "Administrar" funciona correctamente
-
-- [x] **Notificaciones al papá** → ✅ COMPLETADO
-  - Notificaciones creadas en BD correctamente
-  - Tipos urgentes configurados: solicitud_paniales, solicitud_toallitas
-  - Papá verá modal urgente al recargar
-  - Notificaciones también en panel de campanita
-
+### Casos Edge Pendientes de Validar (PRÓXIMA SESIÓN):
 - [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
 - [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
 - [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)

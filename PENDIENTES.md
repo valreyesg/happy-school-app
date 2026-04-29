@@ -10,25 +10,6 @@
 
 ---
 
-## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge + integraciones)
-
-> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados y validados. Pendiente: casos edge y validaciones especiales. 
-> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+3
-
-### Integraciones Pendientes:
-- [ ] **[MAÑANA] Pañal → Insumos:** Al registrar pañal, stock se decrementa en `insumos_movimientos` (validar lógica movimientos) — Implementación + Validación
-- [ ] **Salida Sanitaria → Reporte:** (futuro) Data de salida se usa en módulo reportes — Funcionalidad captura ✅ Sesión 85, integración con Reportes pendiente
-- [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp para vómitos y administración de medicamentos (in-app ya existe, falta WhatsApp)
-
-### Casos Edge Pendientes de Validación:
-- [ ] Alumno CON pañal pero SIN insumos en stock → Comportamiento cuando stock = 0
-- [ ] Recepción medicamento sin hora programada → Confirma "Sin hora" aparece en lista
-- [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → Validar NO ejecuta
-- [ ] Job cron a las 15:58 (dentro de rango) → Validar ejecuta correctamente
-- [ ] Cambio de fecha (medianoche) → Datos de ayer no aparecen (aislamiento por día)
-
----
-
 
 ## 🗂️ CATÁLOGOS ADMINISTRABLES — Panel Directora (✅ FASE 4 COMPLETADA)
 

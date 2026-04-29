@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+6 ✅ | **Próximos pendientes:** Catálogos FASE 4-6 + SALUD edge cases (mañana) + Pañal→Insumos (mañana)
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+6 ✅ | **Próximos pendientes:** Catálogos FASE 5-6 + SALUD edge cases + Pañal→Insumos
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -30,30 +30,29 @@
 ---
 
 
-## 🗂️ CATÁLOGOS ADMINISTRABLES — Panel Directora (EN PROGRESO — Sesión XX+6)
+## 🗂️ CATÁLOGOS ADMINISTRABLES — Panel Directora (✅ FASE 4 COMPLETADA)
 
 > ℹ️ **Auditoría completa realizada.** Se encontraron 35+ items hardcodeados entre web, mobile y backend.
 > Arquitectura diseñada con regla de oro: **nada se elimina físicamente, solo se inactiva** (historial inmutable).
 
-### ✅ COMPLETADO esta sesión:
+### ✅ COMPLETADO:
 - ✅ **FASE 1:** Migración 041 — Tabla `catalogos` + `configuracion_historial` + 15 tipos insertados en BD
 - ✅ **FASE 2:** Backend `GET /api/catalogos/:tipo` migrado a BD (mismo contrato, fallback al JS si falla)
-- ✅ **FASE 2:** Endpoints CRUD: `GET/POST/PUT/DELETE /api/catalogos/:tipo` con protecciones de sistema
+- ✅ **FASE 2:** Endpoints CRUD: `GET/POST/PUT/DELETE /api/catalogos/:tipo` con TIPOS_CERRADOS (roles-personal, estados-alumno, checklist-entrada/salida)
 - ✅ **FASE 3:** `GET/PUT /api/config/negocio` — precios comida, semáforo, docs requeridos, límites
 - ✅ **FASE 3:** `GET /api/config/negocio/historial` — log de quién cambió qué y cuándo
 - ✅ **FASE 3:** `semaforoAlumno` en `pagos.js` lee umbrales dinámicos de BD (fallback 1/30/60)
 - ✅ **FASE 3:** `comidaController.js` lee precios de BD (fallback 250/50)
 - ✅ **FASE 3:** Dashboard morosos lee `max_morosos_dashboard` de BD (fallback 10)
-- ✅ **FASE 4 parcial:** Componente `CatalogoEditor.jsx` creado
+- ✅ **FASE 4:** Componente `CatalogoEditor.jsx` creado + tab Catálogos en `Configuracion.jsx`
+- ✅ **FASE 4:** Config negocio (precios, semáforo, límites) integrada en tab "Horarios y reglas"
+- ✅ **FASE 4:** Un solo botón "Guardar horarios y reglas" para ambas APIs en paralelo
 
-### ⏳ PENDIENTE próxima sesión:
-- [ ] **FASE 4:** Crear `web/src/pages/directora/Catalogos.jsx` (página principal con 5 tabs)
-- [ ] **FASE 4:** Agregar ruta `/directora/catalogos` en `App.jsx` y link en sidebar `DirectoraLayout.jsx`
+### ⏳ PENDIENTE próxima sesión (FASE 5-6):
 - [ ] **FASE 5:** `useCatalogo.js` — cambiar `staleTime: Infinity` a 30 min + invalidación al guardar
 - [ ] **FASE 5:** `ComidaSemanal.jsx` (padre) — leer precios de `GET /api/config/negocio`
 - [ ] **FASE 5:** `FiltroEntrada.jsx` (maestra) — reemplazar `monto / 50` por `monto / PRECIO_DIA` dinámico
 - [ ] **FASE 6:** Mobile — crear `useCatalogo` hook + reemplazar arrays hardcodeados + precios dinámicos
-- [ ] **Validar todo** en browser (catálogos, precios, semáforo, historial de cambios)
 
 ---
 

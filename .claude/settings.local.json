@@ -627,7 +627,17 @@
       "Bash(PGPASSWORD=happy2026 psql -h localhost -U postgres -d happy_school -c \"\\\\d personas_autorizadas\")",
       "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"/c/Users/vreyesg/SynologyDrive/Documentos/VALERIA/APP-KINDER/backend/migrations/036_alumno_padre_activo.sql\")",
       "Bash(psql \"postgresql://postgres:happy2026@localhost:5432/happy_school\" -f \"036_alumno_padre_activo.sql\")",
-      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Process node -ErrorAction SilentlyContinue)",
+      "Bash(psql postgresql://postgres:happy2026@localhost:5432/happy_school -f backend/migrations/041_catalogos_administrables.sql)",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -p 5432 -U postgres -d happy_school -f \"C:\\\\Users\\\\vreyesg\\\\SynologyDrive\\\\Documentos\\\\VALERIA\\\\APP-KINDER\\\\backend\\\\migrations\\\\041_catalogos_administrables.sql\" 2>&1)",
+      "PowerShell($env:PGPASSWORD = 'happy2026'; psql -h localhost -p 5432 -U postgres -d happy_school -c \"SELECT clave, valor FROM configuracion_general WHERE clave IN \\('precio_comida_semana','precio_comida_dia','semaforo_dias_amarillo','semaforo_dias_rojo','semaforo_dias_suspendido','docs_requeridos_alumno','max_tutores_por_alumno','max_morosos_dashboard','dia_registro_comida'\\) ORDER BY clave;\" 2>&1)",
+      "Bash(curl -s -X POST http://localhost:3001/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"email\\\\\":\\\\\"directora@happyschool.edu.mx\\\\\",\\\\\"password\\\\\":\\\\\"HappySchool2026!\\\\\"}\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('accessToken',''\\)[:80]\\)\")",
+      "Bash(curl -s http://localhost:3001/api/status)",
+      "Bash(curl -s http://localhost:3001/api/catalogos/comportamiento/admin)",
+      "Bash(python3 -c \"import json,sys; data=json.load\\(sys.stdin\\); [print\\(i['key'], i['es_sistema'], i['activo']\\) for i in data.get\\('items',[]\\)]\")",
+      "Bash(curl -s --max-time 3 \"http://localhost:3001/api/catalogos/comportamiento/admin\")",
+      "Bash(curl -s --max-time 3 \"http://localhost:3000/api/catalogos/comportamiento/admin\")"
     ],
     "additionalDirectories": [
       "\\tmp",

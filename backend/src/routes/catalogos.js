@@ -158,8 +158,12 @@ router.get('/:tipo/admin', authorize('directora'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// Tipos completamente cerrados — no se pueden agregar nuevas opciones
+// (sus valores están atados a ENUMs de la BD o a lógica de autenticación)
+const TIPOS_CERRADOS = new Set(['roles-personal', 'estados-alumno', 'checklist-entrada', 'checklist-salida']);
+
 // ── POST /catalogos/:tipo ─────────────────────────────────────────────────────
-// Crear item nuevo — solo directora, solo en tipos no-sistema
+// Crear item nuevo — solo directora, solo en tipos no cerrados
 router.post('/:tipo', authorize('directora'), async (req, res, next) => {
   try {
     const { tipo } = req.params;
@@ -167,14 +171,7 @@ router.post('/:tipo', authorize('directora'), async (req, res, next) => {
 
     if (!key || !label) return res.status(400).json({ error: 'key y label son requeridos' });
 
-    // Verificar que el tipo no sea completamente de sistema (si todos sus items son de sistema)
-    const check = await query(
-      `SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE NOT es_sistema) AS editables
-       FROM catalogos WHERE tipo = $1`,
-      [tipo]
-    );
-    const { total, editables } = check.rows[0];
-    if (parseInt(total) > 0 && parseInt(editables) === 0) {
+    if (TIPOS_CERRADOS.has(tipo)) {
       return res.status(403).json({ error: 'Este catálogo es de sistema y no permite agregar opciones' });
     }
 

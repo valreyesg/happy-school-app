@@ -73,14 +73,16 @@ export default function CatalogoEditor({ tipo, titulo, items = [], onRefresh }) 
 
   const activos = items.filter(i => i.activo);
   const inactivos = items.filter(i => !i.activo);
-  const todosDeSistema = activos.length > 0 && activos.every(i => i.es_sistema);
+  // Espeja TIPOS_CERRADOS del backend — tipos atados a ENUMs o lógica de auth
+  const TIPOS_CERRADOS = new Set(['roles-personal', 'estados-alumno', 'checklist-entrada', 'checklist-salida']);
+  const estipoSistema = TIPOS_CERRADOS.has(tipo);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
         <h3 className="font-black text-gray-800 text-sm">{titulo}</h3>
-        {!todosDeSistema && (
+        {!estipoSistema && (
           <button
             onClick={() => setMostrandoNuevo(v => !v)}
             className="flex items-center gap-1.5 text-xs font-bold text-hs-purple hover:bg-hs-purple/10 px-3 py-1.5 rounded-xl transition-all"

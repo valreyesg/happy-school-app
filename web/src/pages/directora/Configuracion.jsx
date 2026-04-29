@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, Save, Bell, Clock } from 'lucide-react';
+import { Settings, Save, Bell, Clock, BookOpen } from 'lucide-react';
 import api from '@/services/api';
+import toast from 'react-hot-toast';
+import CatalogoEditor from '@/components/directora/CatalogoEditor';
 
 const CAMPOS = [
   {
@@ -55,8 +57,22 @@ const COLOR_MAP = {
 };
 
 const TABS = [
-  { id: 'horarios',       label: 'Horarios y reglas', icon: Clock },
-  { id: 'notificaciones', label: 'Notificaciones',    icon: Bell  },
+  { id: 'horarios',       label: 'Horarios y reglas', icon: Clock     },
+  { id: 'notificaciones', label: 'Notificaciones',    icon: Bell      },
+  { id: 'catalogos',      label: 'Catálogos',         icon: BookOpen  },
+];
+
+const CATALOGOS_CONFIG = [
+  { tipo: 'animo',              titulo: '😊 Ánimo'                },
+  { tipo: 'comportamiento',     titulo: '⭐ Comportamiento'        },
+  { tipo: 'cuanto-comio',       titulo: '🍽️ Cuánto comió'         },
+  { tipo: 'tiempos-comida',     titulo: '⏱️ Tiempos de comida'    },
+  { tipo: 'condiciones-panial', titulo: '🩻 Condiciones de pañal' },
+  { tipo: 'vomito-intensidad',  titulo: '🤢 Intensidad de vómito' },
+  { tipo: 'tipos-insumo',       titulo: '📦 Tipos de insumo'      },
+  { tipo: 'tipos-documento',    titulo: '📄 Tipos de documento'   },
+  { tipo: 'metodos-pago',       titulo: '💳 Métodos de pago'      },
+  { tipo: 'conceptos-pago',     titulo: '💰 Conceptos de pago'    },
 ];
 
 export default function Configuracion() {
@@ -66,6 +82,8 @@ export default function Configuracion() {
   const [guardado, setGuardado] = useState(false);
   const [notifActivos, setNotifActivos] = useState(null);
   const [notifGuardado, setNotifGuardado] = useState(false);
+  const [configValues, setConfigValues] = useState(null);
+  const [configGuardado, setConfigGuardado] = useState(false);
 
   const { isLoading, data: configData } = useQuery({
     queryKey: ['config-horarios'],
@@ -76,6 +94,12 @@ export default function Configuracion() {
     queryKey: ['config-notificaciones'],
     queryFn: () => api.get('/config/notificaciones').then(r => r.data),
     staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: configNegocio } = useQuery({
+    queryKey: ['config-negocio'],
+    queryFn: () => api.get('/config/negocio').then(r => r.data),
+    enabled: tab === 'horarios',
   });
 
   const valoresActivos = valores ?? configData?.horarios ?? {};
@@ -101,8 +125,31 @@ export default function Configuracion() {
     },
   });
 
+  const mutationConfig = useMutation({
+    mutationFn: (data) => api.put('/config/negocio', data),
+    onSuccess: () => {
+      setConfigValues(null);
+      qc.invalidateQueries({ queryKey: ['config-negocio'] });
+      setConfigGuardado(true);
+      toast.success('Precios y límites guardados ✅');
+      setTimeout(() => setConfigGuardado(false), 3000);
+    },
+    onError: (err) => {
+      toast.error(`Error: ${err.response?.data?.error || 'Intenta de nuevo'}`);
+    },
+  });
+
+  const valoresConfig = configValues ?? configNegocio ?? {};
+
   const handleChange = (clave, val) => {
     setValores(prev => ({ ...(prev ?? configData?.horarios ?? {}), [clave]: val }));
+  };
+
+  const handleConfigChange = (clave, val) => {
+    setConfigValues(prev => ({
+      ...(prev ?? configNegocio ?? {}),
+      [clave]: val === '' ? null : (isNaN(val) ? val : Number(val)),
+    }));
   };
 
   const handleToggleNotif = (tipo) => {
@@ -121,7 +168,7 @@ export default function Configuracion() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
+    <div className={`space-y-6 animate-fade-in ${tab !== 'catalogos' ? 'max-w-2xl mx-auto' : ''}`}>
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-purple-100 flex items-center justify-center">
@@ -176,13 +223,113 @@ export default function Configuracion() {
             );
           })}
 
+          {/* Secciones de config negocio */}
+          <div className="border-t-2 border-gray-200 pt-6 space-y-4">
+            {/* Precios comida */}
+            <div className="rounded-2xl border-2 bg-yellow-50 border-yellow-200 p-5 space-y-4">
+              <h2 className="font-black text-base text-yellow-800">💰 Precios de comida</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Precio mensual ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={valoresConfig.precio_comida_mensual ?? ''}
+                    onChange={e => handleConfigChange('precio_comida_mensual', e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-yellow-400 bg-white"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Precio por día ($)
+                  </label>
+                  <input
+                    type="number"
+                    value={valoresConfig.precio_comida_dia ?? ''}
+                    onChange={e => handleConfigChange('precio_comida_dia', e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-yellow-400 bg-white"
+                    min="0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Semáforo de morosidad */}
+            <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
+              <h2 className="font-black text-base text-red-800">🚨 Semáforo de morosidad</h2>
+              <p className="text-xs text-gray-600">Define en qué días de atraso cambia el nivel de riesgo</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-green-700 mb-1">
+                    Días verde (sin alerta)
+                  </label>
+                  <input
+                    type="number"
+                    value={valoresConfig.dias_verde ?? ''}
+                    onChange={e => handleConfigChange('dias_verde', e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-green-400 bg-white"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-yellow-700 mb-1">
+                    Días amarillo (alerta)
+                  </label>
+                  <input
+                    type="number"
+                    value={valoresConfig.dias_amarillo ?? ''}
+                    onChange={e => handleConfigChange('dias_amarillo', e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-yellow-400 bg-white"
+                    min="0"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-red-700 mb-1">
+                    Días rojo (crítico)
+                  </label>
+                  <input
+                    type="number"
+                    value={valoresConfig.dias_rojo ?? ''}
+                    onChange={e => handleConfigChange('dias_rojo', e.target.value)}
+                    className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-red-400 bg-white"
+                    min="0"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Dashboard */}
+            <div className="rounded-2xl border-2 bg-blue-50 border-blue-200 p-5 space-y-4">
+              <h2 className="font-black text-base text-blue-800">📊 Dashboard</h2>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Máx. padres morosos a mostrar
+                </label>
+                <input
+                  type="number"
+                  value={valoresConfig.max_morosos_dashboard ?? ''}
+                  onChange={e => handleConfigChange('max_morosos_dashboard', e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-blue-400 bg-white"
+                  min="0"
+                />
+                <p className="text-xs text-gray-400 mt-1">Limitará la lista de padres morosos en la vista principal</p>
+              </div>
+            </div>
+
+          </div>
+
           <button
-            onClick={() => mutation.mutate(valoresActivos)}
-            disabled={mutation.isLoading}
+            onClick={() => {
+              mutation.mutate(valoresActivos);
+              mutationConfig.mutate(valoresConfig);
+            }}
+            disabled={mutation.isLoading || mutationConfig.isPending}
             className="w-full flex items-center justify-center gap-2 bg-purple-500 hover:bg-purple-600 text-white font-black py-3 rounded-2xl transition-colors disabled:opacity-60"
           >
             <Save size={18} />
-            {mutation.isLoading ? 'Guardando…' : guardado ? '¡Guardado! ✅' : 'Guardar horarios'}
+            {mutation.isLoading || mutationConfig.isPending ? 'Guardando…' : guardado || configGuardado ? '¡Guardado! ✅' : 'Guardar horarios y reglas'}
           </button>
 
           {mutation.isError && (
@@ -234,6 +381,40 @@ export default function Configuracion() {
           )}
         </div>
       )}
+
+      {/* Tab: Catálogos */}
+      {tab === 'catalogos' && (
+        <div className="space-y-4">
+          {CATALOGOS_CONFIG.map(({ tipo, titulo }) => (
+            <CatalogoTabInline key={tipo} tipo={tipo} titulo={titulo} />
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+function CatalogoTabInline({ tipo, titulo }) {
+  const qc = useQueryClient();
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ['catalogo-admin', tipo],
+    queryFn: () => api.get(`/catalogos/${tipo}/admin`).then(r => r.data.items),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin w-6 h-6 border-3 border-purple-500 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  return (
+    <CatalogoEditor
+      tipo={tipo}
+      titulo={titulo}
+      items={items}
+      onRefresh={() => qc.invalidateQueries({ queryKey: ['catalogo-admin', tipo] })}
+    />
   );
 }

@@ -5,11 +5,6 @@
 
 ---
 
-> ⏳ **Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)**
-> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5, XX+6, XX+7, XX+8, XX+9, XX+10, XX+11, XX+12, XX+13 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
-
----
-
 ## 🔧 CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY
 
 > **Estado:** ⚠️ BLOQUEANTE — Afecta múltiples funcionalidades de generación/carga de archivos

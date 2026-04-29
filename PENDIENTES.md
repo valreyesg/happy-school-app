@@ -82,11 +82,27 @@
 
 ---
 
+## 📱 VALIDACIÓN MOBILE — device/emulador (por Valeria)
+
+**FASE 4.4 — Button component (dispositivo físico o Expo):**
+- [ ] **Dashboard Padre:** Botón "Añadir a Google Calendar" en modal evento es outline, color visible, tap sin lag
+- [ ] **Dashboard Padre:** Botón "Cerrar" modal evento es ghost, tap responde
+- [ ] **Bitácora Padre:** Botón "Ver referencia" (foto adjunta) es ghost small, tap abre modal foto
+- [ ] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small, `›` grayed out (disabled) en mes actual
+- [ ] **Asistencia Maestra:** Modal registro manual — botón "Cancelar" es ghost, botón "Registrar" es primary
+- [ ] **Asistencia Maestra:** Botón "Registrar" muestra spinner cuando `saving`, luego desaparece
+- [ ] **Asistencia Maestra:** Filtros (Todos/Pendientes/Presentes) son ghost normalmente, cambian a primary cuando se tocan
+- [ ] **General mobile:** Todos los botones nuevos tienen tamaño tocable (min 48px), sin text truncation
+
+**Conclusión mobile:** ✅ Cuando hayas validado todos los items en device, confirmar aquí.
+
+---
+
 ## 🎨 FASES UX/UI PENDIENTES — Próximas sesiones
 
-> **Estado:** FASES 1-4.3 COMPLETADAS (Sesión XX+15)
-> **Próximo:** FASE 4.4 + FASE 3.5 + FASE 5
-> **Tiempo estimado:** 2-3 sesiones (homogenización + refactores)
+> **Estado:** FASES 1-4.4 + 3.5 COMPLETADAS (Sesión XX+16)
+> **Próximo:** FASE 4.5 (limpiar TODOs) + FASE 5 (refactores mayores)
+> **Tiempo estimado:** 2-3 sesiones (limpieza + AppShell + modales)
 
 ### ✅ FASE 3.5 — ANIMO keys (COMPLETADA Sesión XX+16)
 
@@ -108,15 +124,35 @@
 
 **Pendiente validación en device/emulador (por Valeria)**
 
-### 📋 FASE 5 — Refactores mayores (SESIÓN XX+17+)
+### ✅ FASE 4.5 — Limpiar comentarios obsoletos (COMPLETADA Sesión XX+16)
 
-> Tiempo: 4-8 horas | Riesgo: MEDIO-ALTO (requiere testing exhaustivo)
+> Sin TODOs encontrados en mobile/FASES 4.x — código limpio
 
-**FASE 5.1 — Extraer AppShell compartido (web):**
-- [ ] Crear `web/src/components/ui/AppShell.jsx`
-- [ ] Migrar DirectoraLayout, MaestraLayout, PadreLayout a usarlo
-- [ ] Testing en los 3 portales
-- Riesgo: si hay bug, afecta los 3 portales simultáneamente
+### ✅ FASE 5.1 — Extraer AppShell compartido (web) (COMPLETADA Sesión XX+16)
+
+**Cambios ejecutados:**
+- [x] Creado `web/src/layouts/AppShell.jsx` — estructura unificada para los 3 portales
+- [x] Refactorizado `MaestraLayout.jsx` — usa AppShell con `accentColor="hs-green"`
+- [x] Refactorizado `PadreLayout.jsx` — usa AppShell con `accentColor="hs-red"`
+- [x] Refactorizado `DirectoraLayout.jsx` — usa AppShell con `accentColor="hs-purple"`
+
+**Paridad alcanzada:**
+- ✅ Header siempre visible en los 3 portales (antes: Padre solo móvil, Directora solo móvil)
+- ✅ NotificationBell visible en móvil + desktop en los 3 (antes: Padre desktop solo, Directora ausente)
+- ✅ Mismo logout hover color en los 3 (antes: Padre `hs-red/10`, otros `red-50`)
+- ✅ Footer con `space-y-2` en los 3 (antes: solo en Padre)
+- ✅ Código duplicado eliminado: ~90 líneas por layout
+
+**Pendiente validación en browser (por Valeria)**
+
+### 📋 FASE 5 — Refactores mayores (PRÓXIMAS SESIONES)
+
+> Tiempo: 4-8 horas | Riesgo: MEDIO-ALTO
+
+**FASE 5.2 — Migrar modales web a Modal.jsx:**
+- [ ] Identificar todos los modales (15+ archivos)
+- [ ] Migrar uno por uno a usar componente Modal
+- [ ] Testing individual de cada modal
 
 **FASE 5.2 — Migrar modales web a Modal.jsx:**
 - [ ] Identificar todos los modales (15+ archivos)

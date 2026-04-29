@@ -101,7 +101,6 @@ CLOUDINARY_API_SECRET=placeholder
   - **Complejidad:** ⭐⭐⭐⭐ (2-3 sesiones)
 
 ---
-
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA

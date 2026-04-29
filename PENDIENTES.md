@@ -28,23 +28,12 @@
 
 ---
 
-## 🗂️ CATÁLOGOS ADMINISTRABLES — Panel Directora (✅ FASE 4 COMPLETADA)
+---
 
-> ℹ️ **Auditoría completa realizada.** Se encontraron 35+ items hardcodeados entre web, mobile y backend.
-> Arquitectura diseñada con regla de oro: **nada se elimina físicamente, solo se inactiva** (historial inmutable).
+## 🗂️ CATÁLOGOS ADMINISTRABLES — FASE 5-6 PENDIENTE
 
-### ✅ COMPLETADO:
-- ✅ **FASE 1:** Migración 041 — Tabla `catalogos` + `configuracion_historial` + 15 tipos insertados en BD
-- ✅ **FASE 2:** Backend `GET /api/catalogos/:tipo` migrado a BD (mismo contrato, fallback al JS si falla)
-- ✅ **FASE 2:** Endpoints CRUD: `GET/POST/PUT/DELETE /api/catalogos/:tipo` con TIPOS_CERRADOS (roles-personal, estados-alumno, checklist-entrada/salida)
-- ✅ **FASE 3:** `GET/PUT /api/config/negocio` — precios comida, semáforo, docs requeridos, límites
-- ✅ **FASE 3:** `GET /api/config/negocio/historial` — log de quién cambió qué y cuándo
-- ✅ **FASE 3:** `semaforoAlumno` en `pagos.js` lee umbrales dinámicos de BD (fallback 1/30/60)
-- ✅ **FASE 3:** `comidaController.js` lee precios de BD (fallback 250/50)
-- ✅ **FASE 3:** Dashboard morosos lee `max_morosos_dashboard` de BD (fallback 10)
-- ✅ **FASE 4:** Componente `CatalogoEditor.jsx` creado + tab Catálogos en `Configuracion.jsx`
-- ✅ **FASE 4:** Config negocio (precios, semáforo, límites) integrada en tab "Horarios y reglas"
-- ✅ **FASE 4:** Un solo botón "Guardar horarios y reglas" para ambas APIs en paralelo
+> ℹ️ **FASES 1-4 COMPLETADAS.** Arquitectura dinámica en BD lista, UI directora operativa.
+> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones XX+6, XX+7
 
 ### ⏳ PENDIENTE próxima sesión (FASE 5-6):
 - [ ] **FASE 5:** `useCatalogo.js` — cambiar `staleTime: Infinity` a 30 min + invalidación al guardar

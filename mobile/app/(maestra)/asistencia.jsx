@@ -12,6 +12,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
+import Button from '@/components/Button';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -101,12 +102,18 @@ function ModalManual({ alumno, visible, onClose, onGuardar }) {
           />
 
           <View style={m.btnRow}>
-            <TouchableOpacity style={m.cancelBtn} onPress={onClose}>
-              <Text style={m.cancelTxt}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[m.guardarBtn, saving && { opacity: 0.6 }]} onPress={guardar} disabled={saving}>
-              {saving ? <ActivityIndicator color="#fff" /> : <Text style={m.guardarTxt}>Registrar</Text>}
-            </TouchableOpacity>
+            <Button
+              variant="ghost"
+              label="Cancelar"
+              onPress={onClose}
+            />
+            <Button
+              variant="primary"
+              label="Registrar"
+              onPress={guardar}
+              disabled={saving}
+              loading={saving}
+            />
           </View>
         </View>
       </View>
@@ -252,13 +259,13 @@ export default function AsistenciaScreen() {
           { key: 'pendientes', label: 'Pendientes' },
           { key: 'presentes',  label: 'Presentes' },
         ].map(f => (
-          <TouchableOpacity
+          <Button
             key={f.key}
-            style={[s.filtroBtn, filtro === f.key && s.filtroBtnOn]}
+            variant={filtro === f.key ? 'primary' : 'ghost'}
+            size="sm"
+            label={f.label}
             onPress={() => setFiltro(f.key)}
-          >
-            <Text style={[s.filtroTxt, filtro === f.key && s.filtroTxtOn]}>{f.label}</Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
 

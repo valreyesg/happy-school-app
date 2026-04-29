@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView,
   StyleSheet, ActivityIndicator, FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import api from '../../src/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '../../src/store/authStore';
 import { COLORS, RADIUS } from '@/constants/theme';
+import Button from '@/components/Button';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -155,15 +156,20 @@ function PanelHijo({ alumnoId }) {
 
       {/* Navegación mes */}
       <View style={p.navRow}>
-        <TouchableOpacity style={p.navBtn} onPress={() => navMes(-1)}>
-          <Text style={p.navBtnTxt}>‹</Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          size="sm"
+          label="‹"
+          onPress={() => navMes(-1)}
+        />
         <Text style={p.mesLabel}>{MESES_LARGO[mes - 1]} {anio}</Text>
-        <TouchableOpacity style={p.navBtn} onPress={() => navMes(1)}
-          disabled={mes === hoy.getMonth() + 1 && anio === hoy.getFullYear()}>
-          <Text style={[p.navBtnTxt,
-            mes === hoy.getMonth() + 1 && anio === hoy.getFullYear() && { opacity: 0.3 }]}>›</Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          size="sm"
+          label="›"
+          onPress={() => navMes(1)}
+          disabled={mes === hoy.getMonth() + 1 && anio === hoy.getFullYear()}
+        />
       </View>
 
       {/* Pagos del mes */}

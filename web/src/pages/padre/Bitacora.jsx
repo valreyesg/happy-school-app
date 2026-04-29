@@ -13,8 +13,6 @@ const ANIMO = {
   cansado:   { emoji: '😴', label: 'Cansado'   },
   triste:    { emoji: '😢', label: 'Triste'    },
   irritable: { emoji: '😤', label: 'Irritable' },
-  energico:  { emoji: '⚡', label: 'Enérgico'  },
-  inquieto:  { emoji: '😤', label: 'Inquieto'  },
 };
 
 const CUANTO = {

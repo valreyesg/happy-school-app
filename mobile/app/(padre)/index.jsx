@@ -19,6 +19,7 @@ import NotificationBell from '@/components/NotificationBell';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import { COLORS, RADIUS } from '@/constants/theme';
+import Button from '@/components/Button';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -101,17 +102,17 @@ function ModalEvento({ ev, onClose }) {
             </View>
           )}
 
-          <TouchableOpacity
-            style={styles.modalGcalBtn}
+          <Button
+            variant="outline"
+            label="📅 Añadir a Google Calendar"
             onPress={() => Linking.openURL(buildGoogleCalendarUrl(ev))}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.modalGcalTxt}>📅 Añadir a Google Calendar</Text>
-          </TouchableOpacity>
+          />
 
-          <TouchableOpacity style={styles.modalCerrarBtn} onPress={onClose}>
-            <Text style={styles.modalCerrarTxt}>Cerrar</Text>
-          </TouchableOpacity>
+          <Button
+            variant="ghost"
+            label="Cerrar"
+            onPress={onClose}
+          />
         </Pressable>
       </Pressable>
     </Modal>
@@ -296,12 +297,12 @@ function HijoTareasPendientes({ hijoId, hijoNombre }) {
                   <Text style={styles.tareaDesc}>{tarea.descripcion}</Text>
                 )}
                 {tarea.foto_url && (
-                  <TouchableOpacity
-                    style={styles.tareaFotoBtn}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    label="📎 Ver referencia"
                     onPress={() => setFotoModal(tarea.foto_url)}
-                  >
-                    <Text style={{ fontSize: 12, fontWeight: '800', color: '#3B82F6' }}>📎 Ver referencia</Text>
-                  </TouchableOpacity>
+                  />
                 )}
                 <View style={styles.tareaEstado}>
                   <View style={[

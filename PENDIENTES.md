@@ -5,11 +5,11 @@
 
 ---
 
-## ✅ VALIDACIÓN UX/UI — FASES 1-3.4 (Sesión XX+15 — COMPLETADAS)
+## ✅ VALIDACIÓN UX/UI — FASES 1-3.5 (Sesiones XX+15/XX+16 — COMPLETADAS)
 
 > **Estado:** IMPLEMENTADO — Cambios completados. PENDIENTE: Validación en browser por Valeria
-> **Sesión:** XX+15 — Homogenización web + componentes base mobile
-> **Bloqueante:** NO — cambios solo de estilos, sin funcionalidad afectada
+> **Sesión:** XX+15/XX+16 — Homogenización web + componentes base mobile + ANIMO keys
+> **Bloqueante:** NO — cambios solo de estilos y display, sin funcionalidad afectada
 
 ### ✅ Cambios implementados:
 
@@ -28,6 +28,11 @@
 - [x] **Button.jsx:** Componente reutilizable (variantes: primary, secondary, outline, ghost, danger)
 - [x] **ModalSheet.jsx:** Componente reutilizable para modales mobile
 - [x] **Modal.jsx (web):** Componente reutilizable para modales web
+
+#### **FASE 3.5 — ANIMO keys:**
+- [x] **padre/Bitacora.jsx:** Eliminadas 2 keys obsoletas (`energico`, `inquieto`) — quedan solo 5 correctas
+- [x] **maestra/Dashboard.jsx:** `inquieto → irritable`, `energico → activo` en `EMOJIS_ANIMO`
+- [x] **mobile/(maestra)/index.jsx:** Mismo reemplazo que Dashboard web
 
 ---
 
@@ -53,6 +58,20 @@
 - [ ] Botón "Enviar aviso extraordinario" naranja correcto
 - [ ] Todos los tabs tienen color de fondo visible
 
+**FASE 3.5 — ANIMO keys (http://localhost:5173):**
+- [ ] **Bitácora Padre:** Selector de ánimo muestra exactamente 5 opciones (Feliz 😊, Activo ⚡, Cansado 😴, Triste 😢, Irritable 😤) — sin `Enérgico` ni `Inquieto` duplicados
+- [ ] **Dashboard Maestra:** Alumnos con ánimo `activo` muestran ⚡ (no vacío)
+- [ ] **Dashboard Maestra:** Alumnos con ánimo `irritable` muestran 😤 (no vacío)
+
+**FASE 4.4 — Button component mobile (en device/emulador):**
+- [ ] **Dashboard Padre:** Botón "Añadir a Google Calendar" en modal evento es outline con color visible
+- [ ] **Dashboard Padre:** Botón "Cerrar" modal evento es ghost con estilo claro
+- [ ] **Bitácora Padre:** Botón "Ver referencia" (foto adjunta) es ghost small con estilo claro
+- [ ] **Pagos Padre:** Botones `‹` y `›` de navegación mes son ghost small, `›` disabled en mes actual
+- [ ] **Asistencia Maestra:** Botón "Cancelar" en modal es ghost
+- [ ] **Asistencia Maestra:** Botón "Registrar" en modal es primary, muestra indicador cuando `saving`
+- [ ] **Asistencia Maestra:** Filtros (Todos/Pendientes/Presentes) cambian de ghost a primary cuando activos
+
 **GENERAL:**
 - [ ] App se siente más homogénea visualmente
 - [ ] NO hay botones invisibles esperando hover
@@ -69,34 +88,25 @@
 > **Próximo:** FASE 4.4 + FASE 3.5 + FASE 5
 > **Tiempo estimado:** 2-3 sesiones (homogenización + refactores)
 
-### ⚠️ BLOQUEANTE ANTES DE CONTINUAR:
+### ✅ FASE 3.5 — ANIMO keys (COMPLETADA Sesión XX+16)
 
-**FASE 3.5 — ANIMO keys inconsistentes (REQUIERE CLARIDAD BD):**
-- Estado: BLOQUEADO — Necesita verificación en BD antes de unificar
-- Problema: `(maestra)/index.jsx` usa `inquieto, energico` pero `catalogos.js` usa `irritable, activo`
-- Acción: **Confirmar en BD cuál es la key correcta ANTES de siguiente sesión**
-- Archivos afectados:
-  - `mobile/app/(maestra)/index.jsx` línea 12 (EMOJIS_ANIMO)
-  - `mobile/app/(padre)/index.jsx` (CONDUCTA_STYLE inline)
-  - `mobile/src/constants/catalogos.js` (autoridad)
+- Fuente de verdad confirmada: `feliz / activo / cansado / triste / irritable`
+- Corregidos 3 archivos: `padre/Bitacora.jsx`, `maestra/Dashboard.jsx`, `mobile/(maestra)/index.jsx`
+- Pendiente validación visual en browser (ver checklist arriba)
 
-### 📋 FASE 4.4 — Aplicar componente Button en mobile (PRÓXIMA SESIÓN)
+### ✅ FASE 4.4 — Aplicar componente Button en mobile (COMPLETADA Sesión XX+16)
 
-> Tiempo: ~1.5 horas | Riesgo: BAJO
-> Cambios solo visuales, sin funcionalidad afectada
+**Botones migrados (7 total):**
+- [x] `(padre)/index.jsx` — 3 botones: Google Calendar (outline), Cerrar modal (ghost), Ver referencia (ghost sm)
+- [x] `(padre)/pagos.jsx` — 2 botones: navegación mes anterior/siguiente (ghost sm)
+- [x] `(maestra)/asistencia.jsx` — 3 botones: Cancelar (ghost), Registrar (primary + loading), Filtros (variant condicional)
 
-**Tareas:**
-- [ ] Migrar dashboard padre: reemplazar `TouchableOpacity` con componente `Button` (6 botones)
-- [ ] Migrar dashboard maestra: reemplazar `TouchableOpacity` con componente `Button` (7 botones)
-- [ ] Migrar pantallas prioritarias: pagos, asistencia (modalidad + guardar buttons)
-- [ ] Validar en device/emulador que botones se ven correctos
-- [ ] Verificar no hay regresiones (hovers, colores activos)
+**Archivos modificados:**
+- ✅ `mobile/app/(padre)/index.jsx` — 3 botones migrados + import
+- ✅ `mobile/app/(padre)/pagos.jsx` — 2 botones migrados + import + limpiar TouchableOpacity del import
+- ✅ `mobile/app/(maestra)/asistencia.jsx` — 3 botones migrados + import
 
-**Archivos a modificar:**
-- `mobile/app/(padre)/index.jsx` — 6 TouchableOpacity → Button
-- `mobile/app/(maestra)/index.jsx` — 7 TouchableOpacity → Button
-- `mobile/app/(padre)/pagos.jsx` — 2 botones
-- `mobile/app/(maestra)/asistencia.jsx` — modal buttons
+**Pendiente validación en device/emulador (por Valeria)**
 
 ### 📋 FASE 5 — Refactores mayores (SESIÓN XX+17+)
 

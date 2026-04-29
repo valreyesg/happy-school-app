@@ -5,7 +5,7 @@ import { Users, Clock, UserX, BookOpen, Image, LogOut, AlertTriangle, AlertCircl
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 
-const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
+const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;

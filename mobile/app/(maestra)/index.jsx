@@ -10,7 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
 
-const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
+const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
 
 export default function MaestraDashboard() {
   const { usuario } = useAuthStore();

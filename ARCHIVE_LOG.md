@@ -5,6 +5,31 @@
 
 ---
 
+## ✅ SESIÓN XX+10 (2026-04-29) — FASE 6 Catálogos Mobile + 4 Catálogos Nuevos (COMPLETADO)
+
+**Fecha:** 2026-04-29 | **Estado:** ✅ COMPLETADO Y VALIDADO EN BROWSER
+
+### FASE 6 — Mobile Catálogos Dinámicos ✅
+- **Hook creado:** `mobile/src/hooks/useCatalogo.js` (React Query, staleTime 30 min, fallback a constants)
+- **3 Componentes actualizados:**
+  - `mobile/app/(maestra)/bitacora.jsx` — animo, cuanto, comportamiento, condiciones_panial
+  - `mobile/app/(padre)/bitacora.jsx` — mapas animo, cuanto, comportamiento
+  - `mobile/app/(padre)/index.jsx` — mapas animo, cuanto, comportamiento
+- **Fallback robusto:** Si servidor no disponible, valores vienen de constants locales
+
+### 4 Catálogos Nuevos — 3/4 Implementados ✅
+| Catálogo | Valores | BD | UI Web | Estado |
+|----------|---------|-------|--------|--------|
+| **Niveles** | Maternal, Prekinder, Kinder1-3 | ✅ | ✅ | Completo |
+| **Alergias** | 7 valores (Lactosa, Gluten, Maní, Huevo, Mariscos, Frutos secos, Sin alergias) | ✅ | ✅ | Completo |
+| **Parentesco** | 8 valores (Mamá, Papá, Abuela/o, Tía/o, Tutor/a, Otro) | ✅ | ✅ | Completo |
+| **Categorías Eventos** | (tabla propia) | ✅ Backend | ⏳ | Falta UI Calendario.jsx |
+
+- **Validación:** ✅ Confirmada en browser — Directora → Configuración → Catálogos (3 catálogos visibles y editables)
+- **Commits:** 2 (FASE 6 + actualizar PENDIENTES)
+
+---
+
 ## ✅ SESIÓN XX+9 (2026-04-29) — Solicitud Pañales + Medicamento Sin Hora (COMPLETADO)
 
 **Fecha:** 2026-04-29 | **Estado:** ✅ COMPLETADO — Dos features críticas implementadas y validadas

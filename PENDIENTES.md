@@ -27,23 +27,81 @@
 **BLOQUE 3 - FiltroEntrada (WEB):** PENDIENTE validar en sesión siguiente
 **BLOQUE 4 - FiltroSalida (WEB):** PENDIENTE validar en sesión siguiente
 
-**BLOQUE 5 - Directora/Usuarios (WEB):** ✅ FUNCIONANDO (después de reiniciar backend)
-**BLOQUE 2 - Modal QR (WEB):** ⚠️ ERROR 500 EN REGENERAR-QR
-- **Problema:** `{"error":"Invalid api_key placeholder"}`
-- **Causa:** Variables de entorno CLOUDINARY_* están en `placeholder` en `.env`
-- **Solución:** Reemplazar con credenciales reales de Cloudinary
-- **Archivos afectados:** `backend/.env` (líneas 11-13)
-- **Acción requerida:** Proporcionar credenciales de Cloudinary válidas:
-  - CLOUDINARY_CLOUD_NAME
-  - CLOUDINARY_API_KEY
-  - CLOUDINARY_API_SECRET
+**BLOQUE 5 - Directora/Usuarios (WEB):** ✅ FUNCIONANDO CORRECTAMENTE
+- Página `/directora/usuarios` carga sin errores
+- Grid de padres se muestra
+- Búsqueda filtra correctamente
+- Botones de acciones presentes
+
+**BLOQUES 1, 3, 4 - Mobile QR + Scanners Web:** ⏳ PENDIENTE VALIDAR EN SESIÓN SIGUIENTE
+- Código implementado correctamente
+- No dependen de Cloudinary
+- Requieren validación manual en browser
+
+**BLOQUE 2 - Modal QR Generar/Regenerar:** ⚠️ BLOQUEADO POR CLOUDINARY
+- Ver motivo en sección "CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY" (arriba)
+
+### Resumen de Estado:
+- **Implementación:** 7/7 bloques ✅
+- **Compilación:** 100% ✅
+- **Validación funcional:** 2/7 bloques (28%)
+  - ✅ BLOQUE 5 (Directora/Usuarios)
+  - ⏳ BLOQUES 1, 3, 4 (pendiente)
+  - ⚠️ BLOQUE 2 (bloqueado por Cloudinary)
 
 ### Próxima Sesión:
-- [ ] Actualizar credenciales Cloudinary en `.env`
-- [ ] Reiniciar backend
-- [ ] Validar BLOQUE 5 (Modal QR) después de fix
-- [ ] Validar BLOQUE 1, 3, 4 (Mobile + FiltroEntrada/Salida)
+- [ ] **CRÍTICO:** Resolver configuración Cloudinary (ver sección arriba)
+- [ ] Validar BLOQUE 2 (Modal QR) después de fix Cloudinary
+- [ ] Validar BLOQUES 1, 3, 4 (Mobile + Scanners)
 - [ ] Implementar QR Temporal (Círculos Confianza) — línea 61
+
+---
+
+## 🔧 CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY
+
+> **Estado:** ⚠️ BLOQUEANTE — Afecta múltiples funcionalidades de generación/carga de archivos
+> **Prioridad:** ALTA — Debe resolverse antes de siguientes validaciones
+> **Afectadas:** QR (generar/regenerar), Fotos alumnos, Fotos personal, Fotos tutores, Galerías
+
+### Problema Detectado:
+```
+Error: Invalid api_key placeholder
+Ubicación: backend/.env líneas 11-13
+CLOUDINARY_CLOUD_NAME=placeholder
+CLOUDINARY_API_KEY=placeholder
+CLOUDINARY_API_SECRET=placeholder
+```
+
+### Funcionalidades Bloqueadas:
+- [ ] Generar QR (alumnos sin QR)
+- [ ] Regenerar QR (alumnos con QR viejo)
+- [ ] Subir foto alumno
+- [ ] Subir foto personal
+- [ ] Subir foto tutor
+- [ ] Subir fotos galería
+- [ ] Cualquier `uploadToCloudinary()` en el sistema
+
+### Acciones Requeridas:
+1. **Obtener credenciales válidas de Cloudinary:**
+   - CLOUDINARY_CLOUD_NAME
+   - CLOUDINARY_API_KEY
+   - CLOUDINARY_API_SECRET
+
+2. **Actualizar `backend/.env`** con credenciales reales
+
+3. **Reiniciar backend** y validar:
+   ```
+   curl -H "Authorization: Bearer <token>" \
+     http://localhost:3000/api/alumnos/<id>/regenerar-qr -X POST
+   ```
+   Debe retornar `200` con `{ "qr_url": "https://..." }`
+
+4. **Audit completo de uploads** después de fix:
+   - [ ] QR (generar nuevo)
+   - [ ] Foto alumno
+   - [ ] Foto personal
+   - [ ] Foto tutor
+   - [ ] Galería fotos
 
 ---
 

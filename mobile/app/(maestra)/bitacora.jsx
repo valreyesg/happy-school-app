@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../src/services/api';
-import { ANIMO_LIST, CUANTO_LIST, COMPORTAMIENTO_LIST, CONDICIONES_PANIAL } from '../../src/constants/catalogos';
+import { useCatalogo } from '../../src/hooks/useCatalogo';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -395,6 +395,12 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     setMostrarRecepcion(true);
   };
 
+  // ── Catálogos dinámicos ──
+  const { items: animoCatalogo } = useCatalogo('animo');
+  const { items: cuantoCatalogo } = useCatalogo('cuanto');
+  const { items: comportamientoCatalogo } = useCatalogo('comportamiento');
+  const { items: condicionesPanialCatalogo } = useCatalogo('condiciones_panial');
+
   if (isLoading) {
     return (
       <View style={s.center}>
@@ -403,8 +409,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
     );
   }
 
-  const ANIMOS = ANIMO_LIST;
-  const CUANTO = CUANTO_LIST;
+  const ANIMOS = animoCatalogo;
+  const CUANTO = cuantoCatalogo;
 
   return (
     <KeyboardAvoidingView
@@ -473,7 +479,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             ))}
             <Text style={s.panialSub2}>Registrar nuevo cambio:</Text>
             <View style={s.panialBtns}>
-              {CONDICIONES_PANIAL.map(c => (
+              {condicionesPanialCatalogo.map(c => (
                 <TouchableOpacity
                   key={c.key}
                   style={s.panialBtn}
@@ -608,7 +614,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         {/* Comportamiento */}
         <Seccion titulo="Comportamiento">
           <View style={s.compRow}>
-            {COMPORTAMIENTO_LIST.map(c => (
+            {comportamientoCatalogo.map(c => (
               <TouchableOpacity
                 key={c.key}
                 style={[s.compBtn, comportamiento === c.key && s.compBtnOn]}

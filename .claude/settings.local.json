@@ -649,7 +649,13 @@
       "Bash(curl -s -H \"Authorization: Bearer test\" http://localhost:3000/api/insumos/c75e11fa-56ac-4f97-be92-bfec0517602b)",
       "Bash(node revert_toallitas.js)",
       "PowerShell(\"Procesos detenidos\")",
-      "PowerShell(\"Web detenido\")"
+      "PowerShell(\"Web detenido\")",
+      "Bash(curl -s http://localhost:5001/api/ping)",
+      "Bash(psql -h localhost -U postgres -d happy_school -c \"SELECT name FROM pgmigrations ORDER BY name;\")",
+      "Bash(psql -h localhost -U postgres -d happy_school -t -c \"SELECT name FROM pgmigrations ORDER BY run_on;\")",
+      "Bash(docker -v)",
+      "Bash(psql -h localhost -U postgres -d happy_school)",
+      "Bash(pkill -f \"node.*backend\\\\|node.*5001\")"
     ],
     "additionalDirectories": [
       "\\tmp",
@@ -658,7 +664,8 @@
       "C:\\Users\\vreyesg\\.claude\\plans",
       "c:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\web\\node_modules\\.vite",
       "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend\\src\\database",
-      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\tests"
+      "C:\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\tests",
+      "c:\\c\\Users\\vreyesg\\SynologyDrive\\Documentos\\VALERIA\\APP-KINDER\\backend\\migrations"
     ]
   }
 }

@@ -1,0 +1,4 @@
+-- ── 031_placeholder.sql ──────────────────────────────────────────────────────
+-- Migraciones 031a y 031b fueron consolidadas en versiones anteriores.
+-- Esta es un placeholder para mantener el orden de migraciones.
+-- Sin cambios.

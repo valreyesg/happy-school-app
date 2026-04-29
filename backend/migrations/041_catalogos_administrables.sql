@@ -199,3 +199,37 @@ INSERT INTO configuracion_general (clave, valor, descripcion) VALUES
   ('dia_registro_comida',     '0',
    'Día de la semana habilitado para confirmar comida (0=Domingo, 1=Lunes…)')
 ON CONFLICT (clave) DO NOTHING;
+
+-- ── 6. Catálogos nuevos: Niveles, Alergias, Parentesco ──────────────────────
+
+-- Niveles (tipo ya existe en BD, agregamos valores)
+INSERT INTO catalogos (tipo, key, label, orden, es_sistema, editable_key) VALUES
+  ('niveles', 'maternal',   'Maternal',   1, false, true),
+  ('niveles', 'prekinder',  'Prekinder',  2, false, true),
+  ('niveles', 'kinder1',    'Kinder 1',   3, false, true),
+  ('niveles', 'kinder2',    'Kinder 2',   4, false, true),
+  ('niveles', 'kinder3',    'Kinder 3',   5, false, true)
+ON CONFLICT (tipo, key) DO NOTHING;
+
+-- Alergias (conversión de campo TEXT libre a catálogo)
+INSERT INTO catalogos (tipo, key, label, emoji, orden, es_sistema, editable_key) VALUES
+  ('alergias', 'sin_alergias', 'Sin alergias',  '✅', 0, false, true),
+  ('alergias', 'lactosa',      'Lactosa',       '🥛', 1, false, true),
+  ('alergias', 'gluten',       'Gluten',        '🌾', 2, false, true),
+  ('alergias', 'mani',         'Maní',          '🥜', 3, false, true),
+  ('alergias', 'huevo',        'Huevo',         '🥚', 4, false, true),
+  ('alergias', 'mariscos',     'Mariscos',      '🦐', 5, false, true),
+  ('alergias', 'frutos_secos', 'Frutos secos',  '🌰', 6, false, true)
+ON CONFLICT (tipo, key) DO NOTHING;
+
+-- Parentesco (conversión de VARCHAR libre a catálogo)
+INSERT INTO catalogos (tipo, key, label, emoji, orden, es_sistema, editable_key) VALUES
+  ('parentesco', 'madre',   'Mamá',          '👩', 1, false, true),
+  ('parentesco', 'padre',   'Papá',          '👨', 2, false, true),
+  ('parentesco', 'abuela',  'Abuela',        '👵', 3, false, true),
+  ('parentesco', 'abuelo',  'Abuelo',        '👴', 4, false, true),
+  ('parentesco', 'tia',     'Tía',           '👩‍🦰', 5, false, true),
+  ('parentesco', 'tio',     'Tío',           '👨‍🦰', 6, false, true),
+  ('parentesco', 'tutor',   'Tutor/a',       '👤', 7, false, true),
+  ('parentesco', 'otro',    'Otro',          '❓', 8, false, true)
+ON CONFLICT (tipo, key) DO NOTHING;

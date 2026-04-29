@@ -7,7 +7,7 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
-import { ANIMO, CUANTO, COMPORTAMIENTO } from '@/constants/catalogos';
+import { useCatalogo } from '@/hooks/useCatalogo';
 import NotificationBell from '@/components/NotificationBell';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 
@@ -113,6 +113,11 @@ export default function PadreDashboard() {
   const { usuario } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  // ── Catálogos dinámicos ──
+  const { map: ANIMO } = useCatalogo('animo');
+  const { map: CUANTO } = useCatalogo('cuanto');
+  const { map: COMPORTAMIENTO } = useCatalogo('comportamiento');
 
   const { data: hijosData, isLoading } = useQuery({
     queryKey: ['mis-hijos'],

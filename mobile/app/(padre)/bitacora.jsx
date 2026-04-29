@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../src/services/api';
-import { ANIMO, CUANTO, TIEMPOS_COMIDA, COMPORTAMIENTO } from '../../src/constants/catalogos';
+import { useCatalogo } from '../../src/hooks/useCatalogo';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -127,6 +127,11 @@ export default function BitacoraPadreScreen() {
   const [fecha, setFecha] = useState(hoy);
   const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');
+
+  // ── Catálogos dinámicos ──
+  const { map: ANIMO } = useCatalogo('animo');
+  const { map: CUANTO } = useCatalogo('cuanto');
+  const { map: COMPORTAMIENTO } = useCatalogo('comportamiento');
 
   // Obtener ciclos para establecer el activo por defecto
   const { data: ciclos = [] } = useQuery({

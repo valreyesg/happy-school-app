@@ -37,35 +37,62 @@ grep "Local:" /tmp/web.log
 
 **Todo cambio funcional (nueva feature, bug fix, comportamiento) se implementa en WEB y MOBILE en la misma sesión.**
 
-- Grep por el endpoint o componente en ambos proyectos antes de cerrar
-- No existe "lo haré después en mobile"
-- Ver memoria: [Sesión 74 — Paridad Web ↔ Mobile](https://claude-web-path/memory/sesion_74_paridad_movil.md)
+### Checklist de Paridad
+
+1. **Identificar si el cambio afecta mobile:**
+   - ¿Es un endpoint nuevo/modificado? → Sí, mobile lo usa
+   - ¿Es una UI solo para web? → No, mobile no necesita cambio
+   - ¿Es un hook o lógica compartida? → Sí, ambos la usan
+
+2. **Grep en ambos proyectos:**
+   ```bash
+   # Buscar el endpoint o componente en web
+   grep -r "nombreEndpoint\|nombreComponente" web/src/ --include="*.jsx" --include="*.js"
+   
+   # Buscar lo mismo en mobile
+   grep -r "nombreEndpoint\|nombreComponente" mobile/src/ --include="*.jsx" --include="*.js"
+   ```
+
+3. **Si cambio afecta ambos:**
+   - Editar web PRIMERO, validar con `/validate`
+   - Editar mobile CON LOS MISMOS CAMBIOS
+   - Ejecutar `/validate` en mobile también
+   - Solo después: pedir validación a Valeria
+
+4. **Si cambio solo en web (ej: UI Directora):**
+   - Confirmar en comentario de código: "// Solo web, no afecta mobile"
+   - Mobile ignorado en `/validate`
+
+Ver memoria: [Sesión 74 — Paridad Web ↔ Mobile](memory/sesion_74_paridad_movil.md)
 
 ---
 
-## 🚨 ANTES DE PEDIR VALIDACIÓN AL USUARIO — OBLIGATORIO
+## 🚨 DESPUÉS DE CADA CAMBIO — EJECUTAR `/validate` OBLIGATORIO
 
-### Checklist de 6 puntos (feedback_test_changes.md)
+**NUNCA** pedir validación en browser sin ejecutar `/validate` primero.
 
-1. **¿Es el archivo correcto?** → Verificar la ruta en `App.jsx` para confirmar qué componente renderiza la URL. No asumir el nombre del archivo.
+El skill `/validate` ejecuta automáticamente:
 
-2. **¿El código es correcto?** → Leer el bloque modificado completo. Revisar tipos de datos: números del backend llegan como strings — usar `parseFloat()` antes de operar.
+1. **Confirmar archivo editado** → Grep para verificar que el cambio quedó en el archivo
+2. **Validar código sin errores** → Leer bloque completo, revisar tipos, parseFloat()
+3. **Reiniciar backend si cambié routes** → curl http://localhost:3000/health
+4. **Validar campos del API** → Curl al endpoint, confirmar campos existen
+5. **Confirmar Vite sirviendo** → curl al archivo en Vite, grep del código nuevo
+6. **Verificar puertos** → Backend=3000, Web=5173
 
-3. **¿El backend fue reiniciado?** → Después de cualquier cambio en controllers/routes, matar el proceso del puerto 3000 con PowerShell y reiniciar. Verificar con `curl http://localhost:3000/health`.
+### Cuando falla `/validate`
 
-4. **¿Los campos coinciden?** → Hacer curl autenticado al endpoint y confirmar que los campos que usa el frontend existen en la respuesta real.
-   - Credenciales: `directora@happyschool.edu.mx` / `HappySchool2026!`
-   - Token en campo: `accessToken`
+No procedo a validación en browser. **Arreglo primero:**
+- ¿Archivo no existe? → Re-editar
+- ¿Backend no responde? → Reiniciar
+- ¿Vite en puerto equivocado? → Matar y reiniciar
+- ¿Solo en web, no en mobile? → Hacer cambio en mobile ahora
 
-5. **¿Vite tiene el archivo nuevo?** → `curl http://localhost:5173/src/pages/...jsx | grep "texto_clave"` para confirmar que el HMR actualizó el módulo.
+### Solo después de `/validate` ✅
 
-6. **¿El puerto es 5173?** → Si Vite arrancó en otro puerto, matar todos los procesos node con PowerShell y reiniciar limpio.
+Mostrar resumen visual (qué cambió, dónde, paridad web↔mobile, puertos validados).
 
-### Solo después de pasar los 6 puntos
-
-Mostrar resumen con: qué cambió, en qué archivos, cómo validar paso a paso.
-
-Luego: **Pedir validación en browser** con instrucciones claras.
+Luego: **"Cambios validados. Valida en browser en http://localhost:5173/..."**
 
 ---
 

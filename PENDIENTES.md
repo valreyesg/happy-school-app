@@ -1,12 +1,12 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+6 ✅ | **Próximos pendientes:** Catálogos FASE 5-6 + SALUD edge cases + Pañal→Insumos
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+7 ✅ | **Próximos pendientes:** Catálogos FASE 5-6 + SALUD edge cases + Pañal→Insumos
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 > ⏳ **Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)**
-> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
+> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5, XX+6, XX+7 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
 
 ---
 

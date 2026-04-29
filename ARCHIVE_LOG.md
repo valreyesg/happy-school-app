@@ -1,7 +1,68 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4)
+**Última actualización:** 2026-04-28 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA)
+
+---
+
+## ✅ SESIÓN XX+7 (2026-04-28) — Catálogos Administrables: FASE 4 COMPLETADA (100% Completado)
+
+**Fecha:** 2026-04-28 | **Estado:** 100% COMPLETADO — FASE 4 UI Web + Fixes Críticos
+
+### Trabajo realizado:
+
+**FASE 4 — UI Web Directora** ✅
+- `web/src/pages/directora/Configuracion.jsx` — extendido con tab "Catálogos"
+  - 10 catálogos editables: animo, comportamiento, cuanto-comio, tiempos-comida, condiciones-panial, vomito-intensidad, tipos-insumo, tipos-documento, metodos-pago, conceptos-pago
+  - Cada catálogo usa `CatalogoEditor.jsx` reutilizable
+  - Edición inline: label, emoji, reordenar, activar/desactivar
+  - Protección automática de items de sistema (🔒 no se pueden desactivar)
+
+**Config Negocio Integrada en "Horarios y reglas"** ✅
+- Tres secciones nuevas al final del tab:
+  1. **💰 Precios de comida:** precio_comida_semana, precio_comida_dia
+  2. **🚨 Semáforo:** semaforo_dias_amarillo, semaforo_dias_suspendido (nota: NO hay "verde")
+  3. **📊 Dashboard:** max_morosos_dashboard
+- Un solo botón "Guardar horarios y reglas" para ambas APIs en paralelo
+- Ambas mutaciones cargando en paralelo, refrescan datos después de guardar
+
+**Backend — TIPOS_CERRADOS Explícita** ✅
+- Cambio crítico: `POST /catalogos/:tipo` ahora valida contra lista explícita de tipos bloqueados
+- TIPOS_CERRADOS = ['roles-personal', 'estados-alumno', 'checklist-entrada', 'checklist-salida']
+- Permite agregar a comportamiento, animo, comida, etc (que SÍ necesitan crecer)
+- Frontend usa misma lista para ocultar botón "Agregar" en tipos cerrados
+
+**Fix Crítico — Nombres de Campos BD** 🔴
+- Problema: config negocio no se guardaba porque usaba nombres inventados
+- Solución: Auditar CLAVES_NEGOCIO en `backend/src/routes/config.js`
+  - `precio_comida_semana` (no "mensual")
+  - `semaforo_dias_amarillo` (no "dias_amarillo")
+  - `semaforo_dias_suspendido` (no "dias_rojo" — no existe "verde")
+  - `precio_comida_dia` ✅
+  - `max_morosos_dashboard` ✅
+- Lección: **NUNCA inventar nombres de campos. Siempre auditar BD primero.**
+
+### Validación en Browser:
+- ✅ Editar catálogo item (emoji, label)
+- ✅ Agregar item nuevo (comportamiento, animo, etc)
+- ✅ Cambiar precio semanal comida
+- ✅ Ajustar semáforo (amarillo + suspendido)
+- ✅ Cambiar max morosos dashboard
+- ✅ Guardar todo con un botón
+- ✅ Valores se refrescan después de guardar
+
+### Archivos modificados:
+- `web/src/pages/directora/Configuracion.jsx` — tab catálogos + config negocio
+- `web/src/components/directora/CatalogoEditor.jsx` — TIPOS_CERRADOS en frontend
+- `backend/src/routes/catalogos.js` — TIPOS_CERRADOS en backend
+- `web/src/pages/directora/Catalogos.jsx` — versión alternativa (no usada, pero preparada)
+- `PENDIENTES.md` — FASE 4 marcada completada
+
+### Pendiente para próxima sesión (FASE 5-6):
+- [ ] **FASE 5:** `useCatalogo.js` — cambiar `staleTime: Infinity` a 30 min + invalidación al guardar
+- [ ] **FASE 5:** `ComidaSemanal.jsx` (padre) — leer precios de `GET /api/config/negocio`
+- [ ] **FASE 5:** `FiltroEntrada.jsx` (maestra) — reemplazar `monto / 50` por `monto / PRECIO_DIA` dinámico
+- [ ] **FASE 6:** Mobile — crear `useCatalogo` hook + reemplazar arrays hardcodeados + precios dinámicos
 
 ---
 

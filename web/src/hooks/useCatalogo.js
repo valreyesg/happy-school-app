@@ -6,8 +6,8 @@ export function useCatalogo(tipo) {
   const { data, isLoading } = useQuery({
     queryKey: ['catalogo', tipo],
     queryFn: () => api.get(`/catalogos/${tipo}`).then(r => r.data.items),
-    staleTime: Infinity,
-    gcTime: Infinity,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
     enabled: Boolean(tipo),
   });
   return { items: data ?? [], map: data ? toMap(data) : {}, isLoading };

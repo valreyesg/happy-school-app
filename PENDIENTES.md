@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-28 | **Sesión actual:** XX+7 ✅ | **Próximos pendientes:** Catálogos FASE 5-6 + SALUD edge cases + Pañal→Insumos
+**Última actualización:** 2026-04-28 | **Sesión actual:** XX+8 ✅ | **Próximos pendientes:** Catálogos FASE 5 validar + FASE 6 mobile + 4 catálogos nuevos + SALUD edge cases
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -30,16 +30,45 @@
 
 ---
 
-## 🗂️ CATÁLOGOS ADMINISTRABLES — FASE 5-6 PENDIENTE
+## 🗂️ CATÁLOGOS ADMINISTRABLES — FASE 5 validar + FASE 6 mobile + 4 catálogos nuevos
 
-> ℹ️ **FASES 1-4 COMPLETADAS.** Arquitectura dinámica en BD lista, UI directora operativa.
-> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones XX+6, XX+7
+> ℹ️ **FASES 1-5 COMPLETADAS en código.** FASE 5 pendiente de validar en browser. FASE 6 mobile pendiente.
+> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones XX+6, XX+7, XX+8
 
-### ⏳ PENDIENTE próxima sesión (FASE 5-6):
-- [ ] **FASE 5:** `useCatalogo.js` — cambiar `staleTime: Infinity` a 30 min + invalidación al guardar
-- [ ] **FASE 5:** `ComidaSemanal.jsx` (padre) — leer precios de `GET /api/config/negocio`
-- [ ] **FASE 5:** `FiltroEntrada.jsx` (maestra) — reemplazar `monto / 50` por `monto / PRECIO_DIA` dinámico
-- [ ] **FASE 6:** Mobile — crear `useCatalogo` hook + reemplazar arrays hardcodeados + precios dinámicos
+### ✅ FASE 5 — Completado en sesión XX+8 (validar en browser):
+- [x] `useCatalogo.js` — `staleTime` cambiado de `Infinity` a 30 min, `gcTime` a 60 min
+- [x] `ComidaSemanal.jsx` — precios leen de `GET /api/config/negocio` (fallback $250/$50)
+- [x] `FiltroEntrada.jsx` — `monto / 50` reemplazado por `monto / precioDia` dinámico
+
+### ⏳ FASE 6 — Mobile (próxima sesión):
+- [ ] Crear `mobile/src/hooks/useCatalogo.js` (staleTime 30 min, fallback a constants)
+- [ ] Reemplazar 7 arrays en `mobile/src/constants/catalogos.js` por `useCatalogo()`
+- [ ] `(maestra)/bitacora.jsx` + `(padre)/bitacora.jsx` + `(padre)/index.jsx` — usar hook
+- [ ] Consolidar query `vomito-intensidad` existente con nuevo hook
+- [ ] Precios dinámicos desde `GET /api/config/negocio` en mobile
+
+### ⏳ 4 CATÁLOGOS NUEVOS (próxima sesión):
+
+> **Orden de implementación:** Niveles (trivial) → Alergias → Parentesco → Categorías Eventos
+
+**1. Niveles** (tipo ya existe en BD + `useCatalogo('niveles')` ya funciona en web)
+- [ ] Agregar `niveles` al tab Catálogos de `Configuracion.jsx` — 1 línea, patrón ya existe
+- [ ] Mobile `(maestra)/bitacora.jsx` línea 125 — `['maternal','prekinder','kinder1']` hardcodeado en lógica de esfínteres
+
+**2. Alergias** (actualmente campo `TEXT` libre — convertir a catálogo de selección)
+- [ ] Migración 042: tipo `'alergias'` con valores (Lactosa, Gluten, Maní, Huevo, Mariscos, Frutos secos, Sin alergias)
+- [ ] Agregar `alergias` a tab Catálogos en `Configuracion.jsx`
+- [ ] `Alumnos.jsx` + `AlumnoPerfil.jsx` — cambiar `<input type="text">` por selector múltiple
+
+**3. Parentesco** (actualmente `VARCHAR` libre — convertir a catálogo + unificar saludo)
+- [ ] Migración 042: tipo `'parentesco'` con valores (Mamá, Papá, Abuela/o, Tía/o, Tutor/a, Otro)
+- [ ] Agregar `parentesco` a tab Catálogos en `Configuracion.jsx`
+- [ ] `AlumnoPerfil.jsx` — cambiar inputs libres de parentesco por selector
+- [ ] Unificar `SALUDO_PARENTESCO` web (`Dashboard.jsx`) ↔ mobile (`(padre)/index.jsx`) — mobile solo tiene 3 keys, web tiene 6
+
+**4. Categorías de Eventos** (tabla propia `categorias_evento`, NO es catálogo genérico)
+- [ ] Agregar sección de gestión en `web/src/pages/directora/Calendario.jsx` — lista con botones crear/editar/inactivar
+- [ ] Backend ya tiene `GET/POST /calendario/categorias` — solo falta la UI
 
 ---
 

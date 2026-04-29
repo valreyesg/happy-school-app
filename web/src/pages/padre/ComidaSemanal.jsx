@@ -18,6 +18,14 @@ const ComidaSemanal = () => {
     queryKey: ['mis-hijos'],
     queryFn: () => API.get('/alumnos/mis-hijos').then(r => r.data),
   });
+
+  const { data: configNegocio } = useQuery({
+    queryKey: ['config-negocio'],
+    queryFn: () => API.get('/config/negocio').then(r => r.data),
+    staleTime: 30 * 60 * 1000,
+  });
+  const PRECIO_SEMANA = configNegocio?.precio_comida_semana ?? 250;
+  const PRECIO_DIA    = configNegocio?.precio_comida_dia    ?? 50;
   const hijos = hijosData.hijos || [];
 
   const alumnoId = hijos[0]?.id;
@@ -62,8 +70,8 @@ const ComidaSemanal = () => {
 
   const calcularMonto = () => {
     if (!deseoServicio) return 0;
-    if (modalidad === 'semana_completa') return 250;
-    return 50 * diasSeleccionados.length;
+    if (modalidad === 'semana_completa') return PRECIO_SEMANA;
+    return PRECIO_DIA * diasSeleccionados.length;
   };
 
   const toggleDia = (index) => {
@@ -199,7 +207,7 @@ const ComidaSemanal = () => {
                   >
                     <span className="text-lg">{modalidad === 'semana_completa' ? '✅' : '⬜'}</span>
                     <span>Semana completa (L-V)</span>
-                    <span className="ml-auto font-black text-green-600">$250</span>
+                    <span className="ml-auto font-black text-green-600">${PRECIO_SEMANA}</span>
                   </button>
                   <button
                     type="button"
@@ -209,7 +217,7 @@ const ComidaSemanal = () => {
                   >
                     <span className="text-lg">{modalidad === 'dias_especificos' ? '✅' : '⬜'}</span>
                     <span>Días específicos</span>
-                    <span className="ml-auto font-black text-green-600">$50/día</span>
+                    <span className="ml-auto font-black text-green-600">${PRECIO_DIA}/día</span>
                   </button>
                 </div>
               </div>

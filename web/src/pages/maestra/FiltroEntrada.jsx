@@ -6,6 +6,15 @@ import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
 
+function usePrecioDia() {
+  const { data } = useQuery({
+    queryKey: ['config-negocio'],
+    queryFn: () => api.get('/config/negocio').then(r => r.data),
+    staleTime: 30 * 60 * 1000,
+  });
+  return data?.precio_comida_dia ?? 50;
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function esCumpleanos(fecha_nacimiento) {
@@ -43,6 +52,7 @@ const CHECKS_DEFAULT = {
 };
 
 function ModalEntrada({ alumno, onClose, onSuccess }) {
+  const precioDia = usePrecioDia();
   const [form, setForm] = useState(CHECKS_DEFAULT);
   const [confirmacionComida, setConfirmacionComida] = useState(null);
   const [cargandoComida, setCargandoComida] = useState(false);
@@ -253,7 +263,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
               <p className="text-xs text-gray-500 px-2">
                 {confirmacionComida.modalidad === 'semana_completa'
                   ? '📋 Semana completa ($250)'
-                  : `📋 ${confirmacionComida.monto / 50} días ($${confirmacionComida.monto})`
+                  : `📋 ${Math.round(confirmacionComida.monto / precioDia)} días ($${confirmacionComida.monto})`
                 }
                 {confirmacionComida.metodo_pago === 'transferencia' && ' | 💳 Transferencia'}
                 {confirmacionComida.metodo_pago === 'efectivo' && ' | 💵 Efectivo'}

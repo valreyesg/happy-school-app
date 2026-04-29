@@ -76,9 +76,22 @@ El skill `/validate` ejecuta automáticamente:
 1. **Confirmar archivo editado** → Grep para verificar que el cambio quedó en el archivo
 2. **Validar código sin errores** → Leer bloque completo, revisar tipos, parseFloat()
 3. **Reiniciar backend si cambié routes** → curl http://localhost:3000/health
-4. **Validar campos del API** → Curl al endpoint, confirmar campos existen
-5. **Confirmar Vite sirviendo** → curl al archivo en Vite, grep del código nuevo
-6. **Verificar puertos** → Backend=3000, Web=5173
+4. **⚠️ REINICIAR WEB SI CAMBIÉ ARCHIVOS WEB** → PowerShell matar procesos + npm run dev + validar puerto 5173
+5. **Validar campos del API** → Curl al endpoint, confirmar campos existen
+6. **Confirmar Vite sirviendo** → curl al archivo en Vite, grep del código nuevo
+7. **Verificar puertos** → Backend=3000, Web=5173
+
+### 🚨 REGLA CRÍTICA: SI EDITÉ WEB → SIEMPRE REINICIAR WEB
+
+No es "opcional" ni "si falla". **Si toqué un archivo en web/** → reiniciar web OBLIGATORIO:
+
+```powershell
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+Start-Sleep -Milliseconds 2000
+cd web && npm run dev > /tmp/web.log 2>&1 &
+sleep 6
+grep "Local:" /tmp/web.log  # DEBE mostrar 5173, nunca otro puerto
+```
 
 ### Cuando falla `/validate`
 

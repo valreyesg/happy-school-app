@@ -20,6 +20,8 @@ Después de cualquier cambio en web/backend/mobile, ejecuto:
 
 ## Protocolo Completo
 
+⚠️ **REGLA CRÍTICA:** Si edité web → SIEMPRE reiniciar web. No es opcional.
+
 ### Paso 1: Confirmar archivo editado
 ```bash
 # Si edité web:
@@ -51,6 +53,33 @@ sleep 4
 curl http://localhost:3000/health
 ```
 
+### Paso 3B: Reiniciar web si fue necesario
+```bash
+# Si toqué archivos web (pages, components, layouts):
+curl http://localhost:5173/ | grep "<!DOCTYPE"
+```
+**Debe responder:** HTML de página Vite
+
+**CRÍTICO: Si cambié archivos en web/, SIEMPRE reiniciar web:**
+```powershell
+# Matar todos los node processes
+Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Esperar 2 segundos
+Start-Sleep -Milliseconds 2000
+
+# Reiniciar web
+cd web && npm run dev > /tmp/web.log 2>&1 &
+sleep 6
+
+# Confirmar que levantó en puerto 5173 (NO otro puerto)
+grep "Local:" /tmp/web.log
+```
+
+**Debe mostrar:** `Local: http://localhost:5173/`
+
+Si muestra otro puerto (ej: 5174) → hay proceso fantasma, repetir matar+reiniciar.
+
 ### Paso 4: Validar campos del API
 ```bash
 # Endpoint que cambié:
@@ -68,13 +97,7 @@ curl http://localhost:5173/src/pages/...jsx | grep "TEXTO_CLAVE"
 # Si no aparece → puerto equivocado o Vite no reloadó
 ```
 
-**Si falla:**
-```powershell
-Get-Process node | Stop-Process -Force
-cd web && npm run dev > /tmp/web.log 2>&1 &
-sleep 6
-grep "Local:" /tmp/web.log
-```
+**Si falla → web ya fue reiniciada en Paso 3B, volver a intentar curl**
 
 ### Paso 6: Verificar puertos
 - Backend: puerto 3000 ✅
@@ -89,6 +112,8 @@ grep "Local:" /tmp/web.log
 ✅ Archivo editado: web/src/pages/directora/Usuarios.jsx
 ✅ Código sintácticamente correcto (sin errores)
 ✅ Backend levantado: curl http://localhost:3000/health → 200 OK
+✅ Backend reiniciado: (N/A, no toqué routes)
+✅ Web reiniciado: ✅ (Proceso mató + npm run dev + puerto 5173)
 ✅ API campos válidos: GET /padres retorna [nivel_nombre, grupo_nombre, ...]
 ✅ Vite sirviendo cambio: http://localhost:5173/src/pages/... → contiene nuevo código
 ✅ Puertos: backend=3000 ✅, web=5173 ✅

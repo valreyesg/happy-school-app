@@ -1,24 +1,32 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import api from '@/services/api';
 import Logo from '@/components/ui/Logo';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
+  const { login, actualizarUsuario } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [usuarioConPrimerLogin, setUsuarioConPrimerLogin] = useState(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    try {
-      const usuario = await login(data.email, data.password);
-      toast.success(`¡Bienvenid@ ${usuario.nombre.split(' ')[0]}! 👋`);
+  const cambiarPassword = useMutation({
+    mutationFn: (newPassword) => api.put('/auth/cambiar-password', {
+      passwordActual: 'HappySchool2026!',
+      passwordNuevo: newPassword
+    }),
+    onSuccess: () => {
+      toast.success('✅ Contraseña cambiada correctamente');
+      actualizarUsuario({ primerLogin: false });
+      const rol = usuarioConPrimerLogin?.rolPrincipal;
+      setUsuarioConPrimerLogin(null);
 
       const redirects = {
         directora: '/directora',
@@ -28,7 +36,31 @@ export default function LoginPage() {
         maestra_puerta: '/maestra',
         padre: '/padre',
       };
-      navigate(redirects[usuario.rolPrincipal] || '/');
+      navigate(redirects[rol] || '/');
+    },
+    onError: (err) => toast.error(err.response?.data?.error || 'Error al cambiar contraseña'),
+  });
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const usuario = await login(data.email, data.password);
+      toast.success(`¡Bienvenid@ ${usuario.nombre.split(' ')[0]}! 👋`);
+
+      // Si primerLogin = true, mostrar modal para cambiar contraseña
+      if (usuario.primerLogin) {
+        setUsuarioConPrimerLogin(usuario);
+      } else {
+        const redirects = {
+          directora: '/directora',
+          administrativo: '/admin',
+          maestra_titular: '/maestra',
+          maestra_especial: '/maestra',
+          maestra_puerta: '/maestra',
+          padre: '/padre',
+        };
+        navigate(redirects[usuario.rolPrincipal] || '/');
+      }
     } catch (err) {
       const msg = err.response?.data?.error || 'Error al iniciar sesión';
       toast.error(msg);
@@ -38,7 +70,17 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <>
+      {/* Modal cambiar contraseña al primer login */}
+      {usuarioConPrimerLogin && (
+        <ModalCambiarPassword
+          usuario={usuarioConPrimerLogin}
+          onConfirmar={(newPassword) => cambiarPassword.mutate(newPassword)}
+          isLoading={cambiarPassword.isPending}
+        />
+      )}
+
+      <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Panel izquierdo — decorativo */}
       <div
         className="lg:w-1/2 flex flex-col items-center justify-center py-16 px-8 relative overflow-hidden"
@@ -149,6 +191,120 @@ export default function LoginPage() {
             ¿Problemas para entrar? Contacta a la directora 📞
           </p>
         </div>
+      </div>
+      </div>
+    </>
+  );
+}
+
+// ─── Modal cambiar contraseña ──────────────────────────────────────────────
+
+function ModalCambiarPassword({ usuario, onConfirmar, isLoading }) {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleConfirmar = () => {
+    setError('');
+
+    if (!newPassword || !confirmPassword) {
+      setError('Ambos campos son requeridos');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (!/[a-zA-Z]/.test(newPassword)) {
+      setError('La contraseña debe incluir letras');
+      return;
+    }
+
+    if (!/[0-9]/.test(newPassword)) {
+      setError('La contraseña debe incluir números');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    onConfirmar(newPassword);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-4">🔐</div>
+          <h2 className="text-2xl font-black text-gray-800 mb-2">Cambia tu contraseña</h2>
+          <p className="text-gray-600 font-semibold">
+            Hola <span className="text-hs-purple font-black">{usuario.nombre.split(' ')[0]}</span>, es tu primer acceso
+          </p>
+        </div>
+
+        <div className="space-y-4 mb-6">
+          {/* Nueva contraseña */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Nueva contraseña
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Min. 8 caracteres, letras y números"
+                className="input-hs pr-12 w-full"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-hs-purple"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirmar contraseña */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Confirmar contraseña
+            </label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repite tu contraseña"
+              className="input-hs w-full"
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm font-semibold text-red-700">{error}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Botón */}
+        <button
+          onClick={handleConfirmar}
+          disabled={isLoading || !newPassword || !confirmPassword}
+          className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+        </button>
+
+        <p className="mt-4 text-xs text-gray-500 font-semibold text-center">
+          ✅ Necesitas crear una contraseña segura para proteger tu cuenta
+        </p>
       </div>
     </div>
   );

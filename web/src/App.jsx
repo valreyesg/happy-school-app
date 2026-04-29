@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 // Páginas
 import LoginPage from '@/pages/LoginPage';
 import SplashPage from '@/pages/SplashPage';
+import PerfilPage from '@/pages/Perfil';
 
 // Layouts por rol
 import DirectoraLayout from '@/layouts/DirectoraLayout';
@@ -157,6 +158,11 @@ export default function App() {
         <Route path="calendario" element={<PadreCalendario />} />
         <Route path="comida" element={<PadreComidaSemanal />} />
       </Route>
+
+      {/* Perfil — accesible para todos */}
+      <Route path="/perfil" element={
+        <PrivateRoute element={<PerfilPage />} />
+      } />
 
       {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />

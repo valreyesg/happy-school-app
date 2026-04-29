@@ -1,6 +1,6 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { LayoutDashboard, BookOpen, CreditCard, CalendarDays, UtensilsCrossed, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, BookOpen, CreditCard, CalendarDays, UtensilsCrossed, LogOut, Menu, Lock, User } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import Logo from '@/components/ui/Logo';
 import NotificationBell from '@/components/NotificationBell';
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/padre/comida',     icon: UtensilsCrossed, label: 'Comida'     },
   { to: '/padre/pagos',      icon: CreditCard,      label: 'Pagos'      },
   { to: '/padre/calendario', icon: CalendarDays,    label: 'Calendario' },
+  { to: '/perfil',           icon: User,            label: 'Mi Perfil'  },
 ];
 
 export default function PadreLayout() {
@@ -58,8 +59,12 @@ export default function PadreLayout() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-100">
-          <div className="flex items-center gap-3 mb-3">
+        <div className="p-4 border-t border-gray-100 space-y-2">
+          <Link
+            to="/perfil"
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-3 mb-3 hover:opacity-80 transition-opacity"
+          >
             <div className="w-10 h-10 rounded-2xl bg-red-500 flex items-center justify-center text-white font-black">
               {usuario?.nombre?.[0] || 'P'}
             </div>
@@ -67,7 +72,7 @@ export default function PadreLayout() {
               <p className="text-sm font-black text-gray-800 truncate">{usuario?.nombre}</p>
               <p className="text-xs text-red-500 font-semibold">Padre / Tutor</p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-2 rounded-2xl text-sm font-bold text-gray-500 hover:bg-red-50 hover:text-red-500 transition-all"

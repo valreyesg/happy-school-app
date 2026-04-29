@@ -1,14 +1,23 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Copy, Check, X, ChevronDown } from 'lucide-react';
+import { Search, Copy, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
+
+// Paleta de colores para niveles — igual que en Alumnos
+const PALETA_NIVELES = [
+  { bg: 'bg-pink-100',   text: 'text-pink-700' },
+  { bg: 'bg-yellow-100', text: 'text-yellow-700' },
+  { bg: 'bg-green-100',  text: 'text-green-700' },
+  { bg: 'bg-blue-100',   text: 'text-blue-700' },
+  { bg: 'bg-purple-100', text: 'text-purple-700' },
+];
 
 // ─── Página principal ────────────────────────────────────────────────────────
 
 export default function DirectoraUsuarios() {
   const [buscar, setBuscar] = useState('');
-  const [copiedId, setCopiedId] = useState(null);
+  const [nivelFiltro, setNivelFiltro] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['padres-usuarios'],
@@ -22,22 +31,43 @@ export default function DirectoraUsuarios() {
   const totalPadres = padres.length;
   const conCuenta = padres.filter(p => p.usuario_id).length;
   const sinCuenta = padres.filter(p => !p.usuario_id).length;
-  const primerLoginPendiente = padres.filter(p => p.usuario_id && p.primer_login).length;
 
-  // Filtro búsqueda
+  // Niveles únicos derivados de los hijos de padres
+  const nivelesUnicos = useMemo(() => {
+    const vistos = new Set();
+    const niveles = [];
+    padres.forEach(p => {
+      if (p.hijos && p.hijos.length > 0) {
+        p.hijos.forEach(h => {
+          if (h.nivel && !vistos.has(h.nivel)) {
+            vistos.add(h.nivel);
+            niveles.push(h.nivel);
+          }
+        });
+      }
+    });
+    return niveles;
+  }, [padres]);
+
+  // Filtro búsqueda + nivel
   const q = buscar.toLowerCase().trim();
-  const padresFiltrados = q
-    ? padres.filter(p =>
-        p.nombre_completo.toLowerCase().includes(q) ||
-        p.email?.toLowerCase().includes(q)
-      )
-    : padres;
+  const padresFiltrados = useMemo(() => {
+    let resultado = q
+      ? padres.filter(p =>
+          p.nombre_completo.toLowerCase().includes(q) ||
+          p.email_contacto?.toLowerCase().includes(q) ||
+          p.email_institucional?.toLowerCase().includes(q)
+        )
+      : padres;
 
-  const handleCopy = (texto, padreId) => {
-    navigator.clipboard.writeText(texto);
-    setCopiedId(padreId);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+    if (nivelFiltro) {
+      resultado = resultado.filter(p =>
+        p.hijos?.some(h => h.nivel === nivelFiltro)
+      );
+    }
+
+    return resultado;
+  }, [padres, q, nivelFiltro]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -53,22 +83,18 @@ export default function DirectoraUsuarios() {
 
       {/* Stats */}
       {!isLoading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="card-hs p-4 text-center">
             <p className="text-2xl font-black text-blue-600">{totalPadres}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Total</p>
           </div>
           <div className="card-hs p-4 text-center">
             <p className="text-2xl font-black text-green-600">{conCuenta}</p>
-            <p className="text-xs font-bold text-gray-500 mt-1">Activos</p>
+            <p className="text-xs font-bold text-gray-500 mt-1">Con cuenta</p>
           </div>
           <div className="card-hs p-4 text-center">
             <p className="text-2xl font-black text-gray-600">{sinCuenta}</p>
             <p className="text-xs font-bold text-gray-500 mt-1">Sin cuenta</p>
-          </div>
-          <div className="card-hs p-4 text-center">
-            <p className="text-2xl font-black text-amber-600">{primerLoginPendiente}</p>
-            <p className="text-xs font-bold text-gray-500 mt-1">1er login</p>
           </div>
         </div>
       )}
@@ -90,6 +116,38 @@ export default function DirectoraUsuarios() {
         )}
       </div>
 
+      {/* Tabs de nivel */}
+      {nivelesUnicos.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setNivelFiltro('')}
+            className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+              nivelFiltro === ''
+                ? 'bg-gray-200 text-gray-800'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-150'
+            }`}
+          >
+            Todos
+          </button>
+          {nivelesUnicos.map((nivel, idx) => {
+            const color = PALETA_NIVELES[idx % PALETA_NIVELES.length];
+            return (
+              <button
+                key={nivel}
+                onClick={() => setNivelFiltro(nivel)}
+                className={`px-4 py-2 rounded-full font-semibold text-sm transition-colors ${
+                  nivelFiltro === nivel
+                    ? `${color.bg} ${color.text} ring-2 ring-offset-0`
+                    : `${color.bg} ${color.text} opacity-60 hover:opacity-100`
+                }`}
+              >
+                {nivel}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Lista de padres */}
       {isLoading ? (
         <div className="card-hs p-12 flex items-center justify-center">
@@ -104,12 +162,7 @@ export default function DirectoraUsuarios() {
       ) : (
         <div className="grid gap-3">
           {padresFiltrados.map(padre => (
-            <TarjetaPadre
-              key={padre.id}
-              padre={padre}
-              copiedId={copiedId}
-              onCopy={handleCopy}
-            />
+            <TarjetaPadre key={padre.id} padre={padre} />
           ))}
         </div>
       )}
@@ -119,23 +172,23 @@ export default function DirectoraUsuarios() {
 
 // ─── Tarjeta de padre ────────────────────────────────────────────────────────
 
-function TarjetaPadre({ padre, copiedId, onCopy }) {
+function TarjetaPadre({ padre }) {
   const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
   const [modalResetAbierto, setModalResetAbierto] = useState(false);
   const queryClient = useQueryClient();
 
-  // Determinar estado de la cuenta
+  // Estado de la cuenta
   const estadoCuenta = padre.usuario_id
     ? padre.primer_login
-      ? { label: 'Primer login pendiente', color: 'bg-amber-100 text-amber-700' }
+      ? { label: 'Primer login pendiente', color: 'bg-amber-100 text-amber-700', icon: '⏳' }
       : padre.cuenta_activa
-      ? { label: 'Activo', color: 'bg-green-100 text-green-700' }
-      : { label: 'Inactivo', color: 'bg-red-100 text-red-700' }
-    : { label: 'Sin cuenta', color: 'bg-gray-100 text-gray-600' };
+      ? { label: 'Activo', color: 'bg-green-100 text-green-700', icon: '✅' }
+      : { label: 'Inactivo', color: 'bg-red-100 text-red-700', icon: '🔒' }
+    : { label: 'Sin cuenta', color: 'bg-gray-100 text-gray-600', icon: '📝' };
 
   const crearCuenta = useMutation({
     mutationFn: () => api.post(`/padres/${padre.id}/crear-cuenta`),
-    onSuccess: (res) => {
+    onSuccess: () => {
       toast.success('✅ Cuenta creada');
       queryClient.invalidateQueries(['padres-usuarios']);
       setModalCrearAbierto(false);
@@ -167,76 +220,88 @@ function TarjetaPadre({ padre, copiedId, onCopy }) {
 
   return (
     <>
-      <div className="card-hs flex items-center gap-4 hover:shadow-hs-lg transition-shadow duration-200 group">
-        {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-hs-purple/20 flex items-center justify-center text-base font-black text-hs-purple">
-          {padre.nombre_completo[0]}
+      <div className="card-hs p-4 hover:shadow-hs-lg transition-shadow duration-200 group">
+        {/* Encabezado tarjeta */}
+        <div className="flex items-start gap-4 mb-3">
+          <div className="w-12 h-12 rounded-full bg-hs-purple/20 flex items-center justify-center text-base font-black text-hs-purple flex-shrink-0">
+            {padre.nombre_completo[0]}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-black text-gray-800">{padre.nombre_completo}</h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${estadoCuenta.color}`}>
+                {estadoCuenta.icon} {estadoCuenta.label}
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Info principal */}
-        <div className="flex-1 min-w-0">
-          <h3 className="font-black text-gray-800">{padre.nombre_completo}</h3>
-          <div className="flex items-center gap-2 flex-wrap mt-1">
-            <p className="text-sm text-gray-500 font-semibold">{padre.email || 'Sin email'}</p>
-            {padre.telefono && (
-              <p className="text-sm text-gray-500 font-semibold">· {padre.telefono}</p>
-            )}
+        {/* Email institucional */}
+        {padre.email_institucional && (
+          <div className="mb-4 pl-16">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Usuario del portal</p>
+            <p className="font-mono text-sm font-bold text-blue-700">{padre.email_institucional}</p>
           </div>
-          {padre.hijos?.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
+        )}
+
+        {/* Hijos con badges */}
+        {padre.hijos?.length > 0 && (
+          <div className="mb-4 pl-16">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Hijos</p>
+            <div className="flex flex-wrap gap-2">
               {padre.hijos.map((hijo, idx) => (
-                <span key={idx} className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                  {hijo.nombre} · {hijo.grupo}
-                </span>
+                <div key={idx} className="flex items-center gap-1">
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                    {hijo.nombre}
+                  </span>
+                  <span className="text-xs font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700">
+                    {hijo.grupo}
+                  </span>
+                  {hijo.es_tutor_principal && (
+                    <span className="text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700">
+                      👤 Principal
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
-          )}
-        </div>
-
-        {/* Estado de cuenta */}
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-bold px-3 py-1 rounded-full ${estadoCuenta.color}`}>
-            {estadoCuenta.label}
-          </span>
-
-          {/* Acciones */}
-          <div className="hidden group-hover:flex items-center gap-1">
-            {!padre.usuario_id ? (
-              <button
-                onClick={() => setModalCrearAbierto(true)}
-                title="Crear cuenta"
-                className="px-3 py-2 rounded-xl bg-green-100 text-green-700 font-bold text-xs hover:bg-green-200 transition-colors"
-              >
-                Crear cuenta
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => toggleActivo.mutate()}
-                  disabled={toggleActivo.isPending}
-                  title={padre.cuenta_activa ? 'Inactivar' : 'Activar'}
-                  className={`px-3 py-2 rounded-xl font-bold text-xs transition-colors ${
-                    padre.cuenta_activa
-                      ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
-                  }`}
-                >
-                  {padre.cuenta_activa ? '🔒 Inactivar' : '🔓 Activar'}
-                </button>
-                <button
-                  onClick={() => setModalResetAbierto(true)}
-                  title="Reset contraseña"
-                  className="px-3 py-2 rounded-xl bg-amber-100 text-amber-600 font-bold text-xs hover:bg-amber-200 transition-colors"
-                >
-                  Reset
-                </button>
-              </>
-            )}
           </div>
+        )}
+
+        {/* Acciones */}
+        <div className="flex flex-wrap gap-2 pl-16 group-hover:opacity-100 opacity-0 transition-opacity">
+          {!padre.usuario_id ? (
+            <button
+              onClick={() => setModalCrearAbierto(true)}
+              className="px-3 py-2 rounded-xl bg-green-100 text-green-700 font-bold text-xs hover:bg-green-200 transition-colors"
+            >
+              ➕ Crear cuenta
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => toggleActivo.mutate()}
+                disabled={toggleActivo.isPending}
+                className={`px-3 py-2 rounded-xl font-bold text-xs transition-colors ${
+                  padre.cuenta_activa
+                    ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                    : 'bg-green-100 text-green-700 hover:bg-green-200'
+                }`}
+              >
+                {padre.cuenta_activa ? '🔒 Inactivar' : '🔓 Activar'}
+              </button>
+              <button
+                onClick={() => setModalResetAbierto(true)}
+                className="px-3 py-2 rounded-xl bg-amber-100 text-amber-600 font-bold text-xs hover:bg-amber-200 transition-colors"
+              >
+                🔄 Reset
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Modal crear cuenta */}
+      {/* Modales */}
       {modalCrearAbierto && (
         <ModalConfirmCrearCuenta
           padre={padre}
@@ -246,7 +311,6 @@ function TarjetaPadre({ padre, copiedId, onCopy }) {
         />
       )}
 
-      {/* Modal reset password */}
       {modalResetAbierto && (
         <ModalConfirmResetPassword
           padre={padre}
@@ -259,17 +323,24 @@ function TarjetaPadre({ padre, copiedId, onCopy }) {
   );
 }
 
-// ─── Modal confirmar crear cuenta ────────────────────────────────────────────
+// ─── Modal crear cuenta ──────────────────────────────────────────────────────
 
 function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) {
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [resultado, setResultado] = useState(null);
+  const [emailPreview, setEmailPreview] = useState(null);
   const passwordDefault = 'HappySchool2026!';
+
+  const { data: previewData } = useQuery({
+    queryKey: [`padre-preview-email-${padre.id}`],
+    queryFn: () => api.get(`/padres/${padre.id}/preview-email`).then(r => r.data.email_preview),
+    enabled: !!padre.id,
+  });
 
   const handleConfirmar = async () => {
     onConfirmar();
     setResultado({
-      email: padre.email,
+      email_institucional: previewData,
       password: passwordDefault,
     });
   };
@@ -287,24 +358,24 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
             </p>
 
             <div className="space-y-3 mb-6">
-              <div className="p-4 bg-gray-50 rounded-2xl border-2 border-gray-200">
-                <p className="text-xs text-gray-500 font-semibold mb-1">Email</p>
+              <div className="p-4 bg-blue-50 rounded-2xl border-2 border-blue-200">
+                <p className="text-xs text-blue-600 font-semibold mb-1">📧 Usuario del portal</p>
                 <div className="flex items-center justify-between gap-2">
-                  <p className="font-mono text-sm font-bold text-gray-800">{resultado.email}</p>
+                  <p className="font-mono text-sm font-bold text-blue-800">{resultado.email_institucional}</p>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(resultado.email);
+                      navigator.clipboard.writeText(resultado.email_institucional);
                       toast.success('Copiado');
                     }}
-                    className="p-1.5 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="p-1.5 hover:bg-blue-200 rounded-lg transition-colors"
                   >
-                    <Copy size={16} className="text-gray-600" />
+                    <Copy size={16} className="text-blue-600" />
                   </button>
                 </div>
               </div>
 
               <div className="p-4 bg-red-50 rounded-2xl border-2 border-red-200">
-                <p className="text-xs text-red-600 font-semibold mb-1">Contraseña temporal</p>
+                <p className="text-xs text-red-600 font-semibold mb-1">🔐 Contraseña temporal</p>
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-mono text-sm font-bold text-red-700">
                     {mostrarPassword ? resultado.password : '••••••••'}
@@ -355,9 +426,19 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
           <p className="text-sm text-gray-600 font-semibold mb-4">
             Se creará una cuenta con:
           </p>
-          <div className="text-left space-y-2 mb-6 p-4 bg-gray-50 rounded-2xl">
-            <p className="text-sm font-bold text-gray-800">📧 Email: {padre.email}</p>
-            <p className="text-sm font-bold text-gray-800">🔐 Contraseña: HappySchool2026!</p>
+          <div className="text-left space-y-3 mb-6 p-4 bg-gray-50 rounded-2xl">
+            <div>
+              <p className="text-xs text-gray-500 font-semibold mb-1">📧 Usuario del portal</p>
+              <p className="text-sm font-mono font-bold text-blue-700">{previewData || 'Cargando...'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-semibold mb-1">📞 Email de contacto</p>
+              <p className="text-sm font-mono text-gray-700">{padre.email_contacto || 'No registrado'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 font-semibold mb-1">🔐 Contraseña temporal</p>
+              <p className="text-sm font-mono font-bold text-gray-800">HappySchool2026!</p>
+            </div>
           </div>
           <p className="text-xs text-gray-500 font-semibold mb-6">
             El padre deberá cambiar la contraseña en su primer acceso
@@ -372,7 +453,7 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
             </button>
             <button
               onClick={handleConfirmar}
-              disabled={isLoading}
+              disabled={isLoading || !previewData}
               className="flex-1 px-4 py-3 rounded-2xl bg-green-500 text-white font-bold transition-colors hover:bg-green-600 disabled:opacity-50"
             >
               {isLoading ? 'Creando...' : 'Crear cuenta'}
@@ -384,7 +465,7 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
   );
 }
 
-// ─── Modal confirmar reset password ──────────────────────────────────────────
+// ─── Modal reset password ────────────────────────────────────────────────────
 
 function ModalConfirmResetPassword({ padre, onConfirmar, onCancelar, isLoading }) {
   return (

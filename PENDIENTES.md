@@ -1,12 +1,49 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-29 | **Sesión XX+12:** ✅ COMPLETADA | **Próximos pendientes:** QR Temporal + SALUD edge cases + UX/UI Audit
+**Última actualización:** 2026-04-29 | **Sesión XX+13:** ✅ COMPLETADA | **Próximos pendientes:** Resolver Cloudinary + QR Temporal + UX/UI Audit
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 > ⏳ **Historial detallado de sesiones completadas → ver [ARCHIVE_LOG.md](ARCHIVE_LOG.md)**
-> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5, XX+6, XX+7, XX+8, XX+9, XX+10, XX+11, XX+12 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
+> Sesiones completadas: Sesión 7, 73-86, XX, XX+1, XX+2, XX+3, XX+4, XX+5, XX+6, XX+7, XX+8, XX+9, XX+10, XX+11, XX+12, XX+13 (todas archivadas, este archivo solo tiene PENDIENTES FUTUROS)
+
+---
+
+## ✅ SESIÓN XX+13 — USUARIOS PADRES + CAMBIO CONTRASEÑA (2026-04-29)
+
+### Bloques Implementados:
+1. ✅ Backend: Email institucional generado automáticamente (tutor_nombre@happyschool.edu.mx)
+2. ✅ Backend: GET /padres/:id/preview-email para previsualizar antes de crear
+3. ✅ Backend: POST /padres/:id/crear-cuenta usa email institucional
+4. ✅ Backend: GET /padres retorna nivel, grupo, es_tutor_principal, hijos ordenados
+5. ✅ Web: Tabs por Nivel (Maternal, Kinder 1, 2, 3)
+6. ✅ Web: Padres agrupados por alumno (mamá y papá juntos)
+7. ✅ Web: Tarjetas con badges (nombre hijo, grupo, "👤 Principal" si es tutor)
+8. ✅ Web: Modal de cambio de contraseña al PRIMER LOGIN (bloqueante)
+9. ✅ Web: Página /perfil con layout completo (sidebar, volver, logout)
+10. ✅ Web: Opción cambiar contraseña en /perfil (accesible después)
+11. ✅ Backend: Validación contraseña: 8 caracteres mínimo, letras y números
+12. ✅ Web: Validación contraseña en cliente y servidor
+
+### Resumen de Estado:
+- **Implementación:** 12/12 bloques ✅
+- **Compilación:** 100% ✅
+- **Validación funcional:** 100% ✅
+  - Creación de cuentas de padres
+  - Cambio de contraseña al primer login
+  - Cambio de contraseña desde /perfil
+  - Tabs y agrupación por nivel/grupo
+  - Badges de tutor principal y grupo
+
+### Mejoras Realizadas vs. XX+12:
+- Email institucional generado automáticamente (no reutiliza email personal)
+- Tabs por nivel (como en Alumnos)
+- Padres agrupados por alumno (mamá y papá juntos)
+- Modal bloqueante de cambio contraseña al primer login
+- Página /perfil accesible desde menú lateral
+- Validación de contraseña: 8 caracteres, letras y números
+- Layout consistente con el portal
 
 ---
 
@@ -49,11 +86,33 @@
   - ⏳ BLOQUES 1, 3, 4 (pendiente)
   - ⚠️ BLOQUE 2 (bloqueado por Cloudinary)
 
-### Próxima Sesión:
-- [ ] **CRÍTICO:** Resolver configuración Cloudinary (ver sección arriba)
-- [ ] Validar BLOQUE 2 (Modal QR) después de fix Cloudinary
-- [ ] Validar BLOQUES 1, 3, 4 (Mobile + Scanners)
-- [ ] Implementar QR Temporal (Círculos Confianza) — línea 61
+### 🎯 Mejoras Detectadas en Validación:
+
+**1. BLOQUE 5 - Organización de padres:**
+- [ ] Agrupar padres por **NIVEL** (Maternal, Kinder 1, Kinder 2, Kinder 3)
+- [ ] Dentro de cada nivel, agrupar por **GRUPO** (A, B, C, etc.)
+- [ ] Cada grupo mostrar lista de padres con sus hijos
+- **Beneficio:** Directora ve padres organizados como ve alumnos
+
+**2. BLOQUE 5 - Aclaración: Email alumno ≠ Email usuario padre:**
+- [ ] El email que registramos en **Alumnos** es del alumno (puede ser generic@ o del colegio)
+- [ ] El email que registramos en **Padres** es del padre/tutor (su email personal)
+- [ ] Al crear cuenta de padre, se usa email DE PADRES, no de alumno
+- [ ] **VALIDAR:** Que el formulario/modal de crear cuenta muestre CORRECTAMENTE el email del padre (no del alumno)
+
+### Próxima Sesión — Orden de Trabajo:
+1. **[BLOQUEANTE] CRÍTICO:** Resolver configuración Cloudinary (ver sección "CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY" arriba)
+   - Obtener credenciales válidas
+   - Actualizar `backend/.env`
+   - Reiniciar backend
+   - Validar que `POST /api/alumnos/:id/regenerar-qr` retorna 200
+
+2. **DESPUÉS de fix Cloudinary:**
+   - [ ] Validar BLOQUE 2 (Modal QR Directora)
+   - [ ] Validar BLOQUES 1, 3, 4 (Mobile QR + Scanners entrada/salida)
+   - [ ] Audit completo de uploads (fotos alumno, personal, tutor, galerías)
+
+3. **ENTONCES:** Implementar QR Temporal (Círculos Confianza) — línea 61
 
 ---
 

@@ -142,6 +142,19 @@ const cambiarPassword = async (req, res, next) => {
     const { passwordActual, passwordNuevo } = req.body;
     const userId = req.user.id;
 
+    // Validar nueva contraseña: 8 caracteres mínimo, letras y números
+    if (!passwordNuevo || passwordNuevo.length < 8) {
+      return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+    }
+
+    if (!/[a-zA-Z]/.test(passwordNuevo)) {
+      return res.status(400).json({ error: 'La contraseña debe incluir letras' });
+    }
+
+    if (!/[0-9]/.test(passwordNuevo)) {
+      return res.status(400).json({ error: 'La contraseña debe incluir números' });
+    }
+
     const result = await query('SELECT password_hash FROM usuarios WHERE id = $1', [userId]);
     const valida = await bcrypt.compare(passwordActual, result.rows[0].password_hash);
 
@@ -151,7 +164,7 @@ const cambiarPassword = async (req, res, next) => {
 
     const hash = await bcrypt.hash(passwordNuevo, 12);
     await query(
-      'UPDATE usuarios SET password_hash = $1, primer_login = false, updated_at = NOW() WHERE id = $1',
+      'UPDATE usuarios SET password_hash = $1, primer_login = false, updated_at = NOW() WHERE id = $2',
       [hash, userId]
     );
 

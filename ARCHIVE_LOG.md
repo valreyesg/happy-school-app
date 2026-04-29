@@ -3107,6 +3107,73 @@ APP-KINDER/
 
 ---
 
+## ✅ SESIÓN XX+12 — QR MEJORADO + GESTIÓN USUARIOS PADRES (2026-04-29)
+
+**Fecha:** 2026-04-29
+
+**Archivos modificados:**
+- `backend/src/routes/padres.js` — Email institucional, preview, GET mejorado
+- `backend/src/controllers/authController.js` — Validación contraseña
+- `web/src/pages/directora/Usuarios.jsx` — Tabs por nivel, agrupación, badges
+- `web/src/pages/LoginPage.jsx` — Modal primer login
+- `mobile/src/pages/PadreScreen.jsx` — QR padre real
+- `web/src/App.jsx` — Ruta /perfil
+
+**Bloques Implementados (7/7):**
+
+1. ✅ Backend: qr_code_url en GET /alumnos/mis-hijos
+2. ✅ Backend: Nueva ruta /padres (CRUD: crear-cuenta, activar, inactivar, reset-password)
+3. ✅ Web: Fix bug QR parsing en FiltroEntrada (parsear HAPPYSCHOOL:ALUMNO:uuid)
+4. ✅ Web: Scanner QR en FiltroSalida (botón naranja)
+5. ✅ Web: Modal QR en Directora/Alumnos (generar/regenerar)
+6. ✅ Mobile: Pantalla QR padre real (tabs + imagen 280x280)
+7. ✅ Web: Nueva página /directora/usuarios (gestión padres: crear, activar, inactivar)
+
+**Mejoras Detectadas y Resueltas:**
+
+**Email Institucional Generado Automáticamente:**
+- Función `limpiarNombre()`: Normaliza nombres con NFD, elimina acentos, convierte a lowercase, reemplaza espacios con underscores
+- Función `generarEmailInstitucional(padreId)`: Genera `tutor_primer_nombre_hijo@happyschool.edu.mx` (tutor principal) o `nombre_completo_alumno@happyschool.edu.mx` (segundo tutor)
+- Resuelve conflictos con sufijos numéricos (2, 3, 4) o timestamp fallback
+- Endpoint `GET /padres/:id/preview-email`: Previsualiza email sin crear
+
+**Dirección Pedagógica Correcta:**
+- Cambio fundamental: Email personal del padre (en tabla `padres.email`) ≠ Email de cuenta del portal (en tabla `usuarios.email`)
+- Email personal = datos de contacto, NO login
+- Email institucional = username del portal, generado automáticamente
+
+**Organización por Nivel y Grupo:**
+- Query `GET /padres` ahora retorna `nivel_nombre`, `grupo_nombre`, `es_tutor_principal`
+- Frontend agrupa padres por nivel (Maternal, Kinder 1, 2, 3) luego por grupo (A, B, C)
+- Tabs de filtro basados en niveles (como Alumnos.jsx)
+- Padres agrupados por alumno (mamá y papá juntos)
+
+**Tarjetas de Padres Mejoradas:**
+- Email institucional visible (no personal)
+- Badges: nombre hijo (azul), grupo (púrpura), "👤 Principal" (verde) si es tutor principal
+- Modal "Crear cuenta" muestra preview de email institucional
+
+**Cambio de Contraseña al Primer Login:**
+- Modal bloqueante obliga cambio antes de acceso
+- Validación: 8 caracteres mínimo, incluye letras y números
+- POST `PUT /auth/cambiar-password` con `passwordActual` y `passwordNuevo`
+
+**Resumen Técnico:**
+
+| Componente | Cambio |
+|-----------|--------|
+| Email generación | Algoritmo hash sobre primer nombre hijo + timestamp fallback |
+| Validación password | `/[a-zA-Z]/` + `/[0-9]/` + 8 char mínimo |
+| GET /padres | Incluye `nivel_nombre`, `grupo_nombre`, array `hijos` con es_tutor_principal |
+| Frontend agrupación | `useMemo` agrupa por nivel → grupo |
+| Badges | Mostrar nombre hijo, grupo, tutor principal indicator |
+
+**Commits:**
+- `67066a4` — feat: Sesión XX+11 — Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos
+- Sesión XX+12 validaciones implementadas dentro del mismo ciclo XX+13
+
+---
+
 ## 🐛 BUGS HISTÓRICOS — NUNCA REPETIR
 
 > Leer antes de escribir queries, rutas o cambios de schema.

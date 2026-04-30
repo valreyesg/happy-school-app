@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Thermometer, Clock, QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Thermometer, Clock, QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
 
 function usePrecioDia() {
@@ -183,37 +184,35 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl">
-        <div className="flex items-center gap-3 p-5 border-b border-gray-100">
-          <AvatarAlumno alumno={alumno} size="md" />
-          <div className="flex-1">
-            <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
-            <p className="text-xs text-gray-400 font-semibold">{alumno.grupo_nombre} · Filtro de entrada</p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={false}>
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+        <AvatarAlumno alumno={alumno} size="md" />
+        <div className="flex-1">
+          <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
+          <p className="text-xs text-gray-400 font-semibold">{alumno.grupo_nombre} · Filtro de entrada</p>
         </div>
+      </div>
 
-        {esCumpleanos(alumno.fecha_nacimiento) && (
-          <div className="mx-5 mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-center">
-            <p className="font-black text-yellow-700 text-sm">🎂 ¡Hoy es el cumpleaños de {alumno.nombre_completo.split(' ')[0]}! 🎈</p>
-          </div>
-        )}
+      {esCumpleanos(alumno.fecha_nacimiento) && (
+        <div className="mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-center">
+          <p className="font-black text-yellow-700 text-sm">🎂 ¡Hoy es el cumpleaños de {alumno.nombre_completo.split(' ')[0]}! 🎈</p>
+        </div>
+      )}
 
-        {solicitudesToallitas.length > 0 && (
-          <div className="mx-5 mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl">
-            <p className="text-xs font-black text-yellow-700 mb-2">🧻 Pendiente: llevar toallitas</p>
-            <button
-              type="button"
-              onClick={() => marcarToallitasRecibidosMutation.mutate(solicitudesToallitas[0].id)}
-              disabled={marcarToallitasRecibidosMutation.isPending}
-              className="w-full px-3 py-2 bg-yellow-400 text-white rounded-lg font-bold text-xs hover:bg-yellow-500 disabled:opacity-50">
-              ✅ Las trajo hoy
-            </button>
-          </div>
-        )}
+      {solicitudesToallitas.length > 0 && (
+        <div className="mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl">
+          <p className="text-xs font-black text-yellow-700 mb-2">🧻 Pendiente: llevar toallitas</p>
+          <button
+            type="button"
+            onClick={() => marcarToallitasRecibidosMutation.mutate(solicitudesToallitas[0].id)}
+            disabled={marcarToallitasRecibidosMutation.isPending}
+            className="w-full px-3 py-2 bg-yellow-400 text-white rounded-lg font-bold text-xs hover:bg-yellow-500 disabled:opacity-50">
+            ✅ Las trajo hoy
+          </button>
+        </div>
+      )}
 
-        <div className="overflow-y-auto flex-1 p-5 space-y-3">
+      <div className="space-y-3">
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Salud</p>
           <CheckRowInv field="sin_fiebre" label="Sin fiebre" emoji="🌡️" />
           {!form.sin_fiebre && (
@@ -304,16 +303,13 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
               </div>
             </>
           )}
-        </div>
-
-        <div className="p-5 border-t border-gray-100">
-          <button onClick={handleSubmit} disabled={mutation.isPending}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 transition-all">
-            {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
-          </button>
-        </div>
       </div>
-    </div>
+
+      <button onClick={handleSubmit} disabled={mutation.isPending}
+        className="w-full py-4 rounded-2xl font-black text-white text-lg bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 transition-all mt-5">
+        {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
+      </button>
+    </Modal>
   );
 }
 
@@ -385,18 +381,12 @@ function QRScannerModal({ onScan, onClose }) {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <p className="font-black text-gray-800">📱 Escanear QR del alumno</p>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
-        </div>
-        <div id="qr-filtro-entrada" ref={qrRef} className="w-full" />
-        <p className="text-center text-xs text-gray-400 font-semibold py-3 px-5">
-          Apunta la cámara al código QR de la credencial del alumno
-        </p>
-      </div>
-    </div>
+    <Modal open={true} onClose={onClose} title="📱 Escanear QR del alumno" size="sm">
+      <div id="qr-filtro-entrada" ref={qrRef} className="w-full" />
+      <p className="text-center text-xs text-gray-400 font-semibold py-3">
+        Apunta la cámara al código QR de la credencial del alumno
+      </p>
+    </Modal>
   );
 }
 

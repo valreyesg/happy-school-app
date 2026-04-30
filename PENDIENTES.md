@@ -206,9 +206,9 @@
 
 **FASE 5.2 — Migrar modales web a Modal.jsx:**
 - [x] Fase 0 — Extender Modal.jsx (xl, full, closeOnBackdrop, dark, scroll interno)
-- [x] Batch A — 5 archivos simples (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
+- [x] **Batch A — 5 archivos simples** (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
   - ✅ 6 modales inline eliminados
-  - ✅ Commit: bc4e767
+  - ✅ Commits: bc4e767
   - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
     - [ ] Perfil.jsx — modal cambio contraseña: abre, cierra, inputs funcionan
     - [ ] LoginPage.jsx — modal primer login: abre, validaciones de password funcionan
@@ -216,14 +216,16 @@
     - [ ] padre/Dashboard.jsx — modal evento: abre/cierra correctamente
     - [ ] padre/Dashboard.jsx — lightbox foto: abre, scroll si es grande, cierra
     - [ ] directora/Visitantes.jsx — form registrar: abre modal, inputs, submit, cancela
-- [x] Batch B — Modales confirm/info en Directora (Usuarios, Dashboard, Asistencia)
+
+- [x] **Batch B — Modales confirm/info en Directora** (Usuarios, Dashboard, Asistencia)
   - ✅ 9 modales inline eliminados (3+4+2)
-  - ✅ Commit: 80df872
+  - ✅ Commits: 80df872
   - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
     - [ ] directora/Usuarios.jsx — crear cuenta (confirm + resultado + reset password)
     - [ ] directora/Dashboard.jsx — 4 modales info de grupo (asistencia, salidas, docs, retardos)
     - [ ] directora/Asistencia.jsx — justificar (form con upload) + ver justificación
-- [x] Batch C — Modales medios (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, etc.)
+
+- [x] **Batch C — Modales medios** (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, NotificacionModal, ModalCategoria)
   - ✅ 15 modales inline eliminados (Tareas 3, Pagos 2, Calendario 2, NinosExtension 2, ServicioComida 1, etc.)
   - ✅ Commits: e1d71cf + anteriores
   - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
@@ -234,18 +236,40 @@
     - [ ] directora/NinosExtension.jsx — 2 modales: registro niño extensión
     - [ ] components/NotificacionModal.jsx — migración completa a Modal.jsx
     - [ ] components/directora/ModalCategoria.jsx — migración completa a Modal.jsx
-- [x] Batch D — Modales complejos (FiltroEntrada, FiltroSalida, Asistencia maestra) — INICIADO
-  - ✅ 5 modales inline eliminados (FiltroEntrada 2, FiltroSalida 2, Asistencia 1)
-  - ✅ Commits: 7fc5216, da27123, 61c2b01
+
+- [x] **Batch D.1-3 — Modales complejos (Maestra)** — COMPLETADO
+  - ✅ 5 modales inline eliminados (FiltroEntrada 2, FiltroSalida 2, Asistencia Maestra 1)
+  - ✅ Commits: 7fc5216 (FiltroEntrada), da27123 (FiltroSalida), 61c2b01 (Asistencia)
   - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
-    - [ ] maestra/FiltroEntrada.jsx — ModalEntrada (multi-paso checklist) + QRScannerModal
-    - [ ] maestra/FiltroSalida.jsx — ModalSalida (2 pasos: quién recoge + checklist) + QRScannerModal
-    - [ ] maestra/Asistencia.jsx — ModalEntrada (checklist de entrada)
-  - 🔴 **PENDIENTE — Archivos complejos (PRÓXIMA SESIÓN O FUTURO):**
-    - [ ] directora/Personal.jsx — ModalPersonal (mega-form 445 líneas, 2 modales)
+    - [ ] maestra/FiltroEntrada.jsx — ModalEntrada (multi-paso checklist + cumpleaños + medicamentos + toallitas) + QRScannerModal
+      - [ ] Abre modal con alumno seleccionado
+      - [ ] Checklist de salud (sin fiebre, temperatura si fiebre) funciona
+      - [ ] Checklist de higiene y materiales funciona
+      - [ ] Comida: aparece solo si confirmó semana
+      - [ ] Medicamentos: aparecen los pendientes, botón "Recibir" funciona
+      - [ ] Toallitas: alerta si hay solicitud pendiente
+      - [ ] Cumpleaños: banner aparece si es cumpleaños
+      - [ ] QR scanner: abre, escanea, selecciona alumno
+    - [ ] maestra/FiltroSalida.jsx — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
+      - [ ] Paso 1: selector "¿Quién recoge?" con padres + autorizados + otro
+      - [ ] Paso 1: alerta de salida anticipada si es antes de hora
+      - [ ] Paso 1: alerta de salida tardía si hay extensión
+      - [ ] Paso 2: checklist (pañal, pertenencias, estado físico, observaciones, entrega conforme)
+      - [ ] Botones "Atrás" ↔ "Siguiente" funcionan correctamente
+      - [ ] QR scanner: abre, escanea, selecciona alumno
+    - [ ] maestra/Asistencia.jsx — ModalEntrada (checklist de entrada similar a FiltroEntrada)
+      - [ ] Abre modal con alumno
+      - [ ] Checklist salud, higiene, materiales funciona
+      - [ ] Cumpleaños banner aparece si es hoy
+      - [ ] Botón "Registrar Entrada" funciona
+
+- 🔴 **Batch D.4+ — Modales mega-complejos** (PRÓXIMA SESIÓN O FUTURO)
+  - **Por migrar (~1100+ líneas totales, requiere 2-3 horas):**
+    - [ ] directora/Personal.jsx — ModalPersonal (mega-form 445 líneas: datos personales + cuenta + asignación grupos)
     - [ ] directora/Grupos.jsx — ModalGrupo (form asignación maestras ~315 líneas)
     - [ ] directora/CiclosEscolares.jsx — ModalNuevoCiclo + ModalPromocion (wizard 3 pasos, ~650 líneas)
-    - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR (form alta/edición, ~275 líneas)
+    - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR (form alta/edición alumno, ~275 líneas)
+  - **Recomendación:** Diferir a sesión posterior, validar primero Batches A-D.3 en browser
 
 **FASE 5.3 — Decisión sobre NativeWind mobile:**
 - [ ] Opción A (recomendada): Eliminar NativeWind, quedarse con StyleSheet + theme.js

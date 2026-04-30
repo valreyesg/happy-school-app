@@ -19,13 +19,13 @@
 - [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
 
 **Batch C (7+ archivos, 15 modales):**
-- [ ] `maestra/Tareas.jsx` — 3 modales: crear, editar, entregas
-- [ ] `directora/Pagos.jsx` — 2 modales: registrar pago, configurar conceptos
-- [ ] `directora/Calendario.jsx` — 2 modales: crear/editar evento, detalle evento
-- [ ] `directora/ServicioComida.jsx` — 1 modal: registrar/editar servicio
-- [ ] `directora/NinosExtension.jsx` — 2 modales: registro niño extensión
-- [ ] `components/NotificacionModal.jsx` — migración completa a Modal.jsx
-- [ ] `components/directora/ModalCategoria.jsx` — migración completa a Modal.jsx
+- [x] `maestra/Tareas.jsx` — 3 modales: crear, editar, entregas — ✅ VALIDADA (2026-04-30)
+- [x] `directora/Pagos.jsx` — 2 modales: registrar pago, configurar conceptos — ✅ VALIDADA (2026-04-30)
+- [x] `directora/Calendario.jsx` — 2 modales: crear/editar evento, detalle evento — ✅ VALIDADA (2026-04-30)
+- [x] `directora/ServicioComida.jsx` — 1 modal: registrar/editar servicio — ✅ VALIDADA (2026-04-30)
+- [x] `directora/NinosExtension.jsx` — 2 modales: registro niño extensión — ✅ VALIDADA (2026-04-30)
+- [x] `components/NotificacionModal.jsx` — ya es Modal custom funcional — ✅ VALIDADA (2026-04-30)
+- [x] `components/directora/ModalCategoria.jsx` — ya es Modal custom funcional — ✅ VALIDADA (2026-04-30)
 
 **Batch D.1-3 (3 archivos, 5 modales — Maestra):**
 - [ ] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal

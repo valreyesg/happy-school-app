@@ -596,7 +596,8 @@ export default function MaestraTareas() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark"
+          disabled={!grupo?.id}
+          className="flex items-center gap-2 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Plus size={20} />
           Nueva Tarea
@@ -681,9 +682,9 @@ export default function MaestraTareas() {
         </div>
       )}
 
-      {showModal && (
+      {showModal && grupo?.id && (
         <ModalNuevaTarea
-          grupoId={grupo?.id}
+          grupoId={grupo.id}
           onClose={() => setShowModal(false)}
           onSuccess={handleSuccess}
         />

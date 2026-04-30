@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { uploadToCloudinary } = require('../services/cloudinaryService');
 const { enviarMensaje } = require('../services/whatsappService');
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.use(authenticate);
 
@@ -263,7 +266,7 @@ router.get('/', async (req, res, next) => {
 });
 
 // ── POST /tareas — crear tarea (Miss)
-router.post('/', authorize('maestra_titular', 'maestra_especial'), async (req, res, next) => {
+router.post('/', authorize('maestra_titular', 'maestra_especial'), upload.single('foto'), async (req, res, next) => {
   try {
     const { titulo, descripcion, fecha_limite, grupo_id } = req.body;
     const usuario_id = req.user.id;
@@ -295,9 +298,8 @@ router.post('/', authorize('maestra_titular', 'maestra_especial'), async (req, r
     }
 
     let foto_url = null;
-    const fotoFile = req.files?.find(f => f.fieldname === 'foto');
-    if (fotoFile) {
-      foto_url = await uploadToCloudinary(fotoFile.buffer, { folder: 'tareas' });
+    if (req.file) {
+      foto_url = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
     }
 
     const fecha = fecha_limite || proximoDiaHabil();
@@ -316,7 +318,7 @@ router.post('/', authorize('maestra_titular', 'maestra_especial'), async (req, r
 });
 
 // ── PUT /tareas/:id — editar tarea (solo si no está publicada)
-router.put('/:id', authorize('maestra_titular', 'maestra_especial'), async (req, res, next) => {
+router.put('/:id', authorize('maestra_titular', 'maestra_especial'), upload.single('foto'), async (req, res, next) => {
   try {
     const { id } = req.params;
     const { titulo, descripcion, fecha_limite } = req.body;
@@ -362,9 +364,8 @@ router.put('/:id', authorize('maestra_titular', 'maestra_especial'), async (req,
 
     // Subir foto si viene
     let foto_url = null;
-    const fotoFile = req.files?.find(f => f.fieldname === 'foto');
-    if (fotoFile) {
-      foto_url = await uploadToCloudinary(fotoFile.buffer, { folder: 'tareas' });
+    if (req.file) {
+      foto_url = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
     }
 
     // Actualizar

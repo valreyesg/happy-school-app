@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import Modal from '@/components/ui/Modal';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Clock } from 'lucide-react';
 
@@ -28,14 +29,8 @@ function ModalNuevoCiclo({ onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-black text-gray-800">+ Nuevo Ciclo Escolar</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
-
-        <form onSubmit={submit} className="px-6 py-4 space-y-4">
+    <Modal open={true} onClose={onClose} title="+ Nuevo Ciclo Escolar" size="md">
+      <form onSubmit={submit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre del ciclo *</label>
             <input
@@ -69,25 +64,24 @@ function ModalNuevoCiclo({ onClose, onSave }) {
             />
           </div>
 
-          <div className="flex gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 transition"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 transition"
-            >
-              {saving ? 'Guardando...' : 'Crear ciclo'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-2 pt-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 py-2 px-4 rounded-lg text-gray-600 font-semibold bg-gray-100 hover:bg-gray-200 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 py-2 px-4 rounded-lg text-white font-semibold bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 transition"
+          >
+            {saving ? 'Guardando...' : 'Crear ciclo'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -256,29 +250,22 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
     return fechaFin > hoy;
   });
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div>
-            <h2 className="text-xl font-black text-gray-800">
-              {step === 1 && 'Paso 1: Seleccionar ciclo destino'}
-              {step === 2 && 'Paso 2: Revisar promoción'}
-              {step === 3 && 'Paso 3: Confirmar cierre'}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Cerrando ciclo: <strong>{cicloActual.nombre}</strong> ({new Date(cicloActual.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloActual.fecha_fin).toLocaleDateString('es-MX')})
-            </p>
-            {step === 2 && (
-              <p className="text-xs text-gray-600 mt-1">
-                Total: {conteoAlumnos} alumnos | ✓ {conteoPromovidos} promovidos | 🎓 {conteoEgresados} egresados{conteoBajas > 0 ? ` | ❌ ${conteoBajas} bajas` : ''}
-              </p>
-            )}
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
+  const title = step === 1 ? 'Paso 1: Seleccionar ciclo destino' : step === 2 ? 'Paso 2: Revisar promoción' : 'Paso 3: Confirmar cierre';
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+  return (
+    <Modal open={true} onClose={onClose} title={title} size="xl" closeOnBackdrop={false}>
+      <div className="mb-4 pb-4 border-b border-gray-100">
+        <p className="text-sm text-gray-500">
+          Cerrando ciclo: <strong>{cicloActual.nombre}</strong> ({new Date(cicloActual.fecha_inicio).toLocaleDateString('es-MX')} — {new Date(cicloActual.fecha_fin).toLocaleDateString('es-MX')})
+        </p>
+        {step === 2 && (
+          <p className="text-xs text-gray-600 mt-1">
+            Total: {conteoAlumnos} alumnos | ✓ {conteoPromovidos} promovidos | 🎓 {conteoEgresados} egresados{conteoBajas > 0 ? ` | ❌ ${conteoBajas} bajas` : ''}
+          </p>
+        )}
+      </div>
+
+      <div className="space-y-4">
           {step === 1 && (
             <div className="space-y-4">
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
@@ -581,9 +568,8 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
               {confirming ? '⏳ Ejecutando...' : '✓ Confirmar cierre'}
             </button>
           )}
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, QrCode, FileText, ChevronDown, X, Upload } from 'lucide-react';
+import { Search, Plus, QrCode, FileText, ChevronDown, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
+import Modal from '@/components/ui/Modal';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
@@ -216,58 +217,48 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCerrar} />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6 text-center">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-black text-gray-800">QR de acceso</h2>
-          <button onClick={onCerrar} className="p-2 rounded-xl hover:bg-gray-100">
-            <X size={20} className="text-gray-500" />
-          </button>
-        </div>
+    <Modal open={true} onClose={onCerrar} title="QR de acceso" size="sm">
+      <p className="font-bold text-gray-700 mb-4 text-center">{alumno.nombre_completo}</p>
 
-        <p className="font-bold text-gray-700 mb-4">{alumno.nombre_completo}</p>
-
-        {qrUrl ? (
-          <>
-            <img
-              src={qrUrl}
-              alt="QR del alumno"
-              className="w-56 h-56 mx-auto rounded-2xl border-4 border-hs-purple/20 object-contain"
-            />
-            <div className="flex gap-3 mt-5">
-              <button
-                onClick={() => window.open(qrUrl, '_blank')}
-                className="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors"
-              >
-                Descargar
-              </button>
-              <button
-                onClick={handleRegenerar}
-                disabled={regenerarMutation.isPending}
-                className="flex-1 px-4 py-2 rounded-2xl border-2 border-amber-200 text-amber-600 font-bold text-sm hover:bg-amber-50 disabled:opacity-50 transition-colors"
-              >
-                {regenerarMutation.isPending ? 'Generando...' : 'Regenerar QR'}
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="py-8">
-            <div className="text-5xl mb-4">📱</div>
-            <p className="text-sm text-gray-500 font-semibold mb-4">
-              Este alumno no tiene QR generado todavía.
-            </p>
+      {qrUrl ? (
+        <>
+          <img
+            src={qrUrl}
+            alt="QR del alumno"
+            className="w-56 h-56 mx-auto rounded-2xl border-4 border-hs-purple/20 object-contain"
+          />
+          <div className="flex gap-3 mt-5">
+            <button
+              onClick={() => window.open(qrUrl, '_blank')}
+              className="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors"
+            >
+              Descargar
+            </button>
             <button
               onClick={handleRegenerar}
               disabled={regenerarMutation.isPending}
-              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
+              className="flex-1 px-4 py-2 rounded-2xl border-2 border-amber-200 text-amber-600 font-bold text-sm hover:bg-amber-50 disabled:opacity-50 transition-colors"
             >
-              {regenerarMutation.isPending ? 'Generando...' : 'Generar QR'}
+              {regenerarMutation.isPending ? 'Generando...' : 'Regenerar QR'}
             </button>
           </div>
-        )}
-      </div>
-    </div>
+        </>
+      ) : (
+        <div className="py-8 text-center">
+          <div className="text-5xl mb-4">📱</div>
+          <p className="text-sm text-gray-500 font-semibold mb-4">
+            Este alumno no tiene QR generado todavía.
+          </p>
+          <button
+            onClick={handleRegenerar}
+            disabled={regenerarMutation.isPending}
+            className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
+          >
+            {regenerarMutation.isPending ? 'Generando...' : 'Generar QR'}
+          </button>
+        </div>
+      )}
+    </Modal>
   );
 }
 
@@ -473,24 +464,8 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCerrar} />
-
-      {/* Panel */}
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-3xl z-10">
-          <h2 className="text-xl font-black text-gray-800">
-            {esEdicion ? '✏️ Editar alumno' : '➕ Nuevo alumno'}
-          </h2>
-          <button onClick={onCerrar} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
-            <X size={20} className="text-gray-500" />
-          </button>
-        </div>
-
-        <div className="p-6 space-y-6">
+    <Modal open={true} onClose={onCerrar} title={esEdicion ? '✏️ Editar alumno' : '➕ Nuevo alumno'} size="xl">
+      <div className="space-y-6">
 
           {/* Foto */}
           <div className="flex items-center gap-4">
@@ -676,20 +651,19 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
           </div>
         </div>
 
-        {/* Footer con botones */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-3 rounded-b-3xl">
-          <button onClick={onCerrar} className="btn-outline flex-1">
-            Cancelar
-          </button>
-          <button
-            onClick={() => guardar.mutate()}
-            disabled={guardar.isPending || !form.nombre_completo || !form.fecha_nacimiento || !form.grupo_id}
-            className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {guardar.isPending ? 'Guardando...' : esEdicion ? '💾 Guardar cambios' : '✅ Crear alumno'}
-          </button>
-        </div>
+      {/* Footer con botones */}
+      <div className="flex gap-3 mt-6">
+        <button onClick={onCerrar} className="btn-outline flex-1">
+          Cancelar
+        </button>
+        <button
+          onClick={() => guardar.mutate()}
+          disabled={guardar.isPending || !form.nombre_completo || !form.fecha_nacimiento || !form.grupo_id}
+          className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {guardar.isPending ? 'Guardando...' : esEdicion ? '💾 Guardar cambios' : '✅ Crear alumno'}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }

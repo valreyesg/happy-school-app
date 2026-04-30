@@ -263,13 +263,29 @@
       - [ ] Cumpleaños banner aparece si es hoy
       - [ ] Botón "Registrar Entrada" funciona
 
-- 🔴 **Batch D.4+ — Modales mega-complejos** (PRÓXIMA SESIÓN O FUTURO)
+- [ ] **Batch D.4+ — Modales mega-complejos** (EN PROGRESO — SESIÓN XX+18+)
   - **Por migrar (~1100+ líneas totales, requiere 2-3 horas):**
     - [ ] directora/Personal.jsx — ModalPersonal (mega-form 445 líneas: datos personales + cuenta + asignación grupos)
     - [ ] directora/Grupos.jsx — ModalGrupo (form asignación maestras ~315 líneas)
     - [ ] directora/CiclosEscolares.jsx — ModalNuevoCiclo + ModalPromocion (wizard 3 pasos, ~650 líneas)
     - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR (form alta/edición alumno, ~275 líneas)
-  - **Recomendación:** Diferir a sesión posterior, validar primero Batches A-D.3 en browser
+  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser) — DESPUÉS DE MIGRACIÓN:**
+    - [ ] directora/Personal.jsx — ModalPersonal (crear + editar personal, asignar grupos, reset password)
+      - [ ] Crear personal: formulario completo, password inicial, roles dropdown
+      - [ ] Editar personal: campos editables, grupo asignado visible
+      - [ ] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo"
+      - [ ] Reset password: confirm modal, botón "🔑 Reset pass" funciona
+    - [ ] directora/Grupos.jsx — ModalGrupo (crear + editar grupo, asignar maestras)
+      - [ ] Crear grupo: nombre, color (picker), nivel dropdown
+      - [ ] Editar grupo: todos los campos editables
+      - [ ] Asignar maestras: selector maestras, botón agregar/quitar
+    - [ ] directora/CiclosEscolares.jsx — ModalNuevoCiclo + ModalPromocion
+      - [ ] ModalNuevoCiclo: 3 pasos (datos ciclo, configuración, confirmación)
+      - [ ] ModalPromocion: upgrade alumnos a nivel siguiente, exportar promoción
+    - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR
+      - [ ] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, etc.)
+      - [ ] ModalQR: mostrar QR, regenerar QR, descargar
+  - **Orden de ejecución:** Personal → Grupos → Alumnos → CiclosEscolares (por dependencias)
 
 **✅ FASE 5.3 — Decisión sobre NativeWind mobile: COMPLETADA**
 - [x] **Opción A IMPLEMENTADA:** Eliminar NativeWind, quedarse con StyleSheet + theme.js

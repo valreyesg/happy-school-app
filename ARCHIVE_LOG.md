@@ -1,7 +1,72 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → **XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind)**
+**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → **XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File)**
+
+---
+
+## ✅ SESIÓN XX+18 (2026-04-30) — Validación FASES 3.5, 5.1, 5.2A + Consistencia Input File (COMPLETADO)
+
+**Fecha:** 2026-04-30 | **Estado:** ✅ VALIDACIÓN PARCIAL COMPLETADA EN BROWSER
+
+### Validaciones Completadas
+
+**FASE 3.5 — ANIMO keys:** ✅ VALIDADO
+- ✅ Bitácora Padre: Selector de ánimo muestra 5 opciones correctas (feliz/activo/cansado/triste/irritable)
+- ✅ Dashboard Maestra: Alumnos con ánimo `activo` muestran ⚡, con ánimo `irritable` muestran 😤
+
+**FASE 5.1 — AppShell compartido:** ✅ VALIDADO
+- ✅ Todos los 3 portales (Padre, Maestra, Directora) tienen header visible, sidebar correcto, NotificationBell funcional
+- ✅ Responsive correcto, logout hover consistente, sin errores Tailwind en consola
+
+**FASE 5.2 — Batch A (5 archivos, 6 modales):** ✅ VALIDADO
+- ✅ Perfil.jsx: Modal cambio contraseña funciona
+- ✅ LoginPage.jsx: Modal primer login con validaciones funciona
+- ✅ padre/Calendario.jsx: Modal evento con botón "Cerrar" y cierre por backdrop
+- ✅ padre/Dashboard.jsx: Modal evento con botón "Cerrar" (agregado en esta sesión) y lightbox foto
+- ✅ directora/Visitantes.jsx: Modal form registrar funciona
+
+**FASE 5.2 — Batch B (parcial):** ✅ VALIDADO (2/3)
+- ✅ directora/Dashboard.jsx: 4 modales info de grupo funcionan
+- ✅ directora/Asistencia.jsx: Modal justificar ausencia + ver justificación funciona
+- ⏳ directora/Usuarios.jsx: Pendiente validar (crear cuenta, confirm, reset password)
+
+### Mejoras de UX/UI — Input File Consistency
+
+**Problema:** Inputs `type="file"` con estilos inconsistentes en formularios de upload.
+
+**Solución:** Aplicar pseudoelemento `file:` con estilo bonito en todos los archivos.
+
+**Archivos actualizados (✅ VALIDADOS):**
+- ✅ directora/Visitantes.jsx — input file foto (purple)
+- ✅ directora/ComidaMenu.jsx — input file archivo (red)
+- ✅ directora/NinosExtension.jsx — input file foto (blue)
+- ✅ directora/ServicioComida.jsx — input file archivo (purple)
+- ✅ directora/Asistencia.jsx — input file justificación (blue, ya implementado)
+
+**Pattern aplicado:**
+```css
+file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[COLOR]/10 file:text-[COLOR]-dark hover:file:bg-[COLOR]-100
+```
+
+### Cambios en padre/Dashboard.jsx
+
+**Bug fix:** Modal evento no tenía botón "Cerrar" explícito (solo cierre por backdrop).
+**Solución:** Agregado botón "Cerrar" al ModalEvento (consistente con padre/Calendario.jsx).
+
+### Commits
+
+1. `3f2c2de` — refactor: Consistencia input file + botón Cerrar en padre/Dashboard
+
+### Pendientes para Próxima Sesión
+
+**Validaciones en browser:**
+- [ ] Batch B: directora/Usuarios.jsx (1 item)
+- [ ] Batch C: 7 items (maestra/Tareas, directora/Pagos, directora/Calendario, etc.)
+- [ ] Batch D.1-3: 3 items (maestra/FiltroEntrada, FiltroSalida, Asistencia)
+- [ ] Batch D.4+: 4 items (directora/Personal, Grupos, CiclosEscolares, Alumnos)
+- [ ] FASE 4.4: 2 items button mobile (no visibles en browser, pendiente device)
+- [ ] FASE 5.3: Mobile validation (npm install, expo start, NativeWind removal)
 
 ---
 

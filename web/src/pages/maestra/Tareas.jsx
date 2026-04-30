@@ -4,6 +4,7 @@ import { Plus, Upload, Clock, Trash2, X, Edit, ChevronLeft, ChevronRight } from 
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
+import Modal from '@/components/ui/Modal';
 
 function getISOWeek(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -98,16 +99,14 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-black">✏️ Editar Tarea</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="space-y-4">
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="✏️ Editar Tarea"
+      size="md"
+      closeOnBackdrop={false}
+    >
+      <div className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Título *</label>
             <input
@@ -162,26 +161,25 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="flex gap-2 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={!form.titulo || mutation.isPending}
-            className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
-          >
-            {mutation.isPending ? 'Guardando...' : 'Guardar'}
-          </button>
         </div>
       </div>
-    </div>
+
+      <div className="flex gap-2 mt-6">
+        <button
+          onClick={onClose}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={() => mutation.mutate()}
+          disabled={!form.titulo || mutation.isPending}
+          className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
+        >
+          {mutation.isPending ? 'Guardando...' : 'Guardar'}
+        </button>
+      </div>
+    </Modal>
   );
 }
 
@@ -224,16 +222,14 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-black">📋 Nueva Tarea</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={24} />
-          </button>
-        </div>
-
-        <div className="space-y-4">
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="📋 Nueva Tarea"
+      size="md"
+      closeOnBackdrop={false}
+    >
+      <div className="space-y-4">
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-1">Título *</label>
             <input
@@ -305,9 +301,8 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
           >
             {mutation.isPending ? 'Creando...' : 'Crear'}
           </button>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -321,18 +316,19 @@ function ModalEntregas({ tareaId, titulo, onClose }) {
   const faltan = data?.alumnos.filter(a => !a.completada) || [];
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-base font-black text-gray-800">📊 Entregas</h2>
-          <button onClick={onClose}><X size={22} /></button>
-        </div>
-        <p className="text-xs text-gray-500 mb-4 truncate">{titulo}</p>
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="📊 Entregas"
+      size="sm"
+      closeOnBackdrop={true}
+    >
+      <p className="text-xs text-gray-500 mb-4 truncate">{titulo}</p>
 
-        {isLoading ? (
-          <div className="text-center py-6 text-gray-400">Cargando...</div>
-        ) : (
-          <div className="space-y-4">
+      {isLoading ? (
+        <div className="text-center py-6 text-gray-400">Cargando...</div>
+      ) : (
+        <div className="space-y-4">
             {/* Entregaron */}
             <div>
               <p className="text-xs font-black text-green-700 uppercase tracking-wide mb-2">
@@ -371,16 +367,15 @@ function ModalEntregas({ tareaId, titulo, onClose }) {
               )}
             </div>
           </div>
-        )}
+      )}
 
-        <button
-          onClick={onClose}
-          className="w-full mt-5 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
-        >
-          Cerrar
-        </button>
-      </div>
-    </div>
+      <button
+        onClick={onClose}
+        className="w-full mt-5 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
+      >
+        Cerrar
+      </button>
+    </Modal>
   );
 }
 

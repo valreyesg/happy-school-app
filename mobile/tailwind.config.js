@@ -1,7 +1,7 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js — Colores para referencia (no usado en runtime)
+// Mobile usa StyleSheet + theme.js en constants/theme.js
 module.exports = {
   content: ['./app/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
-  presets: [require('nativewind/preset')],
   theme: {
     extend: {
       colors: {

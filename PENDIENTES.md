@@ -271,9 +271,15 @@
     - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR (form alta/edición alumno, ~275 líneas)
   - **Recomendación:** Diferir a sesión posterior, validar primero Batches A-D.3 en browser
 
-**FASE 5.3 — Decisión sobre NativeWind mobile:**
-- [ ] Opción A (recomendada): Eliminar NativeWind, quedarse con StyleSheet + theme.js
-- [ ] Opción B: Adoptar NativeWind completamente (20+ horas, refactor mayor)
+**✅ FASE 5.3 — Decisión sobre NativeWind mobile: COMPLETADA**
+- [x] **Opción A IMPLEMENTADA:** Eliminar NativeWind, quedarse con StyleSheet + theme.js
+  - ✅ Removido `nativewind` de dependencies
+  - ✅ Removido `tailwindcss` de devDependencies
+  - ✅ Removido `presets: [require('nativewind/preset')]` de tailwind.config.js
+  - ✅ Verificado: CERO referencias a nativewind en código mobile
+  - ✅ Commit: `<pendiente>`
+  - **Razón:** Button.jsx y componentes mobile ya migrados a StyleSheet/theme.js; NativeWind no se usaba
+  - **Beneficio:** Menos dependencias, coherencia (web=Tailwind, mobile=StyleSheet nativo)
 
 ---
 

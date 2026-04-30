@@ -209,6 +209,13 @@
 - [x] Batch A — 5 archivos simples (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
   - ✅ 6 modales inline eliminados
   - ✅ Commit: bc4e767
+  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
+    - [ ] Perfil.jsx — modal cambio contraseña: abre, cierra, inputs funcionan
+    - [ ] LoginPage.jsx — modal primer login: abre, validaciones de password funcionan
+    - [ ] padre/Calendario.jsx — modal evento: click en evento, cierra con X y backdrop
+    - [ ] padre/Dashboard.jsx — modal evento: abre/cierra correctamente
+    - [ ] padre/Dashboard.jsx — lightbox foto: abre, scroll si es grande, cierra
+    - [ ] directora/Visitantes.jsx — form registrar: abre modal, inputs, submit, cancela
 - [ ] Batch B — Modales confirm/info en Directora (Usuarios, Dashboard, Asistencia)
 - [ ] Batch C — Modales medios (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, etc.)
 - [ ] Batch D — Modales complejos (FiltroEntrada, FiltroSalida, Personal, Grupos, CiclosEscolares, Alumnos)

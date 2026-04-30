@@ -98,8 +98,8 @@ router.post('/', authorize('directora'), async (req, res, next) => {
       password_inicial,
     } = req.body;
 
-    if (!nombre_completo || !email || !rol_principal)
-      return res.status(400).json({ error: 'nombre_completo, email y rol_principal son obligatorios' });
+    if (!nombre_completo || !email || !rol_principal || !curp || !rfc)
+      return res.status(400).json({ error: 'nombre_completo, email, rol_principal, curp y rfc son obligatorios' });
 
     // Crear usuario primero
     const passHash = await bcrypt.hash(password_inicial || process.env.DEFAULT_USER_PASSWORD, 10);
@@ -206,12 +206,25 @@ router.post('/:id/asignar-grupo', authorize('directora'), async (req, res, next)
       `, [grupo_id, cicloFinal]);
     }
 
-    await query(`
-      INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, es_titular, materia)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (personal_id, grupo_id, ciclo_id) WHERE activo = true DO UPDATE SET
-        es_titular = $4, materia = $5
-    `, [req.params.id, grupo_id, cicloFinal, es_titular || false, materia || null]);
+    // Verificar si ya existe asignación activa
+    const existeResult = await query(`
+      SELECT id FROM asignaciones_grupo
+      WHERE personal_id = $1 AND grupo_id = $2 AND ciclo_id = $3 AND activo = true
+    `, [req.params.id, grupo_id, cicloFinal]);
+
+    if (existeResult.rows.length > 0) {
+      // Ya existe, actualizar
+      await query(`
+        UPDATE asignaciones_grupo SET es_titular = $1, materia = $2
+        WHERE personal_id = $3 AND grupo_id = $4 AND ciclo_id = $5 AND activo = true
+      `, [es_titular || false, materia || null, req.params.id, grupo_id, cicloFinal]);
+    } else {
+      // No existe, insertar
+      await query(`
+        INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, es_titular, materia)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [req.params.id, grupo_id, cicloFinal, es_titular || false, materia || null]);
+    }
 
     res.json({ ok: true });
   } catch (err) { next(err); }

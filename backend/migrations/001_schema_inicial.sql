@@ -151,6 +151,10 @@ CREATE TABLE IF NOT EXISTS personal (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- INDEX UNIQUE en CURP (ignorar NULLs)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_personal_curp_unique ON personal(curp) WHERE curp IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_personal_rfc_unique ON personal(rfc) WHERE rfc IS NOT NULL;
+
 -- Asignación de maestras a grupos
 CREATE TABLE IF NOT EXISTS asignaciones_grupo (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

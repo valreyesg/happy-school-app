@@ -1,7 +1,72 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → **XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData)**
+**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → **XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes)**
+
+---
+
+## ✅ SESIÓN XX+20 (2026-04-30) — FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes (COMPLETADO)
+
+**Fecha:** 2026-04-30 | **Estado:** ✅ VALIDACIÓN COMPLETA EN BROWSER + BUG FIXES CRÍTICOS
+
+### Validaciones Completadas
+
+**FASE 5.2 — Batch D.1-3 (Personal.jsx — 5 modales):** ✅ 100% VALIDADO EN BROWSER
+- ✅ Crear personal: formulario completo, password inicial, roles dropdown ✓
+- ✅ Editar personal: campos editables, grupo asignado visible ✓
+- ✅ Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo" — **FUNCIONA PARA TODOS LOS ROLES** ✓
+- ✅ Reset password: confirm modal, botón "🔑 Reset pass" funciona ✓
+- ✅ Quitar grupo: botón "Quitar" en grupos asignados funciona ✓
+
+### Bugs Críticos Resueltos
+
+**Bug 1: Error 409 al guardar nombre — "Ya existe un registro con esos datos"**
+- **Causa:** Índices UNIQUE en CURP/RFC NO ignoraban NULLs, bloqueando updates
+- **Fix:** 
+  - Dropear `idx_personal_curp_unique` / `idx_personal_rfc_unique`
+  - Recrear con `WHERE curp IS NOT NULL` / `WHERE rfc IS NOT NULL`
+  - Hacer CURP y RFC **obligatorios** en validación frontend + backend
+- **Resultado:** ✅ Editar nombre sin error 409
+
+**Bug 2: Quitar grupo no funciona — botón no actualiza UI**
+- **Causa:** DELETE funciona pero no hay refresh de datos ni toast de confirmación
+- **Fix:** Agregar try/catch + invalidateQueries + toast.success() en `quitarGrupo()`
+- **Resultado:** ✅ Grupo desaparece inmediatamente tras quitar
+
+**Bug 3: Asignar grupo falla — Error 409 con registro inactivo**
+- **Causa:** UNIQUE constraint en `asignaciones_grupo` NO consideraba `activo = false`
+- **Fix:** 
+  - Dropear constraint `uq_asignaciones_grupo`
+  - Recrear como INDEX UNIQUE con `WHERE activo = true`
+  - Simplificar lógica INSERT: verificar existencia antes de insertar/actualizar
+- **Resultado:** ✅ Asignar grupo funciona incluso con registros inactivos previos
+
+**Bug 4: Fecha ingreso no carga — campo vacío al editar**
+- **Causa:** BD envía ISO completo `2025-04-30T00:00:00Z`, input type="date" espera `YYYY-MM-DD`
+- **Fix:** Usar `.substring(0, 10)` al inicializar form.fecha_ingreso
+- **Resultado:** ✅ Fecha aparece en campo date picker
+
+### Cambios Realizados
+
+#### Backend (`personal.js`)
+1. Validación POST: agregar `!curp || !rfc` como obligatorios
+2. Endpoint asignar-grupo: reemplazar `ON CONFLICT` inválido por lógica select→insert/update
+
+#### Frontend (`Personal.jsx`)
+1. Validación submit: agregar `!form.curp.trim() || !form.rfc.trim()`
+2. Campos CURP/RFC: marcar `required`
+3. Función `quitarGrupo()`: agregar try/catch + invalidateQueries + toast
+4. Inicializar fecha_ingreso: usar `.substring(0, 10)`
+5. Función `asignarGrupo()`: agregar delay 300ms antes de cerrar modal
+
+#### BD (PostgreSQL)
+1. Dropear/recrear índices CURP/RFC con `WHERE ... IS NOT NULL`
+2. Dropear constraint UNIQUE en asignaciones_grupo
+3. Recrear como INDEX UNIQUE con `WHERE activo = true`
+
+### Commits
+
+1. `e87937d` — fix: FASE 5.2 Personal validada + índices UNIQUE con WHERE IS NOT NULL + asignación grupo corregida
 
 ---
 

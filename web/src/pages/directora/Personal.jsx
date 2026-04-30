@@ -19,7 +19,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignad
     genero:          persona?.genero          || 'f',
     curp:            persona?.curp            || '',
     rfc:             persona?.rfc             || '',
-    fecha_ingreso:   persona?.fecha_ingreso   || '',
+    fecha_ingreso:   persona?.fecha_ingreso?.substring(0, 10) || '',
     activo:          persona?.activo          ?? true,
     password_inicial: '',
   });
@@ -38,8 +38,8 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignad
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.nombre_completo.trim() || !form.email.trim()) {
-      setError('Nombre y email son obligatorios.');
+    if (!form.nombre_completo.trim() || !form.email.trim() || !form.curp.trim() || !form.rfc.trim()) {
+      setError('Nombre, email, CURP y RFC son obligatorios.');
       return;
     }
     setSaving(true);
@@ -75,7 +75,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignad
       await api.post(`/personal/${persona.id}/asignar-grupo`, { grupo_id: grupoId, es_titular: esTitularFinal, materia });
       toast.success('✅ Grupo asignado correctamente');
       if (onGrupoAsignado) onGrupoAsignado();
-      onClose();
+      setTimeout(() => onClose(), 300);
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al asignar grupo');
     } finally {
@@ -85,7 +85,14 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignad
 
   const quitarGrupo = async (gId) => {
     if (!persona?.id) return;
-    await api.delete(`/personal/${persona.id}/asignar-grupo/${gId}`);
+    try {
+      await api.delete(`/personal/${persona.id}/asignar-grupo/${gId}`);
+      toast.success('✅ Grupo removido');
+      if (onGrupoAsignado) onGrupoAsignado();
+      onClose();
+    } catch (err) {
+      toast.error('❌ Error al quitar grupo: ' + (err?.response?.data?.error || err.message));
+    }
   };
 
   return (
@@ -117,12 +124,12 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignad
                 <input type="date" className="input-hs w-full" value={form.fecha_ingreso} onChange={e => set('fecha_ingreso', e.target.value)} />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">CURP</label>
-                <input className="input-hs w-full uppercase" value={form.curp} onChange={e => set('curp', e.target.value.toUpperCase())} maxLength={18} />
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">CURP *</label>
+                <input className="input-hs w-full uppercase" value={form.curp} onChange={e => set('curp', e.target.value.toUpperCase())} maxLength={18} required />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">RFC</label>
-                <input className="input-hs w-full uppercase" value={form.rfc} onChange={e => set('rfc', e.target.value.toUpperCase())} maxLength={13} />
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">RFC *</label>
+                <input className="input-hs w-full uppercase" value={form.rfc} onChange={e => set('rfc', e.target.value.toUpperCase())} maxLength={13} required />
               </div>
             </div>
           </fieldset>

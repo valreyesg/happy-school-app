@@ -25,19 +25,16 @@ router.get('/', authorize('directora', 'administrativo'), async (req, res, next)
               'grupo_nombre', g.nombre,
               'es_titular', ag.es_titular,
               'materia',   ag.materia
-            )
+            ) ORDER BY ag.grupo_id
           ) FILTER (WHERE ag.id IS NOT NULL AND ag.activo = true),
           '[]'
         ) AS grupos_asignados
       FROM personal p
       LEFT JOIN usuarios u ON p.usuario_id = u.id
-      LEFT JOIN (
-        SELECT ag2.* FROM asignaciones_grupo ag2
-        JOIN ciclos_escolares ce ON ag2.ciclo_id = ce.id AND ce.activo = true
-        WHERE ag2.activo = true
-      ) ag ON ag.personal_id = p.id
+      LEFT JOIN asignaciones_grupo ag ON ag.personal_id = p.id AND ag.activo = true
+      LEFT JOIN ciclos_escolares ce ON ag.ciclo_id = ce.id
       LEFT JOIN grupos g ON ag.grupo_id = g.id
-      WHERE 1=1
+      WHERE ce.id IS NULL OR ce.activo = true
     `;
 
     const params = [];

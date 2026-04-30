@@ -184,13 +184,16 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   );
 
   return (
-    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={false}>
+    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={true}>
       <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
         <AvatarAlumno alumno={alumno} size="md" />
         <div className="flex-1">
           <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
           <p className="text-xs text-gray-400 font-semibold">{alumno.grupo_nombre} · Filtro de entrada</p>
         </div>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+          <span className="text-xl">✕</span>
+        </button>
       </div>
 
       {esCumpleanos(alumno.fecha_nacimiento) && (

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-30 — Sesión XX+19 | **Próximos pendientes:** Validación Batch B + Batch D.1-3 + Batch D.4+ + FASE 5.3 Mobile
+**Última actualización:** 2026-04-30 — Sesión XX+20 | **Próximos pendientes:** Validación Batch B + Batch D.4+ (bugs fixes) + FASE 5.3 Mobile
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -18,35 +18,20 @@
 **Batch B (3 archivos, 9 modales) — PARCIAL:**
 - [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
 
-**Batch D.1-3 (3 archivos, 5 modales — Maestra):**
-- [ ] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal
-  - [ ] Abre modal con alumno seleccionado
-  - [ ] Checklist de salud (sin fiebre, temperatura si fiebre) funciona
-  - [ ] Checklist de higiene y materiales funciona
-  - [ ] Comida: aparece solo si confirmó semana
-  - [ ] Medicamentos: aparecen los pendientes, botón "Recibir" funciona
-  - [ ] Toallitas: alerta si hay solicitud pendiente
-  - [ ] Cumpleaños: banner aparece si es cumpleaños
-  - [ ] QR scanner: abre, escanea, selecciona alumno
-- [ ] `maestra/FiltroSalida.jsx` — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
-  - [ ] Paso 1: selector "¿Quién recoge?" con padres + autorizados + otro
-  - [ ] Paso 1: alerta de salida anticipada si es antes de hora
-  - [ ] Paso 1: alerta de salida tardía si hay extensión
-  - [ ] Paso 2: checklist (pañal, pertenencias, estado físico, observaciones, entrega conforme)
-  - [ ] Botones "Atrás" ↔ "Siguiente" funcionan correctamente
-  - [ ] QR scanner: abre, escanea, selecciona alumno
-- [ ] `maestra/Asistencia.jsx` — ModalEntrada (checklist de entrada)
-  - [ ] Abre modal con alumno
-  - [ ] Checklist salud, higiene, materiales funciona
-  - [ ] Cumpleaños banner aparece si es hoy
-  - [ ] Botón "Registrar Entrada" funciona
+**Batch D.1-3 (3 archivos, 5 modales — Maestra): ✅ VALIDADO**
+- [x] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal
+- [x] `maestra/FiltroSalida.jsx` — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
+- [x] `maestra/Asistencia.jsx` — ModalEntrada (checklist de entrada)
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
 - [ ] `directora/Personal.jsx` — ModalPersonal (crear + editar personal, asignar grupos, reset password)
-  - [ ] Crear personal: formulario completo, password inicial, roles dropdown
-  - [ ] Editar personal: campos editables, grupo asignado visible
-  - [ ] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo"
+  - [x] Crear personal: formulario completo, password inicial, roles dropdown
+  - [x] Editar personal: campos editables, grupo asignado visible
+  - [x] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo" — **FUNCIONA PARA TODOS LOS ROLES (maestra_titular, maestra_especial, miss_auxiliar)**
   - [ ] Reset password: confirm modal, botón "🔑 Reset pass" funciona
+  - [ ] **BUG: Guardar nombre no funciona** — intenta cambiar nombre y guardar → no guarda
+  - [ ] **BUG: Quitar grupo no funciona** — botón "Quitar" en grupos asignados no hace nada
+  - [ ] **BUG: Fecha ingreso no carga** — al editar, no muestra la fecha_ingreso guardada previamente
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
   - [ ] Crear grupo: nombre, color (picker), nivel dropdown
   - [ ] Editar grupo: todos los campos editables

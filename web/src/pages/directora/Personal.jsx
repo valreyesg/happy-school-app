@@ -4,11 +4,12 @@ import api from '@/services/api';
 import Modal from '@/components/ui/Modal';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { ROL_COLOR } from '@/utils/catalogos';
+import toast from 'react-hot-toast';
 
 // ─── Catálogos ────────────────────────────────────────────────────────────────
 
 // ─── Modal crear / editar ─────────────────────────────────────────────────────
-function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
+function ModalPersonal({ persona, grupos, roles, onClose, onSave, onGrupoAsignado }) {
   const esNuevo = !persona;
   const [form, setForm] = useState({
     nombre_completo: persona?.nombre_completo || '',
@@ -24,6 +25,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [personaCreada, setPersonaCreada] = useState(null);
 
   // Asignación de grupo
   const [grupoId, setGrupoId] = useState(persona?.grupos_asignados?.[0]?.grupo_id || '');
@@ -43,11 +45,21 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
     setSaving(true);
     try {
       const id = await onSave(form);
-      // Asignar grupo si se seleccionó y es nuevo
-      if (esNuevo && grupoId && id) {
-        await api.post(`/personal/${id}/asignar-grupo`, { grupo_id: grupoId, es_titular: esTitular, materia });
+      if (esNuevo && grupoId) {
+        setPersonaCreada(id);
+        const esTitularFinal = form.rol_principal === 'miss_auxiliar' ? false : esTitular;
+        try {
+          await api.post(`/personal/${id}/asignar-grupo`, { grupo_id: grupoId, es_titular: esTitularFinal, materia });
+          toast.success('✅ Personal creado y grupo asignado');
+          if (onGrupoAsignado) onGrupoAsignado();
+        } catch (grupoErr) {
+          toast.error('⚠️ Personal creado pero grupo no se asignó: ' + (grupoErr?.response?.data?.error || grupoErr.message));
+        }
+        onClose();
+      } else {
+        toast.success('✅ Personal creado correctamente');
+        onClose();
       }
-      onClose();
     } catch (err) {
       setError(err?.response?.data?.error || 'Error al guardar. Intenta de nuevo.');
     } finally {
@@ -59,7 +71,13 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
     if (!grupoId || !persona?.id) return;
     setAsignandoGrupo(true);
     try {
-      await api.post(`/personal/${persona.id}/asignar-grupo`, { grupo_id: grupoId, es_titular: esTitular, materia });
+      const esTitularFinal = form.rol_principal === 'miss_auxiliar' ? false : esTitular;
+      await api.post(`/personal/${persona.id}/asignar-grupo`, { grupo_id: grupoId, es_titular: esTitularFinal, materia });
+      toast.success('✅ Grupo asignado correctamente');
+      if (onGrupoAsignado) onGrupoAsignado();
+      onClose();
+    } catch (err) {
+      setError(err?.response?.data?.error || 'Error al asignar grupo');
     } finally {
       setAsignandoGrupo(false);
     }
@@ -148,7 +166,7 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
           </fieldset>
 
           {/* Asignación de grupo */}
-          {(form.rol_principal === 'maestra_titular' || form.rol_principal === 'maestra_especial') && (
+          {(form.rol_principal?.includes('maestra') || form.rol_principal?.includes('miss') || form.rol_principal?.includes('auxiliar')) && (
             <fieldset className="space-y-3">
               <legend className="text-xs font-black text-hs-purple uppercase tracking-wider mb-2">Asignación de grupo</legend>
 
@@ -184,12 +202,14 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
                 )}
               </div>
 
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" className="rounded" checked={esTitular} onChange={e => setEsTitular(e.target.checked)} />
-                <span className="text-sm font-semibold text-gray-600">Asignar como Miss titular del grupo</span>
-              </label>
+              {form.rol_principal !== 'miss_auxiliar' && (
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" className="rounded" checked={esTitular} onChange={e => setEsTitular(e.target.checked)} />
+                  <span className="text-sm font-semibold text-gray-600">Asignar como Miss titular del grupo</span>
+                </label>
+              )}
 
-              {!esNuevo && grupoId && (
+              {grupoId && !esNuevo && (
                 <button
                   type="button"
                   onClick={asignarGrupo}
@@ -354,7 +374,9 @@ export default function DirectoraPersonal() {
       const data = await crearMutation.mutateAsync(form);
       return data.personal_id;
     } else {
-      await editarMutation.mutateAsync({ id: modal.id, ...form });
+      // En edición, no enviar email (ya existe en usuarios)
+      const { email, ...formSinEmail } = form;
+      await editarMutation.mutateAsync({ id: modal.id, ...formSinEmail });
       return modal.id;
     }
   };
@@ -464,6 +486,7 @@ export default function DirectoraPersonal() {
           roles={ROLES}
           onClose={() => setModal(null)}
           onSave={handleSave}
+          onGrupoAsignado={() => queryClient.invalidateQueries({ queryKey: ['personal'] })}
         />
       )}
 

@@ -135,7 +135,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
   };
 
   return (
-    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={false}>
+    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={true}>
       <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
         <AvatarAlumno alumno={alumno} size="md" />
         <div className="flex-1">
@@ -147,6 +147,9 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
             )}
           </p>
         </div>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+          <span className="text-xl">✕</span>
+        </button>
       </div>
 
       {/* Indicador de progreso */}

@@ -277,9 +277,13 @@
   - ✅ Removido `tailwindcss` de devDependencies
   - ✅ Removido `presets: [require('nativewind/preset')]` de tailwind.config.js
   - ✅ Verificado: CERO referencias a nativewind en código mobile
-  - ✅ Commit: `<pendiente>`
+  - ✅ Commit: `3670c5c`
   - **Razón:** Button.jsx y componentes mobile ya migrados a StyleSheet/theme.js; NativeWind no se usaba
   - **Beneficio:** Menos dependencias, coherencia (web=Tailwind, mobile=StyleSheet nativo)
+  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en device/emulador):**
+    - [ ] **Mobile arranca sin errores:** `npm install` en mobile/, `expo start` sin crashes
+    - [ ] **Componentes siguen funcionando:** Button, ModalSheet, NotificationBell sin cambios visuales
+    - [ ] **Consola sin warnings sobre nativewind**
 
 ---
 

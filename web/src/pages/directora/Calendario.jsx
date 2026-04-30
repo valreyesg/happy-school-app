@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import api from '@/services/api';
+import Modal from '@/components/ui/Modal';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -70,14 +71,14 @@ function ModalEvento({ evento, categorias, grupos, fechaInicial, onClose, onSave
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-black text-gray-800">{esNuevo ? '+ Nuevo evento' : 'Editar evento'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-        </div>
-
-        <form onSubmit={submit} className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={esNuevo ? '+ Nuevo evento' : 'Editar evento'}
+      size="lg"
+      closeOnBackdrop={false}
+    >
+      <form onSubmit={submit} className="space-y-4">
           {error && <p className="text-red-600 text-sm font-semibold bg-red-50 rounded-xl px-4 py-2">{error}</p>}
 
           <div>
@@ -166,16 +167,15 @@ function ModalEvento({ evento, categorias, grupos, fechaInicial, onClose, onSave
             <input type="checkbox" className="rounded" checked={form.publicado} onChange={e => set('publicado', e.target.checked)} />
             <span className="text-sm font-semibold text-gray-600">Publicado (visible para padres)</span>
           </label>
-        </form>
+      </form>
 
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button type="button" onClick={onClose} className="btn-hs btn-hs-ghost">Cancelar</button>
-          <button onClick={submit} disabled={saving} className="btn-hs btn-hs-primary">
-            {saving ? 'Guardando…' : esNuevo ? 'Crear evento' : 'Guardar cambios'}
-          </button>
-        </div>
+      <div className="flex justify-end gap-3 pt-2">
+        <button type="button" onClick={onClose} className="btn-hs btn-hs-ghost">Cancelar</button>
+        <button onClick={submit} disabled={saving} className="btn-hs btn-hs-primary">
+          {saving ? 'Guardando…' : esNuevo ? 'Crear evento' : 'Guardar cambios'}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -186,27 +186,25 @@ function DetalleEvento({ evento, onEdit, onDelete, onClose }) {
   const color = evento.categoria_color || '#805AD5';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="h-2 rounded-t-2xl" style={{ backgroundColor: color }} />
-        <div className="px-6 py-5">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                {evento.categoria_icono && <span className="text-xl">{evento.categoria_icono}</span>}
-                {evento.categoria_nombre && (
-                  <span className="text-xs font-black px-2 py-0.5 rounded-full" style={{ background: color + '20', color }}>
-                    {evento.categoria_nombre}
-                  </span>
-                )}
-                {!evento.publicado && (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Borrador</span>
-                )}
-              </div>
-              <h3 className="text-xl font-black text-gray-800">{evento.titulo}</h3>
-            </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl flex-shrink-0">&times;</button>
-          </div>
+    <Modal
+      open={true}
+      onClose={onClose}
+      title={evento.titulo}
+      size="md"
+      closeOnBackdrop={true}
+    >
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          {evento.categoria_icono && <span className="text-xl">{evento.categoria_icono}</span>}
+          {evento.categoria_nombre && (
+            <span className="text-xs font-black px-2 py-0.5 rounded-full" style={{ background: color + '20', color }}>
+              {evento.categoria_nombre}
+            </span>
+          )}
+          {!evento.publicado && (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Borrador</span>
+          )}
+        </div>
 
           {evento.descripcion && <p className="text-gray-600 text-sm mt-3 leading-relaxed">{evento.descripcion}</p>}
 
@@ -260,9 +258,8 @@ function DetalleEvento({ evento, onEdit, onDelete, onClose }) {
               <button onClick={() => setConfirmando(true)} className="btn-hs text-red-500 hover:bg-red-50 text-sm px-4">🗑️</button>
             </div>
           )}
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

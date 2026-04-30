@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
+import Modal from '@/components/ui/Modal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -135,13 +136,14 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fade-in">
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b">
-          <h3 className="text-lg font-black text-gray-800">Registrar Pago 💰</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
-        </div>
-        <form onSubmit={submit} className="p-6 space-y-4">
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="Registrar Pago 💰"
+      size="md"
+      closeOnBackdrop={false}
+    >
+      <form onSubmit={submit} className="space-y-4">
           {alumno ? (
             <div className="flex items-center gap-3 p-3 bg-hs-purple/10 rounded-xl">
               {alumno.foto_url
@@ -292,16 +294,15 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
 
           {error && <p className="text-red-600 text-sm font-semibold">{error}</p>}
 
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
-            <button type="submit" disabled={mut.isPending}
-              className="flex-1 py-3 rounded-xl bg-hs-purple-dark hover:bg-hs-purple-dark text-white font-black disabled:opacity-50">
-              {mut.isPending ? 'Guardando…' : 'Registrar pago'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
+          <button type="submit" disabled={mut.isPending}
+            className="flex-1 py-3 rounded-xl bg-hs-purple-dark hover:bg-hs-purple-dark text-white font-black disabled:opacity-50">
+            {mut.isPending ? 'Guardando…' : 'Registrar pago'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 
@@ -324,14 +325,14 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg animate-fade-in max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b">
-          <h3 className="text-lg font-black text-gray-800">Conceptos de Pago</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
-        </div>
-
-        <div className="overflow-y-auto flex-1 p-6 space-y-4">
+    <Modal
+      open={true}
+      onClose={onClose}
+      title="Conceptos de Pago"
+      size="lg"
+      closeOnBackdrop={false}
+    >
+      <div className="space-y-4">
           {/* Lista */}
           <div className="space-y-2">
             {conceptos.map(c => (
@@ -395,9 +396,8 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
               {crear.isPending ? 'Guardando…' : '+ Agregar concepto'}
             </button>
           </div>
-        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 

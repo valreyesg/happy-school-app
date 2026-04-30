@@ -18,11 +18,6 @@
 **Batch B (3 archivos, 9 modales) — PARCIAL:**
 - [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
 
-**Batch D.1-3 (3 archivos, 5 modales — Maestra): ✅ VALIDADO**
-- [x] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal
-- [x] `maestra/FiltroSalida.jsx` — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
-- [x] `maestra/Asistencia.jsx` — ModalEntrada (checklist de entrada)
-
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
   - [ ] Crear grupo: nombre, color (picker), nivel dropdown

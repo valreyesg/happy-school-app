@@ -1,7 +1,46 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → **XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File)**
+**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → **XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData)**
+
+---
+
+## ✅ SESIÓN XX+19 (2026-04-30) — FASE 5.2 Batch C Validación + Fix Tareas FormData (COMPLETADO)
+
+**Fecha:** 2026-04-30 | **Estado:** ✅ VALIDACIÓN COMPLETA EN BROWSER + BUG FIXES CRÍTICOS
+
+### Validaciones Completadas
+
+**FASE 5.2 — Batch C (7/7 archivos, 15 modales):** ✅ 100% VALIDADO EN BROWSER
+- ✅ maestra/Tareas.jsx — 3 modales (crear, editar, entregas) ✓
+- ✅ directora/Pagos.jsx — 2 modales (registrar pago, configurar conceptos) ✓
+- ✅ directora/Calendario.jsx — 2 modales (crear/editar evento, detalle evento) ✓
+- ✅ directora/ServicioComida.jsx — 1 modal (registrar/editar servicio) ✓
+- ✅ directora/NinosExtension.jsx — 2 modales (registro niño extensión) ✓
+- ✅ components/NotificacionModal.jsx — Modal custom funcional ✓
+- ✅ components/directora/ModalCategoria.jsx — Modal custom funcional ✓
+
+### Bugs Críticos Resueltos
+
+**Bug 1: Error 400 POST /tareas — "titulo and grupo_id are required"**
+- **Causa:** FormData no se parseaba en backend (multer no configurado)
+- **Fix:** Agregar middleware multer en POST/PUT /tareas, cambiar req.files → req.file
+- **Resultado:** ✅ Crear tarea funciona sin error
+
+**Bug 2: grupoId undefined en ModalNuevaTarea**
+- **Causa:** Modal abría antes de que grupo cargara
+- **Fix:** Validar grupo?.id antes de renderizar, desactivar botón mientras carga
+- **Resultado:** ✅ grupoId siempre válido al enviar
+
+### Commits
+
+1. `7aed036` — fix: FASE 5.2 Batch C — FormData + grupoId validation + validación completa
+
+### Aprendizajes Documentados
+
+- FormData + Multer: Middleware CRÍTICO para parsear archivos en Express
+- Null-safety: Validar props antes de pasar a componentes (no solo ? chain)
+- Web verify: curl real necesario, logs HMR no son indicador de estado
 
 ---
 

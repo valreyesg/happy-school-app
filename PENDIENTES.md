@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-30 — Sesión XX+18 | **Próximos pendientes:** Validación Batch B-D + FASE 5.3 Mobile + Cloudinary
+**Última actualización:** 2026-04-30 — Sesión XX+19 | **Próximos pendientes:** Validación Batch B + Batch D.1-3 + Batch D.4+ + FASE 5.3 Mobile
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,15 +17,6 @@
 
 **Batch B (3 archivos, 9 modales) — PARCIAL:**
 - [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
-
-**Batch C (7+ archivos, 15 modales):**
-- [x] `maestra/Tareas.jsx` — 3 modales: crear, editar, entregas — ✅ VALIDADA (2026-04-30)
-- [x] `directora/Pagos.jsx` — 2 modales: registrar pago, configurar conceptos — ✅ VALIDADA (2026-04-30)
-- [x] `directora/Calendario.jsx` — 2 modales: crear/editar evento, detalle evento — ✅ VALIDADA (2026-04-30)
-- [x] `directora/ServicioComida.jsx` — 1 modal: registrar/editar servicio — ✅ VALIDADA (2026-04-30)
-- [x] `directora/NinosExtension.jsx` — 2 modales: registro niño extensión — ✅ VALIDADA (2026-04-30)
-- [x] `components/NotificacionModal.jsx` — ya es Modal custom funcional — ✅ VALIDADA (2026-04-30)
-- [x] `components/directora/ModalCategoria.jsx` — ya es Modal custom funcional — ✅ VALIDADA (2026-04-30)
 
 **Batch D.1-3 (3 archivos, 5 modales — Maestra):**
 - [ ] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal

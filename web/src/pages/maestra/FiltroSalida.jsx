@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Clock, AlertTriangle, ChevronLeft, ChevronRight, QrCode } from 'lucide-react';
+import { Clock, AlertTriangle, ChevronLeft, ChevronRight, QrCode } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -134,41 +135,38 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center gap-3 p-5 border-b border-gray-100">
-          <AvatarAlumno alumno={alumno} size="md" />
-          <div className="flex-1">
-            <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
-            <p className="text-xs text-gray-400 font-semibold">
-              {alumno.grupo_nombre}
-              {alumno.hora_entrada && (
-                <> · Entró a las {horaTexto(alumno.hora_entrada)}</>
-              )}
-            </p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={false}>
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+        <AvatarAlumno alumno={alumno} size="md" />
+        <div className="flex-1">
+          <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
+          <p className="text-xs text-gray-400 font-semibold">
+            {alumno.grupo_nombre}
+            {alumno.hora_entrada && (
+              <> · Entró a las {horaTexto(alumno.hora_entrada)}</>
+            )}
+          </p>
         </div>
+      </div>
 
-        {/* Indicador de progreso */}
-        <div className="flex items-center gap-2 px-5 py-3 bg-gray-50 border-b border-gray-100">
-          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
-            ${paso === 1 ? 'bg-hs-purple text-white' : 'bg-green-500 text-white'}`}>
-            1
-          </div>
-          <div className="flex-1 h-1 bg-gray-200 rounded overflow-hidden">
-            <div className={`h-1 bg-hs-purple transition-all ${paso === 2 ? 'w-full' : 'w-0'}`} />
-          </div>
-          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
-            ${paso === 2 ? 'bg-hs-purple text-white' : 'bg-gray-200 text-gray-500'}`}>
-            2
-          </div>
+      {/* Indicador de progreso */}
+      <div className="flex items-center gap-2 py-3 bg-gray-50 -mx-5 px-5 border-b border-gray-100">
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
+          ${paso === 1 ? 'bg-hs-purple text-white' : 'bg-green-500 text-white'}`}>
+          1
         </div>
+        <div className="flex-1 h-1 bg-gray-200 rounded overflow-hidden">
+          <div className={`h-1 bg-hs-purple transition-all ${paso === 2 ? 'w-full' : 'w-0'}`} />
+        </div>
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
+          ${paso === 2 ? 'bg-hs-purple text-white' : 'bg-gray-200 text-gray-500'}`}>
+          2
+        </div>
+      </div>
 
-        {paso === 1 ? (
-          // ─── PASO 1: Quién recoge ─────────────────────────────────────────
-          <div className="p-5 space-y-4">
+      {paso === 1 ? (
+        // ─── PASO 1: Quién recoge ─────────────────────────────────────────
+        <div className="space-y-4 mt-4">
             {/* Badge extensión */}
             {alumno.tiene_extension && (
               <div className="flex items-center gap-2 px-3 py-2 bg-hs-blue/10 border border-hs-blue/30 rounded-xl">
@@ -261,10 +259,10 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
               />
             )}
           </div>
-        ) : (
-          // ─── PASO 2: Checklist sanitario ─────────────────────────────────────
-          <div className="p-5 space-y-4">
-            <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Checklist de salida</p>
+      ) : (
+        // ─── PASO 2: Checklist sanitario ─────────────────────────────────────
+        <div className="space-y-4 mt-4">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Checklist de salida</p>
 
             {/* Pañal — solo si alumno.usa_panial */}
             {alumno.usa_panial && (
@@ -301,25 +299,24 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
                 className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
               <span>✅ Entrega conforme</span>
             </label>
-          </div>
-        )}
-
-        {/* Botones */}
-        <div className="px-5 pb-5 flex gap-3">
-          {paso === 2 && (
-            <button onClick={() => setPaso(1)}
-              className="px-4 py-4 rounded-2xl font-black text-gray-600 border-2 border-gray-200 hover:bg-gray-50">
-              ← Atrás
-            </button>
-          )}
-          <button onClick={paso === 1 ? handleIrPaso2 : handleSubmit} disabled={mutation.isPending}
-            className={`${paso === 2 ? 'flex-1' : 'w-full'} py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
-              ${anticipada && paso === 1 ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-hs-purple-dark'}`}>
-            {mutation.isPending ? 'Registrando...' : paso === 1 ? '→ Siguiente' : '🚪 Confirmar Salida'}
-          </button>
         </div>
+      )}
+
+      {/* Botones */}
+      <div className="flex gap-3 mt-5">
+        {paso === 2 && (
+          <button onClick={() => setPaso(1)}
+            className="px-4 py-4 rounded-2xl font-black text-gray-600 border-2 border-gray-200 hover:bg-gray-50">
+            ← Atrás
+          </button>
+        )}
+        <button onClick={paso === 1 ? handleIrPaso2 : handleSubmit} disabled={mutation.isPending}
+          className={`${paso === 2 ? 'flex-1' : 'w-full'} py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
+            ${anticipada && paso === 1 ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-hs-purple-dark'}`}>
+          {mutation.isPending ? 'Registrando...' : paso === 1 ? '→ Siguiente' : '🚪 Confirmar Salida'}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -393,18 +390,12 @@ function QRScannerModal({ onScan, onClose }) {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <p className="font-black text-gray-800">📱 Escanear QR del alumno</p>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
-        </div>
-        <div id="qr-filtro-salida" ref={qrRef} className="w-full" />
-        <p className="text-center text-xs text-gray-400 font-semibold py-3 px-5">
-          Apunta la cámara al código QR de la credencial del alumno
-        </p>
-      </div>
-    </div>
+    <Modal open={true} onClose={onClose} title="📱 Escanear QR del alumno" size="sm">
+      <div id="qr-filtro-salida" ref={qrRef} className="w-full" />
+      <p className="text-center text-xs text-gray-400 font-semibold py-3">
+        Apunta la cámara al código QR de la credencial del alumno
+      </p>
+    </Modal>
   );
 }
 

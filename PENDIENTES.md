@@ -24,14 +24,6 @@
 - [x] `maestra/Asistencia.jsx` — ModalEntrada (checklist de entrada)
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
-- [x] `directora/Personal.jsx` — ModalPersonal (crear + editar personal, asignar grupos, reset password) ✅ VALIDADO
-  - [x] Crear personal: formulario completo, password inicial, roles dropdown
-  - [x] Editar personal: campos editables, grupo asignado visible
-  - [x] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo" — **FUNCIONA PARA TODOS LOS ROLES (maestra_titular, maestra_especial, miss_auxiliar)**
-  - [x] Reset password: confirm modal, botón "🔑 Reset pass" funciona
-  - [x] **BUG ARREGLADO: Guardar nombre** — índices UNIQUE con WHERE activo = true
-  - [x] **BUG ARREGLADO: Quitar grupo** — toast + refresh automático
-  - [x] **BUG ARREGLADO: Fecha ingreso** — .substring(0, 10) para ISO → YYYY-MM-DD
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
   - [ ] Crear grupo: nombre, color (picker), nivel dropdown
   - [ ] Editar grupo: todos los campos editables

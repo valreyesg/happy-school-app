@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle, Clock, XCircle, Thermometer, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, Clock, XCircle, Thermometer, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import Modal from '@/components/ui/Modal';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import toast from 'react-hot-toast';
 
@@ -118,29 +119,24 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center gap-3 p-5 border-b border-gray-100">
-          <AvatarAlumno alumno={alumno} size="md" />
-          <div className="flex-1">
-            <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
-            <p className="text-xs text-gray-400 font-semibold">Filtro de entrada</p>
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <X size={20} />
-          </button>
+    <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={false}>
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+        <AvatarAlumno alumno={alumno} size="md" />
+        <div className="flex-1">
+          <p className="font-black text-gray-800">{alumno.nombre_completo}</p>
+          <p className="text-xs text-gray-400 font-semibold">Filtro de entrada</p>
         </div>
+      </div>
 
-        {/* Banner cumpleaños */}
-        {esCumpleanos(alumno.fecha_nacimiento) && (
-          <div className="mx-5 mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-center animate-bounce-once">
-            <p className="font-black text-yellow-700 text-sm">🎂 ¡Hoy es el cumpleaños de {alumno.nombre_completo.split(' ')[0]}! 🎈</p>
-          </div>
-        )}
+      {/* Banner cumpleaños */}
+      {esCumpleanos(alumno.fecha_nacimiento) && (
+        <div className="mt-3 p-3 bg-yellow-50 border-2 border-yellow-300 rounded-2xl text-center animate-bounce-once">
+          <p className="font-black text-yellow-700 text-sm">🎂 ¡Hoy es el cumpleaños de {alumno.nombre_completo.split(' ')[0]}! 🎈</p>
+        </div>
+      )}
 
-        {/* Body */}
-        <div className="overflow-y-auto flex-1 p-5 space-y-3">
+      {/* Body */}
+      <div className="space-y-3 mt-4">
           {/* Salud — condición negativa (marcar si hay problema) */}
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Salud</p>
 
@@ -186,21 +182,18 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           <CheckRow field="trae_bata"       label="Bata"             emoji="🥼" />
           <CheckRow field="trae_termo"      label="Termo"            emoji="🧴" />
           <CheckRow field="agua_suficiente" label="Agua suficiente"  emoji="💧" />
-        </div>
-
-        {/* Footer */}
-        <div className="p-5 border-t border-gray-100">
-          <button
-            onClick={handleSubmit}
-            disabled={mutation.isPending}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg transition-all
-              bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
-          </button>
-        </div>
       </div>
-    </div>
+
+      {/* Footer */}
+      <button
+        onClick={handleSubmit}
+        disabled={mutation.isPending}
+        className="w-full py-4 rounded-2xl font-black text-white text-lg transition-all mt-5
+          bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
+      </button>
+    </Modal>
   );
 }
 

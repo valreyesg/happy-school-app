@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import Modal from '@/components/ui/Modal';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { ROL_COLOR } from '@/utils/catalogos';
 
@@ -70,18 +71,8 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-black text-gray-800">
-            {esNuevo ? '+ Nuevo personal' : `Editar — ${persona.nombre_completo}`}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
-
-        {/* Body */}
-        <form onSubmit={submit} className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
+    <Modal open={true} onClose={onClose} title={esNuevo ? '+ Nuevo personal' : `Editar — ${persona.nombre_completo}`} size="lg" closeOnBackdrop={false}>
+      <form onSubmit={submit} className="space-y-4">
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-xl px-4 py-3">
@@ -224,17 +215,16 @@ function ModalPersonal({ persona, grupos, roles, onClose, onSave }) {
               </button>
             </div>
           )}
-        </form>
+      </form>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
-          <button type="button" onClick={onClose} className="btn-hs btn-hs-ghost">Cancelar</button>
-          <button onClick={submit} disabled={saving} className="btn-hs btn-hs-primary">
-            {saving ? 'Guardando…' : esNuevo ? 'Crear cuenta' : 'Guardar cambios'}
-          </button>
-        </div>
+      {/* Footer */}
+      <div className="flex justify-end gap-3 mt-5">
+        <button type="button" onClick={onClose} className="btn-hs btn-hs-ghost">Cancelar</button>
+        <button onClick={submit} disabled={saving} className="btn-hs btn-hs-primary">
+          {saving ? 'Guardando…' : esNuevo ? 'Crear cuenta' : 'Guardar cambios'}
+        </button>
       </div>
-    </div>
+    </Modal>
   );
 }
 

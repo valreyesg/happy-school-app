@@ -204,7 +204,7 @@ function ModalSubirMenu({ semana, menuExistente, onClose, onSaved }) {
 
           <div>
             <label className="block text-xs font-bold text-gray-600 mb-1">Archivo adicional (Imagen/PDF)</label>
-            <input type="file" className="input-hs" accept="image/*,.pdf"
+            <input type="file" className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-hs-purple/10 file:text-hs-purple-dark hover:file:bg-purple-100" accept="image/*,.pdf"
               onChange={e => setArchivo(e.target.files?.[0] || null)} />
             {archivo && <p className="text-xs text-green-600 font-bold mt-1">✅ {archivo.name}</p>}
           </div>

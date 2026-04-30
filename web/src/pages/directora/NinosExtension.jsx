@@ -307,7 +307,7 @@ function ModalNino({ nino, onClose, onSubmit, isLoading }) {
               type="file"
               accept="image/*"
               onChange={handleFotoChange}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-hs-blue/10 file:text-hs-blue-dark hover:file:bg-blue-100"
             />
           </div>
           <div className="flex gap-2">

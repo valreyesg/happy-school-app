@@ -226,7 +226,7 @@ const ComidaMenu = () => {
               type="file"
               onChange={(e) => setArchivo(e.target.files[0])}
               accept="image/*,.pdf"
-              className="input-hs"
+              className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-hs-red/10 file:text-hs-red hover:file:bg-red-100"
             />
             {archivo && <p className="text-xs text-green-600 font-bold mt-2">✅ {archivo.name}</p>}
           </div>

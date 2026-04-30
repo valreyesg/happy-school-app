@@ -267,7 +267,7 @@ function ModalRegistrarVisitante({ open, onClose, onSubmit, isLoading }) {
             type="file"
             accept="image/*"
             onChange={(e) => setForm(prev => ({ ...prev, foto: e.target.files?.[0] || null }))}
-            className="input-hs w-full"
+            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-hs-purple/10 file:text-hs-purple-dark hover:file:bg-purple-100"
           />
         </div>
         <div className="flex gap-2">

@@ -1,305 +1,120 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-29 — Sesión XX+15 | **Próximos pendientes:** Validación UX/UI (Sesión XX+15) + Cloudinary + QR Temporal
+**Última actualización:** 2026-04-30 — Sesión XX+18 | **Próximos pendientes:** Validación UX/UI en browser + mobile + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## ✅ VALIDACIÓN UX/UI — FASES 1-5.1 (Sesiones XX+15/XX+16 — COMPLETADAS)
+## 📋 VALIDACIONES PENDIENTES
 
-> **Estado:** IMPLEMENTADO — Cambios completados. PENDIENTE: Validación en browser + device por Valeria
-> **Sesión:** XX+15/XX+16 — Homogenización web + componentes base mobile + ANIMO keys + AppShell paridad
-> **Bloqueante:** NO — cambios solo de estilos y estructura, sin funcionalidad afectada
+### 🌐 VALIDACIÓN EN BROWSER — FASES 1-5.3 (por Valeria en http://localhost:5173)
 
-### ✅ Cambios implementados:
+**FASE 3.5 — ANIMO keys:**
+- [x] **Bitácora Padre:** Selector de ánimo muestra exactamente 5 opciones (Feliz 😊, Activo ⚡, Cansado 😴, Triste 😢, Irritable 😤) — sin `Enérgico` ni `Inquieto` duplicados ✅
+- [x] **Dashboard Maestra:** Alumnos con ánimo `activo` muestran ⚡ (no vacío) ✅
+- [x] **Dashboard Maestra:** Alumnos con ánimo `irritable` muestran 😤 (no vacío) ✅
 
-#### **WEB — TOKENS Y COLORES:**
-- [x] **Agregados tokens:** `hs-blue` (#3B82F6) y `hs-orange` (#F97316) en web + mobile
-- [x] **Sidebar Padre:** Corregido `bg-red-500` → `bg-hs-red` (nav, avatar, etiqueta, logout)
-- [x] **Hovers:** 19 archivos actualizados `hover:bg-purple-700` → `hover:bg-hs-purple-dark`
-- [x] **Botones azules:** 54+ instancias `bg-blue-*` → `bg-hs-blue` (acciones informativas)
-- [x] **Botones naranjas:** 69 instancias `bg-orange-*` → `bg-hs-orange` (registrar vómito, medicamentos)
-- [x] **SelectorCiclo:** Actualizado a `input-hs` (coherencia con otros inputs)
-- [x] **Clases faltantes:** Definidas `.btn-hs-primary` y `.btn-hs-ghost` en index.css
-- [x] **Labels:** Clases `.label-hs` y `.label-hs-section` agregadas
+**FASE 4.4 — Button component mobile (en browser, verificar estilos):**
+- [ ] **Bitácora Padre:** Botón "Ver referencia" es ghost small
+- [ ] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small
 
-#### **MOBILE — COMPONENTES BASE:**
-- [x] **theme.js:** Fuente única de verdad para colores (COLORS, RADIUS, SCREEN_BG)
-- [x] **Button.jsx:** Componente reutilizable (variantes: primary, secondary, outline, ghost, danger)
-- [x] **ModalSheet.jsx:** Componente reutilizable para modales mobile
-- [x] **Modal.jsx (web):** Componente reutilizable para modales web
+**FASE 5.1 — AppShell compartido:** ✅ VALIDADO
+- [x] **Portal PADRE:** Header visible, NotificationBell en móvil y desktop, Sidebar rojo correcto ✅
+- [x] **Portal MAESTRA:** Header visible, NotificationBell funcional, Sidebar verde correcto ✅
+- [x] **Portal DIRECTORA:** Header visible, NotificationBell en móvil y desktop (NUEVO), Sidebar púrpura correcto ✅
+- [x] **GENERAL:** Logout hover color consistente, responsive correcto, sin errores Tailwind en consola ✅
 
-#### **FASE 3.5 — ANIMO keys:**
-- [x] **padre/Bitacora.jsx:** Eliminadas 2 keys obsoletas (`energico`, `inquieto`) — quedan solo 5 correctas
-- [x] **maestra/Dashboard.jsx:** `inquieto → irritable`, `energico → activo` en `EMOJIS_ANIMO`
-- [x] **mobile/(maestra)/index.jsx:** Mismo reemplazo que Dashboard web
+**FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
----
+**Batch A (5 archivos, 6 modales):**
+- [x] `Perfil.jsx` — modal cambio contraseña: abre, cierra, inputs funcionan ✅
+- [x] `LoginPage.jsx` — modal primer login: abre, validaciones de password funcionan ✅
+- [x] `padre/Calendario.jsx` — modal evento: click en evento, cierra con X y backdrop ✅
+- [x] `padre/Dashboard.jsx` — modal evento: abre/cierra correctamente ✅
+- [x] `padre/Dashboard.jsx` — lightbox foto: abre, scroll si es grande, cierra ✅
+- [x] `directora/Visitantes.jsx` — form registrar: abre modal, inputs, submit, cancela ✅
 
-### 📋 CHECKLIST DE VALIDACIÓN EN BROWSER (por Valeria)
+**Batch B (3 archivos, 9 modales):**
+- [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
+- [x] `directora/Dashboard.jsx` — 4 modales info de grupo (asistencia, salidas, docs, retardos) ✅
+- [x] `directora/Asistencia.jsx` — justificar (form con upload) + ver justificación ✅
 
-**Portal PADRE (http://localhost:5173/padre):**
-- [ ] Sidebar rojo es el correcto (`#E53E3E`)
-- [ ] Navegación activa se ve en púrpura
-- [ ] Avatar es rojo correcto
-- [ ] Botón "Añadir a Google Calendar" es azul correcto (`#3B82F6`)
-- [ ] Banners informativos azules coherentes
-- [ ] Todos los botones tienen color visible sin hover
+**Batch C (7+ archivos, 15 modales):**
+- [ ] `maestra/Tareas.jsx` — 3 modales: crear, editar, entregas
+- [ ] `directora/Pagos.jsx` — 2 modales: registrar pago, configurar conceptos
+- [ ] `directora/Calendario.jsx` — 2 modales: crear/editar evento, detalle evento
+- [ ] `directora/ServicioComida.jsx` — 1 modal: registrar/editar servicio
+- [ ] `directora/NinosExtension.jsx` — 2 modales: registro niño extensión
+- [ ] `components/NotificacionModal.jsx` — migración completa a Modal.jsx
+- [ ] `components/directora/ModalCategoria.jsx` — migración completa a Modal.jsx
 
-**Portal MAESTRA (http://localhost:5173/maestra):**
-- [ ] Botones "Registrar vómito" naranjas (`#F97316`)
-- [ ] Botones "Administrar" naranjas coherentes
-- [ ] Hovers suaves en botones púrpura
+**Batch D.1-3 (3 archivos, 5 modales — Maestra):**
+- [ ] `maestra/FiltroEntrada.jsx` — ModalEntrada (multi-sección: salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños) + QRScannerModal
+  - [ ] Abre modal con alumno seleccionado
+  - [ ] Checklist de salud (sin fiebre, temperatura si fiebre) funciona
+  - [ ] Checklist de higiene y materiales funciona
+  - [ ] Comida: aparece solo si confirmó semana
+  - [ ] Medicamentos: aparecen los pendientes, botón "Recibir" funciona
+  - [ ] Toallitas: alerta si hay solicitud pendiente
+  - [ ] Cumpleaños: banner aparece si es cumpleaños
+  - [ ] QR scanner: abre, escanea, selecciona alumno
+- [ ] `maestra/FiltroSalida.jsx` — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
+  - [ ] Paso 1: selector "¿Quién recoge?" con padres + autorizados + otro
+  - [ ] Paso 1: alerta de salida anticipada si es antes de hora
+  - [ ] Paso 1: alerta de salida tardía si hay extensión
+  - [ ] Paso 2: checklist (pañal, pertenencias, estado físico, observaciones, entrega conforme)
+  - [ ] Botones "Atrás" ↔ "Siguiente" funcionan correctamente
+  - [ ] QR scanner: abre, escanea, selecciona alumno
+- [ ] `maestra/Asistencia.jsx` — ModalEntrada (checklist de entrada)
+  - [ ] Abre modal con alumno
+  - [ ] Checklist salud, higiene, materiales funciona
+  - [ ] Cumpleaños banner aparece si es hoy
+  - [ ] Botón "Registrar Entrada" funciona
 
-**Portal DIRECTORA (http://localhost:5173/directora):**
-- [ ] SelectorCiclo (en Alumnos) se ve como los otros inputs
-- [ ] Botones de modales púrpura con color visible
-- [ ] Badges en AlumnoPerfil se ven coherentes
-- [ ] Botón "Enviar aviso extraordinario" naranja correcto
-- [ ] Todos los tabs tienen color de fondo visible
+**Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
+- [ ] `directora/Personal.jsx` — ModalPersonal (crear + editar personal, asignar grupos, reset password)
+  - [ ] Crear personal: formulario completo, password inicial, roles dropdown
+  - [ ] Editar personal: campos editables, grupo asignado visible
+  - [ ] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo"
+  - [ ] Reset password: confirm modal, botón "🔑 Reset pass" funciona
+- [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
+  - [ ] Crear grupo: nombre, color (picker), nivel dropdown
+  - [ ] Editar grupo: todos los campos editables
+  - [ ] Asignar maestras: selector maestras, botón agregar/quitar
+- [ ] `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion
+  - [ ] ModalNuevoCiclo: form simple (nombre, fecha_inicio, fecha_fin)
+  - [ ] ModalPromocion: 3 pasos (seleccionar destino, revisar promoción, confirmar cierre)
+- [ ] `directora/Alumnos.jsx` — ModalAlumno + ModalQR
+  - [ ] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto)
+  - [ ] ModalQR: mostrar QR, regenerar QR, descargar
 
-**FASE 3.5 — ANIMO keys (http://localhost:5173):**
-- [ ] **Bitácora Padre:** Selector de ánimo muestra exactamente 5 opciones (Feliz 😊, Activo ⚡, Cansado 😴, Triste 😢, Irritable 😤) — sin `Enérgico` ni `Inquieto` duplicados
-- [ ] **Dashboard Maestra:** Alumnos con ánimo `activo` muestran ⚡ (no vacío)
-- [ ] **Dashboard Maestra:** Alumnos con ánimo `irritable` muestran 😤 (no vacío)
-
-**FASE 4.4 — Button component mobile (en device/emulador):**
-- [ ] **Dashboard Padre:** Botón "Añadir a Google Calendar" en modal evento es outline con color visible
-- [ ] **Dashboard Padre:** Botón "Cerrar" modal evento es ghost con estilo claro
-- [ ] **Bitácora Padre:** Botón "Ver referencia" (foto adjunta) es ghost small con estilo claro
-- [ ] **Pagos Padre:** Botones `‹` y `›` de navegación mes son ghost small, `›` disabled en mes actual
-- [ ] **Asistencia Maestra:** Botón "Cancelar" en modal es ghost
-- [ ] **Asistencia Maestra:** Botón "Registrar" en modal es primary, muestra indicador cuando `saving`
-- [ ] **Asistencia Maestra:** Filtros (Todos/Pendientes/Presentes) cambian de ghost a primary cuando activos
-
-**GENERAL:**
-- [ ] App se siente más homogénea visualmente
-- [ ] NO hay botones invisibles esperando hover
-- [ ] Colores primarios (púrpura, rojo, azul, naranja) consistentes
-- [ ] Consola browser: SIN errores de Tailwind o CSS
-
-**Conclusión:** ✅ Cuando hayas validado todos los items, confirmar aquí para cerrar validación.
-
----
-
-## 📱 VALIDACIÓN MOBILE — device/emulador (por Valeria)
-
-**FASE 4.4 — Button component (dispositivo físico o Expo):**
-- [ ] **Dashboard Padre:** Botón "Añadir a Google Calendar" en modal evento es outline, color visible, tap sin lag
-- [ ] **Dashboard Padre:** Botón "Cerrar" modal evento es ghost, tap responde
-- [ ] **Bitácora Padre:** Botón "Ver referencia" (foto adjunta) es ghost small, tap abre modal foto
-- [ ] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small, `›` grayed out (disabled) en mes actual
-- [ ] **Asistencia Maestra:** Modal registro manual — botón "Cancelar" es ghost, botón "Registrar" es primary
-- [ ] **Asistencia Maestra:** Botón "Registrar" muestra spinner cuando `saving`, luego desaparece
-- [ ] **Asistencia Maestra:** Filtros (Todos/Pendientes/Presentes) son ghost normalmente, cambian a primary cuando se tocan
-- [ ] **General mobile:** Todos los botones nuevos tienen tamaño tocable (min 48px), sin text truncation
-
-**Conclusión mobile:** ✅ Cuando hayas validado todos los items en device, confirmar aquí.
+**FASE 5.3 — NativeWind removal (Mobile):**
+- [ ] `npm install` en mobile/ sin errores
+- [ ] `expo start` arranca sin crashes
+- [ ] Button, ModalSheet, NotificationBell mantienen aspecto visual
+- [ ] Consola sin warnings sobre nativewind
 
 ---
 
-## 🔧 VALIDACIÓN APPSHELL — Paridad web (por Valeria en browser)
+## 🎨 MEJORAS DE UX/UI — Input File Consistency (Sesión XX+18)
 
-**FASE 5.1 — AppShell compartido (http://localhost:5173 en los 3 portales):**
+**Problema:** Los inputs `type="file"` en formularios de upload tenían estilos inconsistentes (algunos básicos, otros bonitos).
 
-**Portal PADRE (http://localhost:5173/padre):**
-- [ ] Header SIEMPRE visible (antes solo en móvil) — contiene Menu hamburguesa, Logo móvil, NotificationBell
-- [ ] NotificationBell visible en MÓVIL (nuevo — antes solo en desktop)
-- [ ] NotificationBell visible en DESKTOP (confirmar sigue ahí)
-- [ ] Sidebar rojo correcto con nav activo en rojo
-- [ ] Sidebar toggle móvil funciona, logout responde
-- [ ] NO hay topbar desktop separado (antes: `hidden lg:flex` con campanita)
+**Solución:** Aplicar estilos consistentes con pseudoelemento `file:` (botón "Seleccionar archivo" estilizado) en todos los formularios.
 
-**Portal MAESTRA (http://localhost:5173/maestra):**
-- [ ] Header SIEMPRE visible (igual que antes — sin cambios) — Menu, Logo móvil, NotificationBell
-- [ ] NotificationBell visible en MÓVIL Y DESKTOP (confirmar sigue igual)
-- [ ] Sidebar verde correcto con nav activo en verde
-- [ ] Sidebar toggle móvil funciona, logout responde
+**Archivos actualizados (✅ VALIDADOS):**
+- [x] `directora/Visitantes.jsx` — input file foto con estilo purple ✅
+- [x] `directora/ComidaMenu.jsx` — input file archivo con estilo red ✅
+- [x] `directora/NinosExtension.jsx` — input file foto con estilo blue ✅
+- [x] `directora/ServicioComida.jsx` — input file archivo con estilo purple ✅
+- [x] `directora/Asistencia.jsx` — input file justificación con estilo blue ✅
 
-**Portal DIRECTORA (http://localhost:5173/directora):**
-- [ ] Header SIEMPRE visible (antes solo en móvil) — contiene Menu hamburguesa, Logo móvil, NotificationBell
-- [ ] NotificationBell visible en MÓVIL (NUEVO — antes ausente)
-- [ ] NotificationBell visible en DESKTOP (NUEVO — antes ausente)
-- [ ] Sidebar púrpura correcto con nav activo en púrpura
-- [ ] Sidebar toggle móvil funciona, logout responde
+**Pattern de estilo usado:**
+```css
+className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[COLOR]/10 file:text-[COLOR]-dark hover:file:bg-[COLOR]-100"
+```
 
-**GENERAL (Los 3 portales):**
-- [ ] Logout hover color consistente: fondo rojo claro + texto rojo (antes: Padre era hs-red/10)
-- [ ] Footer con `space-y-2` entre avatar y botón logout (antes: solo en Padre)
-- [ ] Responsive correcto: en móvil (< 1024px), el header y sidebar se comportan igual en los 3
-- [ ] En desktop (≥ 1024px), el sidebar es sidebar (no se oculta), header visible, NotificationBell siempre visible
-- [ ] Consola browser: SIN errores de clase Tailwind no reconocidas (ej: `bg-hs-red`, `text-hs-green`, etc.)
-
-**Conclusión AppShell:** ✅ Cuando hayas validado todos los items, confirmar aquí para cerrar validación.
-
----
-
-## 🎨 FASES UX/UI PENDIENTES — Próximas sesiones
-
-> **Estado:** FASES 1-4.5 + 3.5 + 5.1 COMPLETADAS (Sesión XX+16)
-> **Próximo:** FASE 4.5 (limpiar TODOs) + FASE 5 (refactores mayores)
-> **Tiempo estimado:** 2-3 sesiones (limpieza + AppShell + modales)
-
-### ✅ FASE 3.5 — ANIMO keys (COMPLETADA Sesión XX+16)
-
-- Fuente de verdad confirmada: `feliz / activo / cansado / triste / irritable`
-- Corregidos 3 archivos: `padre/Bitacora.jsx`, `maestra/Dashboard.jsx`, `mobile/(maestra)/index.jsx`
-- Pendiente validación visual en browser (ver checklist arriba)
-
-### ✅ FASE 4.4 — Aplicar componente Button en mobile (COMPLETADA Sesión XX+16)
-
-**Botones migrados (7 total):**
-- [x] `(padre)/index.jsx` — 3 botones: Google Calendar (outline), Cerrar modal (ghost), Ver referencia (ghost sm)
-- [x] `(padre)/pagos.jsx` — 2 botones: navegación mes anterior/siguiente (ghost sm)
-- [x] `(maestra)/asistencia.jsx` — 3 botones: Cancelar (ghost), Registrar (primary + loading), Filtros (variant condicional)
-
-**Archivos modificados:**
-- ✅ `mobile/app/(padre)/index.jsx` — 3 botones migrados + import
-- ✅ `mobile/app/(padre)/pagos.jsx` — 2 botones migrados + import + limpiar TouchableOpacity del import
-- ✅ `mobile/app/(maestra)/asistencia.jsx` — 3 botones migrados + import
-
-**Pendiente validación en device/emulador (por Valeria)**
-
-### ✅ FASE 4.5 — Limpiar comentarios obsoletos (COMPLETADA Sesión XX+16)
-
-- Sin TODOs encontrados en mobile/FASES 4.x — código ya estaba limpio
-
-### ✅ FASE 5.1 — Extraer AppShell compartido (web) (COMPLETADA Sesión XX+16)
-
-**Cambios ejecutados:**
-- [x] Creado `web/src/layouts/AppShell.jsx` — estructura unificada para los 3 portales
-- [x] Refactorizado `PadreLayout.jsx` (22 líneas, -88 líneas duplicadas)
-- [x] Refactorizado `MaestraLayout.jsx` (20 líneas, -89 líneas duplicadas)
-- [x] Refactorizado `DirectoraLayout.jsx` (25 líneas, -86 líneas duplicadas)
-
-**Paridad alcanzada:**
-- Header siempre visible en los 3 portales (antes: Padre solo móvil, Directora solo móvil)
-- NotificationBell visible móvil + desktop en los 3 (antes: Padre desktop solo, Directora ausente)
-- Logout hover color consistente: `hover:bg-red-50 hover:text-red-500` en los 3
-- Footer con `space-y-2` en los 3 (antes: solo en Padre)
-- Código duplicado eliminado: ~126 líneas (330 → 240 total)
-
-**Pendiente validación en browser (ver checklist "VALIDACIÓN APPSHELL" arriba)**
-
-> Sin TODOs encontrados en mobile/FASES 4.x — código limpio
-
-### ✅ FASE 5.1 — Extraer AppShell compartido (web) (COMPLETADA Sesión XX+16)
-
-**Cambios ejecutados:**
-- [x] Creado `web/src/layouts/AppShell.jsx` — estructura unificada para los 3 portales
-- [x] Refactorizado `MaestraLayout.jsx` — usa AppShell con `accentColor="hs-green"`
-- [x] Refactorizado `PadreLayout.jsx` — usa AppShell con `accentColor="hs-red"`
-- [x] Refactorizado `DirectoraLayout.jsx` — usa AppShell con `accentColor="hs-purple"`
-
-**Paridad alcanzada:**
-- ✅ Header siempre visible en los 3 portales (antes: Padre solo móvil, Directora solo móvil)
-- ✅ NotificationBell visible en móvil + desktop en los 3 (antes: Padre desktop solo, Directora ausente)
-- ✅ Mismo logout hover color en los 3 (antes: Padre `hs-red/10`, otros `red-50`)
-- ✅ Footer con `space-y-2` en los 3 (antes: solo en Padre)
-- ✅ Código duplicado eliminado: ~90 líneas por layout
-
-**Pendiente validación en browser (por Valeria)**
-
-### 📋 FASE 5 — Refactores mayores (PRÓXIMAS SESIONES)
-
-> Tiempo: 4-8 horas | Riesgo: MEDIO-ALTO
-
-**FASE 5.2 — Migrar modales web a Modal.jsx:**
-- [x] Fase 0 — Extender Modal.jsx (xl, full, closeOnBackdrop, dark, scroll interno)
-- [x] **Batch A — 5 archivos simples** (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
-  - ✅ 6 modales inline eliminados
-  - ✅ Commits: bc4e767
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
-    - [ ] Perfil.jsx — modal cambio contraseña: abre, cierra, inputs funcionan
-    - [ ] LoginPage.jsx — modal primer login: abre, validaciones de password funcionan
-    - [ ] padre/Calendario.jsx — modal evento: click en evento, cierra con X y backdrop
-    - [ ] padre/Dashboard.jsx — modal evento: abre/cierra correctamente
-    - [ ] padre/Dashboard.jsx — lightbox foto: abre, scroll si es grande, cierra
-    - [ ] directora/Visitantes.jsx — form registrar: abre modal, inputs, submit, cancela
-
-- [x] **Batch B — Modales confirm/info en Directora** (Usuarios, Dashboard, Asistencia)
-  - ✅ 9 modales inline eliminados (3+4+2)
-  - ✅ Commits: 80df872
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
-    - [ ] directora/Usuarios.jsx — crear cuenta (confirm + resultado + reset password)
-    - [ ] directora/Dashboard.jsx — 4 modales info de grupo (asistencia, salidas, docs, retardos)
-    - [ ] directora/Asistencia.jsx — justificar (form con upload) + ver justificación
-
-- [x] **Batch C — Modales medios** (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, NotificacionModal, ModalCategoria)
-  - ✅ 15 modales inline eliminados (Tareas 3, Pagos 2, Calendario 2, NinosExtension 2, ServicioComida 1, etc.)
-  - ✅ Commits: e1d71cf + anteriores
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
-    - [ ] maestra/Tareas.jsx — 3 modales: crear, editar, entregas
-    - [ ] directora/Pagos.jsx — 2 modales: registrar pago, configurar conceptos
-    - [ ] directora/Calendario.jsx — 2 modales: crear/editar evento, detalle evento
-    - [ ] directora/ServicioComida.jsx — 1 modal: registrar/editar servicio
-    - [ ] directora/NinosExtension.jsx — 2 modales: registro niño extensión
-    - [ ] components/NotificacionModal.jsx — migración completa a Modal.jsx
-    - [ ] components/directora/ModalCategoria.jsx — migración completa a Modal.jsx
-
-- [x] **Batch D.1-3 — Modales complejos (Maestra)** — COMPLETADO
-  - ✅ 5 modales inline eliminados (FiltroEntrada 2, FiltroSalida 2, Asistencia Maestra 1)
-  - ✅ Commits: 7fc5216 (FiltroEntrada), da27123 (FiltroSalida), 61c2b01 (Asistencia)
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
-    - [ ] maestra/FiltroEntrada.jsx — ModalEntrada (multi-paso checklist + cumpleaños + medicamentos + toallitas) + QRScannerModal
-      - [ ] Abre modal con alumno seleccionado
-      - [ ] Checklist de salud (sin fiebre, temperatura si fiebre) funciona
-      - [ ] Checklist de higiene y materiales funciona
-      - [ ] Comida: aparece solo si confirmó semana
-      - [ ] Medicamentos: aparecen los pendientes, botón "Recibir" funciona
-      - [ ] Toallitas: alerta si hay solicitud pendiente
-      - [ ] Cumpleaños: banner aparece si es cumpleaños
-      - [ ] QR scanner: abre, escanea, selecciona alumno
-    - [ ] maestra/FiltroSalida.jsx — ModalSalida (2 pasos: quién recoge + checklist sanitario) + QRScannerModal
-      - [ ] Paso 1: selector "¿Quién recoge?" con padres + autorizados + otro
-      - [ ] Paso 1: alerta de salida anticipada si es antes de hora
-      - [ ] Paso 1: alerta de salida tardía si hay extensión
-      - [ ] Paso 2: checklist (pañal, pertenencias, estado físico, observaciones, entrega conforme)
-      - [ ] Botones "Atrás" ↔ "Siguiente" funcionan correctamente
-      - [ ] QR scanner: abre, escanea, selecciona alumno
-    - [ ] maestra/Asistencia.jsx — ModalEntrada (checklist de entrada similar a FiltroEntrada)
-      - [ ] Abre modal con alumno
-      - [ ] Checklist salud, higiene, materiales funciona
-      - [ ] Cumpleaños banner aparece si es hoy
-      - [ ] Botón "Registrar Entrada" funciona
-
-- [ ] **Batch D.4+ — Modales mega-complejos** (EN PROGRESO — SESIÓN XX+18+)
-  - **Por migrar (~1100+ líneas totales, requiere 2-3 horas):**
-    - [ ] directora/Personal.jsx — ModalPersonal (mega-form 445 líneas: datos personales + cuenta + asignación grupos)
-    - [ ] directora/Grupos.jsx — ModalGrupo (form asignación maestras ~315 líneas)
-    - [ ] directora/CiclosEscolares.jsx — ModalNuevoCiclo + ModalPromocion (wizard 3 pasos, ~650 líneas)
-    - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR (form alta/edición alumno, ~275 líneas)
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser) — DESPUÉS DE MIGRACIÓN:**
-    - [ ] directora/Personal.jsx — ModalPersonal (crear + editar personal, asignar grupos, reset password)
-      - [ ] Crear personal: formulario completo, password inicial, roles dropdown
-      - [ ] Editar personal: campos editables, grupo asignado visible
-      - [ ] Asignar grupo: selector grupo, checkbox "es titular", botón "+ Asignar grupo"
-      - [ ] Reset password: confirm modal, botón "🔑 Reset pass" funciona
-    - [ ] directora/Grupos.jsx — ModalGrupo (crear + editar grupo, asignar maestras)
-      - [ ] Crear grupo: nombre, color (picker), nivel dropdown
-      - [ ] Editar grupo: todos los campos editables
-      - [ ] Asignar maestras: selector maestras, botón agregar/quitar
-    - [ ] directora/CiclosEscolares.jsx — ModalNuevoCiclo + ModalPromocion
-      - [ ] ModalNuevoCiclo: 3 pasos (datos ciclo, configuración, confirmación)
-      - [ ] ModalPromocion: upgrade alumnos a nivel siguiente, exportar promoción
-    - [ ] directora/Alumnos.jsx — ModalAlumno + ModalQR
-      - [ ] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, etc.)
-      - [ ] ModalQR: mostrar QR, regenerar QR, descargar
-  - **Orden de ejecución:** Personal → Grupos → Alumnos → CiclosEscolares (por dependencias)
-
-**✅ FASE 5.3 — Decisión sobre NativeWind mobile: COMPLETADA**
-- [x] **Opción A IMPLEMENTADA:** Eliminar NativeWind, quedarse con StyleSheet + theme.js
-  - ✅ Removido `nativewind` de dependencies
-  - ✅ Removido `tailwindcss` de devDependencies
-  - ✅ Removido `presets: [require('nativewind/preset')]` de tailwind.config.js
-  - ✅ Verificado: CERO referencias a nativewind en código mobile
-  - ✅ Commit: `3670c5c`
-  - **Razón:** Button.jsx y componentes mobile ya migrados a StyleSheet/theme.js; NativeWind no se usaba
-  - **Beneficio:** Menos dependencias, coherencia (web=Tailwind, mobile=StyleSheet nativo)
-  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en device/emulador):**
-    - [ ] **Mobile arranca sin errores:** `npm install` en mobile/, `expo start` sin crashes
-    - [ ] **Componentes siguen funcionando:** Button, ModalSheet, NotificationBell sin cambios visuales
-    - [ ] **Consola sin warnings sobre nativewind**
+**Nota:** Archivos con input `hidden` + botón custom (Alumnos.jsx, AlumnoPerfil.jsx, Bitacora.jsx padre) ya tenían estilos apropiados.
 
 ---
 
@@ -325,7 +140,6 @@ CLOUDINARY_API_SECRET=placeholder
 - [ ] Subir foto personal
 - [ ] Subir foto tutor
 - [ ] Subir fotos galería
-- [ ] Cualquier `uploadToCloudinary()` en el sistema
 
 ### Acciones Requeridas:
 1. **Obtener credenciales válidas de Cloudinary:**
@@ -351,20 +165,14 @@ CLOUDINARY_API_SECRET=placeholder
 
 ---
 
-## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge - PRÓXIMA SESIÓN)
+## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
 
 > ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Todos los casos edge completados.
-> Detalles técnicos en [ARCHIVE_LOG.md](ARCHIVE_LOG.md) — Sesiones 73-86, XX-XX+9
 
-### Casos Edge Pendientes de Validar (PRÓXIMA SESIÓN):
+### Casos Edge Pendientes de Validar:
 - [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
 - [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
 - [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)
-
-### Integraciones Pendientes (FUTURO):
-- [ ] **Notificaciones WhatsApp (Vómito + Medicamentos):** Integrar WhatsApp (in-app ya existe)
-
----
 
 ---
 
@@ -375,7 +183,6 @@ CLOUDINARY_API_SECRET=placeholder
     - Papá: necesita información clara de hijo, tareas, pagos
     - Miss: herramienta de trabajo diario, eficiencia crítica
     - Directora: visión ejecutiva, reportes, alertas
-    - Mobile: interfaz simplificada para papá en movimiento
   - **Tareas:**
     - [ ] Auditoría UX/UI web (padre, miss, directora)
     - [ ] Auditoría UX/UI mobile
@@ -385,15 +192,13 @@ CLOUDINARY_API_SECRET=placeholder
       - Capitalización: CONSISTENTE mayúsculas/minúsculas/CamelCase
       - Iconografía: mismo emoji para mismo concepto
       - Espaciado y tamaño fuente en elementos similares
-      - **Objetivo:** No parecer que lo hicieron diferentes personas
     - [ ] Consistency check: colores, tipografía, spacing
     - [ ] Validar flujos por rol (¿cada usuario encuentra lo que busca en <3 clicks?)
     - [ ] Accesibilidad (contraste, tamaño texto, navegación)
     - [ ] Responsive design validation (mobile, tablet, desktop)
-  - **Herramientas:** Figma, accesibilidad tools, device testing
-  - **Complejidad:** ⭐⭐⭐⭐ (2-3 sesiones)
 
 ---
+
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
@@ -401,30 +206,19 @@ CLOUDINARY_API_SECRET=placeholder
 - [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
 
 ### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
-
-> ℹ️ **Nota técnica:** Al registrar un niño de servicio extendido (`modalidad_pago = 'por_dia'`)
-> o un visitante con extensión, el backend YA genera automáticamente un cargo en `pagos`
-> con `origen = 'extension_dia'` / `'visitante_extension'` y estado `'pendiente'`.
-> La validación y UI de estos cobros se trabajará cuando se llegue a este módulo.
-
 - [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
 - [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
 - [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
 - [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
 - [ ] **Exportación Contable:** Excel filtrable para admin.
-- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp o Correo papá. Ideal tener dentro del panel de pagos el recibo correspondiente a cada pago.
+- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp o Correo papá.
 
 ---
 
 ## 🎯 LARGO PLAZO — Futuro (2-3 meses)
 
-### 🗂️ CATÁLOGOS DINÁMICOS — FASE 7 PENDIENTE (Auditoría Hardcoded + Settings)
-
-Ver FASES 1-6 completadas en [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
-
+### 🗂️ CATÁLOGOS DINÁMICOS — FASE 7 PENDIENTE
 - [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Tipos Pago, Motivos Salida, Emojis, etc.
-  - Identificar arrays hardcodeados en componentes
-  - Priorizar por frecuencia de uso
 - [ ] **Crear tablas dinámicas:** Para catálogos nuevos identificados en auditoría
 - [ ] **Configuración Negocio:** Panel settings editable (recargos, tolerancia, horarios dashboard)
 
@@ -455,5 +249,3 @@ Ver FASES 1-6 completadas en [ARCHIVE_LOG.md](ARCHIVE_LOG.md)
 - [ ] **Modo Offline Miss:** Caché local + sincronización.
 - [ ] **Backup Automático:** Diario.
 - [ ] **Pruebas UX + Performance:** Optimización completa.
-
----

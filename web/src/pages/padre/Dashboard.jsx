@@ -344,15 +344,23 @@ function ModalEvento({ ev, onClose }) {
             </p>
           )}
 
-          <a
-            href={buildGoogleCalendarUrl(ev)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
-          >
-            <CalendarPlus size={15} />
-            Añadir a Google Calendar
-          </a>
+          <div className="space-y-2">
+            <a
+              href={buildGoogleCalendarUrl(ev)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
+            >
+              <CalendarPlus size={15} />
+              Añadir a Google Calendar
+            </a>
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 rounded-xl font-bold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              Cerrar
+            </button>
+          </div>
         </>
       )}
     </Modal>

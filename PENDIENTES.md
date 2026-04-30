@@ -216,7 +216,13 @@
     - [ ] padre/Dashboard.jsx — modal evento: abre/cierra correctamente
     - [ ] padre/Dashboard.jsx — lightbox foto: abre, scroll si es grande, cierra
     - [ ] directora/Visitantes.jsx — form registrar: abre modal, inputs, submit, cancela
-- [ ] Batch B — Modales confirm/info en Directora (Usuarios, Dashboard, Asistencia)
+- [x] Batch B — Modales confirm/info en Directora (Usuarios, Dashboard, Asistencia)
+  - ✅ 9 modales inline eliminados (3+4+2)
+  - ✅ Commit: 80df872
+  - ⏳ **VALIDACIÓN PENDIENTE (Valeria en browser):**
+    - [ ] directora/Usuarios.jsx — crear cuenta (confirm + resultado + reset password)
+    - [ ] directora/Dashboard.jsx — 4 modales info de grupo (asistencia, salidas, docs, retardos)
+    - [ ] directora/Asistencia.jsx — justificar (form con upload) + ver justificación
 - [ ] Batch C — Modales medios (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, etc.)
 - [ ] Batch D — Modales complejos (FiltroEntrada, FiltroSalida, Personal, Grupos, CiclosEscolares, Alumnos)
 

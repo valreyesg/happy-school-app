@@ -5,6 +5,7 @@ import { X, CalendarPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
+import Modal from '@/components/ui/Modal';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -289,72 +290,72 @@ function ModalEvento({ ev, onClose }) {
   const fmtFecha = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/40" />
-      <div
-        className="relative bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-md p-6 shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-          <X size={20} />
-        </button>
-
-        {/* Ícono + categoría */}
-        <div className="flex items-center gap-3 mb-4">
-          <span className="text-4xl">{ev.categoria_icono || '📅'}</span>
-          <div>
-            {ev.categoria_nombre && (
-              <span className="text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: (ev.categoria_color || '#805AD5') + '20', color: ev.categoria_color || '#805AD5' }}>
-                {ev.categoria_nombre}
-              </span>
-            )}
+    <Modal
+      open={!!ev}
+      onClose={onClose}
+      size="md"
+      closeOnBackdrop={true}
+      title={null}
+    >
+      {ev && (
+        <>
+          {/* Ícono + categoría */}
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-4xl">{ev.categoria_icono || '📅'}</span>
+            <div>
+              {ev.categoria_nombre && (
+                <span className="text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-full"
+                  style={{ backgroundColor: (ev.categoria_color || '#805AD5') + '20', color: ev.categoria_color || '#805AD5' }}>
+                  {ev.categoria_nombre}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <h3 className="text-xl font-black text-gray-800 mb-2">{ev.titulo}</h3>
+          <h3 className="text-xl font-black text-gray-800 mb-2">{ev.titulo}</h3>
 
-        {/* Fecha */}
-        <p className="text-sm font-semibold text-hs-blue capitalize mb-1">
-          📆 {fmtFecha(fechaInicio)}
-          {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() && ` → ${fmtFecha(fechaFin)}`}
-        </p>
-
-        {/* Grupo */}
-        {ev.grupo_nombre && (
-          <p className="text-sm font-semibold text-gray-500 mb-1">👥 {ev.grupo_nombre}</p>
-        )}
-
-        {ev.ubicacion && (
-          <p className="text-sm font-semibold text-gray-600 mb-1">📍 {ev.ubicacion}</p>
-        )}
-
-        {ev.recordatorio_horas && (
-          <p className="text-sm font-semibold text-gray-500 mb-3">
-            🔔 {ev.recordatorio_horas < 24
-              ? `${ev.recordatorio_horas}h antes`
-              : `${ev.recordatorio_horas / 24}d antes`}
+          {/* Fecha */}
+          <p className="text-sm font-semibold text-hs-blue capitalize mb-1">
+            📆 {fmtFecha(fechaInicio)}
+            {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() && ` → ${fmtFecha(fechaFin)}`}
           </p>
-        )}
 
-        {/* Descripción */}
-        {ev.descripcion && (
-          <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-2xl px-4 py-3 mt-3">
-            {ev.descripcion}
-          </p>
-        )}
+          {/* Grupo */}
+          {ev.grupo_nombre && (
+            <p className="text-sm font-semibold text-gray-500 mb-1">👥 {ev.grupo_nombre}</p>
+          )}
 
-        <a
-          href={buildGoogleCalendarUrl(ev)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
-        >
-          <CalendarPlus size={15} />
-          Añadir a Google Calendar
-        </a>
-      </div>
-    </div>
+          {ev.ubicacion && (
+            <p className="text-sm font-semibold text-gray-600 mb-1">📍 {ev.ubicacion}</p>
+          )}
+
+          {ev.recordatorio_horas && (
+            <p className="text-sm font-semibold text-gray-500 mb-3">
+              🔔 {ev.recordatorio_horas < 24
+                ? `${ev.recordatorio_horas}h antes`
+                : `${ev.recordatorio_horas / 24}d antes`}
+            </p>
+          )}
+
+          {/* Descripción */}
+          {ev.descripcion && (
+            <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-2xl px-4 py-3 mt-3 mb-4">
+              {ev.descripcion}
+            </p>
+          )}
+
+          <a
+            href={buildGoogleCalendarUrl(ev)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
+          >
+            <CalendarPlus size={15} />
+            Añadir a Google Calendar
+          </a>
+        </>
+      )}
+    </Modal>
   );
 }
 
@@ -453,22 +454,20 @@ function TareaRecienteCard({ hijo }) {
         </div>
       </details>
 
-      {fotoModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          onClick={() => setFotoModal(null)}
-        >
-          <div className="relative bg-white rounded-3xl p-4 max-w-lg max-h-[80vh] flex items-center justify-center" onClick={e => e.stopPropagation()}>
-            <button
-              onClick={() => setFotoModal(null)}
-              className="absolute top-3 right-3 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition"
-            >
-              <X size={20} className="text-gray-600" />
-            </button>
+      <Modal
+        open={!!fotoModal}
+        onClose={() => setFotoModal(null)}
+        size="lg"
+        closeOnBackdrop={true}
+        title={null}
+        dark={true}
+      >
+        {fotoModal && (
+          <div className="flex items-center justify-center">
             <img src={fotoModal} alt="Imagen de tarea" className="max-w-full max-h-[70vh] object-contain rounded-2xl" />
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </>
   );
 }

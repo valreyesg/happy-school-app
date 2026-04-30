@@ -7,6 +7,7 @@ import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import Logo from '@/components/ui/Logo';
+import Modal from '@/components/ui/Modal';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -237,63 +238,67 @@ function ModalCambiarPassword({ usuario, onConfirmar, isLoading }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-        <div className="text-center mb-6">
-          <div className="text-5xl mb-4">🔐</div>
-          <h2 className="text-2xl font-black text-gray-800 mb-2">Cambia tu contraseña</h2>
-          <p className="text-gray-600 font-semibold">
-            Hola <span className="text-hs-purple font-black">{usuario.nombre.split(' ')[0]}</span>, es tu primer acceso
-          </p>
-        </div>
+    <Modal
+      open={true}
+      title="Cambia tu contraseña"
+      size="md"
+      closeOnBackdrop={false}
+    >
+      <div className="text-center mb-6">
+        <div className="text-5xl mb-4">🔐</div>
+        <p className="text-gray-600 font-semibold">
+          Hola <span className="text-hs-purple font-black">{usuario.nombre.split(' ')[0]}</span>, es tu primer acceso
+        </p>
+      </div>
 
-        <div className="space-y-4 mb-6">
-          {/* Nueva contraseña */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Nueva contraseña
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Min. 8 caracteres, letras y números"
-                className="input-hs pr-12 w-full"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-hs-purple"
-              >
-                {showPassword ? '🙈' : '👁️'}
-              </button>
-            </div>
-          </div>
-
-          {/* Confirmar contraseña */}
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
-              Confirmar contraseña
-            </label>
+      <div className="space-y-4 mb-6">
+        {/* Nueva contraseña */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Nueva contraseña
+          </label>
+          <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repite tu contraseña"
-              className="input-hs w-full"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Min. 8 caracteres, letras y números"
+              className="input-hs pr-12 w-full"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-hs-purple"
+            >
+              {showPassword ? '🙈' : '👁️'}
+            </button>
           </div>
-
-          {/* Error */}
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-sm font-semibold text-red-700">{error}</p>
-            </div>
-          )}
         </div>
 
-        {/* Botón */}
+        {/* Confirmar contraseña */}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">
+            Confirmar contraseña
+          </label>
+          <input
+            type={showPassword ? 'text' : 'password'}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Repite tu contraseña"
+            className="input-hs w-full"
+          />
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+            <p className="text-sm font-semibold text-red-700">{error}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Botón */}
+      <div className="space-y-3">
         <button
           onClick={handleConfirmar}
           disabled={isLoading || !newPassword || !confirmPassword}
@@ -302,10 +307,10 @@ function ModalCambiarPassword({ usuario, onConfirmar, isLoading }) {
           {isLoading ? 'Cambiando...' : 'Cambiar contraseña'}
         </button>
 
-        <p className="mt-4 text-xs text-gray-500 font-semibold text-center">
+        <p className="text-xs text-gray-500 font-semibold text-center">
           ✅ Necesitas crear una contraseña segura para proteger tu cuenta
         </p>
       </div>
-    </div>
+    </Modal>
   );
 }

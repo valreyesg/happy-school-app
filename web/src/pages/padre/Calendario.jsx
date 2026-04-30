@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, CalendarPlus, Download } from 'lucide-react';
 import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
+import Modal from '@/components/ui/Modal';
 
 const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -35,75 +36,85 @@ function ModalEvento({ evento, onClose }) {
   const fechaFin = evento.fecha_fin ? new Date(evento.fecha_fin) : null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-        {/* Categoría */}
-        {evento.categoria_nombre && (
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">{evento.categoria_icono || '📅'}</span>
-            <span className="text-xs font-black uppercase tracking-wide" style={{ color }}>
-              {evento.categoria_nombre}
-            </span>
-          </div>
-        )}
-
-        <h2 className="text-xl font-black text-gray-800 mb-2">{evento.titulo}</h2>
-
-        <p className="text-sm font-semibold text-gray-500 mb-4">
-          {evento.es_todo_el_dia
-            ? fechaInicio.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-            : fechaInicio.toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })
-          }
-          {fechaFin && !evento.es_todo_el_dia && (
-            <> — {fechaFin.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</>
+    <Modal
+      open={!!evento}
+      onClose={onClose}
+      size="md"
+      closeOnBackdrop={true}
+      title={null}
+    >
+      {evento && (
+        <>
+          {/* Categoría */}
+          {evento.categoria_nombre && (
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">{evento.categoria_icono || '📅'}</span>
+              <span className="text-xs font-black uppercase tracking-wide" style={{ color }}>
+                {evento.categoria_nombre}
+              </span>
+            </div>
           )}
-        </p>
 
-        {evento.descripcion && (
-          <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3 leading-relaxed mb-4">
-            {evento.descripcion}
+          <h2 className="text-xl font-black text-gray-800 mb-2">{evento.titulo}</h2>
+
+          <p className="text-sm font-semibold text-gray-500 mb-4">
+            {evento.es_todo_el_dia
+              ? fechaInicio.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+              : fechaInicio.toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })
+            }
+            {fechaFin && !evento.es_todo_el_dia && (
+              <> — {fechaFin.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}</>
+            )}
           </p>
-        )}
 
-        {evento.grupo_nombre && (
-          <p className="text-xs text-gray-400 font-semibold mb-4">Grupo: {evento.grupo_nombre}</p>
-        )}
+          {evento.descripcion && (
+            <p className="text-sm text-gray-600 bg-gray-50 rounded-xl p-3 leading-relaxed mb-4">
+              {evento.descripcion}
+            </p>
+          )}
 
-        {evento.ubicacion && (
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-            <span>📍</span>
-            <span className="font-semibold">{evento.ubicacion}</span>
+          {evento.grupo_nombre && (
+            <p className="text-xs text-gray-400 font-semibold mb-4">Grupo: {evento.grupo_nombre}</p>
+          )}
+
+          {evento.ubicacion && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+              <span>📍</span>
+              <span className="font-semibold">{evento.ubicacion}</span>
+            </div>
+          )}
+
+          {evento.recordatorio_horas && (
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+              <span>🔔</span>
+              <span className="font-semibold">
+                {evento.recordatorio_horas < 24
+                  ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
+                  : `${evento.recordatorio_horas / 24} día${evento.recordatorio_horas / 24 > 1 ? 's' : ''} antes`}
+              </span>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <a
+              href={buildGoogleCalendarUrl(evento)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors"
+            >
+              <CalendarPlus size={15} />
+              Añadir a Google Calendar
+            </a>
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 rounded-xl font-bold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              Cerrar
+            </button>
           </div>
-        )}
-
-        {evento.recordatorio_horas && (
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-            <span>🔔</span>
-            <span className="font-semibold">
-              {evento.recordatorio_horas < 24
-                ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
-                : `${evento.recordatorio_horas / 24} día${evento.recordatorio_horas / 24 > 1 ? 's' : ''} antes`}
-            </span>
-          </div>
-        )}
-
-        <a
-          href={buildGoogleCalendarUrl(evento)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl font-bold text-sm text-white bg-hs-blue hover:bg-hs-blue-dark transition-colors mb-2"
-        >
-          <CalendarPlus size={15} />
-          Añadir a Google Calendar
-        </a>
-        <button
-          onClick={onClose}
-          className="w-full py-2.5 rounded-xl font-bold text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
-        >
-          Cerrar
-        </button>
-      </div>
-    </div>
+        </>
+      )}
+    </Modal>
   );
 }
 

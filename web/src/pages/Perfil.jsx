@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Eye, EyeOff, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import PerfilLayout from '@/layouts/PerfilLayout';
+import Modal from '@/components/ui/Modal';
 
 function PerfilContent() {
   const { usuario } = useAuthStore();
@@ -111,100 +112,106 @@ function PerfilContent() {
       </div>
 
       {/* Modal cambiar contraseña */}
-      {modalAbierto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-            <div className="text-center mb-6">
-              <div className="text-5xl mb-4">🔐</div>
-              <h2 className="text-2xl font-black text-gray-800">Cambiar contraseña</h2>
-            </div>
+      <Modal
+        open={modalAbierto}
+        onClose={() => {
+          setModalAbierto(false);
+          setNewPassword('');
+          setConfirmPassword('');
+          setCurrentPassword('');
+          setError('');
+        }}
+        title="Cambiar contraseña"
+        size="md"
+      >
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-4">🔐</div>
+        </div>
 
-            <div className="space-y-4 mb-6">
-              {/* Contraseña actual */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Contraseña actual
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Ingresa tu contraseña actual"
-                    className="input-hs pr-12 w-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-hs-purple"
-                  >
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
-                </div>
-              </div>
-
-              {/* Nueva contraseña */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Nueva contraseña
-                </label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Min. 8 caracteres, letras y números"
-                  className="input-hs w-full"
-                />
-              </div>
-
-              {/* Confirmar contraseña */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Confirmar nueva contraseña
-                </label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repite tu contraseña"
-                  className="input-hs w-full"
-                />
-              </div>
-
-              {/* Error */}
-              {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-sm font-semibold text-red-700">{error}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Botones */}
-            <div className="flex gap-3">
+        <div className="space-y-4 mb-6">
+          {/* Contraseña actual */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Contraseña actual
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Ingresa tu contraseña actual"
+                className="input-hs pr-12 w-full"
+              />
               <button
-                onClick={() => {
-                  setModalAbierto(false);
-                  setNewPassword('');
-                  setConfirmPassword('');
-                  setCurrentPassword('');
-                  setError('');
-                }}
-                disabled={cambiarPassword.isPending}
-                className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-hs-purple"
               >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmar}
-                disabled={cambiarPassword.isPending || !currentPassword || !newPassword || !confirmPassword}
-                className="flex-1 px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {cambiarPassword.isPending ? 'Cambiando...' : 'Cambiar'}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
           </div>
+
+          {/* Nueva contraseña */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Nueva contraseña
+            </label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="Min. 8 caracteres, letras y números"
+              className="input-hs w-full"
+            />
+          </div>
+
+          {/* Confirmar contraseña */}
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Confirmar nueva contraseña
+            </label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repite tu contraseña"
+              className="input-hs w-full"
+            />
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm font-semibold text-red-700">{error}</p>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Botones */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setModalAbierto(false);
+              setNewPassword('');
+              setConfirmPassword('');
+              setCurrentPassword('');
+              setError('');
+            }}
+            disabled={cambiarPassword.isPending}
+            className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirmar}
+            disabled={cambiarPassword.isPending || !currentPassword || !newPassword || !confirmPassword}
+            className="flex-1 px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {cambiarPassword.isPending ? 'Cambiando...' : 'Cambiar'}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

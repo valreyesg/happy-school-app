@@ -4,6 +4,7 @@ import { Plus, X, Clock, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
+import Modal from '@/components/ui/Modal';
 
 export default function DirectoraVisitantes() {
   const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
@@ -170,18 +171,17 @@ export default function DirectoraVisitantes() {
       </div>
 
       {/* Modal Registrar */}
-      {modalAbierto && (
-        <ModalRegistrarVisitante
-          onClose={cerrarModal}
-          onSubmit={(data) => crearMutation.mutate(data)}
-          isLoading={crearMutation.isPending}
-        />
-      )}
+      <ModalRegistrarVisitante
+        open={modalAbierto}
+        onClose={cerrarModal}
+        onSubmit={(data) => crearMutation.mutate(data)}
+        isLoading={crearMutation.isPending}
+      />
     </div>
   );
 }
 
-function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
+function ModalRegistrarVisitante({ open, onClose, onSubmit, isLoading }) {
   const { data: grupos = [] } = useQuery({
     queryKey: ['grupos'],
     queryFn: () => api.get('/grupos').then(r => r.data),
@@ -215,76 +215,79 @@ function ModalRegistrarVisitante({ onClose, onSubmit, isLoading }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <h2 className="text-lg font-bold mb-4">Registrar Visitante</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Registrar Visitante"
+      size="md"
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          placeholder="Nombre del niño *"
+          value={form.nombre}
+          onChange={(e) => setForm(prev => ({ ...prev, nombre: e.target.value }))}
+          className="input-hs w-full"
+          required
+        />
+        <select
+          value={form.grupo_visitado_id}
+          onChange={(e) => setForm(prev => ({ ...prev, grupo_visitado_id: e.target.value }))}
+          className="input-hs w-full"
+        >
+          <option value="">Grupo visitado (opcional)</option>
+          {grupos.map(g => (
+            <option key={g.id} value={g.id}>{g.nombre}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          placeholder="Nombre tutor (opcional)"
+          value={form.tutor_nombre}
+          onChange={(e) => setForm(prev => ({ ...prev, tutor_nombre: e.target.value }))}
+          className="input-hs w-full"
+        />
+        <input
+          type="tel"
+          placeholder="Teléfono tutor (opcional)"
+          value={form.tutor_telefono}
+          onChange={(e) => setForm(prev => ({ ...prev, tutor_telefono: e.target.value }))}
+          className="input-hs w-full"
+        />
+        <input
+          type="text"
+          placeholder="Notas (opcional)"
+          value={form.notas}
+          onChange={(e) => setForm(prev => ({ ...prev, notas: e.target.value }))}
+          className="input-hs w-full"
+        />
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Foto (opcional)</label>
           <input
-            type="text"
-            placeholder="Nombre del niño *"
-            value={form.nombre}
-            onChange={(e) => setForm(prev => ({ ...prev, nombre: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-            required
+            type="file"
+            accept="image/*"
+            onChange={(e) => setForm(prev => ({ ...prev, foto: e.target.files?.[0] || null }))}
+            className="input-hs w-full"
           />
-          <select
-            value={form.grupo_visitado_id}
-            onChange={(e) => setForm(prev => ({ ...prev, grupo_visitado_id: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
           >
-            <option value="">Grupo visitado (opcional)</option>
-            {grupos.map(g => (
-              <option key={g.id} value={g.id}>{g.nombre}</option>
-            ))}
-          </select>
-          <input
-            type="text"
-            placeholder="Nombre tutor (opcional)"
-            value={form.tutor_nombre}
-            onChange={(e) => setForm(prev => ({ ...prev, tutor_nombre: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-          />
-          <input
-            type="tel"
-            placeholder="Teléfono tutor (opcional)"
-            value={form.tutor_telefono}
-            onChange={(e) => setForm(prev => ({ ...prev, tutor_telefono: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-          />
-          <input
-            type="text"
-            placeholder="Notas (opcional)"
-            value={form.notas}
-            onChange={(e) => setForm(prev => ({ ...prev, notas: e.target.value }))}
-            className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-          />
-          <div>
-            <label className="block text-sm font-medium mb-1">Foto (opcional)</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setForm(prev => ({ ...prev, foto: e.target.files?.[0] || null }))}
-              className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-hs-blue-dark text-white rounded hover:bg-hs-blue-dark disabled:opacity-50 transition"
-            >
-              {isLoading ? '...' : 'Registrar'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 rounded-2xl bg-hs-blue text-white font-bold transition-colors hover:bg-hs-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? '...' : 'Registrar'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

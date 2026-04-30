@@ -1,7 +1,87 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-04-29 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → **XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos)**
+**Última actualización:** 2026-04-30 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → **XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind)**
+
+---
+
+## ✅ SESIÓN XX+17 (2026-04-30) — FASE 5.2 Batch D.1-3 + FASE 5.3 (COMPLETADO)
+
+**Fecha:** 2026-04-30 | **Estado:** ✅ IMPLEMENTACIÓN COMPLETADA — PENDIENTE VALIDACIÓN EN BROWSER
+
+### FASE 5.2 — Migración Modales Web a Modal.jsx — Batches A-D.1-3
+
+**Resumen:** 35+ modales inline refactorizados a usar componente Modal.jsx centralizado.
+
+#### Batch A (Sesión anterior) ✅
+- 6 modales en 5 archivos simples (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
+
+#### Batch B (Sesión anterior) ✅
+- 9 modales en 3 archivos (directora/Usuarios, directora/Dashboard, directora/Asistencia)
+
+#### Batch C (Sesión anterior) ✅
+- 15 modales en 7+ archivos (maestra/Tareas 3, directora/Pagos 2, directora/Calendario 2, etc.)
+
+#### Batch D.1-3 (ESTA SESIÓN) ✅
+**maestra/FiltroEntrada.jsx** (Commit: 7fc5216)
+- ModalEntrada: multi-sección (salud, higiene, materiales, comida, medicamentos, toallitas, cumpleaños)
+- QRScannerModal: escanear credencial alumno
+- Validaciones: checklist con flags inverted (ej: sin_fiebre = true es "SIN problema")
+- Props Modal: `size="md"`, `closeOnBackdrop={false}` (prevenir pérdida de datos)
+
+**maestra/FiltroSalida.jsx** (Commit: da27123)
+- ModalSalida: 2 pasos (paso 1: selector quién recoge + alerta anticipada/tardía, paso 2: checklist sanitario)
+- QRScannerModal: escanear credencial alumno
+- Progress indicator: barra visual de paso 1→2
+- Props Modal: `size="md"`, `closeOnBackdrop={false}`
+
+**maestra/Asistencia.jsx** (Commit: 61c2b01)
+- ModalEntrada: checklist entrada (salud, higiene, materiales)
+- Similar a FiltroEntrada pero más simple
+- Props Modal: `size="md"`, `closeOnBackdrop={false}`
+
+#### Batch D.4+ — DIFERIDO A PRÓXIMA SESIÓN
+- directora/Personal.jsx (445 líneas, mega-form con asignación grupos)
+- directora/Grupos.jsx (315 líneas, form asignación maestras)
+- directora/CiclosEscolares.jsx (650 líneas, wizard 3 pasos)
+- directora/Alumnos.jsx (275 líneas, form alta/edición alumno)
+
+### FASE 5.3 — Decisión NativeWind Mobile (Commit: 3670c5c)
+
+**Decisión:** Opción A — **Eliminar NativeWind**, mantener StyleSheet + theme.js
+
+**Cambios implementados:**
+- ✅ Removido `nativewind` de dependencies
+- ✅ Removido `tailwindcss` de devDependencies  
+- ✅ Removido preset NativeWind de tailwind.config.js
+- ✅ Verificado: CERO referencias a nativewind en código mobile
+
+**Razón:** Button.jsx y componentes mobile ya completamente migrados a StyleSheet + theme.js; NativeWind nunca se usaba
+
+**Beneficio:** Reducir dependencias, coherencia arquitectónica (web=Tailwind CSS, mobile=StyleSheet nativo RN)
+
+### Validaciones Pendientes (en PENDIENTES.md)
+
+**Web (35+ modales):**
+- [ ] Batch A: 6 modales en 5 archivos
+- [ ] Batch B: 9 modales en 3 archivos
+- [ ] Batch C: 15 modales en 7+ archivos
+- [ ] Batch D.1-3: 5 modales en 3 archivos (FiltroEntrada, FiltroSalida, Asistencia)
+
+**Mobile:**
+- [ ] Verificar `npm install` funciona sin nativewind
+- [ ] Expo start sin crashes
+- [ ] Button, ModalSheet, NotificationBell sin cambios visuales
+- [ ] Consola sin warnings
+
+### Commits (Sesión XX+17)
+1. `7fc5216` — feat: FASE 5.2 — Batch D.1 FiltroEntrada (2 modales) completo
+2. `da27123` — feat: FASE 5.2 — Batch D.2 FiltroSalida (2 modales) completo
+3. `61c2b01` — feat: FASE 5.2 — Batch D.3 Asistencia (1 modal) completo
+4. `7b1ef2b` — docs: Actualizar PENDIENTES.md — FASE 5.2 Batch C+D status
+5. `667e34f` — docs: PENDIENTES.md — FASE 5.2 Batch D.1-3 validación checklist
+6. `3670c5c` — refactor: FASE 5.3 — Eliminar NativeWind mobile
+7. `3a2504b` — docs: PENDIENTES.md — FASE 5.3 validación checklist
 
 ---
 

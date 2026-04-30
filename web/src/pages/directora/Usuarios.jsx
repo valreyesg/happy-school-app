@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Copy, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '@/services/api';
+import Modal from '@/components/ui/Modal';
 
 // Paleta de colores para niveles — igual que en Alumnos
 const PALETA_NIVELES = [
@@ -347,121 +348,125 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
 
   if (resultado) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancelar} />
-        <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6">
-          <div className="text-center">
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-lg font-black text-gray-800 mb-4">Cuenta creada exitosamente</h2>
-            <p className="text-sm text-gray-600 font-semibold mb-6">
-              Comparte estos datos con {padre.nombre_completo.split(' ')[0]}
-            </p>
+      <Modal
+        open={true}
+        onClose={onCancelar}
+        title="Cuenta creada exitosamente"
+        size="md"
+        closeOnBackdrop={true}
+      >
+        <div className="text-center">
+          <div className="text-5xl mb-4">✅</div>
+          <p className="text-sm text-gray-600 font-semibold mb-6">
+            Comparte estos datos con {padre.nombre_completo.split(' ')[0]}
+          </p>
 
-            <div className="space-y-3 mb-6">
-              <div className="p-4 bg-hs-blue/10 rounded-2xl border-2 border-hs-blue/30">
-                <p className="text-xs text-hs-blue-dark font-semibold mb-1">📧 Usuario del portal</p>
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-mono text-sm font-bold text-hs-blue-dark">{resultado.email_institucional}</p>
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(resultado.email_institucional);
-                      toast.success('Copiado');
-                    }}
-                    className="p-1.5 hover:bg-hs-blue/30 rounded-lg transition-colors"
-                  >
-                    <Copy size={16} className="text-hs-blue-dark" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-4 bg-red-50 rounded-2xl border-2 border-red-200">
-                <p className="text-xs text-red-600 font-semibold mb-1">🔐 Contraseña temporal</p>
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-mono text-sm font-bold text-red-700">
-                    {mostrarPassword ? resultado.password : '••••••••'}
-                  </p>
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() => setMostrarPassword(!mostrarPassword)}
-                      className="p-1.5 hover:bg-red-200 rounded-lg transition-colors"
-                    >
-                      {mostrarPassword ? '🙈' : '👁️'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(resultado.password);
-                        toast.success('Copiado');
-                      }}
-                      className="p-1.5 hover:bg-red-200 rounded-lg transition-colors"
-                    >
-                      <Copy size={16} className="text-red-600" />
-                    </button>
-                  </div>
-                </div>
+          <div className="space-y-3 mb-6">
+            <div className="p-4 bg-hs-blue/10 rounded-2xl border-2 border-hs-blue/30">
+              <p className="text-xs text-hs-blue-dark font-semibold mb-1">📧 Usuario del portal</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-mono text-sm font-bold text-hs-blue-dark">{resultado.email_institucional}</p>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(resultado.email_institucional);
+                    toast.success('Copiado');
+                  }}
+                  className="p-1.5 hover:bg-hs-blue/30 rounded-lg transition-colors"
+                >
+                  <Copy size={16} className="text-hs-blue-dark" />
+                </button>
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 font-semibold mb-6">
-              El padre deberá cambiar la contraseña en su primer acceso
-            </p>
-
-            <button
-              onClick={onCancelar}
-              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark"
-            >
-              Cerrar
-            </button>
+            <div className="p-4 bg-red-50 rounded-2xl border-2 border-red-200">
+              <p className="text-xs text-red-600 font-semibold mb-1">🔐 Contraseña temporal</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-mono text-sm font-bold text-red-700">
+                  {mostrarPassword ? resultado.password : '••••••••'}
+                </p>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setMostrarPassword(!mostrarPassword)}
+                    className="p-1.5 hover:bg-red-200 rounded-lg transition-colors"
+                  >
+                    {mostrarPassword ? '🙈' : '👁️'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(resultado.password);
+                      toast.success('Copiado');
+                    }}
+                    className="p-1.5 hover:bg-red-200 rounded-lg transition-colors"
+                  >
+                    <Copy size={16} className="text-red-600" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <p className="text-xs text-gray-500 font-semibold mb-6">
+            El padre deberá cambiar la contraseña en su primer acceso
+          </p>
+
+          <button
+            onClick={onCancelar}
+            className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold transition-colors hover:bg-hs-purple-dark"
+          >
+            Cerrar
+          </button>
         </div>
-      </div>
+      </Modal>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancelar} />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6">
-        <div className="text-center">
-          <h2 className="text-lg font-black text-gray-800 mb-4">¿Crear cuenta para {padre.nombre_completo}?</h2>
-          <p className="text-sm text-gray-600 font-semibold mb-4">
-            Se creará una cuenta con:
-          </p>
-          <div className="text-left space-y-3 mb-6 p-4 bg-gray-50 rounded-2xl">
-            <div>
-              <p className="text-xs text-gray-500 font-semibold mb-1">📧 Usuario del portal</p>
-              <p className="text-sm font-mono font-bold text-hs-blue-dark">{previewData || 'Cargando...'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-semibold mb-1">📞 Email de contacto</p>
-              <p className="text-sm font-mono text-gray-700">{padre.email_contacto || 'No registrado'}</p>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 font-semibold mb-1">🔐 Contraseña temporal</p>
-              <p className="text-sm font-mono font-bold text-gray-800">HappySchool2026!</p>
-            </div>
+    <Modal
+      open={true}
+      onClose={onCancelar}
+      title={`¿Crear cuenta para ${padre.nombre_completo}?`}
+      size="md"
+      closeOnBackdrop={true}
+    >
+      <div className="text-center">
+        <p className="text-sm text-gray-600 font-semibold mb-4">
+          Se creará una cuenta con:
+        </p>
+        <div className="text-left space-y-3 mb-6 p-4 bg-gray-50 rounded-2xl">
+          <div>
+            <p className="text-xs text-gray-500 font-semibold mb-1">📧 Usuario del portal</p>
+            <p className="text-sm font-mono font-bold text-hs-blue-dark">{previewData || 'Cargando...'}</p>
           </div>
-          <p className="text-xs text-gray-500 font-semibold mb-6">
-            El padre deberá cambiar la contraseña en su primer acceso
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={onCancelar}
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleConfirmar}
-              disabled={isLoading || !previewData}
-              className="flex-1 px-4 py-3 rounded-2xl bg-green-500 text-white font-bold transition-colors hover:bg-green-600 disabled:opacity-50"
-            >
-              {isLoading ? 'Creando...' : 'Crear cuenta'}
-            </button>
+          <div>
+            <p className="text-xs text-gray-500 font-semibold mb-1">📞 Email de contacto</p>
+            <p className="text-sm font-mono text-gray-700">{padre.email_contacto || 'No registrado'}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 font-semibold mb-1">🔐 Contraseña temporal</p>
+            <p className="text-sm font-mono font-bold text-gray-800">HappySchool2026!</p>
           </div>
         </div>
+        <p className="text-xs text-gray-500 font-semibold mb-6">
+          El padre deberá cambiar la contraseña en su primer acceso
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancelar}
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirmar}
+            disabled={isLoading || !previewData}
+            className="flex-1 px-4 py-3 rounded-2xl bg-green-500 text-white font-bold transition-colors hover:bg-green-600 disabled:opacity-50"
+          >
+            {isLoading ? 'Creando...' : 'Crear cuenta'}
+          </button>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -469,35 +474,37 @@ function ModalConfirmCrearCuenta({ padre, onConfirmar, onCancelar, isLoading }) 
 
 function ModalConfirmResetPassword({ padre, onConfirmar, onCancelar, isLoading }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancelar} />
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-6">
-        <div className="text-center">
-          <h2 className="text-lg font-black text-gray-800 mb-4">¿Resetear contraseña?</h2>
-          <p className="text-sm text-gray-600 font-semibold mb-4">
-            Se restablecerá a: <span className="font-mono font-bold">HappySchool2026!</span>
-          </p>
-          <p className="text-xs text-gray-500 font-semibold mb-6">
-            El padre deberá cambiar la contraseña en su próximo acceso
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={onCancelar}
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={onConfirmar}
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 rounded-2xl bg-amber-500 text-white font-bold transition-colors hover:bg-amber-600 disabled:opacity-50"
-            >
-              {isLoading ? 'Resetando...' : 'Resetear'}
-            </button>
-          </div>
+    <Modal
+      open={true}
+      onClose={onCancelar}
+      title="¿Resetear contraseña?"
+      size="md"
+      closeOnBackdrop={true}
+    >
+      <div className="text-center">
+        <p className="text-sm text-gray-600 font-semibold mb-4">
+          Se restablecerá a: <span className="font-mono font-bold">HappySchool2026!</span>
+        </p>
+        <p className="text-xs text-gray-500 font-semibold mb-6">
+          El padre deberá cambiar la contraseña en su próximo acceso
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancelar}
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold transition-colors hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirmar}
+            disabled={isLoading}
+            className="flex-1 px-4 py-3 rounded-2xl bg-amber-500 text-white font-bold transition-colors hover:bg-amber-600 disabled:opacity-50"
+          >
+            {isLoading ? 'Resetando...' : 'Resetear'}
+          </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

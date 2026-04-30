@@ -4,6 +4,7 @@ import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react'
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
+import Modal from '@/components/ui/Modal';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -301,11 +302,20 @@ function VistaMensual({ grupoId }) {
       )}
 
       {/* Modal justificación */}
-      {justificandoModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="text-lg font-black text-gray-800">📋 Justificar ausencia</h3>
-            <p className="text-sm text-gray-600">
+      <Modal
+        open={!!justificandoModal}
+        onClose={() => {
+          setJustificandoModal(null);
+          setMotivoJustificacion('');
+          setComprobanteFile(null);
+        }}
+        title="📋 Justificar ausencia"
+        size="md"
+        closeOnBackdrop={false}
+      >
+        {justificandoModal && (
+          <>
+            <p className="text-sm text-gray-600 mb-4">
               <strong>{alumnos.find(a => a.id === justificandoModal.alumnoId)?.nombre_completo}</strong>
               {' · '}
               <strong>{new Date(justificandoModal.fecha + 'T12:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</strong>
@@ -315,9 +325,9 @@ function VistaMensual({ grupoId }) {
               value={motivoJustificacion}
               onChange={e => setMotivoJustificacion(e.target.value)}
               rows={3}
-              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 resize-none"
+              className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-blue/50 resize-none mb-4"
             />
-            <div className="space-y-2">
+            <div className="space-y-2 mb-4">
               <label className="block">
                 <input
                   type="file"
@@ -350,16 +360,21 @@ function VistaMensual({ grupoId }) {
                 ✕
               </button>
             </div>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
 
       {/* Modal lectura de justificación */}
-      {viendoJustificacion && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="text-lg font-black text-gray-800">📋 Justificación</h3>
-            <p className="text-sm text-gray-600">
+      <Modal
+        open={!!viendoJustificacion}
+        onClose={() => setViendoJustificacion(null)}
+        title="📋 Justificación"
+        size="md"
+        closeOnBackdrop={true}
+      >
+        {viendoJustificacion && (
+          <>
+            <p className="text-sm text-gray-600 mb-4">
               <strong>{viendoJustificacion.alumnoNombre}</strong>
               {' · '}
               <strong>
@@ -367,12 +382,12 @@ function VistaMensual({ grupoId }) {
                   .toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
               </strong>
             </p>
-            <div className="bg-hs-blue/10 border border-hs-blue/30 rounded-xl px-3 py-3 text-sm text-gray-700">
+            <div className="bg-hs-blue/10 border border-hs-blue/30 rounded-xl px-3 py-3 text-sm text-gray-700 mb-4">
               <p className="font-black text-hs-blue-dark mb-1">Motivo</p>
               <p>{viendoJustificacion.motivo || <span className="text-gray-400 italic">Sin motivo registrado</span>}</p>
             </div>
             {viendoJustificacion.comprobante_url && (
-              <div>
+              <div className="mb-4">
                 <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Comprobante</p>
                 {/\.(jpg|jpeg|png|webp|gif)$/i.test(viendoJustificacion.comprobante_url)
                   ? <img
@@ -391,7 +406,7 @@ function VistaMensual({ grupoId }) {
                 }
               </div>
             )}
-            <div className="text-xs text-gray-400 space-y-0.5">
+            <div className="text-xs text-gray-400 space-y-0.5 mb-4">
               {viendoJustificacion.justificada_por && (
                 <p>Registrado por: <span className="font-semibold text-gray-600">{viendoJustificacion.justificada_por}</span></p>
               )}
@@ -408,9 +423,9 @@ function VistaMensual({ grupoId }) {
             >
               Cerrar
             </button>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

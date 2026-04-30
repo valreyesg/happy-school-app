@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/authStore';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
+import Modal from '@/components/ui/Modal';
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;
@@ -84,138 +85,152 @@ function ModalAsistenciaGrupo({ grupo, onClose }) {
   }, [grupo.grupo_id]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 flex-1">
+    <Modal
+      open={!!grupo}
+      onClose={onClose}
+      title={`Asistencia — ${grupo.grupo_nombre}`}
+      size="lg"
+      closeOnBackdrop={true}
+    >
+      {grupo && (
+        <>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
             <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
-            <h2 className="text-lg font-black text-gray-800">Asistencia — {grupo.grupo_nombre}</h2>
-            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+            <span className="text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
               {grupo.presentes}/{grupo.total} presentes
             </span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
 
-        {/* Body */}
-        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {cargando ? (
-            <>
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="skeleton h-14 rounded-2xl" />
-              ))}
-            </>
-          ) : (
-            alumnos.map(a => <FilaModal key={a.id} alumno={a} />)
-          )}
-        </div>
-      </div>
-    </div>
+          <div className="space-y-2">
+            {cargando ? (
+              <>
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="skeleton h-14 rounded-2xl" />
+                ))}
+              </>
+            ) : (
+              alumnos.map(a => <FilaModal key={a.id} alumno={a} />)
+            )}
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 
 function ModalSalidasGrupo({ grupo, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 flex-1">
+    <Modal
+      open={!!grupo}
+      onClose={onClose}
+      title={`Salidas — ${grupo?.grupo_nombre}`}
+      size="lg"
+      closeOnBackdrop={true}
+    >
+      {grupo && (
+        <>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
             <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
-            <h2 className="text-lg font-black text-gray-800">Salidas — {grupo.grupo_nombre}</h2>
-            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+            <span className="text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
               {grupo.salidas.length} salidas
             </span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
-        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {grupo.salidas.length === 0 ? (
-            <p className="text-sm text-gray-400 font-semibold text-center py-6">Sin salidas registradas</p>
-          ) : (
-            grupo.salidas.map(s => (
-              <div key={s.id + s.hora_salida} className={`flex items-center gap-3 p-3 rounded-2xl ${s.es_anticipada ? 'bg-hs-orange/10' : 'bg-gray-50'}`}>
-                <span className="text-lg">{!s.autorizado ? '🚨' : s.es_anticipada ? '⚠️' : '✅'}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-gray-800">{s.nombre_completo}</p>
-                  {s.nombre_quien_recoge && <p className="text-xs text-gray-400 font-semibold truncate">Recogido por: {s.nombre_quien_recoge}</p>}
+          <div className="space-y-2">
+            {grupo.salidas.length === 0 ? (
+              <p className="text-sm text-gray-400 font-semibold text-center py-6">Sin salidas registradas</p>
+            ) : (
+              grupo.salidas.map(s => (
+                <div key={s.id + s.hora_salida} className={`flex items-center gap-3 p-3 rounded-2xl ${s.es_anticipada ? 'bg-hs-orange/10' : 'bg-gray-50'}`}>
+                  <span className="text-lg">{!s.autorizado ? '🚨' : s.es_anticipada ? '⚠️' : '✅'}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-gray-800">{s.nombre_completo}</p>
+                    {s.nombre_quien_recoge && <p className="text-xs text-gray-400 font-semibold truncate">Recogido por: {s.nombre_quien_recoge}</p>}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className={`font-black text-sm ${!s.autorizado ? 'text-red-600' : s.es_anticipada ? 'text-hs-orange-dark' : 'text-green-600'}`}>
+                      {new Date(s.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
+                    </span>
+                    {s.es_anticipada && <p className="text-xs text-orange-400 font-semibold">anticipada</p>}
+                  </div>
                 </div>
-                <div className="text-right shrink-0">
-                  <span className={`font-black text-sm ${!s.autorizado ? 'text-red-600' : s.es_anticipada ? 'text-hs-orange-dark' : 'text-green-600'}`}>
-                    {new Date(s.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City' })}
-                  </span>
-                  {s.es_anticipada && <p className="text-xs text-orange-400 font-semibold">anticipada</p>}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 
 function ModalDocumentacionGrupo({ grupo, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 flex-1">
+    <Modal
+      open={!!grupo}
+      onClose={onClose}
+      title={`Documentación — ${grupo?.grupo_nombre}`}
+      size="lg"
+      closeOnBackdrop={true}
+    >
+      {grupo && (
+        <>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
             <div className="w-3 h-3 rounded-full" style={{ background: grupo.color_hex }} />
-            <h2 className="text-lg font-black text-gray-800">Documentación — {grupo.grupo_nombre}</h2>
-            <span className="ml-auto text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
+            <span className="text-xs font-black px-2 py-1 rounded-xl bg-gray-100 text-gray-700">
               {grupo.alumnos.length} alumnos
             </span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
-        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {grupo.alumnos.map(a => (
-            <div key={a.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl">
-              <span className="text-lg">🔴</span>
-              <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+          <div className="space-y-2">
+            {grupo.alumnos.map(a => (
+              <div key={a.id} className="flex items-center gap-3 p-3 bg-red-50 rounded-2xl">
+                <span className="text-lg">🔴</span>
+                <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 
 function ModalRetardosGrupo({ grupo, onClose }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <div className="flex items-center gap-3 flex-1">
+    <Modal
+      open={!!grupo}
+      onClose={onClose}
+      title={`Retardos — ${grupo?.grupo_nombre}`}
+      size="lg"
+      closeOnBackdrop={true}
+    >
+      {grupo && (
+        <>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
             <div className="w-3 h-3 rounded-full" style={{ background: grupo.tieneAlumnosSeveros ? '#DC2626' : grupo.color_hex }} />
-            <h2 className="text-lg font-black text-gray-800">Retardos — {grupo.grupo_nombre}</h2>
-            <span className={`ml-auto text-xs font-black px-2 py-1 rounded-xl ${grupo.tieneAlumnosSeveros ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
+            <span className={`text-xs font-black px-2 py-1 rounded-xl ${grupo.tieneAlumnosSeveros ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>
               {grupo.totalRetardos} retardos
             </span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-        </div>
-        <div className="overflow-y-auto flex-1 px-4 py-3 space-y-2">
-          {grupo.alumnos
-            .filter(a => a.estado_asistencia !== 'no_entrada')
-            .map(a => {
-            const retardos = parseInt(a.retardos || 0);
-            return (
-              <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
-                <span className="text-lg">{retardos >= 3 ? '🔴' : '🟡'}</span>
-                <div className="flex-1">
-                  <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+          <div className="space-y-2">
+            {grupo.alumnos
+              .filter(a => a.estado_asistencia !== 'no_entrada')
+              .map(a => {
+              const retardos = parseInt(a.retardos || 0);
+              return (
+                <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-2xl">
+                  <span className="text-lg">{retardos >= 3 ? '🔴' : '🟡'}</span>
+                  <div className="flex-1">
+                    <p className="font-bold text-sm text-gray-800">{a.nombre_completo}</p>
+                  </div>
+                  <span className={`font-black text-lg ${retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
+                    {retardos}
+                  </span>
                 </div>
-                <span className={`font-black text-lg ${retardos >= 3 ? 'text-red-600' : 'text-yellow-600'}`}>
-                  {retardos}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </Modal>
   );
 }
 

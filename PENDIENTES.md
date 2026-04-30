@@ -205,14 +205,13 @@
 > Tiempo: 4-8 horas | Riesgo: MEDIO-ALTO
 
 **FASE 5.2 — Migrar modales web a Modal.jsx:**
-- [ ] Identificar todos los modales (15+ archivos)
-- [ ] Migrar uno por uno a usar componente Modal
-- [ ] Testing individual de cada modal
-
-**FASE 5.2 — Migrar modales web a Modal.jsx:**
-- [ ] Identificar todos los modales (15+ archivos)
-- [ ] Migrar uno por uno a usar componente Modal
-- [ ] Testing individual de cada modal
+- [x] Fase 0 — Extender Modal.jsx (xl, full, closeOnBackdrop, dark, scroll interno)
+- [x] Batch A — 5 archivos simples (Perfil, LoginPage, padre/Calendario, padre/Dashboard, directora/Visitantes)
+  - ✅ 6 modales inline eliminados
+  - ✅ Commit: bc4e767
+- [ ] Batch B — Modales confirm/info en Directora (Usuarios, Dashboard, Asistencia)
+- [ ] Batch C — Modales medios (Pagos, Calendario, ServicioComida, Tareas, NinosExtension, etc.)
+- [ ] Batch D — Modales complejos (FiltroEntrada, FiltroSalida, Personal, Grupos, CiclosEscolares, Alumnos)
 
 **FASE 5.3 — Decisión sobre NativeWind mobile:**
 - [ ] Opción A (recomendada): Eliminar NativeWind, quedarse con StyleSheet + theme.js

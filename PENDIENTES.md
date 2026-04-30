@@ -1,43 +1,22 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-30 — Sesión XX+18 | **Próximos pendientes:** Validación UX/UI en browser + mobile + Cloudinary
+**Última actualización:** 2026-04-30 — Sesión XX+18 | **Próximos pendientes:** Validación Batch B-D + FASE 5.3 Mobile + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 ## 📋 VALIDACIONES PENDIENTES
 
-### 🌐 VALIDACIÓN EN BROWSER — FASES 1-5.3 (por Valeria en http://localhost:5173)
-
-**FASE 3.5 — ANIMO keys:**
-- [x] **Bitácora Padre:** Selector de ánimo muestra exactamente 5 opciones (Feliz 😊, Activo ⚡, Cansado 😴, Triste 😢, Irritable 😤) — sin `Enérgico` ni `Inquieto` duplicados ✅
-- [x] **Dashboard Maestra:** Alumnos con ánimo `activo` muestran ⚡ (no vacío) ✅
-- [x] **Dashboard Maestra:** Alumnos con ánimo `irritable` muestran 😤 (no vacío) ✅
+### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches B-D) + 5.3 (por Valeria en http://localhost:5173)
 
 **FASE 4.4 — Button component mobile (en browser, verificar estilos):**
 - [ ] **Bitácora Padre:** Botón "Ver referencia" es ghost small
 - [ ] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small
 
-**FASE 5.1 — AppShell compartido:** ✅ VALIDADO
-- [x] **Portal PADRE:** Header visible, NotificationBell en móvil y desktop, Sidebar rojo correcto ✅
-- [x] **Portal MAESTRA:** Header visible, NotificationBell funcional, Sidebar verde correcto ✅
-- [x] **Portal DIRECTORA:** Header visible, NotificationBell en móvil y desktop (NUEVO), Sidebar púrpura correcto ✅
-- [x] **GENERAL:** Logout hover color consistente, responsive correcto, sin errores Tailwind en consola ✅
-
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
-**Batch A (5 archivos, 6 modales):**
-- [x] `Perfil.jsx` — modal cambio contraseña: abre, cierra, inputs funcionan ✅
-- [x] `LoginPage.jsx` — modal primer login: abre, validaciones de password funcionan ✅
-- [x] `padre/Calendario.jsx` — modal evento: click en evento, cierra con X y backdrop ✅
-- [x] `padre/Dashboard.jsx` — modal evento: abre/cierra correctamente ✅
-- [x] `padre/Dashboard.jsx` — lightbox foto: abre, scroll si es grande, cierra ✅
-- [x] `directora/Visitantes.jsx` — form registrar: abre modal, inputs, submit, cancela ✅
-
-**Batch B (3 archivos, 9 modales):**
+**Batch B (3 archivos, 9 modales) — PARCIAL:**
 - [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
-- [x] `directora/Dashboard.jsx` — 4 modales info de grupo (asistencia, salidas, docs, retardos) ✅
-- [x] `directora/Asistencia.jsx` — justificar (form con upload) + ver justificación ✅
 
 **Batch C (7+ archivos, 15 modales):**
 - [ ] `maestra/Tareas.jsx` — 3 modales: crear, editar, entregas
@@ -93,28 +72,6 @@
 - [ ] `expo start` arranca sin crashes
 - [ ] Button, ModalSheet, NotificationBell mantienen aspecto visual
 - [ ] Consola sin warnings sobre nativewind
-
----
-
-## 🎨 MEJORAS DE UX/UI — Input File Consistency (Sesión XX+18)
-
-**Problema:** Los inputs `type="file"` en formularios de upload tenían estilos inconsistentes (algunos básicos, otros bonitos).
-
-**Solución:** Aplicar estilos consistentes con pseudoelemento `file:` (botón "Seleccionar archivo" estilizado) en todos los formularios.
-
-**Archivos actualizados (✅ VALIDADOS):**
-- [x] `directora/Visitantes.jsx` — input file foto con estilo purple ✅
-- [x] `directora/ComidaMenu.jsx` — input file archivo con estilo red ✅
-- [x] `directora/NinosExtension.jsx` — input file foto con estilo blue ✅
-- [x] `directora/ServicioComida.jsx` — input file archivo con estilo purple ✅
-- [x] `directora/Asistencia.jsx` — input file justificación con estilo blue ✅
-
-**Pattern de estilo usado:**
-```css
-className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[COLOR]/10 file:text-[COLOR]-dark hover:file:bg-[COLOR]-100"
-```
-
-**Nota:** Archivos con input `hidden` + botón custom (Alumnos.jsx, AlumnoPerfil.jsx, Bitacora.jsx padre) ya tenían estilos apropiados.
 
 ---
 

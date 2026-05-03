@@ -19,19 +19,25 @@ function colorNivel(nivel) {
 }
 
 // ─── Modal de grupo ───────────────────────────────────────────────────────────
-function ModalGrupo({ grupo, maestras, onClose, onSave }) {
+function ModalGrupo({ grupo, maestras, cicloId, gruposCiclo, onClose, onSave }) {
   const { items: NIVELES } = useCatalogo('niveles');
   const esNuevo = !grupo;
+
+  // Obtener ciclo_id: si estamos en un ciclo específico (cicloId !== null), usar ese; si no, usar el del primer grupo
+  const cicloIdParaGuardar = cicloId !== null ? cicloId : (gruposCiclo?.[0]?.ciclo_id || null);
+
   const [form, setForm] = useState({
     nombre: grupo?.nombre || '',
     nivel: grupo?.nivel || 'maternal',
+    nivel_codigo: grupo?.nivel_codigo || 'maternal',
+    ciclo_id: grupo?.ciclo_id || cicloIdParaGuardar,
     turno: grupo?.turno || 'matutino',
     horario_entrada: grupo?.horario_entrada || '07:00',
     horario_salida: grupo?.horario_salida || '14:00',
     cupo_maximo: grupo?.cupo_maximo || 15,
     color_hex: grupo?.color_hex || '#805AD5',
     activo: grupo?.activo ?? true,
-    maestra_titular_id: grupo?.maestra_titular_id || '',
+    maestra_personal_id: grupo?.maestra_personal_id || '',
   });
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +76,7 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nivel</label>
-              <select className="input-hs w-full" value={form.nivel} onChange={e => set('nivel', e.target.value)}>
+              <select className="input-hs w-full" value={form.nivel} onChange={e => { set('nivel', e.target.value); set('nivel_codigo', e.target.value); }}>
                 {NIVELES.map(n => <option key={n.key} value={n.key}>{n.label}</option>)}
               </select>
             </div>
@@ -124,12 +130,18 @@ function ModalGrupo({ grupo, maestras, onClose, onSave }) {
 
             <div className="col-span-2">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Miss titular</label>
-              <select className="input-hs w-full" value={form.maestra_titular_id} onChange={e => set('maestra_titular_id', e.target.value)}>
-                <option value="">— Sin asignar —</option>
-                {(maestras || []).map(m => (
-                  <option key={m.id} value={m.id}>{m.nombre_completo}</option>
-                ))}
-              </select>
+              {esNuevo ? (
+                <select className="input-hs w-full" value={form.maestra_personal_id} onChange={e => set('maestra_personal_id', e.target.value)}>
+                  <option value="">— Sin asignar —</option>
+                  {(maestras || []).map(m => (
+                    <option key={m.id} value={m.id}>{m.nombre_completo}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="input-hs w-full bg-gray-50 flex items-center text-gray-700">
+                  {grupo?.maestra_nombre || <em className="text-gray-400">Sin Miss asignada</em>}
+                </div>
+              )}
             </div>
 
             {!esNuevo && (
@@ -240,19 +252,20 @@ export default function DirectoraGrupos() {
 
   const crearMutation = useMutation({
     mutationFn: (body) => api.post('/grupos', body),
-    onSuccess: () => queryClient.invalidateQueries(['grupos']),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['grupos'], exact: false }),
   });
 
   const editarMutation = useMutation({
     mutationFn: ({ id, ...body }) => api.put(`/grupos/${id}`, body),
-    onSuccess: () => queryClient.invalidateQueries(['grupos']),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['grupos'], exact: false }),
   });
 
   const handleSave = (form) => {
     if (modal === 'nuevo') {
       return crearMutation.mutateAsync(form);
     } else {
-      return editarMutation.mutateAsync({ id: modal.id, ...form });
+      const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo } = form;
+      return editarMutation.mutateAsync({ id: modal.id, nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo });
     }
   };
 
@@ -347,6 +360,8 @@ export default function DirectoraGrupos() {
         <ModalGrupo
           grupo={modal === 'nuevo' ? null : modal}
           maestras={maestras}
+          cicloId={cicloId}
+          gruposCiclo={grupos}
           onClose={() => setModal(null)}
           onSave={handleSave}
         />

@@ -20,9 +20,11 @@
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
-  - [ ] Crear grupo: nombre, color (picker), nivel dropdown
+  - [x] Crear grupo: nombre, color (picker), nivel dropdown ✅
   - [ ] Editar grupo: todos los campos editables
-  - [ ] Asignar maestras: selector maestras, botón agregar/quitar
+    - [x] Nombre, color, nivel ✅
+    - [ ] ⚠️ **BUG:** horario_salida NO se refleja en tarjeta después de editar (backend recibe, pero no guarda o GET no devuelve actualizado)
+  - [ ] Asignar maestras: selector maestras, botón agregar/quitar (actualmente solo lectura en edición)
 - [ ] `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion
   - [ ] ModalNuevoCiclo: form simple (nombre, fecha_inicio, fecha_fin)
   - [ ] ModalPromocion: 3 pasos (seleccionar destino, revisar promoción, confirmar cierre)

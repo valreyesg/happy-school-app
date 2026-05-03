@@ -216,11 +216,11 @@ router.get('/mi-grupo', async (req, res, next) => {
 // Actualizar grupo
 router.put('/:id', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, cupo_maximo, color_hex, activo } = req.body;
+    const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo } = req.body;
     const result = await query(`
-      UPDATE grupos SET nombre=$1, cupo_maximo=$2, color_hex=$3, activo=$4, updated_at=NOW()
-      WHERE id=$5 RETURNING *
-    `, [nombre, cupo_maximo, color_hex, activo, req.params.id]);
+      UPDATE grupos SET nombre=$1, nivel=$2, nivel_codigo=$3, cupo_maximo=$4, color_hex=$5, horario_entrada=$6, horario_salida=$7, turno=$8, activo=$9, updated_at=NOW()
+      WHERE id=$10 RETURNING *
+    `, [nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo, req.params.id]);
     res.json(result.rows[0]);
   } catch (err) { next(err); }
 });

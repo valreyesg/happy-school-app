@@ -15,8 +15,8 @@
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
-**Batch B (3 archivos, 9 modales) — PARCIAL:**
-- [ ] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password)
+**Batch B (3 archivos, 9 modales) — ✅ VALIDADO:**
+- [x] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password) ✅
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-04-30 — Sesión XX+20 | **Próximos pendientes:** Validación Batch B + Batch D.4+ (bugs fixes) + FASE 5.3 Mobile
+**Última actualización:** 2026-05-04 — Sesión XX+21 | **Próximos pendientes:** Validación Batch B + Batch D.4+ (bugs fixes) + Servicio Comida Papa
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -9,9 +9,9 @@
 
 ### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches B-D) + 5.3 (por Valeria en http://localhost:5173)
 
-**FASE 4.4 — Button component mobile (en browser, verificar estilos):**
-- [ ] **Bitácora Padre:** Botón "Ver referencia" es ghost small
-- [ ] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small
+**FASE 4.4 — Button component mobile (en browser, verificar estilos):** ✅ VALIDADO
+- [x] **Bitácora Padre:** Botón "Ver referencia" es ghost small ✅
+- [x] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small ✅
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
@@ -32,11 +32,19 @@
   - [ ] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto)
   - [ ] ModalQR: mostrar QR, regenerar QR, descargar
 
-**FASE 5.3 — NativeWind removal (Mobile):**
-- [ ] `npm install` en mobile/ sin errores
-- [ ] `expo start` arranca sin crashes
-- [ ] Button, ModalSheet, NotificationBell mantienen aspecto visual
-- [ ] Consola sin warnings sobre nativewind
+**FASE 5.3 — NativeWind removal (Mobile):** ✅ VALIDADO
+- [x] `npm install` en mobile/ sin errores ✅
+- [x] `expo start` arranca sin crashes ✅
+- [x] Button, ModalSheet, NotificationBell mantienen aspecto visual ✅
+- [x] Consola sin warnings sobre nativewind ✅
+
+### 🍽️ SERVICIO DE COMIDA — PAPÁ ✅ COMPLETADO Y VALIDADO
+- [x] Menú semanal visible para papá ✅
+- [x] Filtro por nivel: Maternal ve colación, otros niveles no ✅
+- [x] Confirmación de servicio (semana completa / días específicos) ✅
+- [x] Modalidades de pago (efectivo / transferencia) ✅
+- [x] Mensaje de confirmación guardada ✅
+- [x] Formulario desaparece después de confirmar ✅
 
 ---
 

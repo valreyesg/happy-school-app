@@ -6,7 +6,7 @@ const ComidaSemanal = () => {
   const [menu, setMenu] = useState(null);
   const [confirmacion, setConfirmacion] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [deseoServicio, setDeseoServicio] = useState(false);
+  const [deseoServicio, setDeseoServicio] = useState(true);
   const [modalidad, setModalidad] = useState('semana_completa');
   const [diasSeleccionados, setDiasSeleccionados] = useState([]);
   const [metodoPago, setMetodoPago] = useState('efectivo');
@@ -29,16 +29,47 @@ const ComidaSemanal = () => {
   const hijos = hijosData.hijos || [];
 
   const alumnoId = hijos[0]?.id;
+  const nivelAlumno = hijos[0]?.grupo_nombre; // Ej: "Maternal", "Kinder 1A", etc.
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
-  const getSemanLabelsActual = () => {
-    const hoy = new Date();
+  // Filtrar menú según nivel del alumno (case-insensitive)
+  const menuFiltrado = menu && menu.dias_menu ? {
+    ...menu,
+    dias_menu: Object.fromEntries(
+      Object.entries(menu.dias_menu).map(([dia, tiempos]) => [
+        dia,
+        Object.fromEntries(
+          Object.entries(tiempos)
+            .filter(([_, data]) =>
+              data.niveles.some(n =>
+                n.toLowerCase() === 'todos' ||
+                n.toLowerCase() === nivelAlumno?.toLowerCase()
+              )
+            )
+        )
+      ])
+    )
+  } : menu;
+
+  const getProximoLunes = () => {
+    // Crear fecha en CDMX desde ISO string de hoy
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      timeZone: 'America/Mexico_City'
+    });
+    const hoyString = formatter.format(new Date());
+    const [year, month, day] = hoyString.split('-');
+    const hoy = new Date(year, parseInt(month) - 1, parseInt(day));
+
+    const diasHasta = (8 - hoy.getDay()) % 7 || 7;
     const lunes = new Date(hoy);
-    lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+    lunes.setDate(hoy.getDate() + diasHasta);
     return lunes.toISOString().split('T')[0];
   };
 
-  const semanaActual = getSemanLabelsActual();
+  const semanaActual = getProximoLunes();
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -111,14 +142,13 @@ const ComidaSemanal = () => {
         formData.append('comprobante', comprobante);
       }
 
-      await API.post('/comida/confirmacion', formData, {
+      const result = await API.post('/comida/confirmacion', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       setSuccess('✅ Confirmación guardada');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+      setConfirmacion(result.data);
+      setDeseoServicio(true);
     } catch (e) {
       setError(e.response?.data?.error || e.message);
     }
@@ -137,19 +167,39 @@ const ComidaSemanal = () => {
       </div>
 
       {/* Menú semanal */}
-      {menu && (
+      {menuFiltrado && (
         <div className="card-hs">
           <h2 className="text-sm font-black text-red-500 uppercase tracking-wide mb-4">📋 Menú de la Semana</h2>
           <div className="space-y-3">
-            {menu.contenido_texto && (
-              <p className="text-gray-700 text-sm leading-6 whitespace-pre-wrap font-semibold">{menu.contenido_texto}</p>
+            {menuFiltrado.dias_menu && (
+              <div className="space-y-4">
+                {Object.entries(menuFiltrado.dias_menu).map(([dia, tiempos]) => (
+                  Object.keys(tiempos).length > 0 && (
+                    <div key={dia} className="border-l-4 border-red-400 pl-4">
+                      <p className="text-sm font-bold text-gray-700 capitalize mb-2">{dia}</p>
+                      <div className="space-y-1">
+                        {Object.entries(tiempos).map(([tiempo, data]) => (
+                          data.platillo && (
+                            <p key={tiempo} className="text-sm text-gray-600">
+                              <span className="font-semibold">{tiempo === 'desayuno' ? '🌅' : tiempo === 'colacion' ? '🥤' : '🍽️'}</span> {data.platillo}
+                            </p>
+                          )
+                        ))}
+                      </div>
+                    </div>
+                  )
+                ))}
+              </div>
             )}
-            {menu.archivo_menu_url && (
+            {menuFiltrado.contenido_texto && (
+              <p className="text-gray-700 text-sm leading-6 whitespace-pre-wrap font-semibold mt-4">{menuFiltrado.contenido_texto}</p>
+            )}
+            {menuFiltrado.archivo_menu_url && (
               <a
-                href={menu.archivo_menu_url}
+                href={menuFiltrado.archivo_menu_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-700 transition"
+                className="inline-flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-700 transition mt-4"
               >
                 📥 Descargar menú completo
               </a>
@@ -158,40 +208,22 @@ const ComidaSemanal = () => {
         </div>
       )}
 
-      {!esDomingo ? (
-        <div className="card-hs bg-hs-blue/10 border-2 border-hs-blue/30">
-          <p className="text-sm font-bold text-hs-blue-dark">
-            📅 El formulario está disponible solo los domingos para confirmar servicio la próxima semana
-          </p>
-        </div>
-      ) : (
-        <form onSubmit={handleConfirmar} className="card-hs space-y-5">
-          <h2 className="text-sm font-black text-red-500 uppercase tracking-wide">🍽️ Confirmar Servicio</h2>
+      {!confirmacion?.confirmado && (
+      <form onSubmit={handleConfirmar} className="card-hs space-y-5">
+        <h2 className="text-sm font-black text-red-500 uppercase tracking-wide">🍽️ Confirmar Servicio</h2>
 
-          {error && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-xl text-sm font-semibold">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-100 border-l-4 border-hs-green text-green-700 p-4 rounded-xl text-sm font-semibold">
-              {success}
-            </div>
-          )}
+        {error && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-xl text-sm font-semibold">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-100 border-l-4 border-hs-green text-green-700 p-4 rounded-xl text-sm font-semibold">
+            {success}
+          </div>
+        )}
 
-          {/* Checkbox deseo servicio */}
-          <button
-            type="button"
-            onClick={() => setDeseoServicio(!deseoServicio)}
-            className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition-all font-bold text-sm text-left
-              ${deseoServicio ? 'border-red-300 bg-red-50 text-red-700' : 'border-gray-200 bg-white text-gray-600'}`}
-          >
-            <span className="text-xl">{deseoServicio ? '✅' : '⬜'}</span>
-            <span>Deseo servicio de comida para próxima semana</span>
-          </button>
-
-          {deseoServicio && (
-            <div className="space-y-5">
+        <div className="space-y-5">
               {/* Modalidad */}
               <div>
                 <p className="text-sm font-black text-gray-600 mb-3 uppercase tracking-wide">Tipo de servicio</p>
@@ -285,23 +317,37 @@ const ComidaSemanal = () => {
                   )}
                 </div>
               )}
+        </div>
 
-              {/* Resumen monto */}
-              <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-200">
-                <p className="text-sm text-gray-600 font-semibold">Total a pagar</p>
-                <p className="text-3xl font-black text-red-600 mt-1">${monto}</p>
-              </div>
+        {/* Resumen monto */}
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 p-4 rounded-2xl border-2 border-red-200">
+          <p className="text-sm text-gray-600 font-semibold">Total a pagar</p>
+          <p className="text-3xl font-black text-red-600 mt-1">${monto}</p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn-red w-full"
+        >
+          {loading ? '⏳ Guardando...' : '✅ Confirmar Servicio'}
+        </button>
+      </form>
+      )}
+
+      {confirmacion && confirmacion.confirmado && (
+        <div className="card-hs bg-green-50 border-2 border-green-300">
+          <div className="flex items-start gap-3">
+            <span className="text-3xl">✅</span>
+            <div>
+              <p className="font-black text-green-700 text-lg">¡Confirmación Guardada!</p>
+              <p className="text-sm text-green-600 mt-2">Tu servicio de comida para la próxima semana ha sido confirmado correctamente.</p>
+              <p className="text-xs text-green-500 mt-3">Modalidad: {confirmacion.modalidad === 'semana_completa' ? 'Semana completa' : 'Días específicos'}</p>
+              <p className="text-xs text-green-500">Total: ${confirmacion.monto}</p>
+              <p className="text-xs text-green-500">Método de pago: {confirmacion.metodo_pago === 'efectivo' ? 'Efectivo el lunes' : 'Transferencia bancaria'}</p>
             </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-red w-full"
-          >
-            {loading ? '⏳ Guardando...' : '✅ Confirmar Servicio'}
-          </button>
-        </form>
+          </div>
+        </div>
       )}
     </div>
   );

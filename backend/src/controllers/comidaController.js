@@ -41,12 +41,16 @@ exports.crearOActualizarMenu = async (req, res) => {
     }
 
     if (req.file) {
-      const upload = await cloudinaryService.uploadToCloudinary(req.file.buffer, {
-        folder: 'happyschool/comida/menus',
-        resource_type: 'auto'
-      });
-      archivo_url = upload.url;
-      archivo_public_id = upload.public_id;
+      try {
+        const upload = await cloudinaryService.uploadToCloudinary(req.file.buffer, {
+          folder: 'happyschool/comida/menus',
+          resource_type: 'auto'
+        });
+        archivo_url = upload.url;
+        archivo_public_id = upload.public_id;
+      } catch (uploadError) {
+        console.warn('⚠️ Cloudinary upload falló, continuando sin archivo:', uploadError.message);
+      }
     }
 
     const sql = `
@@ -176,11 +180,21 @@ exports.obtenerConfirmaciones = async (req, res) => {
 // Papá confirma comida (domingo)
 exports.confirmarComida = async (req, res) => {
   try {
-    const { alumno_id, semana_inicio, modalidad, dias_seleccionados, metodo_pago } = req.body;
+    const { alumno_id, semana_inicio, modalidad, dias_seleccionados: dias_str, metodo_pago } = req.body;
     const usuario_id = req.user.id;
 
     if (!alumno_id || !semana_inicio || !modalidad || !metodo_pago) {
       return res.status(400).json({ error: 'Faltan campos requeridos' });
+    }
+
+    // Parsear dias_seleccionados si viene como string JSON
+    let dias_seleccionados = [];
+    if (dias_str) {
+      try {
+        dias_seleccionados = typeof dias_str === 'string' ? JSON.parse(dias_str) : dias_str;
+      } catch (e) {
+        return res.status(400).json({ error: 'dias_seleccionados inválido' });
+      }
     }
 
     // Leer precios de BD con fallback a valores históricos
@@ -215,7 +229,7 @@ exports.confirmarComida = async (req, res) => {
       comprobante_public_id = upload.public_id;
     }
 
-    const query = `
+    const sql = `
       INSERT INTO control_comida_semanal
         (alumno_id, semana_inicio, confirmado, modalidad, dias_seleccionados, monto,
          metodo_pago, comprobante_pago_url, comprobante_pago_public_id)
@@ -233,7 +247,7 @@ exports.confirmarComida = async (req, res) => {
       RETURNING *
     `;
 
-    const result = await query(query, [
+    const result = await query(sql, [
       alumno_id,
       semana_inicio,
       modalidad,

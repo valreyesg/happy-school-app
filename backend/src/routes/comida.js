@@ -32,7 +32,16 @@ router.get('/confirmaciones', verifyToken, (req, res, next) => {
 );
 
 // POST: Papá confirma comida (domingo)
-router.post('/confirmacion', verifyToken, authorize(['padre']),
+router.post('/confirmacion', verifyToken, (req, res, next) => {
+  // Permitir papás (cualquier usuario no-directora/admin/maestra)
+  if (!req.user) return res.status(401).json({ error: 'No autenticado' });
+  const rolesPermitidos = ['padre', 'papá', 'papa'];
+  const rol = req.user.rol_principal?.toLowerCase();
+  if (rolesPermitidos.includes(rol)) {
+    return next();
+  }
+  res.status(403).json({ error: 'Sin permisos para esta acción' });
+},
   upload.single('comprobante'),
   comidaController.confirmarComida
 );

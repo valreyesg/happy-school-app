@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-03 — Sesión XX+24 ✅ COMPLETADA | **Próximos pendientes:** Validación ModalQR + Cloudinary
+**Última actualización:** 2026-05-04 — Sesión XX+24 continuada | **Próximos pendientes:** Bug comida (días desplazados) + Validación ModalQR + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -13,6 +13,25 @@
 
 **Batch D.4+ — Pendientes:**
 - [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
+
+---
+
+## 🐛 BUG — Servicio Comida: Días Desplazados
+
+> **Estado:** 🔍 INVESTIGANDO — Días seleccionados por papá están desplazados en directora
+> **Síntomas:** 
+>   - Papá selecciona: Miércoles, Jueves, Viernes
+>   - Directora ve: Martes, Miércoles, Jueves (desplazado -1)
+> **Ubicación:** 
+>   - Backend: `comidaController.js` — `obtenerConfirmaciones()` devuelve `dias_seleccionados` 
+>   - Frontend: `ComidaPagos.jsx` — `formatearDias()` interpreta índices
+> **Causa probable:** Índices guardados en BD con offset (0=Lunes vs 0=Domingo o similar)
+
+### Próximos pasos:
+- [ ] Verificar valores exactos en BD para Alejandro (esperado: [2,3,4]) y Sofía (esperado: [3,4])
+- [ ] Usar DevTools Console para inspeccionar valores raw en API response
+- [ ] Identificar si offset en guardar o leer
+- [ ] Corregir en ComidaSemanal.jsx o comidaController.js según sea
 
 ---
 

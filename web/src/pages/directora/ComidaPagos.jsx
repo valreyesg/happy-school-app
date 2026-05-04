@@ -2,6 +2,21 @@ import { useState, useEffect } from 'react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
 
+const DIAS_NOMBRE = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+
+const formatearDias = (diasSeleccionados) => {
+  if (!diasSeleccionados) return '';
+  try {
+    const dias = typeof diasSeleccionados === 'string' ? JSON.parse(diasSeleccionados) : diasSeleccionados;
+    console.log('DEBUG formatearDias:', { raw: diasSeleccionados, parsed: dias });
+    if (!Array.isArray(dias) || dias.length === 0) return '';
+    return dias.map(i => DIAS_NOMBRE[i]).join(', ');
+  } catch (e) {
+    console.error('ERROR formatearDias:', e, diasSeleccionados);
+    return '';
+  }
+};
+
 const ComidaPagos = () => {
   const [semanaInicio, setSemanaInicio] = useState('');
   const [confirmaciones, setConfirmaciones] = useState([]);
@@ -168,7 +183,7 @@ const ComidaPagos = () => {
                     )}
                   </div>
                   <div className="text-sm text-gray-600 mt-1 font-bold">
-                    📋 {conf.modalidad === 'semana_completa' ? 'Semana completa' : `${conf.monto / 50} días`} (${conf.monto})
+                    📋 {conf.modalidad === 'semana_completa' ? 'Semana completa' : `${formatearDias(conf.dias_seleccionados)}`} (${conf.monto})
                     {' | '}
                     {conf.metodo_pago === 'transferencia' ? '💳 Transferencia' : '💵 Efectivo'}
                   </div>

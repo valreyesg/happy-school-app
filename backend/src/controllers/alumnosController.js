@@ -213,6 +213,41 @@ const crear = async (req, res, next) => {
       return res.status(400).json({ error: 'La CURP es obligatoria para registrar un alumno.' });
     }
 
+    // Verificar si CURP ya existe
+    const existentResult = await query(
+      'SELECT id, nombre_completo, estado, deleted_at, grupo_id FROM alumnos WHERE curp = $1',
+      [curp]
+    );
+
+    if (existentResult.rows.length > 0) {
+      const existente = existentResult.rows[0];
+      if (existente.deleted_at === null) {
+        return res.status(409).json({
+          error: `CURP ${curp} ya pertenece a "${existente.nombre_completo}" (alumno activo). Verifica que sea único o utiliza diferente CURP.`,
+          existente_id: existente.id,
+          existente_nombre: existente.nombre_completo
+        });
+      } else {
+        // Si está soft-deleted, reutilizarlo
+        const reusedResult = await query(`
+          UPDATE alumnos SET
+            nombre_completo = $1, fecha_nacimiento = $2, grupo_id = $3, ciclo_id = $4,
+            usa_panial = $5, alergias = $6, condiciones_especiales = $7, tipo_sangre = $8,
+            medico_nombre = $9, medico_telefono = $10, notas = $11,
+            deleted_at = NULL, estado = 'inscrito', updated_at = NOW()
+          WHERE id = $12
+          RETURNING id, nombre_completo, foto_url, grupo_id, estado
+        `, [
+          nombre_completo, fecha_nacimiento, grupo_id, ciclo_id,
+          usa_panial || false, alergias, condiciones_especiales, tipo_sangre,
+          medico_nombre, medico_telefono, notas, existente.id
+        ]);
+        const alumno = reusedResult.rows[0];
+        res.status(201).json({ ...alumno, reusedFromDeleted: true });
+        return;
+      }
+    }
+
     const result = await query(`
       INSERT INTO alumnos (
         nombre_completo, fecha_nacimiento, curp, grupo_id, ciclo_id,

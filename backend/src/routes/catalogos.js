@@ -90,6 +90,17 @@ const CATALOGOS_FALLBACK = {
     { key: 'evento',      label: 'Evento'      },
     { key: 'otro',        label: 'Otro'        },
   ],
+  'alergias': [
+    { key: 'lactosa',      emoji: '🥛', label: 'Lactosa'      },
+    { key: 'cacahuate',    emoji: '🥜', label: 'Cacahuate'    },
+    { key: 'mariscos',     emoji: '🦐', label: 'Mariscos'     },
+    { key: 'huevo',        emoji: '🥚', label: 'Huevo'        },
+    { key: 'trigo',        emoji: '🌾', label: 'Trigo'        },
+    { key: 'fresa',        emoji: '🍓', label: 'Fresa'        },
+    { key: 'chocolate',    emoji: '🍫', label: 'Chocolate'    },
+    { key: 'colorantes',   emoji: '🎨', label: 'Colorantes'   },
+    { key: 'conservantes', emoji: '⚗️', label: 'Conservantes' },
+  ],
 };
 
 router.use(authenticate);

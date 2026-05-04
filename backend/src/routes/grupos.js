@@ -55,11 +55,40 @@ router.get('/', async (req, res, next) => {
 // Crear grupo
 router.post('/', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, nivel, nivel_codigo, ciclo_id, cupo_maximo, color_hex } = req.body;
+    const { nombre, nivel, nivel_codigo, ciclo_id, cupo_maximo, color_hex, maestra_personal_id } = req.body;
     const result = await query(`
       INSERT INTO grupos (nombre, nivel, nivel_codigo, ciclo_id, cupo_maximo, color_hex)
       VALUES ($1,$2,$3,$4,$5,$6) RETURNING *
     `, [nombre, nivel, nivel_codigo, ciclo_id, cupo_maximo || 20, color_hex || '#805AD5']);
+
+    const grupoId = result.rows[0].id;
+
+    // Si se asignó maestra titular, crear/actualizar asignación
+    if (maestra_personal_id) {
+      // Desactivar otros titulares del grupo en este ciclo
+      await query(`
+        UPDATE asignaciones_grupo
+        SET es_titular = false, activo = false, updated_at = NOW()
+        WHERE grupo_id = $1 AND ciclo_id = $2 AND es_titular = true
+      `, [grupoId, ciclo_id]);
+
+      // Intentar actualizar la asignación de esta maestra si ya existe
+      const updateResult = await query(`
+        UPDATE asignaciones_grupo
+        SET es_titular = true, activo = true, updated_at = NOW()
+        WHERE personal_id = $1 AND grupo_id = $2 AND ciclo_id = $3
+        RETURNING id
+      `, [maestra_personal_id, grupoId, ciclo_id]);
+
+      // Si no existe, crear la asignación
+      if (updateResult.rows.length === 0) {
+        await query(`
+          INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, es_titular, activo)
+          VALUES ($1, $2, $3, true, true)
+        `, [maestra_personal_id, grupoId, ciclo_id]);
+      }
+    }
+
     res.status(201).json(result.rows[0]);
   } catch (err) { next(err); }
 });
@@ -216,11 +245,63 @@ router.get('/mi-grupo', async (req, res, next) => {
 // Actualizar grupo
 router.put('/:id', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo } = req.body;
+    const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, maestra_personal_id } = req.body;
+    const grupoId = req.params.id;
+
+    // Actualizar datos básicos del grupo
     const result = await query(`
       UPDATE grupos SET nombre=$1, nivel=$2, nivel_codigo=$3, cupo_maximo=$4, color_hex=$5, activo=$6, updated_at=NOW()
       WHERE id=$7 RETURNING *
-    `, [nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, req.params.id]);
+    `, [nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, grupoId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Grupo no encontrado' });
+    }
+
+    // Si se cambió la maestra titular
+    if (maestra_personal_id !== undefined) {
+      if (maestra_personal_id) {
+        // Obtener ciclo_id del grupo
+        const cicloResult = await query(`SELECT ciclo_id FROM grupos WHERE id = $1`, [grupoId]);
+        const cicloId = cicloResult.rows[0].ciclo_id;
+
+        // Desactivar asignación anterior de titular
+        await query(`
+          UPDATE asignaciones_grupo SET es_titular = false, activo = false, updated_at = NOW()
+          WHERE grupo_id = $1 AND es_titular = true AND activo = true
+        `, [grupoId]);
+
+        // Desactivar otros titulares del grupo en este ciclo
+        await query(`
+          UPDATE asignaciones_grupo
+          SET es_titular = false, activo = false, updated_at = NOW()
+          WHERE grupo_id = $1 AND ciclo_id = $2 AND es_titular = true
+        `, [grupoId, cicloId]);
+
+        // Intentar actualizar la asignación de esta maestra si ya existe
+        const updateResult = await query(`
+          UPDATE asignaciones_grupo
+          SET es_titular = true, activo = true, updated_at = NOW()
+          WHERE personal_id = $1 AND grupo_id = $2 AND ciclo_id = $3
+          RETURNING id
+        `, [maestra_personal_id, grupoId, cicloId]);
+
+        // Si no existe, crear la asignación
+        if (updateResult.rows.length === 0) {
+          await query(`
+            INSERT INTO asignaciones_grupo (personal_id, grupo_id, ciclo_id, es_titular, activo)
+            VALUES ($1, $2, $3, true, true)
+          `, [maestra_personal_id, grupoId, cicloId]);
+        }
+      } else {
+        // Si se envía maestra_personal_id vacío, desactivar titular
+        await query(`
+          UPDATE asignaciones_grupo SET es_titular = false, activo = false, updated_at = NOW()
+          WHERE grupo_id = $1 AND es_titular = true AND activo = true
+        `, [grupoId]);
+      }
+    }
+
     res.json(result.rows[0]);
   } catch (err) { next(err); }
 });

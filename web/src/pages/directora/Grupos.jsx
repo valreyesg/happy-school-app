@@ -121,18 +121,12 @@ function ModalGrupo({ grupo, maestras, cicloId, gruposCiclo, onClose, onSave }) 
 
             <div className="col-span-2">
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Miss titular</label>
-              {esNuevo ? (
-                <select className="input-hs w-full" value={form.maestra_personal_id} onChange={e => set('maestra_personal_id', e.target.value)}>
-                  <option value="">— Sin asignar —</option>
-                  {(maestras || []).map(m => (
-                    <option key={m.id} value={m.id}>{m.nombre_completo}</option>
-                  ))}
-                </select>
-              ) : (
-                <div className="input-hs w-full bg-gray-50 flex items-center text-gray-700">
-                  {grupo?.maestra_nombre || <em className="text-gray-400">Sin Miss asignada</em>}
-                </div>
-              )}
+              <select className="input-hs w-full" value={form.maestra_personal_id} onChange={e => set('maestra_personal_id', e.target.value)}>
+                <option value="">— Sin asignar —</option>
+                {(maestras || []).map(m => (
+                  <option key={m.id} value={m.id}>{m.nombre_completo}</option>
+                ))}
+              </select>
             </div>
 
             {!esNuevo && (
@@ -254,8 +248,8 @@ export default function DirectoraGrupos() {
     if (modal === 'nuevo') {
       return crearMutation.mutateAsync(form);
     } else {
-      const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo } = form;
-      return editarMutation.mutateAsync({ id: modal.id, nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo });
+      const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, maestra_personal_id } = form;
+      return editarMutation.mutateAsync({ id: modal.id, nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, maestra_personal_id });
     }
   };
 

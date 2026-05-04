@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, QrCode, FileText, ChevronDown, Upload } from 'lucide-react';
@@ -60,7 +60,16 @@ export default function DirectoraAlumnos() {
   });
 
   const abrirCrear = () => { setAlumnoEditar(null); setModalAbierto(true); };
-  const abrirEditar = (alumno) => { setAlumnoEditar(alumno); setModalAbierto(true); };
+  const abrirEditar = async (alumno) => {
+    // Cargar datos completos del alumno
+    try {
+      const res = await api.get(`/alumnos/${alumno.id}`);
+      setAlumnoEditar(res.data);
+      setModalAbierto(true);
+    } catch (err) {
+      toast.error('Error al cargar datos del alumno');
+    }
+  };
   const cerrarModal = () => { setModalAbierto(false); setAlumnoEditar(null); };
 
   const alumnos = data?.alumnos || [];
@@ -207,6 +216,7 @@ export default function DirectoraAlumnos() {
 
 function ModalQR({ alumno, onCerrar, regenerarMutation }) {
   const [qrUrl, setQrUrl] = useState(alumno.qr_code_url);
+  const [descargando, setDescargando] = useState(false);
 
   const handleRegenerar = () => {
     regenerarMutation.mutate(undefined, {
@@ -214,6 +224,28 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
         setQrUrl(res.qr_code_url || alumno.qr_code_url);
       },
     });
+  };
+
+  const handleDescargar = async () => {
+    if (!qrUrl) return;
+    try {
+      setDescargando(true);
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `QR-${alumno.nombre_completo.replace(/\s+/g, '-')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('QR descargado ✅');
+    } catch (err) {
+      toast.error('Error al descargar el QR');
+    } finally {
+      setDescargando(false);
+    }
   };
 
   return (
@@ -229,17 +261,18 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
           />
           <div className="flex gap-3 mt-5">
             <button
-              onClick={() => window.open(qrUrl, '_blank')}
-              className="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 transition-colors"
+              onClick={handleDescargar}
+              disabled={descargando}
+              className="flex-1 px-4 py-2 rounded-2xl border-2 border-gray-200 text-gray-700 font-bold text-sm hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
-              Descargar
+              {descargando ? 'Descargando...' : '⬇️ Descargar'}
             </button>
             <button
               onClick={handleRegenerar}
               disabled={regenerarMutation.isPending}
               className="flex-1 px-4 py-2 rounded-2xl border-2 border-amber-200 text-amber-600 font-bold text-sm hover:bg-amber-50 disabled:opacity-50 transition-colors"
             >
-              {regenerarMutation.isPending ? 'Generando...' : 'Regenerar QR'}
+              {regenerarMutation.isPending ? 'Generando...' : '🔄 Regenerar'}
             </button>
           </div>
         </>
@@ -254,7 +287,7 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
             disabled={regenerarMutation.isPending}
             className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
           >
-            {regenerarMutation.isPending ? 'Generando...' : 'Generar QR'}
+            {regenerarMutation.isPending ? 'Generando...' : '✨ Generar QR'}
           </button>
         </div>
       )}
@@ -383,31 +416,78 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
   const { items: alergiasItems } = useCatalogo('alergias');
 
   const [form, setForm] = useState({
-    nombre_completo:       alumno?.nombre_completo       || '',
-    fecha_nacimiento:      alumno?.fecha_nacimiento?.split('T')[0] || '',
-    curp:                  alumno?.curp                  || '',
-    grupo_id:              alumno?.grupo_id              || '',
-    usa_panial:            alumno?.usa_panial            || false,
-    alergias:              alumno?.alergias              || '',
-    condiciones_especiales: alumno?.condiciones_especiales || '',
-    tipo_sangre:           alumno?.tipo_sangre           || '',
-    medico_nombre:         alumno?.medico_nombre         || '',
-    medico_telefono:       alumno?.medico_telefono       || '',
-    notas:                 alumno?.notas                 || '',
+    nombre_completo: '',
+    fecha_nacimiento: '',
+    curp: '',
+    grupo_id: '',
+    usa_panial: false,
+    alergias: '',
+    condiciones_especiales: '',
+    tipo_sangre: '',
+    medico_nombre: '',
+    medico_telefono: '',
+    notas: '',
   });
-  const [alergiasSeleccionadas, setAlergiasSeleccionadas] = useState(() => {
-    if (!form.alergias) return [];
-    return form.alergias.split(',').map(a => a.trim()).filter(Boolean);
-  });
-  const [alergiasOtras, setAlergiasOtras] = useState(() => {
-    if (!form.alergias) return '';
-    const catalogoKeys = alergiasItems.map(a => a.key);
-    const noEnCatalogo = form.alergias.split(',').map(a => a.trim()).filter(a => !catalogoKeys.includes(a) && a);
-    return noEnCatalogo.join(', ');
-  });
-
+  const [alergiasSeleccionadas, setAlergiasSeleccionadas] = useState([]);
+  const [alergiasOtras, setAlergiasOtras] = useState('');
   const [fotoFile, setFotoFile] = useState(null);
-  const [fotoPreview, setFotoPreview] = useState(alumno?.foto_url || null);
+  const [fotoPreview, setFotoPreview] = useState(null);
+
+  // Sincronizar form cuando cambia el alumno editado
+  useEffect(() => {
+    if (!alumno) {
+      setForm({
+        nombre_completo: '',
+        fecha_nacimiento: '',
+        curp: '',
+        grupo_id: '',
+        usa_panial: false,
+        alergias: '',
+        condiciones_especiales: '',
+        tipo_sangre: '',
+        medico_nombre: '',
+        medico_telefono: '',
+        notas: '',
+      });
+      setFotoPreview(null);
+      setFotoFile(null);
+      setAlergiasSeleccionadas([]);
+      setAlergiasOtras('');
+    } else {
+      setForm({
+        nombre_completo: alumno.nombre_completo || '',
+        fecha_nacimiento: alumno.fecha_nacimiento ? alumno.fecha_nacimiento.split('T')[0] : '',
+        curp: alumno.curp || '',
+        grupo_id: alumno.grupo_id || '',
+        usa_panial: alumno.usa_panial || false,
+        alergias: alumno.alergias || '',
+        condiciones_especiales: alumno.condiciones_especiales || '',
+        tipo_sangre: alumno.tipo_sangre || '',
+        medico_nombre: alumno.medico_nombre || '',
+        medico_telefono: alumno.medico_telefono || '',
+        notas: alumno.notas || '',
+      });
+      setFotoPreview(alumno.foto_url || null);
+      setFotoFile(null);
+
+      // Inicializar alergias separando catálogo vs otras
+      if (alumno.alergias && alergiasItems.length > 0) {
+        const alergiasArray = alumno.alergias.split(',').map(a => a.trim()).filter(Boolean);
+        const catalogoKeys = alergiasItems.map(a => a.key);
+        const enCatalogo = alergiasArray.filter(a => catalogoKeys.includes(a));
+        const noEnCatalogo = alergiasArray.filter(a => !catalogoKeys.includes(a));
+        setAlergiasSeleccionadas(enCatalogo);
+        setAlergiasOtras(noEnCatalogo.join(', '));
+      } else if (alumno.alergias && alergiasItems.length === 0) {
+        // Si aún no cargó el catálogo, guardar todo como "otras"
+        setAlergiasSeleccionadas([]);
+        setAlergiasOtras(alumno.alergias);
+      } else {
+        setAlergiasSeleccionadas([]);
+        setAlergiasOtras('');
+      }
+    }
+  }, [alumno?.id, alergiasItems]);
 
   const set = (campo, valor) => setForm(prev => ({ ...prev, [campo]: valor }));
 
@@ -419,22 +499,22 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
     );
   };
 
-  const sincronizarAlergias = () => {
-    const todas = [...alergiasSeleccionadas, ...(alergiasOtras ? alergiasOtras.split(',').map(a => a.trim()) : [])].filter(Boolean);
-    set('alergias', todas.join(', '));
-  };
-
   const guardar = useMutation({
     mutationFn: async () => {
-      sincronizarAlergias();
       if (!form.curp || form.curp.trim() === '') {
         throw new Error('La CURP es obligatoria');
       }
+      // Calcular alergias correctamente SIN depender de state updates
+      const todas = [...alergiasSeleccionadas, ...(alergiasOtras ? alergiasOtras.split(',').map(a => a.trim()) : [])].filter(Boolean);
+      const formConAlergias = {
+        ...form,
+        alergias: todas.join(', ')
+      };
       let resultado;
       if (esEdicion) {
-        resultado = await api.put(`/alumnos/${alumno.id}`, form);
+        resultado = await api.put(`/alumnos/${alumno.id}`, formConAlergias);
       } else {
-        resultado = await api.post('/alumnos', form);
+        resultado = await api.post('/alumnos', formConAlergias);
       }
       // Si hay foto nueva, subirla
       if (fotoFile) {
@@ -578,17 +658,21 @@ function ModalAlumno({ alumno, grupos, onCerrar }) {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-3">⚠️ Alergias</label>
               <div className="space-y-2 mb-3">
-                {alergiasItems.map(allergia => (
-                  <label key={allergia.key} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={alergiasSeleccionadas.includes(allergia.key)}
-                      onChange={() => toggleAlergia(allergia.key)}
-                      className="w-4 h-4 rounded border-gray-300"
-                    />
-                    <span className="text-sm text-gray-700">{allergia.emoji} {allergia.label}</span>
-                  </label>
-                ))}
+                {alergiasItems.length === 0 ? (
+                  <p className="text-sm text-gray-500">Cargando alergias...</p>
+                ) : (
+                  alergiasItems.map(allergia => (
+                    <label key={allergia.key} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={alergiasSeleccionadas.includes(allergia.key)}
+                        onChange={() => toggleAlergia(allergia.key)}
+                        className="w-4 h-4 rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{allergia.emoji} {allergia.label}</span>
+                    </label>
+                  ))
+                )}
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Otras alergias</label>

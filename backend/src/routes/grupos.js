@@ -45,7 +45,7 @@ router.get('/', async (req, res, next) => {
       WHERE g.deleted_at IS NULL
         ${activo !== 'todos' ? `AND g.activo = ${activo === 'true'}` : ''}
         ${cicloFiltro}
-      GROUP BY g.id, c.nombre, p_tit.nombre_completo, p_tit.id
+      GROUP BY g.id, g.nivel, g.nivel_codigo, g.nombre, g.color_hex, g.ciclo_id, g.cupo_maximo, g.activo, g.created_at, g.updated_at, g.deleted_at, c.nombre, p_tit.nombre_completo, p_tit.id
       ORDER BY g.nivel, g.nombre
     `);
     res.json(result.rows);
@@ -216,11 +216,11 @@ router.get('/mi-grupo', async (req, res, next) => {
 // Actualizar grupo
 router.put('/:id', authorize('directora'), async (req, res, next) => {
   try {
-    const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo } = req.body;
+    const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo } = req.body;
     const result = await query(`
-      UPDATE grupos SET nombre=$1, nivel=$2, nivel_codigo=$3, cupo_maximo=$4, color_hex=$5, horario_entrada=$6, horario_salida=$7, turno=$8, activo=$9, updated_at=NOW()
-      WHERE id=$10 RETURNING *
-    `, [nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo, req.params.id]);
+      UPDATE grupos SET nombre=$1, nivel=$2, nivel_codigo=$3, cupo_maximo=$4, color_hex=$5, activo=$6, updated_at=NOW()
+      WHERE id=$7 RETURNING *
+    `, [nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo, req.params.id]);
     res.json(result.rows[0]);
   } catch (err) { next(err); }
 });

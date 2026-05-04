@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import Modal from '@/components/ui/Modal';
@@ -20,7 +20,7 @@ function colorNivel(nivel) {
 
 // ─── Modal de grupo ───────────────────────────────────────────────────────────
 function ModalGrupo({ grupo, maestras, cicloId, gruposCiclo, onClose, onSave }) {
-  const { items: NIVELES } = useCatalogo('niveles');
+  const { items: NIVELES, isLoading: nivelesLoading } = useCatalogo('niveles');
   const esNuevo = !grupo;
 
   // Obtener ciclo_id: si estamos en un ciclo específico (cicloId !== null), usar ese; si no, usar el del primer grupo
@@ -31,15 +31,26 @@ function ModalGrupo({ grupo, maestras, cicloId, gruposCiclo, onClose, onSave }) 
     nivel: grupo?.nivel || 'maternal',
     nivel_codigo: grupo?.nivel_codigo || 'maternal',
     ciclo_id: grupo?.ciclo_id || cicloIdParaGuardar,
-    turno: grupo?.turno || 'matutino',
-    horario_entrada: grupo?.horario_entrada || '07:00',
-    horario_salida: grupo?.horario_salida || '14:00',
     cupo_maximo: grupo?.cupo_maximo || 15,
     color_hex: grupo?.color_hex || '#805AD5',
     activo: grupo?.activo ?? true,
     maestra_personal_id: grupo?.maestra_personal_id || '',
   });
   const [saving, setSaving] = useState(false);
+
+  // Sincronizar form cuando el grupo cambia
+  useEffect(() => {
+    setForm({
+      nombre: grupo?.nombre || '',
+      nivel: grupo?.nivel || 'maternal',
+      nivel_codigo: grupo?.nivel_codigo || 'maternal',
+      ciclo_id: grupo?.ciclo_id || cicloIdParaGuardar,
+      cupo_maximo: grupo?.cupo_maximo || 15,
+      color_hex: grupo?.color_hex || '#805AD5',
+      activo: grupo?.activo ?? true,
+      maestra_personal_id: grupo?.maestra_personal_id || '',
+    });
+  }, [grupo, cicloIdParaGuardar]);
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -76,35 +87,15 @@ function ModalGrupo({ grupo, maestras, cicloId, gruposCiclo, onClose, onSave }) 
 
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nivel</label>
-              <select className="input-hs w-full" value={form.nivel} onChange={e => { set('nivel', e.target.value); set('nivel_codigo', e.target.value); }}>
-                {NIVELES.map(n => <option key={n.key} value={n.key}>{n.label}</option>)}
+              <select className="input-hs w-full" value={form.nivel} onChange={e => { set('nivel', e.target.value); set('nivel_codigo', e.target.value); }} disabled={nivelesLoading}>
+                {nivelesLoading ? (
+                  <option value="">Cargando niveles...</option>
+                ) : NIVELES.length > 0 ? (
+                  NIVELES.map(n => <option key={n.key} value={n.key}>{n.label}</option>)
+                ) : (
+                  <option value="">No hay niveles disponibles</option>
+                )}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Turno</label>
-              <select className="input-hs w-full" value={form.turno} onChange={e => set('turno', e.target.value)}>
-                <option value="matutino">Matutino</option>
-                <option value="vespertino">Vespertino</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Entrada</label>
-              <input
-                type="time" className="input-hs w-full"
-                value={form.horario_entrada}
-                onChange={e => set('horario_entrada', e.target.value)}
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Salida</label>
-              <input
-                type="time" className="input-hs w-full"
-                value={form.horario_salida}
-                onChange={e => set('horario_salida', e.target.value)}
-              />
             </div>
 
             <div>
@@ -189,7 +180,6 @@ function TarjetaGrupo({ grupo, maestras, onEdit, soloLectura }) {
             {grupo.nivel?.replace('_', ' ')}
           </span>
           <h3 className="text-lg font-black text-gray-800">{grupo.nombre}</h3>
-          <p className="text-xs text-gray-500 font-semibold capitalize">{grupo.turno} · {grupo.horario_entrada} – {grupo.horario_salida}</p>
         </div>
         {!soloLectura && (
           <button
@@ -264,8 +254,8 @@ export default function DirectoraGrupos() {
     if (modal === 'nuevo') {
       return crearMutation.mutateAsync(form);
     } else {
-      const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo } = form;
-      return editarMutation.mutateAsync({ id: modal.id, nombre, nivel, nivel_codigo, cupo_maximo, color_hex, horario_entrada, horario_salida, turno, activo });
+      const { nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo } = form;
+      return editarMutation.mutateAsync({ id: modal.id, nombre, nivel, nivel_codigo, cupo_maximo, color_hex, activo });
     }
   };
 
@@ -293,7 +283,7 @@ export default function DirectoraGrupos() {
           <h1 className="text-3xl font-black text-gray-800">Grupos 🏫</h1>
           <div className="flex items-center gap-3 mt-2">
             <p className="text-gray-500 text-sm font-semibold">
-              {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles, Miss y horarios
+              {gruposFiltrados.length} grupo{gruposFiltrados.length !== 1 ? 's' : ''} · gestiona niveles y Miss
             </p>
             {cicloActualData && (
               <span className="text-xs font-bold text-hs-purple bg-hs-purple/10 px-2.5 py-1 rounded-full">
@@ -358,7 +348,7 @@ export default function DirectoraGrupos() {
       {/* Modal */}
       {modal && (
         <ModalGrupo
-          grupo={modal === 'nuevo' ? null : modal}
+          grupo={modal === 'nuevo' ? null : grupos.find(g => g.id === modal.id) || modal}
           maestras={maestras}
           cicloId={cicloId}
           gruposCiclo={grupos}

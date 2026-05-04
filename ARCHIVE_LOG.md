@@ -1,7 +1,68 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-03 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → **XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx)**
+**Última actualización:** 2026-05-03 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → **XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes)**
+
+---
+
+## ✅ SESIÓN XX+22 (2026-05-03) — FASE 5.2 Batch D.4+ Grupos + Bug Fixes (COMPLETADO)
+
+**Fecha:** 2026-05-03 | **Estado:** ✅ VALIDACIÓN COMPLETA EN BROWSER
+
+### Validaciones Completadas
+
+**FASE 5.2 — Batch D.4+ (Grupos.jsx — Modal Crear + Editar):** ✅ 100% VALIDADO EN BROWSER
+- ✅ Crear grupo: nombre, color picker, nivel dropdown
+- ✅ Editar grupo: todos los campos editables (nombre, color, nivel, capacidad, estado)
+- ✅ Cambios persisten correctamente al backend (sin error 500)
+- ✅ Dropdown nivel muestra el valor correcto para cada grupo
+
+**Pendiente próxima sesión:**
+- [ ] Asignar maestras: selector maestras, botón agregar/quitar (UI en desarrollo)
+
+### Bugs Críticos Resueltos
+
+**Bug 1: Error 500 al editar grupo — "no existe la columna «horario_entrada»"**
+- **Causa:** Backend intentaba actualizar columnas inexistentes en tabla `grupos` (solo tiene 1 horario a nivel escuela)
+- **Fix:** 
+  - Remover campos `horario_entrada`, `horario_salida`, `turno` del UPDATE en `backend/src/routes/grupos.js`
+  - Remover UI de esos campos en `web/src/pages/directora/Grupos.jsx`
+  - Comentar: "Horarios manejados a nivel escuela, no por grupo"
+- **Resultado:** ✅ Editar grupo funciona sin error 500
+
+**Bug 2: Dropdown nivel siempre muestra "maternal"**
+- **Causa raíz:** PostgreSQL `GROUP BY` incompleto — no incluía `g.nivel` y otros campos
+  - Cuando un campo está en SELECT pero NO en GROUP BY, PostgreSQL ignora/randomiza su valor
+  - Resultado: nivel siempre caía al fallback 'maternal'
+- **Fix:** 
+  - Agregar TODOS los campos de `grupos` al GROUP BY: `g.id, g.nivel, g.nivel_codigo, g.nombre, g.color_hex, g.ciclo_id, g.cupo_maximo, g.activo, g.created_at, g.updated_at, g.deleted_at`
+  - Agregar `useEffect` en ModalGrupo para sincronizar form cuando grupo cambia
+  - Buscar grupo fresco en lista en lugar de usar objeto cached
+- **Resultado:** ✅ Dropdown muestra nivel correcto (Kinder 1, Maternal, etc.)
+
+### Cambios Realizados
+
+#### Backend
+- `backend/src/routes/grupos.js:48` — GROUP BY completado con todos los campos
+- `backend/src/routes/grupos.js:221` — Removidos campos inexistentes del UPDATE
+
+#### Frontend
+- `web/src/pages/directora/Grupos.jsx:1` — Importado `useEffect`
+- `web/src/pages/directora/Grupos.jsx:23` — Agregado `isLoading` de `useCatalogo`
+- `web/src/pages/directora/Grupos.jsx:31-52` — Inicialización y sincronización de form con `useEffect`
+- `web/src/pages/directora/Grupos.jsx:76-82` — Dropdown nivel con validación de carga
+- `web/src/pages/directora/Grupos.jsx:85-108` — Removidos campos Turno, Entrada, Salida
+- `web/src/pages/directora/Grupos.jsx:192` — Removida línea de horarios en tarjeta
+- `web/src/pages/directora/Grupos.jsx:267` — Removidos horarios del payload UPDATE
+- `web/src/pages/directora/Grupos.jsx:351` — Buscar grupo fresco en lista para modal
+
+### Servidores
+- ✅ Backend 3000 — Respondiendo correctamente
+- ✅ Web 5173 — Cargando cambios sin errores
+
+### Commits
+1. Cambios en Backend + Web completados
+2. PENDIENTES.md actualizado (Batch D.4+ Grupos marcado ✅ VALIDADO)
 
 ---
 

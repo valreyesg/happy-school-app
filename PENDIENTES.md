@@ -1,47 +1,25 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-03 — Sesión XX+21 ✅ COMPLETADA | **Próximos pendientes:** Batch D.4+ (bugs fixes) + Validaciones edge
+**Última actualización:** 2026-05-03 — Sesión XX+22 ✅ COMPLETADA (protocolo cierre corregido) | **Próximos pendientes:** Batch D.4+ asignar maestras + CiclosEscolares + Alumnos + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 ## 📋 VALIDACIONES PENDIENTES
 
-### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches B-D) + 5.3 (por Valeria en http://localhost:5173)
-
-**FASE 4.4 — Button component mobile (en browser, verificar estilos):** ✅ VALIDADO
-- [x] **Bitácora Padre:** Botón "Ver referencia" es ghost small ✅
-- [x] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small ✅
+### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches restantes) + Pendientes Edge
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
-- [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)
-  - [x] Crear grupo: nombre, color (picker), nivel dropdown ✅
-  - [ ] Editar grupo: todos los campos editables
-    - [x] Nombre, color, nivel ✅
-    - [ ] ⚠️ **BUG:** horario_salida NO se refleja en tarjeta después de editar (backend recibe, pero no guarda o GET no devuelve actualizado)
-  - [ ] Asignar maestras: selector maestras, botón agregar/quitar (actualmente solo lectura en edición)
+- [ ] `directora/Grupos.jsx` — ModalGrupo (asignar maestras — SOLO ESTO PENDIENTE)
+  - [ ] Asignar maestras: selector maestras, botón agregar/quitar (resto del modal validado en XX+22)
 - [ ] `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion
   - [ ] ModalNuevoCiclo: form simple (nombre, fecha_inicio, fecha_fin)
   - [ ] ModalPromocion: 3 pasos (seleccionar destino, revisar promoción, confirmar cierre)
 - [ ] `directora/Alumnos.jsx` — ModalAlumno + ModalQR
   - [ ] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto)
   - [ ] ModalQR: mostrar QR, regenerar QR, descargar
-
-**FASE 5.3 — NativeWind removal (Mobile):** ✅ VALIDADO
-- [x] `npm install` en mobile/ sin errores ✅
-- [x] `expo start` arranca sin crashes ✅
-- [x] Button, ModalSheet, NotificationBell mantienen aspecto visual ✅
-- [x] Consola sin warnings sobre nativewind ✅
-
-### 🍽️ SERVICIO DE COMIDA — PAPÁ ✅ COMPLETADO Y VALIDADO
-- [x] Menú semanal visible para papá ✅
-- [x] Filtro por nivel: Maternal ve colación, otros niveles no ✅
-- [x] Confirmación de servicio (semana completa / días específicos) ✅
-- [x] Modalidades de pago (efectivo / transferencia) ✅
-- [x] Mensaje de confirmación guardada ✅
-- [x] Formulario desaparece después de confirmar ✅
 
 ---
 

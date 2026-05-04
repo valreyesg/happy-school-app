@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+21 | **Próximos pendientes:** Validación Batch B + Batch D.4+ (bugs fixes) + Servicio Comida Papa
+**Última actualización:** 2026-05-03 — Sesión XX+21 ✅ COMPLETADA | **Próximos pendientes:** Batch D.4+ (bugs fixes) + Validaciones edge
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -14,9 +14,6 @@
 - [x] **Pagos Padre:** Botones `‹` y `›` navegación mes son ghost small ✅
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
-
-**Batch B (3 archivos, 9 modales) — ✅ VALIDADO:**
-- [x] `directora/Usuarios.jsx` — crear cuenta (confirm + resultado + reset password) ✅
 
 **Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
 - [ ] `directora/Grupos.jsx` — ModalGrupo (crear + editar grupo, asignar maestras)

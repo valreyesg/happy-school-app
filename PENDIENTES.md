@@ -17,9 +17,9 @@
 - [x] `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion (✅ COMPLETADO en XX+23)
   - [x] ModalNuevoCiclo: form simple (nombre, fecha_inicio, fecha_fin)
   - [x] ModalPromocion: 3 pasos (seleccionar destino, revisar promoción, confirmar cierre)
-- [x] `directora/Alumnos.jsx` — ModalAlumno + ModalQR (✅ COMPLETADO en XX+24)
-  - [x] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto) — alergias precargadas y editable
-  - [x] ModalQR: mostrar QR, regenerar QR, descargar — UI completa, próxima sesión validación
+- [ ] `directora/Alumnos.jsx` — ModalAlumno + ModalQR
+  - [x] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto) — ✅ VALIDADO en XX+24
+  - [ ] ModalQR: mostrar QR, regenerar QR, descargar — UI implementada, próxima sesión validación
 
 ---
 

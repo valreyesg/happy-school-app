@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-03 — Sesión XX+24 ✅ COMPLETADA (ModalAlumno alergias) | **Próximos pendientes:** Validación ModalQR + Cloudinary
+**Última actualización:** 2026-05-03 — Sesión XX+24 ✅ COMPLETADA | **Próximos pendientes:** Validación ModalQR + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -11,10 +11,8 @@
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
-**Batch D.4+ completados:**
-- ✅ `directora/Grupos.jsx` — ModalGrupo (✅ COMPLETADO XX+23)
-- ✅ `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion (✅ COMPLETADO XX+23)
-- ⏳ `directora/Alumnos.jsx` — ModalQR validación pendiente (ModalAlumno ✅ COMPLETADO XX+24)
+**Batch D.4+ — Pendientes:**
+- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
 
 ---
 

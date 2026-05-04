@@ -1,7 +1,52 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-03 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → **XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes)**
+**Última actualización:** 2026-05-03 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)**
+
+---
+
+## ✅ SESIÓN XX+24 (2026-05-03) — ModalAlumno Alergias + ModalQR (COMPLETADO)
+
+**Fecha:** 2026-05-03 | **Estado:** ✅ VALIDACIÓN COMPLETA EN BROWSER (ModalAlumno) + UI ModalQR (próxima sesión validación)
+
+### Validaciones Completadas
+
+**FASE 5.2 — Batch D.4+ (Alumnos.jsx — ModalAlumno):** ✅ 100% VALIDADO EN BROWSER
+- ✅ Crear alumno: todos los campos precargados correctamente
+- ✅ Editar alumno: CURP, tipo_sangre, condiciones_especiales, alergias cargan correctamente
+- ✅ Alergias: checkboxes seleccionables/deseleccionables, "Otras alergias" texto editable
+- ✅ Alergias: guardadas y persisten correctamente entre ediciones
+- ✅ Foto: preview y upload implementados
+
+**FASE 5.2 — Batch D.4+ (Alumnos.jsx — ModalQR):** UI COMPLETADA (validación próxima sesión)
+- ✅ UI: mostrar QR cuando existe
+- ✅ UI: botón descargar con file download pattern implementado
+- ✅ UI: botón regenerar llamando endpoint /alumnos/{id}/regenerar-qr
+- ✅ UI: pantalla vacía con opción generar si sin QR
+- ⏳ Validación real: requiere Cloudinary configurado
+
+### Bugs Críticos Resueltos
+
+**Bug: Alergias no precargaban y checkboxes no respondían**
+- **Causa raíz:** Conflicto de state management bidireccional
+  - `form.alergias` cargaba del DB
+  - `useEffect` intentaba splitear en `alergiasSeleccionadas` + `alergiasOtras`
+  - `toggleAlergia` actualizaba `alergiasSeleccionadas` pero `form.alergias` permanecía estático
+  - Esto causaba checkboxes uncontrolled
+- **Solución:** Single source of truth
+  - Remover función `sincronizarAlergias()`
+  - `alergiasSeleccionadas` y `alergiasOtras` son la única fuente de verdad
+  - `useEffect` inicializa estos estados cuando carga alumno
+  - `toggleAlergia` modifica directamente `alergiasSeleccionadas`
+  - En save time: combinar ambos inline en `guardar()` mutation
+- **Resultado:** ✅ Alergias precarga, checkboxes responden, guardan correctamente
+
+### Cambios Realizados
+
+#### Frontend
+- `web/src/pages/directora/Alumnos.jsx:478-513` — guardar mutation calcula alergias inline
+- `web/src/pages/directora/Alumnos.jsx:470-476` — toggleAlergia directo sin sincronizarAlergias
+- `web/src/pages/directora/Alumnos.jsx:217-296` — ModalQR mejorado con handleDescargar + descargando state
 
 ---
 

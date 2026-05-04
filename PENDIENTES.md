@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-03 — Sesión XX+24 ✅ COMPLETADA (ModalAlumno: alergias + ModalQR) | **Próximos pendientes:** Validación QR + Cloudinary
+**Última actualización:** 2026-05-03 — Sesión XX+24 ✅ COMPLETADA (ModalAlumno alergias) | **Próximos pendientes:** Validación ModalQR + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -11,15 +11,10 @@
 
 **FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
 
-**Batch D.4+ (4 archivos, ~16 modales — Mega-formas):**
-- [x] `directora/Grupos.jsx` — ModalGrupo (asignar maestras — ✅ COMPLETADO en XX+23)
-  - [x] Asignar maestras: selector maestras titular (resto del modal validado en XX+22)
-- [x] `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion (✅ COMPLETADO en XX+23)
-  - [x] ModalNuevoCiclo: form simple (nombre, fecha_inicio, fecha_fin)
-  - [x] ModalPromocion: 3 pasos (seleccionar destino, revisar promoción, confirmar cierre)
-- [ ] `directora/Alumnos.jsx` — ModalAlumno + ModalQR
-  - [x] ModalAlumno: crear + editar alumno (nombre, nivel, padres, alergias, foto) — ✅ VALIDADO en XX+24
-  - [ ] ModalQR: mostrar QR, regenerar QR, descargar — UI implementada, próxima sesión validación
+**Batch D.4+ completados:**
+- ✅ `directora/Grupos.jsx` — ModalGrupo (✅ COMPLETADO XX+23)
+- ✅ `directora/CiclosEscolares.jsx` — ModalNuevoCiclo + ModalPromocion (✅ COMPLETADO XX+23)
+- ⏳ `directora/Alumnos.jsx` — ModalQR validación pendiente (ModalAlumno ✅ COMPLETADO XX+24)
 
 ---
 

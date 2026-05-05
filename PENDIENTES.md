@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+24 continuada | **Próximos pendientes:** Bug comida (días desplazados) + Validación ModalQR + Cloudinary
+**Última actualización:** 2026-05-04 — Sesión XX+25 completada | **Próximos pendientes:** Validación ModalQR + Cloudinary + UX/UI audit
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -13,16 +13,6 @@
 
 **Batch D.4+ — Pendientes:**
 - [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
-
----
-
-## ✅ BUG — Servicio Comida: Días Desplazados (RESUELTO 2026-05-04)
-
-**Causa raíz:** Array `DIAS` en `ServicioComida.jsx` línea 40 tenía estructura `['', 'Lun', 'Mar', ...]` con vacío en posición 0, causando offset +1 en interpretación de índices.
-
-**Fix:** Cambiar a `['Lun', 'Mar', 'Mié', 'Jue', 'Vie']` con índices 0-4 correctos.
-
-**Resultado:** Días se muestran correctamente en tab Pagos del Servicio.
 
 ---
 

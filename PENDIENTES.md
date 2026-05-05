@@ -65,8 +65,6 @@ CLOUDINARY_API_SECRET=placeholder
 
 ## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
 
-> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Todos los casos edge completados.
-
 ### Casos Edge Pendientes de Validar:
 - [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
 - [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
@@ -91,8 +89,6 @@ CLOUDINARY_API_SECRET=placeholder
 ---
 
 ## 🎯 LARGO PLAZO — Futuro (2-3 meses)
-
-> **Nota:** FASE 7 (Catálogos Dinámicos tareas 1-10) completada en Sesión XX+27. Ver ARCHIVE_LOG.md para detalles.
 
 ### 🗂️ NUEVAS AUDITORÍAS — CATÁLOGOS ADICIONALES (FASE 8+)
 - [ ] **Auditoría Hardcoded adicional:** Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (más allá de FASE 7)

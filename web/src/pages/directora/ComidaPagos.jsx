@@ -8,7 +8,6 @@ const formatearDias = (diasSeleccionados) => {
   if (!diasSeleccionados) return '';
   try {
     const dias = typeof diasSeleccionados === 'string' ? JSON.parse(diasSeleccionados) : diasSeleccionados;
-    console.log('DEBUG formatearDias:', { raw: diasSeleccionados, parsed: dias });
     if (!Array.isArray(dias) || dias.length === 0) return '';
     return dias.map(i => DIAS_NOMBRE[i]).join(', ');
   } catch (e) {
@@ -175,7 +174,7 @@ const ComidaPagos = () => {
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-black text-gray-800">{conf.nombre_alumno}</h3>
+                    <h3 className="font-black text-gray-800">{conf.nombre_completo}</h3>
                     {conf.nivel_nombre && (
                       <span className="text-xs font-bold px-2 py-1 rounded-lg bg-blue-100 text-hs-blue-dark">
                         {conf.nivel_nombre}

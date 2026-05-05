@@ -135,6 +135,7 @@ const ComidaSemanal = () => {
       formData.append('alumno_id', alumnoId);
       formData.append('semana_inicio', semanaActual);
       formData.append('modalidad', deseoServicio ? modalidad : null);
+      // Índices 0-4 → Lunes es 0, Viernes es 4
       formData.append('dias_seleccionados', JSON.stringify(deseoServicio ? diasSeleccionados : []));
       formData.append('metodo_pago', deseoServicio ? metodoPago : null);
 

@@ -37,7 +37,8 @@ function getRangoSemana(lunesStr) {
   return `${lunes.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })} al ${viernes.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`;
 }
 
-const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+// BUG CORREGIDO: índices 0-4 para Lun-Vie, sin vacío en posición 0
+const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
 
 // ─── Modal Subir Menú ─────────────────────────────────────────────────────
 

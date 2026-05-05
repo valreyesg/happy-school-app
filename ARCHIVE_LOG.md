@@ -1,7 +1,76 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)**
+**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web)**
+
+---
+
+## ✅ SESIÓN XX+26 (2026-05-04) — Auditoría UX/UI Completa (COMPLETADO)
+
+**Fecha:** 2026-05-04 | **Estado:** ✅ 24 CAMBIOS IMPLEMENTADOS Y VALIDADOS EN CÓDIGO
+
+### Auditoría ejecutada
+
+**Scope:** 13 archivos web (padre, maestra, directora), 3 dimensiones auditadas: consistency, usability, visual design
+
+### Bugs críticos resueltos
+
+1. **EMOJIS_ANIMO keys incorrectas en padre/Dashboard.jsx**
+   - **Problema:** padre usaba `inquieto`/`energico`, maestra usaba `irritable`/`activo` — padre nunca mostraba emojis correctamente
+   - **Fix:** Unificar keys padre a `irritable`/`activo` para coincidir con BD
+   - **Impacto:** Emojis de ánimo ahora se renderizan correctamente en Dashboard padre
+
+2. **Formato de fechas de pago inconsistente**
+   - **Problema:** padre mostraba "4/5/2026", directora mostraba "04 may 2026"
+   - **Fix:** Estandarizar formato a `{ day:'2-digit', month:'short', year:'numeric' }`
+   - **Impacto:** Fechas ahora consistentes entre padre y directora
+
+### Cambios implementados
+
+#### Saludos dinámicos por hora (3 portales)
+- **directora/Dashboard.jsx:** "¡Buenos días/tardes/noches, Director/Directora Nombre! 👋"
+- **maestra/Dashboard.jsx:** "¡Buenos días/tardes/noches, Miss/Teacher Nombre! 👋"
+- **padre/Dashboard.jsx:** "¡Buenos días/tardes/noches, Mamá/Papá Nombre! 👋"
+
+#### Spinner color unificado
+- **Cambios:** 12 spinners en 7 archivos (`border-red-400`, `border-green-400`, `border-purple-500` → `border-hs-purple`)
+
+#### H1 size unificado
+- **Portal padre/maestra:** `text-2xl` (base uniforme)
+- **Portal directora:** `text-3xl` (base uniforme)
+- **Correcciones:** 3 archivos donde diferían de su portal
+
+#### Botones primarios unificados
+- **maestra/FiltroEntrada.jsx, directora/Pagos.jsx:** Reemplazar inline styles por clase `btn-primary`
+
+#### Emojis unificados
+- **Calendario:** `📆`, `🗓️` → unificar a `📅`
+- **Empty states:** Emoji + texto consistente en todas las páginas
+
+#### MESES array capitalizado
+- **maestra/Tareas.jsx:** `['ene','feb',...]` → `['Ene','Feb',...]`
+
+#### Empty state Tareas
+- **Icono Lucide `<Clock>` → Emoji `📋`** para patrón consistente
+
+### Cambios NO aplicados (descartados correctamente)
+
+- `padre/Bitacora.jsx` botón "Firmar" azul: semánticamente correcto (diferencia del CTA principal)
+- `maestra/Tareas.jsx` botones `bg-hs-blue`: botones secundarios de formulario, color diferencia intencional
+- `directora/Calendario.jsx` MESES completos: correcto para componente de calendario
+- Empty states "No hay X" vs "Sin X": baja prioridad, 30+ ocurrencias, requiere decisión editorial
+
+### Resumen ejecutivo
+
+| Métrica | Valor |
+|---------|-------|
+| Archivos modificados | 13 |
+| Cambios totales | 24 |
+| Bugs críticos resueltos | 2 |
+| Spinners corregidos | 12 |
+| H1 corregidos | 3 |
+| Botones unificados | 2 |
+| Saludos dinámicos | 3 portales |
 
 ---
 

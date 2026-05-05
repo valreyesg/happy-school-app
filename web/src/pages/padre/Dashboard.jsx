@@ -17,7 +17,7 @@ function proximos3Dias() {
   };
 }
 
-const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', inquieto: '😤', energico: '⚡' };
+const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
 const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 const COMPORTAMIENTO = {
   muy_bien:         { emoji: '⭐', label: 'Excelente', bg: 'bg-green-100',  text: 'text-green-700'  },
@@ -239,19 +239,27 @@ function HijoCard({ hijo }) {
   );
 }
 
-const SALUDO_PARENTESCO = {
-  madre:    '¡Hola, Mamá',
-  papa:     '¡Hola, Papá',
-  padre:    '¡Hola, Papá',
-  abuelo:   '¡Hola',
-  abuela:   '¡Hola',
-  tutor:    '¡Hola',
-  tutora:   '¡Hola',
+const saludoHora = () => {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+};
+
+const TRATAMIENTO_PARENTESCO = {
+  madre:    'Mamá',
+  papa:     'Papá',
+  padre:    'Papá',
+  abuelo:   '',
+  abuela:   '',
+  tutor:    '',
+  tutora:   '',
 };
 
 function saludoPadre(parentesco, nombre) {
-  const base = SALUDO_PARENTESCO[parentesco?.toLowerCase()] ?? '¡Hola';
-  return `${base} ${nombre?.split(' ')[0]}!`;
+  const tratamiento = TRATAMIENTO_PARENTESCO[parentesco?.toLowerCase()];
+  const destinatario = tratamiento ? `${tratamiento} ${nombre?.split(' ')[0]}` : nombre?.split(' ')[0];
+  return `¡${saludoHora()}, ${destinatario}!`;
 }
 
 function PagoResumenCard({ hijoId, hijoNombre }) {
@@ -316,7 +324,7 @@ function ModalEvento({ ev, onClose }) {
 
           {/* Fecha */}
           <p className="text-sm font-semibold text-hs-blue capitalize mb-1">
-            📆 {fmtFecha(fechaInicio)}
+            📅 {fmtFecha(fechaInicio)}
             {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() && ` → ${fmtFecha(fechaFin)}`}
           </p>
 
@@ -586,7 +594,7 @@ export default function PadreDashboard() {
         <h2 className="text-base font-black text-gray-700 mb-3">Mis hijos</h2>
         {isLoading ? (
           <div className="card-hs p-8 flex items-center justify-center">
-            <div className="animate-spin w-8 h-8 border-4 border-red-400 border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-4 border-hs-purple border-t-transparent rounded-full" />
           </div>
         ) : hijos.length === 0 ? (
           <div className="card-hs p-8 text-center text-gray-400 font-semibold">

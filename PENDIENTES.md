@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+25 completada | **Próximos pendientes:** Validación ModalQR + Cloudinary + UX/UI audit
+**Última actualización:** 2026-05-04 — Sesión XX+26 completada (UX/UI Audit) | **Próximos pendientes:** Validación en browser + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -71,29 +71,6 @@ CLOUDINARY_API_SECRET=placeholder
 - [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
 - [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
 - [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)
-
----
-
-## 🎨 UX/UI AUDIT Y MEJORA
-
-- [ ] **Revisar y mejorar UX/UI completa (web + mobile)**
-  - **Contexto:** Identificar usuarios finales por rol:
-    - Papá: necesita información clara de hijo, tareas, pagos
-    - Miss: herramienta de trabajo diario, eficiencia crítica
-    - Directora: visión ejecutiva, reportes, alertas
-  - **Tareas:**
-    - [ ] Auditoría UX/UI web (padre, miss, directora)
-    - [ ] Auditoría UX/UI mobile
-    - [ ] **Consistency check: Formato y estilo de texto homogéneo**
-      - Fechas: formato CONSISTENTE (ej: "Lun 24 de Abr" en todos lados)
-      - Saludos: mismo tono y estructura en cada portal
-      - Capitalización: CONSISTENTE mayúsculas/minúsculas/CamelCase
-      - Iconografía: mismo emoji para mismo concepto
-      - Espaciado y tamaño fuente en elementos similares
-    - [ ] Consistency check: colores, tipografía, spacing
-    - [ ] Validar flujos por rol (¿cada usuario encuentra lo que busca en <3 clicks?)
-    - [ ] Accesibilidad (contraste, tamaño texto, navegación)
-    - [ ] Responsive design validation (mobile, tablet, desktop)
 
 ---
 

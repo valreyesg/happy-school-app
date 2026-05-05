@@ -163,7 +163,7 @@ const ComidaSemanal = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Encabezado */}
       <div>
-        <h1 className="text-3xl font-black text-gray-800">🍽️ Servicio de Comida</h1>
+        <h1 className="text-2xl font-black text-gray-800">🍽️ Servicio de Comida</h1>
         <p className="text-gray-500 font-semibold mt-1">Confirma el servicio para próxima semana</p>
       </div>
 

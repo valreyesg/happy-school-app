@@ -124,7 +124,7 @@ export default function BitacoraDirectora() {
   return (
     <div className="flex-1 space-y-6 p-4">
       <div className="space-y-3">
-        <h1 className="text-2xl font-black text-gray-800">📖 Bitácora</h1>
+        <h1 className="text-3xl font-black text-gray-800">📖 Bitácora</h1>
         <p className="text-sm text-gray-500">Visualizar registros de salud por alumno</p>
       </div>
 

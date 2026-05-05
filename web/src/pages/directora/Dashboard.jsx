@@ -512,6 +512,14 @@ export default function DirectoraDashboard() {
   const CORTE_EXTENSION = 15 * 60 + 6; // 15:06
   const modoExtension = minutosActuales >= CORTE_EXTENSION;
 
+  const saludoHora = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Buenos días';
+    if (h < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
+  const terminoDirectora = usuario?.genero === 'm' ? 'Director' : 'Directora';
+
   return (
     <div className="space-y-8 animate-fade-in">
       {modalGrupo && <ModalAsistenciaGrupo grupo={modalGrupo} onClose={() => setModalGrupo(null)} />}
@@ -522,7 +530,7 @@ export default function DirectoraDashboard() {
       {/* Encabezado */}
       <div>
         <h1 className="text-3xl font-black text-gray-800">
-          ¡Buenos días, {usuario?.nombre?.split(' ')[0]}! 👋
+          ¡{saludoHora()}, {terminoDirectora} {usuario?.nombre?.split(' ')[0]}! 👋
         </h1>
         <p className="text-gray-500 font-semibold capitalize mt-1">{hoy}</p>
       </div>

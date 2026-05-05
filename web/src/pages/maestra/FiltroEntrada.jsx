@@ -309,7 +309,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
       </div>
 
       <button onClick={handleSubmit} disabled={mutation.isPending}
-        className="w-full py-4 rounded-2xl font-black text-white text-lg bg-hs-purple hover:bg-hs-purple-dark disabled:opacity-50 transition-all mt-5">
+        className="btn-primary w-full text-lg py-4 disabled:opacity-50 mt-5">
         {mutation.isPending ? 'Registrando...' : '✅ Registrar Entrada'}
       </button>
     </Modal>

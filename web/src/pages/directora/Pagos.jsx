@@ -297,7 +297,7 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border-2 font-bold text-gray-600 hover:bg-gray-50">Cancelar</button>
           <button type="submit" disabled={mut.isPending}
-            className="flex-1 py-3 rounded-xl bg-hs-purple-dark hover:bg-hs-purple-dark text-white font-black disabled:opacity-50">
+            className="btn-primary flex-1 disabled:opacity-50">
             {mut.isPending ? 'Guardando…' : 'Registrar pago'}
           </button>
         </div>

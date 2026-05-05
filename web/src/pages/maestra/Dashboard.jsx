@@ -162,13 +162,20 @@ export default function MaestraDashboard() {
   const filtroAbierto = horaActual >= horaInicioFiltro && horaActual <= horaFinFiltro;
   const filtroCerrado = horaActual > horaFinFiltro;
 
+  const saludoHora = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Buenos días';
+    if (h < 19) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black text-gray-800">
-            ¡Bienvenid{usuario?.genero === 'm' ? 'o' : 'a'}, {usuario?.genero === 'm' ? 'Teacher' : 'Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
+            ¡{saludoHora()}, {usuario?.genero === 'm' ? 'Teacher' : 'Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
           </h1>
           <p className="text-sm font-semibold text-gray-500 capitalize mt-0.5">{hoy}</p>
         </div>
@@ -404,7 +411,7 @@ export default function MaestraDashboard() {
 
         {isLoading ? (
           <div className="card-hs p-8 flex items-center justify-center">
-            <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-4 border-hs-purple border-t-transparent rounded-full" />
           </div>
         ) : alumnos.length === 0 ? (
           <div className="card-hs p-8 text-center text-gray-400 font-semibold">

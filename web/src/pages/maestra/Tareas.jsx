@@ -24,7 +24,7 @@ function getSemanaKey(dateStr) {
 }
 
 function getLunesToDomingo(dateStr) {
-  const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const d = new Date(dateStr + 'T12:00:00');
   const diaSemana = (d.getDay() + 6) % 7;
   const lunes = new Date(d);
@@ -591,7 +591,7 @@ export default function MaestraTareas() {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-black text-gray-800">📋 Tareas Grupales</h1>
+          <h1 className="text-2xl font-black text-gray-800">📋 Tareas Grupales</h1>
           <p className="text-sm text-gray-600 mt-1">Grupo: {grupo?.nombre}</p>
         </div>
         <button
@@ -606,8 +606,8 @@ export default function MaestraTareas() {
 
       {totalTareas === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          <Clock size={48} className="mx-auto mb-3 opacity-30" />
-          <p>No hay tareas aún</p>
+          <div className="text-5xl mb-3">📋</div>
+          <p className="font-semibold">Sin tareas aún</p>
         </div>
       ) : (
         <div>

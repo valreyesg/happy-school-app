@@ -490,7 +490,7 @@ export default function DirectoraAsistencia() {
       {/* Encabezado */}
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-black text-gray-800">Asistencia 📋</h1>
+          <h1 className="text-3xl font-black text-gray-800">Asistencia 📋</h1>
           {modo === 'hoy' ? (
             <div className="flex items-center gap-3 mt-2">
               <button

@@ -33,7 +33,7 @@ function FilaPagos({ pagos }) {
               <p className="text-sm font-bold text-gray-800 truncate">{p.concepto_nombre}</p>
               <p className="text-xs text-gray-400 font-semibold">
                 {p.mes_correspondiente ? `${MESES[p.mes_correspondiente - 1]} ${p.anio_correspondiente}` : '—'}
-                {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago.substring(0, 10)).toLocaleDateString('es-MX')}` : ''}
+                {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago.substring(0, 10) + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
               </p>
             </div>
             <div className="flex items-center gap-3 ml-4">
@@ -57,7 +57,7 @@ function PanelHijo({ alumnoId }) {
 
   if (isLoading) return (
     <div className="card-hs p-8 flex items-center justify-center">
-      <div className="animate-spin w-7 h-7 border-4 border-green-400 border-t-transparent rounded-full" />
+      <div className="animate-spin w-7 h-7 border-4 border-hs-purple border-t-transparent rounded-full" />
     </div>
   );
 
@@ -156,7 +156,7 @@ export default function PadrePagos() {
 
       {isLoading ? (
         <div className="card-hs p-8 flex items-center justify-center">
-          <div className="animate-spin w-8 h-8 border-4 border-green-400 border-t-transparent rounded-full" />
+          <div className="animate-spin w-8 h-8 border-4 border-hs-purple border-t-transparent rounded-full" />
         </div>
       ) : hijos.length === 0 ? (
         <div className="card-hs p-8 text-center text-gray-400 font-semibold">

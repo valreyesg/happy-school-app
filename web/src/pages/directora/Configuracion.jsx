@@ -177,7 +177,7 @@ export default function Configuracion() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-hs-purple border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -408,7 +408,7 @@ function CatalogoTabInline({ tipo, titulo }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin w-6 h-6 border-3 border-purple-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-6 h-6 border-3 border-hs-purple border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -480,7 +480,7 @@ function CategoriasEventoCard() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin w-6 h-6 border-3 border-purple-500 border-t-transparent rounded-full" />
+            <div className="animate-spin w-6 h-6 border-3 border-hs-purple border-t-transparent rounded-full" />
           </div>
         ) : (
           <div className="divide-y divide-gray-50">

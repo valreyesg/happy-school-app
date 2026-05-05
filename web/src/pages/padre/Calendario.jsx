@@ -209,7 +209,7 @@ export default function PadreCalendario() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin w-7 h-7 border-4 border-purple-500 border-t-transparent rounded-full" />
+            <div className="animate-spin w-7 h-7 border-4 border-hs-purple border-t-transparent rounded-full" />
           </div>
         ) : (
           <div className="grid grid-cols-7 gap-1">
@@ -288,7 +288,7 @@ export default function PadreCalendario() {
 
       {!isLoading && eventosOrdenados.length === 0 && (
         <div className="card-hs p-8 text-center text-gray-400">
-          <div className="text-4xl mb-2">🗓️</div>
+          <div className="text-4xl mb-2">📅</div>
           <p className="font-semibold">No hay eventos para este mes</p>
         </div>
       )}

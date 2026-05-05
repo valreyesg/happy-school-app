@@ -7,15 +7,9 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import toast from 'react-hot-toast';
+import { ESTADO_CONFIG } from '@/utils/asistencia';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-const ESTADO_CONFIG = {
-  presente:   { label: 'Presente',    bg: 'bg-green-100',  text: 'text-green-700',  icon: CheckCircle, emoji: '✅' },
-  retardo:    { label: 'Retardo',     bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock,        emoji: '⏰' },
-  no_entrada: { label: 'No entró',    bg: 'bg-red-100',    text: 'text-red-700',    icon: XCircle,      emoji: '🚫' },
-  ausente:    { label: 'Sin registrar', bg: 'bg-gray-100', text: 'text-gray-500',   icon: ChevronRight, emoji: '⬜' },
-};
 
 function BadgeEstado({ estado }) {
   const cfg = ESTADO_CONFIG[estado] || ESTADO_CONFIG.ausente;

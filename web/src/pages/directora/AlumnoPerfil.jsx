@@ -7,8 +7,8 @@ import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';
 
-// ─── Catálogos ────────────────────────────────────────────────────────────────
-const TIPOS_DOC = [
+// ─── Catálogos (fallback) ─────────────────────────────────────────────────────
+const TIPOS_DOC_FALLBACK = [
   { value: 'acta_nacimiento',    label: 'Acta de nacimiento' },
   { value: 'curp',               label: 'CURP' },
   { value: 'cartilla_vacunacion', label: 'Cartilla de vacunación' },
@@ -19,7 +19,7 @@ const TIPOS_DOC = [
   { value: 'otro',               label: 'Otro' },
 ];
 
-const DOC_REQUERIDOS = ['acta_nacimiento', 'curp', 'cartilla_vacunacion', 'comprobante_dom', 'foto_escolar'];
+const DOC_REQUERIDOS_FALLBACK = ['acta_nacimiento', 'curp', 'cartilla_vacunacion', 'comprobante_dom', 'foto_escolar'];
 
 function edad(fecha) {
   if (!fecha) return null;
@@ -57,12 +57,12 @@ function Seccion({ titulo, badge, badgeColor = 'bg-gray-100 text-gray-600', chil
 }
 
 // ─── Documentos ───────────────────────────────────────────────────────────────
-function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, subiendo }) {
+function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, subiendo, tiposDoc = [], docsRequeridos = [] }) {
   const fileRef = useRef();
-  const [tipoSel, setTipoSel] = useState('acta_nacimiento');
+  const [tipoSel, setTipoSel] = useState(tiposDoc[0]?.value || 'acta_nacimiento');
 
   const tiposPresentes = documentos.map(d => d.tipo);
-  const faltantes = DOC_REQUERIDOS.filter(t => !tiposPresentes.includes(t)).length;
+  const faltantes = docsRequeridos.filter(t => !tiposPresentes.includes(t)).length;
 
   const handleFile = (e) => {
     const archivo = e.target.files[0];
@@ -84,7 +84,7 @@ function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, sub
           value={tipoSel}
           onChange={e => setTipoSel(e.target.value)}
         >
-          {TIPOS_DOC.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+          {tiposDoc.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
         <button
           className="btn-hs btn-hs-primary"
@@ -102,7 +102,7 @@ function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, sub
       ) : (
         <div className="space-y-2">
           {documentos.map((doc, i) => {
-            const tipoLabel = TIPOS_DOC.find(t => t.value === doc.tipo)?.label || doc.tipo;
+            const tipoLabel = tiposDoc.find(t => t.value === doc.tipo)?.label || doc.tipo;
             const esPDF = doc.url?.includes('.pdf') || doc.nombre_archivo?.endsWith('.pdf');
             return (
               <div key={i} className="flex items-center justify-between gap-3 py-2 px-3 bg-gray-50 rounded-xl">
@@ -135,9 +135,9 @@ function SeccionDocumentos({ alumnoId, documentos = [], onSubir, onEliminar, sub
         <div className="mt-3 p-3 bg-red-50 rounded-xl">
           <p className="text-xs font-bold text-red-600 mb-1">Documentos requeridos faltantes:</p>
           <div className="flex flex-wrap gap-1">
-            {DOC_REQUERIDOS.filter(t => !tiposPresentes.includes(t)).map(t => (
+            {docsRequeridos.filter(t => !tiposPresentes.includes(t)).map(t => (
               <span key={t} className="text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full">
-                {TIPOS_DOC.find(d => d.value === t)?.label || t}
+                {tiposDoc.find(d => d.value === t)?.label || t}
               </span>
             ))}
           </div>
@@ -1315,6 +1315,30 @@ export default function DirectoraAlumnoPerfil() {
     enabled: !!id,
   });
 
+  // Cargar catálogo tipos-documento y config docs-requeridos
+  const { items: tiposDocItems = [] } = useCatalogo('tipos-documento');
+  const [docsRequeridos, setDocsRequeridos] = useState(DOC_REQUERIDOS_FALLBACK);
+
+  useEffect(() => {
+    const cargarConfig = async () => {
+      try {
+        const res = await api.get('/config/negocio');
+        const docsReq = res.data.docs_requeridos_alumno
+          ? JSON.parse(res.data.docs_requeridos_alumno)
+          : DOC_REQUERIDOS_FALLBACK;
+        setDocsRequeridos(docsReq);
+      } catch (e) {
+        console.error('Error cargando config docs:', e);
+      }
+    };
+    cargarConfig();
+  }, []);
+
+  // Convertir catálogo a formato de componente (value/label)
+  const tiposDocArray = tiposDocItems.length > 0
+    ? tiposDocItems.map(item => ({ value: item.key, label: item.label }))
+    : TIPOS_DOC_FALLBACK;
+
   const [subiendoDoc, setSubiendoDoc] = useState(false);
 
   const subirDoc = async (archivo, tipo) => {
@@ -1364,7 +1388,7 @@ export default function DirectoraAlumnoPerfil() {
 
   const anios = edad(alumno.fecha_nacimiento);
   const tiposPresentes = documentos.map(d => d.tipo);
-  const docsCompletos = DOC_REQUERIDOS.every(t => tiposPresentes.includes(t));
+  const docsCompletos = docsRequeridos.every(t => tiposPresentes.includes(t));
 
   return (
     <div className="animate-fade-in max-w-3xl mx-auto">
@@ -1483,6 +1507,8 @@ export default function DirectoraAlumnoPerfil() {
         onSubir={subirDoc}
         onEliminar={(docId) => eliminarDoc.mutate(docId)}
         subiendo={subiendoDoc}
+        tiposDoc={tiposDocArray}
+        docsRequeridos={docsRequeridos}
       />
 
       {/* ── Notas ── */}

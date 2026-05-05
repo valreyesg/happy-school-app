@@ -1,29 +1,13 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+27 en curso (FASE 7 Catálogos Dinámicos) | **Estado:** Tareas 1-5/10 completadas, 6-10 para próxima sesión
+**Última actualización:** 2026-05-04 — Sesión XX+27 COMPLETADA (FASE 7 Catálogos Dinámicos — 10/10 tareas)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🚀 FASE 7 — CATÁLOGOS DINÁMICOS (EN CURSO)
+## 🚀 FASE 7 — CATÁLOGOS DINÁMICOS (✅ COMPLETADO)
 
-### ✅ COMPLETADAS (5/10)
-
-1. ✅ Fix fallback alergias en backend (TAREA 1)
-2. ✅ Agregar color a estados-alumno fallback + SQL backend (TAREA 2)
-3. ✅ Fix vomito_intensidad duplicado mobile (TAREA 3)
-4. ✅ Migrar checklist-entrada web + mobile (TAREA 4)
-5. ✅ Migrar estadoBadge estados-alumno (TAREA 5)
-
-### ⏳ PENDIENTES PARA PRÓXIMA SESIÓN (5/10)
-
-6. [ ] Migrar precios comida mobile (TAREA 6) — estimado 5 min
-7. [ ] Migrar TIPOS_DOC AlumnoPerfil (TAREA 7) — estimado 15 min
-8. [ ] Centralizar ESTADO_BADGE asistencia web + mobile (TAREA 8) — estimado 30 min
-9. [ ] Migrar ROL_COLOR (TAREA 9) — estimado 10 min
-10. [ ] Horarios turno mobile (TAREA 10 extra) — estimado 10 min
-
-**Próxima sesión:** Validar web en browser después de tareas 1-5, ejecutar SQL UPDATE para estados-alumno, continuar tareas 6-10.
+**Tareas 1-10 completadas en Sesión XX+27 (2026-05-04).** Movidas a ARCHIVE_LOG.
 
 ---
 

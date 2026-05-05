@@ -5,6 +5,7 @@ import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
+import { ESTADO_STYLE } from '@/utils/asistencia';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -16,14 +17,6 @@ function buildNivelOrden(grupos) {
   });
   return orden;
 }
-
-const ESTADO_STYLE = {
-  presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',     emoji: '✅' },
-  retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',       emoji: '⏰' },
-  no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'No entró',      emoji: '🚫' },
-  justificado: { bg: 'bg-blue-100',  text: 'text-hs-blue-dark',   label: 'Justificado',   emoji: '📋' },
-  ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Sin registrar', emoji: '⬜' },
-};
 
 const ESTADO_CELDA = {
   presente:   { bg: 'bg-green-400',  title: 'Presente' },

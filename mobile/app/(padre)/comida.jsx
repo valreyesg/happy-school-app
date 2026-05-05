@@ -47,6 +47,8 @@ const ComidaSemanal = () => {
   const [diasSeleccionados, setDiasSeleccionados] = useState([]);
   const [metodoPago, setMetodoPago] = useState('efectivo');
   const [comprobante, setComprobante] = useState(null);
+  const [precioComidaSemana, setPrecioComidaSemana] = useState(250);
+  const [precioComidaDia, setPrecioComidaDia] = useState(50);
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
@@ -62,6 +64,11 @@ const ComidaSemanal = () => {
   const cargarDatos = async () => {
     try {
       setLoading(true);
+
+      // Obtener precios de configuración
+      const configRes = await api.get('/config/negocio');
+      setPrecioComidaSemana(parseInt(configRes.data.precio_comida_semana) || 250);
+      setPrecioComidaDia(parseInt(configRes.data.precio_comida_dia) || 50);
 
       // Obtener menú
       const menuRes = await api.get(`/comida/menu?semana=${semanaActual}`);
@@ -159,7 +166,7 @@ const ComidaSemanal = () => {
   };
 
   const monto = deseoServicio
-    ? modalidad === 'semana_completa' ? 250 : 50 * diasSeleccionados.length
+    ? modalidad === 'semana_completa' ? precioComidaSemana : precioComidaDia * diasSeleccionados.length
     : 0;
 
   const hoy = new Date();

@@ -15,11 +15,37 @@ export default function QRScannerScreen() {
   const [alumnoDetectado, setAlumnoDetectado] = useState(null);
   const [modo, setModo] = useState('entrada');
   const cooldownRef = useRef(false);
+  const [horaSalidaNormal, setHoraSalidaNormal] = useState(14);
+  const [horaSalidaExtension, setHoraSalidaExtension] = useState('14:45');
 
   const horaActual = new Date().getHours();
+
+  // Cargar horarios de configuración
   useEffect(() => {
-    setModo(horaActual >= 14 ? 'salida' : 'entrada');
+    const cargarConfig = async () => {
+      try {
+        const res = await api.get('/config/horarios');
+        if (res.data?.horarios) {
+          const hora = res.data.horarios.hora_salida_normal;
+          if (hora) {
+            const [h, m] = hora.split(':').map(Number);
+            setHoraSalidaNormal(h);
+          }
+          const horaExt = res.data.horarios.hora_salida_extension;
+          if (horaExt) {
+            setHoraSalidaExtension(horaExt);
+          }
+        }
+      } catch (e) {
+        console.error('Error cargando config horarios:', e);
+      }
+    };
+    cargarConfig();
   }, []);
+
+  useEffect(() => {
+    setModo(horaActual >= horaSalidaNormal ? 'salida' : 'entrada');
+  }, [horaSalidaNormal]);
 
   const registrarEntradaMutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/entrada', data).then(r => r.data),
@@ -73,11 +99,12 @@ export default function QRScannerScreen() {
 
     if (data.startsWith('HAPPYSCHOOL:EXT:')) {
       const horaMinutos = new Date().getHours() * 60 + new Date().getMinutes();
-      const limiteMinutos = 14 * 60 + 45; // 14:45
+      const [hExt, mExt] = horaSalidaExtension.split(':').map(Number);
+      const limiteMinutos = hExt * 60 + mExt;
       if (horaMinutos < limiteMinutos) {
         Alert.alert(
           '⏰ Entrada temprana',
-          'Este niño de extensión llega antes de las 14:45. Se registrará igualmente.',
+          `Este niño de extensión llega antes de las ${horaSalidaExtension}. Se registrará igualmente.`,
           [{ text: 'Continuar', onPress: () => { cooldownRef.current = true; setScanned(true); buscarExtensionMutation.mutate(data); setTimeout(() => { cooldownRef.current = false; }, 3000); } },
            { text: 'Cancelar' }],
         );

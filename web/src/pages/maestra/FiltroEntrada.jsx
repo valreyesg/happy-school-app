@@ -7,6 +7,7 @@ import { useCatalogo } from '@/hooks/useCatalogo';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
+import { ESTADO_ASISTENCIA } from '@/utils/asistencia';
 
 function usePrecioDia() {
   const { data } = useQuery({
@@ -27,15 +28,8 @@ function esCumpleanos(fecha_nacimiento) {
   return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
 }
 
-const ESTADO_BADGE = {
-  presente:   { bg: 'bg-green-100',  text: 'text-green-700',  emoji: '✅', label: 'Presente' },
-  retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', emoji: '⏰', label: 'Retardo'  },
-  no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    emoji: '🚫', label: 'No entró' },
-  ausente:    { bg: 'bg-gray-100',   text: 'text-gray-400',   emoji: '⬜', label: 'Pendiente'},
-};
-
 function BadgeEstado({ estado }) {
-  const cfg = ESTADO_BADGE[estado] || ESTADO_BADGE.ausente;
+  const cfg = ESTADO_ASISTENCIA[estado] || ESTADO_ASISTENCIA.ausente;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black ${cfg.bg} ${cfg.text}`}>
       {cfg.emoji} {cfg.label}

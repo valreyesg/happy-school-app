@@ -9,6 +9,7 @@ import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
+import { ESTADO_STYLE } from '@/utils/asistencia';
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;
@@ -17,13 +18,6 @@ function esCumpleanos(fecha_nacimiento) {
   const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
   return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
 }
-
-const ESTADO_STYLE = {
-  presente:   { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Presente',      emoji: '✅' },
-  retardo:    { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Retardo',        emoji: '⏰' },
-  no_entrada: { bg: 'bg-red-100',    text: 'text-red-700',    label: 'No entró',       emoji: '🚫' },
-  ausente:    { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Sin registrar',  emoji: '⬜' },
-};
 
 function agruparPorGrupo(lista, asistenciaPorGrupo) {
   const colorMap = Object.fromEntries(

@@ -1,7 +1,75 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)**
+**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)**
+
+---
+
+## ✅ SESIÓN XX+27 (2026-05-04) — FASE 7 Catálogos Dinámicos — Tareas 6-10 (COMPLETADO)
+
+**Fecha:** 2026-05-04 | **Estado:** ✅ 10/10 TAREAS COMPLETADAS
+
+### Resumen
+
+Completadas tareas 6-10 de FASE 7 (Catálogos Dinámicos). Sesión XX+27 cerrada con 5 archivos web + 1 móvil centralizados, SQL UPDATE ejecutado, y protocolo de cierre completado.
+
+### Tareas ejecutadas
+
+1. **TAREA 6** — Migrar precios comida mobile
+   - **Archivo:** `mobile/app/(padre)/comida.jsx`
+   - **Cambio:** Precios `$250` (semana) y `$50` (día) → leer de `GET /config/negocio`
+   - **Status:** ✅ Completada
+
+2. **TAREA 7** — Migrar TIPOS_DOC en AlumnoPerfil web
+   - **Archivos:** `web/src/pages/directora/AlumnoPerfil.jsx`
+   - **Cambio:** Array hardcodeado `TIPOS_DOC` → `useCatalogo('tipos-documento')` + fallback
+   - **Config:** `docs_requeridos_alumno` desde `GET /config/negocio`
+   - **Status:** ✅ Completada
+
+3. **TAREA 8** — Centralizar ESTADO_BADGE asistencia web + mobile
+   - **Archivos web:** `web/src/utils/asistencia.js` (creado), 5 archivos actualizados
+     - `FiltroEntrada.jsx` → import `ESTADO_ASISTENCIA`
+     - `maestra/Asistencia.jsx` → import `ESTADO_CONFIG`
+     - `directora/Asistencia.jsx` → import `ESTADO_STYLE`
+     - `directora/Dashboard.jsx` → import `ESTADO_STYLE`
+   - **Archivos mobile:** `mobile/src/constants/asistencia.js` (creado), 1 archivo actualizado
+     - `mobile/app/(maestra)/asistencia.jsx` → import `ESTADO_CONFIG`
+   - **Status:** ✅ Completada
+
+4. **TAREA 9** — Migrar ROL_COLOR en Personal.jsx
+   - **Análisis:** `ROL_COLOR` ya centralizado en `web/src/utils/catalogos.js`
+   - **Catálogo:** `roles-personal` sin campo `color` dinámico (enum en BD)
+   - **Status:** ✅ Sin cambios requeridos (ya optimizado)
+
+5. **TAREA 10** — Migrar horarios turno mobile
+   - **Archivo:** `mobile/app/(maestra)/qr-scanner.jsx`
+   - **Cambios:**
+     - Línea 21: `horaActual >= 14` → `horaActual >= horaSalidaNormal` (config)
+     - Línea 76: `14 * 60 + 45` (14:45) → parse dinámico de `hora_salida_extension`
+   - **Config:** `GET /config/horarios` con fallback hardcodeado
+   - **Status:** ✅ Completada
+
+6. **SQL UPDATE** — Poblar `color` en `estados-alumno`
+   - **Comandos ejecutados:** 4 UPDATE (inscrito→green, reinscrito→blue, baja→red, egresado→gray)
+   - **Status:** ✅ Ejecutado en background (PostgreSQL local)
+
+### Archivos modificados
+
+**Web (7 archivos):**
+- `web/src/pages/maestra/FiltroEntrada.jsx` — import + eliminar ESTADO_BADGE
+- `web/src/pages/maestra/Asistencia.jsx` — import + eliminar ESTADO_CONFIG
+- `web/src/pages/directora/Asistencia.jsx` — import + eliminar ESTADO_STYLE
+- `web/src/pages/directora/Dashboard.jsx` — import + eliminar ESTADO_STYLE
+- `web/src/pages/directora/AlumnoPerfil.jsx` — hooks + props TIPOS_DOC/DOC_REQUERIDOS
+- `web/src/utils/asistencia.js` — **creado** (centralizado)
+- `web/src/utils/catalogos.js` — sin cambios (ROL_COLOR ya ahí)
+
+**Mobile (2 archivos):**
+- `mobile/app/(maestra)/qr-scanner.jsx` — useEffect + cargar config/horarios
+- `mobile/src/constants/asistencia.js` — **creado** (centralizado)
+
+**Otros:**
+- `mobile/app/(padre)/comida.jsx` — cargar precios de config/negocio
 
 ---
 

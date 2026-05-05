@@ -5,14 +5,11 @@ import {
   StyleSheet, ActivityIndicator, Alert, Modal, RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useFocusEffect } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
-import { COLORS, RADIUS } from '@/constants/theme';
 import Button from '@/components/Button';
+import { ESTADO_CONFIG } from '@/constants/asistencia';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -26,14 +23,6 @@ function modoEntrada() {
   const min = ahora();
   return min >= 7 * 60 && min <= 8 * 60 + 30; // 7:00 – 8:30
 }
-
-const ESTADO_CONFIG = {
-  presente:     { label: 'Presente',    color: '#38A169', bg: '#C6F6D5', icon: '✓' },
-  retardo:      { label: 'Retardo',     color: '#D69E2E', bg: '#FEFCBF', icon: '⏰' },
-  ausente:      { label: 'Ausente',     color: '#E53E3E', bg: '#FED7D7', icon: '✗' },
-  no_entrada:   { label: 'No entró',   color: '#718096', bg: '#EDF2F7', icon: '—' },
-  pendiente:    { label: 'Pendiente',   color: '#805AD5', bg: '#FAF5FF', icon: '?' },
-};
 
 function estadoAlumno(a) {
   if (!a.asistencia_hoy) return 'pendiente';

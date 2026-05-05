@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+26 completada (UX/UI Audit) | **Próximos pendientes:** Validación en browser + Cloudinary
+**Última actualización:** 2026-05-04 — Sesión XX+26 completada (UX/UI Audit web + mobile) | **Próximos pendientes:** Validación en browser + Cloudinary
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

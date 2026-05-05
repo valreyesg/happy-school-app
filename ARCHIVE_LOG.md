@@ -1,7 +1,7 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web)**
+**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)**
 
 ---
 
@@ -60,7 +60,7 @@
 - `directora/Calendario.jsx` MESES completos: correcto para componente de calendario
 - Empty states "No hay X" vs "Sin X": baja prioridad, 30+ ocurrencias, requiere decisión editorial
 
-### Resumen ejecutivo
+### Resumen ejecutivo web
 
 | Métrica | Valor |
 |---------|-------|
@@ -71,6 +71,23 @@
 | H1 corregidos | 3 |
 | Botones unificados | 2 |
 | Saludos dinámicos | 3 portales |
+
+### Parte B — Mobile (misma sesión)
+
+**Archivos:** 4 | **Cambios:** 8 | **Commit:** `9116960`
+
+| Cambio | Archivo | Tipo |
+|--------|---------|------|
+| Bug fecha `T00:00:00` → `T12:00:00` | `(maestra)/tareas.jsx` | Bug crítico |
+| Bug `new Date(iso)` → anclar `T12:00:00` | `(padre)/calendario.jsx` | Bug crítico |
+| `EMOJIS_ANIMO` hardcodeado → `useCatalogo('animo')` | `(maestra)/index.jsx` | Paridad web |
+| Saludo dinámico `saludoHora()` | `(maestra)/index.jsx` | Paridad web |
+| Saludo dinámico `saludoHora()` + `TRATAMIENTO_PARENTESCO` | `(padre)/index.jsx` | Paridad web |
+| `📆` / `🗓️` → `📅` en eventos | `(padre)/index.jsx` | Paridad web |
+| Emoji `🔄` → `ActivityIndicator` color `#E53E3E` | `(padre)/index.jsx` | Paridad web |
+| Bug preexistente `tarea Titulo` → `tareaTitulo` | `(padre)/index.jsx` | Fix compilación |
+
+**Nota sobre mobile:** La estructura está en `mobile/app/(padre)/` y `mobile/app/(maestra)/` (Expo Router), NO en `mobile/src/pages/`. El error de búsqueda inicial asumió estructura web — corregido.
 
 ---
 

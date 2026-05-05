@@ -5,6 +5,17 @@
 
 ---
 
+## 📋 VALIDACIONES PENDIENTES
+
+### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches restantes) + Pendientes Edge
+
+**FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
+
+**Batch D.4+ — Pendientes:**
+- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
+
+---
+
 ## 🔧 CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY
 
 > **Estado:** ⚠️ BLOQUEANTE — Afecta múltiples funcionalidades de generación/carga de archivos
@@ -52,6 +63,17 @@ CLOUDINARY_API_SECRET=placeholder
 
 ---
 
+## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
+
+> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Todos los casos edge completados.
+
+### Casos Edge Pendientes de Validar:
+- [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
+- [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
+- [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)
+
+---
+
 ## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
 
 ### 🚪 SEGURIDAD — SALIDA AVANZADA
@@ -69,6 +91,8 @@ CLOUDINARY_API_SECRET=placeholder
 ---
 
 ## 🎯 LARGO PLAZO — Futuro (2-3 meses)
+
+> **Nota:** FASE 7 (Catálogos Dinámicos tareas 1-10) completada en Sesión XX+27. Ver ARCHIVE_LOG.md para detalles.
 
 ### 🗂️ NUEVAS AUDITORÍAS — CATÁLOGOS ADICIONALES (FASE 8+)
 - [ ] **Auditoría Hardcoded adicional:** Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (más allá de FASE 7)

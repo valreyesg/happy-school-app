@@ -1,31 +1,23 @@
-# PENDIENTES — Happy School App
+﻿# PENDIENTES â€” Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+27 COMPLETADA (FASE 7 Catálogos Dinámicos — 10/10 tareas)
-⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
-
----
-
-## 📋 VALIDACIONES PENDIENTES
-
-### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches restantes) + Pendientes Edge
-
-**FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
-
-**Batch D.4+ — Pendientes:**
-- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
+**Ãšltima actualizaciÃ³n:** 2026-05-04 â€” SesiÃ³n XX+27 COMPLETADA (FASE 7 CatÃ¡logos DinÃ¡micos â€” 10/10 tareas)
+âš ï¸ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquÃ­)
 
 ---
 
-## 🔧 CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY
+### ðŸŒ VALIDACIÃ“N EN BROWSER â€” FASES 5.2 (Batches restantes) + Pendientes Edge
 
-> **Estado:** ⚠️ BLOQUEANTE — Afecta múltiples funcionalidades de generación/carga de archivos
-> **Prioridad:** ALTA — Debe resolverse antes de siguientes validaciones
-> **Afectadas:** QR (generar/regenerar), Fotos alumnos, Fotos personal, Fotos tutores, Galerías
+**FASE 5.2 â€” MigraciÃ³n 35+ modales a Modal.jsx (VALIDACIÃ“N CRITICAL):**
+
+**Batch D.4+ â€” Pendientes:**
+- [ ] `directora/Alumnos.jsx` â€” ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, prÃ³xima sesiÃ³n validaciÃ³n)
+
+---
 
 ### Problema Detectado:
 ```
 Error: Invalid api_key placeholder
-Ubicación: backend/.env líneas 11-13
+UbicaciÃ³n: backend/.env lÃ­neas 11-13
 CLOUDINARY_CLOUD_NAME=placeholder
 CLOUDINARY_API_KEY=placeholder
 CLOUDINARY_API_SECRET=placeholder
@@ -37,10 +29,10 @@ CLOUDINARY_API_SECRET=placeholder
 - [ ] Subir foto alumno
 - [ ] Subir foto personal
 - [ ] Subir foto tutor
-- [ ] Subir fotos galería
+- [ ] Subir fotos galerÃ­a
 
 ### Acciones Requeridas:
-1. **Obtener credenciales válidas de Cloudinary:**
+1. **Obtener credenciales vÃ¡lidas de Cloudinary:**
    - CLOUDINARY_CLOUD_NAME
    - CLOUDINARY_API_KEY
    - CLOUDINARY_API_SECRET
@@ -54,75 +46,65 @@ CLOUDINARY_API_SECRET=placeholder
    ```
    Debe retornar `200` con `{ "qr_url": "https://..." }`
 
-4. **Audit completo de uploads** después de fix:
+4. **Audit completo de uploads** despuÃ©s de fix:
    - [ ] QR (generar nuevo)
    - [ ] Foto alumno
    - [ ] Foto personal
    - [ ] Foto tutor
-   - [ ] Galería fotos
+   - [ ] GalerÃ­a fotos
 
 ---
-
-## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
-
-> ℹ️ Módulo funcional 100% — Bloques 1-10 implementados. Todos los casos edge completados.
 
 ### Casos Edge Pendientes de Validar:
-- [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
-- [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
-- [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)
+- [ ] **Job cron a las 10:00 AM sÃ¡bado** (fuera de lun-vie) â†’ Validar NO ejecuta
+- [ ] **Job cron a las 15:58** (dentro de rango lun-vie) â†’ Validar ejecuta correctamente
+- [ ] **Cambio de fecha (medianoche)** â†’ Datos de ayer no aparecen (aislamiento por dÃ­a)
 
 ---
 
-## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
+### ðŸšª SEGURIDAD â€” SALIDA AVANZADA
+- [ ] **DetecciÃ³n Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
+- [ ] **QR Temporal (CÃ­rculos Confianza):** Pase invitado 2 horas, padre envÃ­a por WhatsApp o Correo a tercero.
 
-### 🚪 SEGURIDAD — SALIDA AVANZADA
-- [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
-- [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
-
-### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
-- [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
-- [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
-- [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
-- [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
-- [ ] **Exportación Contable:** Excel filtrable para admin.
-- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp o Correo papá.
+### ðŸ’° FINANZAS â€” AUTOMATIZACIÃ“N AVANZADA
+- [ ] **ConfiguraciÃ³n Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
+- [ ] **SegmentaciÃ³n Servicios:** Regulares, Solo ExtensiÃ³n, Estancia por DÃ­a.
+- [ ] **12 Cargos Colegiatura:** Auto con recargos dÃ­a 6.
+- [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" â†’ recordatorio WhatsApp 8:00 AM.
+- [ ] **ExportaciÃ³n Contable:** Excel filtrable para admin.
+- [ ] **GeneraciÃ³n Recibos PDF:** AutomÃ¡tico al registrar pago + envÃ­o WhatsApp o Correo papÃ¡.
 
 ---
 
-## 🎯 LARGO PLAZO — Futuro (2-3 meses)
+### ðŸ—‚ï¸ NUEVAS AUDITORÃAS â€” CATÃLOGOS ADICIONALES (FASE 8+)
+- [ ] **AuditorÃ­a Hardcoded adicional:** Scan profundo â†’ Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (mÃ¡s allÃ¡ de FASE 7)
+- [ ] **Crear tablas dinÃ¡micas nuevas:** Para catÃ¡logos adicionales identificados en futuras auditorÃ­as
+- [ ] **ConfiguraciÃ³n Negocio avanzada:** Panel settings editable (recargos, tolerancia, horarios dashboard)
 
-> **Nota:** FASE 7 (Catálogos Dinámicos tareas 1-10) completada en Sesión XX+27. Ver ARCHIVE_LOG.md para detalles.
-
-### 🗂️ NUEVAS AUDITORÍAS — CATÁLOGOS ADICIONALES (FASE 8+)
-- [ ] **Auditoría Hardcoded adicional:** Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (más allá de FASE 7)
-- [ ] **Crear tablas dinámicas nuevas:** Para catálogos adicionales identificados en futuras auditorías
-- [ ] **Configuración Negocio avanzada:** Panel settings editable (recargos, tolerancia, horarios dashboard)
-
-### 📊 REPORTES Y EXPORTACIONES
+### ðŸ“Š REPORTES Y EXPORTACIONES
 - [ ] **Reporte Asistencia:** Excel + PDF (por grupo, mes, alumno).
 - [ ] **Reporte Tareas:** Excel con % entrega por grupo/alumno.
 - [ ] **Reporte Finanzas:** Excel + PDF (ingresos, adeudos, desglose servicios).
 
-### 🎓 EVALUACIONES Y BOLETAS
-- [ ] **Indicadores configurables:** Por nivel en catálogos dinámicos.
+### ðŸŽ“ EVALUACIONES Y BOLETAS
+- [ ] **Indicadores configurables:** Por nivel en catÃ¡logos dinÃ¡micos.
 - [ ] **Captura Miss:** Calificaciones/observaciones.
-- [ ] **Validación Directora:** Aprobación antes de enviar.
-- [ ] **Boletas PDF:** Generación automática.
+- [ ] **ValidaciÃ³n Directora:** AprobaciÃ³n antes de enviar.
+- [ ] **Boletas PDF:** GeneraciÃ³n automÃ¡tica.
 - [ ] **Reporte Desarrollo:** PDF mensual por alumno.
 
-### 📷 GALERÍA Y CHAT
-- [ ] **Álbumes fotos:** Por evento/mes con compresión.
+### ðŸ“· GALERÃA Y CHAT
+- [ ] **Ãlbumes fotos:** Por evento/mes con compresiÃ³n.
 - [ ] **Privacidad:** Fotos individuales vs. grupales.
-- [ ] **Chat Grupo Miss + Papás:** Por grupo.
-- [ ] **Chat Familiar:** Papás-Directora-Miss.
+- [ ] **Chat Grupo Miss + PapÃ¡s:** Por grupo.
+- [ ] **Chat Familiar:** PapÃ¡s-Directora-Miss.
 
-### 🔔 NOTIFICACIONES AVANZADAS
+### ðŸ”” NOTIFICACIONES AVANZADAS
 - [ ] **Firebase Cloud Messaging:** Registrar tokens, enviar push.
-- [ ] **WhatsApp Automático:** 19 plantillas en DB (ya documentadas).
+- [ ] **WhatsApp AutomÃ¡tico:** 19 plantillas en DB (ya documentadas).
 - [ ] **Panel Plantillas:** Editable por Directora.
 
-### 🚀 OPTIMIZACIÓN FINAL
-- [ ] **Modo Offline Miss:** Caché local + sincronización.
-- [ ] **Backup Automático:** Diario.
-- [ ] **Pruebas UX + Performance:** Optimización completa.
+### ðŸš€ OPTIMIZACIÃ“N FINAL
+- [ ] **Modo Offline Miss:** CachÃ© local + sincronizaciÃ³n.
+- [ ] **Backup AutomÃ¡tico:** Diario.
+- [ ] **Pruebas UX + Performance:** OptimizaciÃ³n completa.

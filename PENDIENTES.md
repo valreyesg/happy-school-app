@@ -98,10 +98,12 @@ CLOUDINARY_API_SECRET=placeholder
 
 ## 🎯 LARGO PLAZO — Futuro (2-3 meses)
 
-### 🗂️ CATÁLOGOS DINÁMICOS — FASE 7 PENDIENTE
-- [ ] **Auditoría Hardcoded:** Scan profundo → Estatus, Grados, Roles, Tipos Pago, Motivos Salida, Emojis, etc.
-- [ ] **Crear tablas dinámicas:** Para catálogos nuevos identificados en auditoría
-- [ ] **Configuración Negocio:** Panel settings editable (recargos, tolerancia, horarios dashboard)
+> **Nota:** FASE 7 (Catálogos Dinámicos tareas 1-10) completada en Sesión XX+27. Ver ARCHIVE_LOG.md para detalles.
+
+### 🗂️ NUEVAS AUDITORÍAS — CATÁLOGOS ADICIONALES (FASE 8+)
+- [ ] **Auditoría Hardcoded adicional:** Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (más allá de FASE 7)
+- [ ] **Crear tablas dinámicas nuevas:** Para catálogos adicionales identificados en futuras auditorías
+- [ ] **Configuración Negocio avanzada:** Panel settings editable (recargos, tolerancia, horarios dashboard)
 
 ### 📊 REPORTES Y EXPORTACIONES
 - [ ] **Reporte Asistencia:** Excel + PDF (por grupo, mes, alumno).

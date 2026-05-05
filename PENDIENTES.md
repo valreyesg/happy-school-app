@@ -1,124 +1,177 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+27 COMPLETADA (FASE 7 Catálogos Dinámicos — 10/10 tareas)
+**Última actualización:** 2026-05-04 — Sesión XX+28 (Reorganización prioridades)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📋 VALIDACIONES PENDIENTES
+## ⚡ FASE A — Esta sesión o la próxima (30 min – 2 horas)
 
-### 🌐 VALIDACIÓN EN BROWSER — FASES 5.2 (Batches restantes) + Pendientes Edge
+### 🐛 Bug fechas UTC vs CDMX — 20 archivos
+> Algunos portales muestran un día adelantado después de las 6 PM (usan `toISOString()` que retorna UTC).
 
-**FASE 5.2 — Migración 35+ modales a Modal.jsx (VALIDACIÓN CRITICAL):**
+**Fix doble:**
+1. `backend/.env` → agregar `TZ=America/Mexico_City`
+2. Reemplazar `toISOString().split('T')[0]` → `toLocaleDateString('en-CA')` en:
 
-**Batch D.4+ — Pendientes:**
-- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada, próxima sesión validación)
+**Web (8 archivos):**
+- [ ] `web/src/pages/directora/Asistencia.jsx:431`
+- [ ] `web/src/pages/directora/Bitacora.jsx:86`
+- [ ] `web/src/pages/directora/Pagos.jsx:83`
+- [ ] `web/src/pages/directora/Visitantes.jsx:10`
+- [ ] `web/src/pages/maestra/Tareas.jsx:61`
+- [ ] `web/src/pages/padre/Dashboard.jsx:15-16`
+- [ ] `web/src/pages/padre/ComidaSemanal.jsx:69`
+- [ ] `web/src/components/directora/BannerComidaHoy.jsx:23`
 
----
+**Mobile (5 archivos):**
+- [ ] `mobile/app/(padre)/bitacora.jsx:99,108,118,132`
+- [ ] `mobile/app/(padre)/comida.jsx:59`
+- [ ] `mobile/app/(padre)/index.jsx:30-31`
+- [ ] `mobile/app/(maestra)/bitacora.jsx:129`
+- [ ] `mobile/app/(maestra)/tareas.jsx:72`
 
-## 🔧 CRÍTICO — REVISIÓN CONFIGURACIÓN CLOUDINARY
-
-> **Estado:** ⚠️ BLOQUEANTE — Afecta múltiples funcionalidades de generación/carga de archivos
-> **Prioridad:** ALTA — Debe resolverse antes de siguientes validaciones
-> **Afectadas:** QR (generar/regenerar), Fotos alumnos, Fotos personal, Fotos tutores, Galerías
-
-### Problema Detectado:
-```
-Error: Invalid api_key placeholder
-Ubicación: backend/.env líneas 11-13
-CLOUDINARY_CLOUD_NAME=placeholder
-CLOUDINARY_API_KEY=placeholder
-CLOUDINARY_API_SECRET=placeholder
-```
-
-### Funcionalidades Bloqueadas:
-- [ ] Generar QR (alumnos sin QR)
-- [ ] Regenerar QR (alumnos con QR viejo)
-- [ ] Subir foto alumno
-- [ ] Subir foto personal
-- [ ] Subir foto tutor
-- [ ] Subir fotos galería
-
-### Acciones Requeridas:
-1. **Obtener credenciales válidas de Cloudinary:**
-   - CLOUDINARY_CLOUD_NAME
-   - CLOUDINARY_API_KEY
-   - CLOUDINARY_API_SECRET
-
-2. **Actualizar `backend/.env`** con credenciales reales
-
-3. **Reiniciar backend** y validar:
-   ```
-   curl -H "Authorization: Bearer <token>" \
-     http://localhost:3000/api/alumnos/<id>/regenerar-qr -X POST
-   ```
-   Debe retornar `200` con `{ "qr_url": "https://..." }`
-
-4. **Audit completo de uploads** después de fix:
-   - [ ] QR (generar nuevo)
-   - [ ] Foto alumno
-   - [ ] Foto personal
-   - [ ] Foto tutor
-   - [ ] Galería fotos
+**Backend (3 archivos):**
+- [ ] `backend/src/routes/bitacora.js:64`
+- [ ] `backend/src/routes/tareas.js:57`
+- [ ] `backend/src/routes/visitantes.js:15`
 
 ---
 
-## 🧪 VALIDACIÓN PENDIENTE — Módulo SALUD Y MEDICACIÓN (casos edge)
-
-### Casos Edge Pendientes de Validar:
-- [ ] **Job cron a las 10:00 AM sábado** (fuera de lun-vie) → Validar NO ejecuta
-- [ ] **Job cron a las 15:58** (dentro de rango lun-vie) → Validar ejecuta correctamente
-- [ ] **Cambio de fecha (medianoche)** → Datos de ayer no aparecen (aislamiento por día)
+### 🐛 Bug tareas.js — foto_url guarda objeto en lugar de URL
+- [ ] `backend/src/routes/tareas.js:302,368` — cambiar a destructuring `const { url, public_id } = await uploadToCloudinary(...)` (igual que todos los demás archivos)
 
 ---
 
-## 🎯 MEDIANO PLAZO — Próximas sesiones (1-2 meses)
+### 🔌 Módulo WhatsApp desacoplado (ya casi listo)
+> WhatsApp es opcional. Si no hay credenciales Twilio → notificaciones en-app siguen, Twilio silenciado sin errores.
 
-### 🚪 SEGURIDAD — SALIDA AVANZADA
-- [ ] **Detección Hermanos:** Al QR salida, alerta si hay hermanos en otros grupos.
-- [ ] **QR Temporal (Círculos Confianza):** Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero.
-
-### 💰 FINANZAS — AUTOMATIZACIÓN AVANZADA
-- [ ] **Configuración Precios:** Costos diferenciados por nivel (Maternal a Kinder 3).
-- [ ] **Segmentación Servicios:** Regulares, Solo Extensión, Estancia por Día.
-- [ ] **12 Cargos Colegiatura:** Auto con recargos día 6.
-- [ ] **Comprobante Comida:** Adjuntar foto transferencia O marcar "Efectivo Lunes" → recordatorio WhatsApp 8:00 AM.
-- [ ] **Exportación Contable:** Excel filtrable para admin.
-- [ ] **Generación Recibos PDF:** Automático al registrar pago + envío WhatsApp o Correo papá.
+- [ ] `backend/src/services/whatsappService.js` — proteger inicialización: si `TWILIO_ACCOUNT_SID` vacío → no-op silencioso
+- [ ] `backend/.env` — agregar `WHATSAPP_ENABLED=false`
+- [ ] `backend/.env.example` — documentar flag
 
 ---
 
-## 🎯 LARGO PLAZO — Futuro (2-3 meses)
+### 🔌 Fix qrService.js — usar cloudinaryService centralizado
+- [ ] `backend/src/services/qrService.js` — refactorizar para usar `cloudinaryService.js` en vez de cloudinary directo (así hereda el modo disabled)
 
-### 🗂️ NUEVAS AUDITORÍAS — CATÁLOGOS ADICIONALES (FASE 8+)
-- [ ] **Auditoría Hardcoded adicional:** Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc. (más allá de FASE 7)
-- [ ] **Crear tablas dinámicas nuevas:** Para catálogos adicionales identificados en futuras auditorías
-- [ ] **Configuración Negocio avanzada:** Panel settings editable (recargos, tolerancia, horarios dashboard)
+---
 
-### 📊 REPORTES Y EXPORTACIONES
-- [ ] **Reporte Asistencia:** Excel + PDF (por grupo, mes, alumno).
-- [ ] **Reporte Tareas:** Excel con % entrega por grupo/alumno.
-- [ ] **Reporte Finanzas:** Excel + PDF (ingresos, adeudos, desglose servicios).
+### 🌐 Validación en browser pendiente — Batch D.4+
+- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada)
 
-### 🎓 EVALUACIONES Y BOLETAS
-- [ ] **Indicadores configurables:** Por nivel en catálogos dinámicos.
-- [ ] **Captura Miss:** Calificaciones/observaciones.
-- [ ] **Validación Directora:** Aprobación antes de enviar.
-- [ ] **Boletas PDF:** Generación automática.
-- [ ] **Reporte Desarrollo:** PDF mensual por alumno.
+---
 
-### 📷 GALERÍA Y CHAT
-- [ ] **Álbumes fotos:** Por evento/mes con compresión.
-- [ ] **Privacidad:** Fotos individuales vs. grupales.
-- [ ] **Chat Grupo Miss + Papás:** Por grupo.
-- [ ] **Chat Familiar:** Papás-Directora-Miss.
+## 🔧 FASE B — Próximas 1–2 sesiones
 
-### 🔔 NOTIFICACIONES AVANZADAS
-- [ ] **Firebase Cloud Messaging:** Registrar tokens, enviar push.
-- [ ] **WhatsApp Automático:** 19 plantillas en DB (ya documentadas).
-- [ ] **Panel Plantillas:** Editable por Directora.
+### 🔌 Módulo Cloudinary desacoplado (opcional para la directora)
+> Si no se tienen credenciales Cloudinary → fotos no suben pero el sistema no da error 500.
 
-### 🚀 OPTIMIZACIÓN FINAL
-- [ ] **Modo Offline Miss:** Caché local + sincronización.
-- [ ] **Backup Automático:** Diario.
-- [ ] **Pruebas UX + Performance:** Optimización completa.
+- [ ] `backend/src/services/cloudinaryService.js` — agregar flag `CLOUDINARY_ENABLED`: si `false` → retorna `{ url: null, public_id: null }` sin errores
+- [ ] `backend/.env` — agregar `CLOUDINARY_ENABLED=false`
+- [ ] `backend/.env.example` — documentar flag
+- [ ] Configurar credenciales reales de Cloudinary cuando estén disponibles
+
+---
+
+### 📱 Acceso desde celular / otra computadora
+> Valeria quiere ver la app desde su celular o desde otra compu.
+
+**Opción A — Red local (10 min, sin internet):**
+- [ ] `web/vite.config.js` — agregar `server: { host: '0.0.0.0' }` para exponer en red local
+- [ ] Obtener IP local: `ipconfig` en Windows
+- [ ] Mobile: `npx expo start --lan` para ver en Expo Go con la misma red WiFi
+- [ ] Acceso: `http://192.168.x.x:5173` desde celular en la misma red
+
+**Opción C — Deploy real (producción, 1 sesión):**
+- [ ] Backend en Railway o Render (plan gratis disponible)
+- [ ] Web en Vercel o Netlify
+- [ ] Mobile en Expo Go o generar APK
+
+---
+
+### 🧪 Validación Módulo SALUD Y MEDICACIÓN — casos edge
+- [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → validar NO ejecuta
+- [ ] Job cron a las 15:58 (dentro de rango lun-vie) → validar ejecuta correctamente
+- [ ] Cambio de fecha (medianoche) → datos de ayer no aparecen (aislamiento por día)
+
+---
+
+## 🎯 FASE C — 2–4 sesiones
+
+### 🔧 CRÍTICO — Revisión configuración Cloudinary (cuando se tengan credenciales)
+- [ ] Obtener credenciales reales: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+- [ ] Actualizar `backend/.env` y activar `CLOUDINARY_ENABLED=true`
+- [ ] Audit completo de uploads: QR, foto alumno, foto personal, foto tutor, galería
+
+### 💰 Configuración Precios diferenciados por nivel
+- [ ] Costos diferenciados: Maternal → Kinder 3
+
+### 🚪 Seguridad — Detección Hermanos en QR salida
+- [ ] Al escanear QR salida, alerta si hay hermanos en otros grupos
+
+### 📊 Reportes básicos
+- [ ] Reporte Asistencia: Excel + PDF (por grupo, mes, alumno)
+- [ ] Reporte Tareas: Excel con % entrega por grupo/alumno
+
+### 📱 Panel Plantillas WhatsApp editable (directora)
+- [ ] UI para editar las 19 plantillas desde el portal directora
+
+### 🗂️ Auditoría Hardcoded adicional (FASE 8+)
+- [ ] Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc.
+- [ ] Crear tablas dinámicas nuevas para catálogos identificados
+- [ ] Panel settings editable (recargos, tolerancia, horarios dashboard)
+
+---
+
+## 🏦 FASE D — 5–8 sesiones
+
+### 💰 Portal Administrador — Finanzas y Pagos
+> Portal separado (o tab en directora) para gestión completa de pagos.
+
+- [ ] Resumen ingresos del mes
+- [ ] Lista alumnos con adeudos
+- [ ] Registro manual de pagos
+- [ ] Estado colegiatura por alumno (12 cargos automáticos con recargo día 6)
+- [ ] Historial cobros: extensión, comida
+- [ ] Segmentación servicios: Regulares, Solo Extensión, Estancia por Día
+- [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre
+- [ ] Exportación contable: Excel filtrable para admin
+- [ ] Comprobante Comida: adjuntar foto transferencia O marcar "Efectivo Lunes"
+
+### 🎓 Evaluaciones y Boletas
+- [ ] Indicadores configurables por nivel (catálogos dinámicos)
+- [ ] Captura calificaciones/observaciones (Miss)
+- [ ] Validación Directora antes de publicar
+- [ ] Boletas PDF automáticas
+- [ ] Reporte Desarrollo: PDF mensual por alumno
+
+### 📊 Reporte Finanzas
+- [ ] Excel + PDF (ingresos, adeudos, desglose servicios)
+
+### 🔔 Firebase Push Notifications
+- [ ] Registrar tokens FCM en tabla `usuarios.fcm_token`
+- [ ] Implementar envío push desde backend
+- [ ] Activar campo `enviada_push` en tabla `notificaciones`
+
+---
+
+## 🚀 FASE E — Largo plazo (1–2 meses)
+
+### 🚪 QR Temporal — Círculos de Confianza
+- [ ] Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero
+
+### 📷 Galería y Chat
+- [ ] Álbumes fotos: por evento/mes con compresión
+- [ ] Privacidad: fotos individuales vs. grupales
+- [ ] Chat Grupo Miss + Papás: por grupo
+- [ ] Chat Familiar: Papás-Directora-Miss
+
+### 🔔 WhatsApp Automático completo
+- [ ] Implementar las 19 plantillas restantes en sus módulos (ya están en DB)
+- [ ] Pruebas completas con credenciales Twilio reales
+
+### 🚀 Optimización Final
+- [ ] Modo Offline Miss: caché local + sincronización
+- [ ] Backup automático diario
+- [ ] Pruebas UX + Performance: optimización completa

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Thermometer, Clock, QrCode, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
@@ -60,6 +61,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [pagoVerificado, setPagoVerificado] = useState(false);
   const [medicamentosPendientes, setMedicamentosPendientes] = useState([]);
   const queryClient = useQueryClient();
+  const { map: checklistMap } = useCatalogo('checklist-entrada');
 
   // Query: solicitudes de toallitas pendientes
   const { data: solicitudesToallitas = [] } = useQuery({
@@ -217,7 +219,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
 
       <div className="space-y-3">
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Salud</p>
-          <CheckRowInv field="sin_fiebre" label="Sin fiebre" emoji="🌡️" />
+          <CheckRowInv field="sin_fiebre" label={checklistMap['sin_fiebre']?.label ?? 'Sin fiebre'} emoji={checklistMap['sin_fiebre']?.emoji ?? '🌡️'} />
           {!form.sin_fiebre && (
             <div className="flex items-center gap-2 px-3">
               <Thermometer size={16} className="text-red-500" />
@@ -226,7 +228,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
                 className="flex-1 border-2 border-red-300 rounded-xl px-3 py-2 text-sm font-bold focus:outline-none focus:border-red-500" />
             </div>
           )}
-          <CheckRowInv field="sin_sintomas" label="Sin síntomas" emoji="🤧" />
+          <CheckRowInv field="sin_sintomas" label={checklistMap['sin_sintomas']?.label ?? 'Sin síntomas'} emoji={checklistMap['sin_sintomas']?.emoji ?? '🤧'} />
           {!form.sin_sintomas && (
             <textarea placeholder="Describe los síntomas..." value={form.sintomas_notas}
               onChange={e => set('sintomas_notas', e.target.value)} rows={2}
@@ -234,20 +236,20 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           )}
 
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Higiene</p>
-          <CheckRow field="uñas_cortadas" label="Uñas cortadas" emoji="✂️" />
-          <CheckRow field="sin_lagañas"   label="Sin lagañas"   emoji="👁️" />
+          <CheckRow field="uñas_cortadas" label={checklistMap['uñas_cortadas']?.label ?? 'Uñas cortadas'} emoji={checklistMap['uñas_cortadas']?.emoji ?? '✂️'} />
+          <CheckRow field="sin_lagañas"   label={checklistMap['sin_lagañas']?.label ?? 'Sin lagañas'}   emoji={checklistMap['sin_lagañas']?.emoji ?? '👁️'} />
           {alumno.usa_panial && (
             <>
-              <CheckRow field="panial_limpio" label="Pañal limpio" emoji="👶🏻" />
-              <CheckRow field="trajo_paniales" label="Trajo pañales hoy (5)" emoji="🧷" />
+              <CheckRow field="panial_limpio" label={checklistMap['panial_limpio']?.label ?? 'Pañal limpio'} emoji={checklistMap['panial_limpio']?.emoji ?? '👶🏻'} />
+              <CheckRow field="trajo_paniales" label={checklistMap['trajo_paniales']?.label ?? 'Trajo pañales hoy (5)'} emoji={checklistMap['trajo_paniales']?.emoji ?? '🧷'} />
             </>
           )}
 
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Materiales</p>
-          <CheckRow field="trae_uniforme"   label="Uniforme"        emoji="👕" />
-          <CheckRow field="trae_bata"       label="Bata"            emoji="🥼" />
-          <CheckRow field="trae_termo"      label="Termo"           emoji="🧴" />
-          <CheckRow field="agua_suficiente" label="Agua suficiente" emoji="💧" />
+          <CheckRow field="trae_uniforme"   label={checklistMap['trae_uniforme']?.label ?? 'Uniforme'}        emoji={checklistMap['trae_uniforme']?.emoji ?? '👕'} />
+          <CheckRow field="trae_bata"       label={checklistMap['trae_bata']?.label ?? 'Bata'}            emoji={checklistMap['trae_bata']?.emoji ?? '🥼'} />
+          <CheckRow field="trae_termo"      label={checklistMap['trae_termo']?.label ?? 'Termo'}           emoji={checklistMap['trae_termo']?.emoji ?? '🧴'} />
+          <CheckRow field="agua_suficiente" label={checklistMap['agua_suficiente']?.label ?? 'Agua suficiente'} emoji={checklistMap['agua_suficiente']?.emoji ?? '💧'} />
 
           {/* Sección Comida (solo si confirmó) */}
           {confirmacionComida && (

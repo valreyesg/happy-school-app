@@ -1,17 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image } from 'react-native';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useMutation } from '@tanstack/react-query';
-import { COLORS, RADIUS } from '@/constants/theme';
 import api from '@/services/api';
-import { COLORS, RADIUS } from '@/constants/theme';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
 // Modo: 'entrada' o 'salida'
 export default function QRScannerScreen() {
@@ -210,10 +205,11 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
     agua_suficiente: true,
   });
   const [temperatura, setTemperatura] = useState('');
+  const { items: checklistCatalogo } = useCatalogo('checklist-entrada');
 
   const toggle = (key) => setChecks(prev => ({ ...prev, [key]: !prev[key] }));
 
-  const checkItems = [
+  const checkItems = checklistCatalogo.length > 0 ? checklistCatalogo : [
     { key: 'uñas_cortadas', label: 'Uñas cortadas', emoji: '✂️' },
     { key: 'sin_lagañas', label: 'Sin lagañas', emoji: '👁️' },
     { key: 'sin_fiebre', label: 'Sin fiebre', emoji: '🌡️' },

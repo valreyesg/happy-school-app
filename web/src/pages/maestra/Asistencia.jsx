@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Clock, XCircle, Thermometer, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
@@ -52,6 +53,7 @@ function esCumpleanos(fecha_nacimiento) {
 function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [form, setForm] = useState(CHECKS_DEFAULT);
   const queryClient = useQueryClient();
+  const { map: checklistMap } = useCatalogo('checklist-entrada');
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/entrada', data).then(r => r.data),
@@ -143,7 +145,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           {/* Salud — condición negativa (marcar si hay problema) */}
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Salud</p>
 
-          <CheckRowInverted field="sin_fiebre" label="Sin fiebre" emoji="🌡️" />
+          <CheckRowInverted field="sin_fiebre" label={checklistMap['sin_fiebre']?.label ?? 'Sin fiebre'} emoji={checklistMap['sin_fiebre']?.emoji ?? '🌡️'} />
 
           {!form.sin_fiebre && (
             <div className="flex items-center gap-2 px-3">
@@ -161,7 +163,7 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
             </div>
           )}
 
-          <CheckRowInverted field="sin_sintomas" label="Sin síntomas" emoji="🤧" />
+          <CheckRowInverted field="sin_sintomas" label={checklistMap['sin_sintomas']?.label ?? 'Sin síntomas'} emoji={checklistMap['sin_sintomas']?.emoji ?? '🤧'} />
 
           {!form.sin_sintomas && (
             <textarea
@@ -175,16 +177,16 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
 
           {/* Higiene */}
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Higiene</p>
-          <CheckRow field="uñas_cortadas" label="Uñas cortadas" emoji="✂️" />
-          <CheckRow field="sin_lagañas"  label="Sin lagañas"   emoji="👁️" />
-          {alumno.usa_panial && <CheckRow field="panial_limpio" label="Pañal limpio" emoji="👶🏻" />}
+          <CheckRow field="uñas_cortadas" label={checklistMap['uñas_cortadas']?.label ?? 'Uñas cortadas'} emoji={checklistMap['uñas_cortadas']?.emoji ?? '✂️'} />
+          <CheckRow field="sin_lagañas"  label={checklistMap['sin_lagañas']?.label ?? 'Sin lagañas'}   emoji={checklistMap['sin_lagañas']?.emoji ?? '👁️'} />
+          {alumno.usa_panial && <CheckRow field="panial_limpio" label={checklistMap['panial_limpio']?.label ?? 'Pañal limpio'} emoji={checklistMap['panial_limpio']?.emoji ?? '👶🏻'} />}
 
           {/* Materiales */}
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Materiales</p>
-          <CheckRow field="trae_uniforme"   label="Uniforme"         emoji="👕" />
-          <CheckRow field="trae_bata"       label="Bata"             emoji="🥼" />
-          <CheckRow field="trae_termo"      label="Termo"            emoji="🧴" />
-          <CheckRow field="agua_suficiente" label="Agua suficiente"  emoji="💧" />
+          <CheckRow field="trae_uniforme"   label={checklistMap['trae_uniforme']?.label ?? 'Uniforme'}         emoji={checklistMap['trae_uniforme']?.emoji ?? '👕'} />
+          <CheckRow field="trae_bata"       label={checklistMap['trae_bata']?.label ?? 'Bata'}             emoji={checklistMap['trae_bata']?.emoji ?? '🥼'} />
+          <CheckRow field="trae_termo"      label={checklistMap['trae_termo']?.label ?? 'Termo'}            emoji={checklistMap['trae_termo']?.emoji ?? '🧴'} />
+          <CheckRow field="agua_suficiente" label={checklistMap['agua_suficiente']?.label ?? 'Agua suficiente'}  emoji={checklistMap['agua_suficiente']?.emoji ?? '💧'} />
       </div>
 
       {/* Footer */}

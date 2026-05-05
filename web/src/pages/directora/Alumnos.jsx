@@ -10,6 +10,7 @@ import { SemaforoDocumentacion } from '@/components/ui/Semaforo';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import SelectorCiclo from '@/components/ui/SelectorCiclo';
 import { useCatalogo } from '@/hooks/useCatalogo';
+import { COLOR_TO_TAILWIND_BADGE } from '@/utils/catalogos';
 
 // Paleta de colores para los niveles — se asigna por posición de aparición
 const PALETA_NIVELES = [
@@ -28,7 +29,7 @@ export default function DirectoraAlumnos() {
   const [estadoFiltro, setEstadoFiltro] = useState('inscrito');
   const [cicloId, setCicloId] = useState(null); // null = ciclo activo
 
-  const { items: ESTADOS_ALUMNO } = useCatalogo('estados-alumno');
+  const { items: ESTADOS_ALUMNO, map: estadosAlumnoMap } = useCatalogo('estados-alumno');
 
   const handleCicloChange = (id) => {
     setCicloId(id);
@@ -195,6 +196,7 @@ export default function DirectoraAlumnos() {
               alumno={alumno}
               onEditar={() => abrirEditar(alumno)}
               soloLectura={esHistorico}
+              estadosAlumnoMap={estadosAlumnoMap}
             />
           ))}
         </div>
@@ -297,7 +299,7 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
 
 // ─── Tarjeta de alumno ────────────────────────────────────────────────────────
 
-function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
+function TarjetaAlumno({ alumno, onEditar, soloLectura, estadosAlumnoMap = {} }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [mostrarQR, setMostrarQR] = useState(false);
@@ -311,12 +313,10 @@ function TarjetaAlumno({ alumno, onEditar, soloLectura }) {
     onError: () => toast.error('Error al regenerar el QR'),
   });
 
-  const estadoBadge = {
-    inscrito:   { cls: 'bg-green-100 text-green-700',  label: 'Inscrito' },
-    reinscrito: { cls: 'bg-blue-100 text-hs-blue-dark',    label: 'Reinscrito' },
-    baja:       { cls: 'bg-red-100 text-red-700',      label: 'Baja' },
-    egresado:   { cls: 'bg-gray-100 text-gray-600',    label: 'Egresado' },
-  }[alumno.estado] || { cls: 'bg-gray-100 text-gray-600', label: alumno.estado };
+  const estadoItem = estadosAlumnoMap[alumno.estado];
+  const estadoBadge = estadoItem
+    ? { cls: COLOR_TO_TAILWIND_BADGE[estadoItem.color] ?? 'bg-gray-100 text-gray-600', label: estadoItem.label }
+    : { cls: 'bg-gray-100 text-gray-600', label: alumno.estado };
 
   // Calcular edad
   const edad = alumno.fecha_nacimiento

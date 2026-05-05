@@ -312,15 +312,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const [vomitoIntensidad, setVomitoIntensidad] = useState('');
   const [vomitoNotas, setVomitoNotas] = useState('');
 
-  const { data: vomitosCatalogo } = useQuery({
-    queryKey: ['catalogos', 'vomito-intensidad'],
-    queryFn: () => api.get('/catalogos/vomito-intensidad').then(r => r.data.items),
-  });
-  const INTENSIDADES_VOMITO = vomitosCatalogo ?? [
-    { key: 'leve', label: 'Leve' },
-    { key: 'moderado', label: 'Moderado' },
-    { key: 'fuerte', label: 'Fuerte' },
-  ];
+  const { items: INTENSIDADES_VOMITO } = useCatalogo('vomito_intensidad');
 
   const [salidaSanitaria, setSalidaSanitaria] = useState({ panial_limpio: false, pertenencias_ok: false, estado_fisico_ok: false, notas: '', entrega_conforme: false });
   const [salidaGuardada, setSalidaGuardada] = useState(false);

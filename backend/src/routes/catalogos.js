@@ -62,10 +62,10 @@ const CATALOGOS_FALLBACK = {
     { key: 'maestra_puerta',   label: 'Miss de puerta' },
   ],
   'estados-alumno': [
-    { key: 'inscrito',   label: 'Inscrito'   },
-    { key: 'reinscrito', label: 'Reinscrito' },
-    { key: 'baja',       label: 'Baja'       },
-    { key: 'egresado',   label: 'Egresado'   },
+    { key: 'inscrito',   label: 'Inscrito',   color: 'green'  },
+    { key: 'reinscrito', label: 'Reinscrito', color: 'blue'   },
+    { key: 'baja',       label: 'Baja',       color: 'red'    },
+    { key: 'egresado',   label: 'Egresado',   color: 'gray'   },
   ],
   'tipos-documento': [
     { key: 'acta_nacimiento',     label: 'Acta de nacimiento'       },
@@ -91,15 +91,13 @@ const CATALOGOS_FALLBACK = {
     { key: 'otro',        label: 'Otro'        },
   ],
   'alergias': [
-    { key: 'lactosa',      emoji: '🥛', label: 'Lactosa'      },
-    { key: 'cacahuate',    emoji: '🥜', label: 'Cacahuate'    },
-    { key: 'mariscos',     emoji: '🦐', label: 'Mariscos'     },
-    { key: 'huevo',        emoji: '🥚', label: 'Huevo'        },
-    { key: 'trigo',        emoji: '🌾', label: 'Trigo'        },
-    { key: 'fresa',        emoji: '🍓', label: 'Fresa'        },
-    { key: 'chocolate',    emoji: '🍫', label: 'Chocolate'    },
-    { key: 'colorantes',   emoji: '🎨', label: 'Colorantes'   },
-    { key: 'conservantes', emoji: '⚗️', label: 'Conservantes' },
+    { key: 'sin_alergias',  emoji: '✅', label: 'Sin alergias'   },
+    { key: 'lactosa',       emoji: '🥛', label: 'Lactosa'        },
+    { key: 'gluten',        emoji: '🌾', label: 'Gluten'         },
+    { key: 'mani',          emoji: '🥜', label: 'Maní'           },
+    { key: 'huevo',         emoji: '🥚', label: 'Huevo'          },
+    { key: 'mariscos',      emoji: '🦐', label: 'Mariscos'       },
+    { key: 'frutos_secos',  emoji: '🌰', label: 'Frutos secos'   },
   ],
 };
 

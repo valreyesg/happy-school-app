@@ -464,7 +464,7 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
     onError: () => Toast.show({ type: 'error', text1: 'Error al eliminar' })
   });
 
-  const fechaFormato = new Date(tarea.fecha_limite.substring(0, 10) + 'T00:00:00')
+  const fechaFormato = new Date(tarea.fecha_limite.substring(0, 10) + 'T12:00:00')
     .toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 
   return (

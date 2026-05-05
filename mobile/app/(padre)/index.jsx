@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { COLORS, RADIUS } from '@/constants/theme';
@@ -37,10 +38,21 @@ const CONDUCTA_STYLE = {
   necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  badge: { backgroundColor: '#FFFAF0' }, text: { color: '#C05621' } },
 };
 
-const SALUDO_PARENTESCO = { madre: 'Mamá', papa: 'Papá', padre: 'Papá' };
+function saludoHora() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+const TRATAMIENTO_PARENTESCO = {
+  madre: 'Mamá', papa: 'Papá', padre: 'Papá',
+  abuelo: '', abuela: '', tutor: '', tutora: '',
+};
 function saludoPadre(parentesco, nombre) {
-  const titulo = SALUDO_PARENTESCO[parentesco?.toLowerCase()];
-  return titulo ? `¡Hola, ${titulo} ${nombre?.split(' ')[0]}!` : `¡Hola, ${nombre?.split(' ')[0]}!`;
+  const tratamiento = TRATAMIENTO_PARENTESCO[parentesco?.toLowerCase()];
+  const destinatario = tratamiento ? `${tratamiento} ${nombre?.split(' ')[0]}` : nombre?.split(' ')[0];
+  return `¡${saludoHora()}, ${destinatario}!`;
 }
 
 function ModalEvento({ ev, onClose }) {
@@ -71,7 +83,7 @@ function ModalEvento({ ev, onClose }) {
           <Text style={styles.modalTitulo}>{ev.titulo}</Text>
 
           <Text style={styles.modalFecha}>
-            📆 {fmtFecha(fechaInicio)}
+            📅 {fmtFecha(fechaInicio)}
             {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() ? `\n   → ${fmtFecha(fechaFin)}` : ''}
           </Text>
 
@@ -166,8 +178,7 @@ export default function PadreDashboard() {
 
         {isLoading && (
           <View style={styles.loadingCard}>
-            <Text style={{ fontSize: 32 }}>🔄</Text>
-            <Text style={styles.loadingText}>Cargando información...</Text>
+            <ActivityIndicator size="large" color="#E53E3E" />
           </View>
         )}
 
@@ -191,7 +202,7 @@ export default function PadreDashboard() {
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       style={{ padding: 4 }}
                     >
-                      <Text style={{ fontSize: 16 }}>🗓️</Text>
+                      <Text style={{ fontSize: 16 }}>📅</Text>
                     </TouchableOpacity>
                     <Text style={{ color: '#A0AEC0', fontSize: 18 }}>›</Text>
                   </View>
@@ -285,7 +296,7 @@ function HijoTareasPendientes({ hijoId, hijoNombre }) {
             >
               <Text style={{ fontSize: 18 }}>{getColorEmoji(diasRestantes)}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.tarea Titulo} numberOfLines={1}>{tarea.titulo}</Text>
+                <Text style={styles.tareaTitulo} numberOfLines={1}>{tarea.titulo}</Text>
                 <Text style={styles.tareaFecha}>{formatearFecha(tarea.fecha_limite)}</Text>
               </View>
               <Text style={{ fontSize: 14, color: '#A0AEC0' }}>{isExpanded ? '▼' : '▶'}</Text>
@@ -557,7 +568,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 8,
     borderBottomWidth: 1, borderBottomColor: '#DBEAFE',
   },
-  tarea Titulo: {
+  tareaTitulo: {
     fontSize: 14, fontWeight: '800', color: '#2D3748',
   },
   tareaFecha: {

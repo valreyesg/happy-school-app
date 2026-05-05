@@ -32,7 +32,7 @@ function diasDelMes(year, month) {
 }
 
 function fechaCorta(iso) {
-  return new Date(iso).toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  return new Date(iso.substring(0, 10) + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
 function horaCorta(iso) {

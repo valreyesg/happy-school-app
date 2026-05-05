@@ -9,11 +9,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
+import { useCatalogo } from '@/hooks/useCatalogo';
 
-const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
+function saludoHora() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
 
 export default function MaestraDashboard() {
   const { usuario } = useAuthStore();
+  const { items: itemsAnimo } = useCatalogo('animo');
+  const EMOJIS_ANIMO = Object.fromEntries(
+    (itemsAnimo || []).map(i => [i.valor, i.etiqueta])
+  );
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
   const horaActual = new Date().getHours();
   const esModoEntrada = horaActual >= 7 && horaActual < 9;
@@ -42,7 +52,7 @@ export default function MaestraDashboard() {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
-              ¡Bienvenid{usuario?.genero === 'm' ? 'o, Teacher' : 'a, Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
+              ¡{saludoHora()}, {usuario?.genero === 'm' ? 'Teacher' : 'Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>

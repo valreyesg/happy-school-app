@@ -16,22 +16,13 @@
 
 ---
 
-## 🐛 BUG — Servicio Comida: Días Desplazados
+## ✅ BUG — Servicio Comida: Días Desplazados (RESUELTO 2026-05-04)
 
-> **Estado:** 🔍 INVESTIGANDO — Días seleccionados por papá están desplazados en directora
-> **Síntomas:** 
->   - Papá selecciona: Miércoles, Jueves, Viernes
->   - Directora ve: Martes, Miércoles, Jueves (desplazado -1)
-> **Ubicación:** 
->   - Backend: `comidaController.js` — `obtenerConfirmaciones()` devuelve `dias_seleccionados` 
->   - Frontend: `ComidaPagos.jsx` — `formatearDias()` interpreta índices
-> **Causa probable:** Índices guardados en BD con offset (0=Lunes vs 0=Domingo o similar)
+**Causa raíz:** Array `DIAS` en `ServicioComida.jsx` línea 40 tenía estructura `['', 'Lun', 'Mar', ...]` con vacío en posición 0, causando offset +1 en interpretación de índices.
 
-### Próximos pasos:
-- [ ] Verificar valores exactos en BD para Alejandro (esperado: [2,3,4]) y Sofía (esperado: [3,4])
-- [ ] Usar DevTools Console para inspeccionar valores raw en API response
-- [ ] Identificar si offset en guardar o leer
-- [ ] Corregir en ComidaSemanal.jsx o comidaController.js según sea
+**Fix:** Cambiar a `['Lun', 'Mar', 'Mié', 'Jue', 'Vie']` con índices 0-4 correctos.
+
+**Resultado:** Días se muestran correctamente en tab Pagos del Servicio.
 
 ---
 

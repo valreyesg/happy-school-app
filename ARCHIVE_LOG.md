@@ -1,7 +1,62 @@
 # ARCHIVE_LOG — Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-03 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)**
+**Última actualización:** 2026-05-04 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)**
+
+---
+
+## ✅ SESIÓN XX+25 (2026-05-04) — Bug Comida: Días Desplazados (COMPLETADO)
+
+**Fecha:** 2026-05-04 | **Estado:** ✅ BUG RESUELTO Y VALIDADO EN BROWSER
+
+### Problema Reportado
+
+**Síntoma:** Papá selecciona Miércoles, Jueves, Viernes → Directora ve Martes, Miércoles, Jueves (offset -1 día)
+
+**Ubicación:** Tab "Pagos del Servicio" en http://localhost:5173/directora/comida
+
+### Análisis del Bug
+
+**Ubicación del error:** `web/src/pages/directora/ServicioComida.jsx` línea 40
+
+**Código defectuoso:**
+```js
+const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+// Mapeo: índice 0 → '' (vacío), índice 1 → 'Lun', índice 2 → 'Mar' (INCORRECTO)
+```
+
+**Causa raíz:** Array tenía estructura con vacío en posición 0, luego elementos 1-5. Cuando datos en BD tienen `[2,3,4]`:
+- `DIAS[2]` retorna 'Mar' (debería ser 'Mié')
+- `DIAS[3]` retorna 'Mié' (debería ser 'Jue')
+- `DIAS[4]` retorna 'Jue' (debería ser 'Vie')
+
+**Resultado:** Offset de +1 en la visualización (mostraba índice anterior)
+
+### Fix Aplicado
+
+**Cambio:** Reindexar `DIAS` para usar índices 0-4 correctamente
+
+```js
+// ANTES:
+const DIAS = ['', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+
+// DESPUÉS:
+const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+```
+
+### Validación
+
+✅ Alejandro: `dias_seleccionados=[2,3,4]` → Ahora muestra "Mié, Jue, Vie" (correcto)
+✅ Sofía: `dias_seleccionados=[3,4]` → Ahora muestra "Jue, Vie" (correcto)
+
+### Lecciones Aprendidas
+
+**Problema metodológico:** Edité `ComidaPagos.jsx` (archivo equivocado) durante 30+ minutos antes de identificar que el bug estaba en `ServicioComida.jsx`.
+
+**Mejora para futuro:** 
+1. Pedir claridad sobre la ruta exacta (`/directora/comida` vs `/comidas/pagos`)
+2. Analizar dónde se renderizan los datos ANTES de tocar código
+3. No asumir ubicaciones de componentes
 
 ---
 

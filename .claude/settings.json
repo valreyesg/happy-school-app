@@ -1,4 +1,5 @@
 {
+  "enabledMcpjsonServers": ["happy-school-skills"],
   "permissions": {
     "allow": [
       "Bash(powershell.exe -Command \"& 'C:\\\\Program Files\\\\PostgreSQL\\\\16\\\\bin\\\\psql.exe' -U postgres -c \\\\\"CREATE DATABASE happy_school;\\\\\" 2>&1\")",

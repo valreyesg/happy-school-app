@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "happy-school-skills": {
+      "command": "node",
+      "args": [".claude/skills/server.js"],
+      "description": "Happy School App custom skills server"
+    }
+  }
+}

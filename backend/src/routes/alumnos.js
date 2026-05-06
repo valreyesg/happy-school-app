@@ -451,20 +451,93 @@ router.patch('/:id/padres/:padreId/desactivar', authorize('directora', 'administ
 });
 
 // ── GET /alumnos/:id/hermanos ─────────────────────────────────────────────────
+// Retorna hermanos con estado del día (entrada/salida), padres y autorizados
+// Usado para registro en cadena de hermanos
 router.get('/:id/hermanos', async (req, res, next) => {
   try {
     const alumnoRes = await query('SELECT familia_id FROM alumnos WHERE id = $1 AND deleted_at IS NULL', [req.params.id]);
     const familia_id = alumnoRes.rows[0]?.familia_id;
-    if (!familia_id) return res.json([]);
+    if (!familia_id) return res.json({ hermanos: [] });
+
     const result = await query(`
-      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento,
-             g.nombre AS grupo_nombre, g.color_hex, a.estado
+      SELECT a.id, a.nombre_completo, a.foto_url, a.fecha_nacimiento, a.usa_panial,
+             g.id AS grupo_id, g.nombre AS grupo_nombre, g.color_hex,
+             a.estado,
+             COALESCE(cha.tiene_extension, false) AS tiene_extension,
+             cha.hora_salida_extension,
+             re.id AS entrada_id, re.hora_entrada,
+             COALESCE(ast.estado, 'ausente') AS estado_asistencia,
+             re.puede_entrar,
+             rs.id AS salida_id, rs.hora_salida
       FROM alumnos a
       LEFT JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id
+      LEFT JOIN registro_entrada re ON re.alumno_id = a.id AND re.fecha = CURRENT_DATE
+      LEFT JOIN asistencia ast ON ast.alumno_id = a.id AND ast.fecha = CURRENT_DATE
+      LEFT JOIN registro_salida rs ON rs.alumno_id = a.id AND rs.fecha = CURRENT_DATE
       WHERE a.familia_id = $1 AND a.id != $2 AND a.deleted_at IS NULL
+        AND a.estado IN ('inscrito','reinscrito')
       ORDER BY a.fecha_nacimiento
     `, [familia_id, req.params.id]);
-    res.json(result.rows);
+
+    if (result.rows.length === 0) return res.json({ hermanos: [] });
+
+    // Cargar padres y autorizados para todos los hermanos
+    const hermanoIds = result.rows.map(r => r.id);
+
+    const [padresRes, autorizadosRes] = await Promise.all([
+      query(`
+        SELECT ap.alumno_id, p.id, p.nombre_completo, p.parentesco
+        FROM alumno_padre ap
+        JOIN padres p ON ap.padre_id = p.id
+        WHERE ap.alumno_id = ANY($1) AND ap.activo = true
+        ORDER BY ap.es_tutor_principal DESC, p.nombre_completo
+      `, [hermanoIds]),
+      query(`
+        SELECT id, alumno_id, nombre_completo, parentesco
+        FROM personas_autorizadas
+        WHERE alumno_id = ANY($1) AND activo = true
+        ORDER BY nombre_completo
+      `, [hermanoIds]),
+    ]);
+
+    const padresMap = {};
+    for (const r of padresRes.rows) {
+      if (!padresMap[r.alumno_id]) padresMap[r.alumno_id] = [];
+      padresMap[r.alumno_id].push({ id: r.id, nombre: r.nombre_completo, tipo: r.parentesco });
+    }
+    const autorizadosMap = {};
+    for (const r of autorizadosRes.rows) {
+      if (!autorizadosMap[r.alumno_id]) autorizadosMap[r.alumno_id] = [];
+      autorizadosMap[r.alumno_id].push({ id: r.id, nombre: r.nombre_completo, parentesco: r.parentesco });
+    }
+
+    const hermanos = result.rows.map(r => ({
+      id: r.id,
+      nombre_completo: r.nombre_completo,
+      foto_url: r.foto_url,
+      fecha_nacimiento: r.fecha_nacimiento,
+      usa_panial: r.usa_panial,
+      grupo_id: r.grupo_id,
+      grupo_nombre: r.grupo_nombre,
+      grupo_color: r.color_hex,
+      tiene_extension: r.tiene_extension,
+      hora_salida_extension: r.hora_salida_extension,
+      entrada_hoy: r.entrada_id ? {
+        id: r.entrada_id,
+        hora_entrada: r.hora_entrada,
+        estado_asistencia: r.estado_asistencia,
+        puede_entrar: r.puede_entrar,
+      } : null,
+      salida_hoy: r.salida_id ? {
+        id: r.salida_id,
+        hora_salida: r.hora_salida,
+      } : null,
+      padres: padresMap[r.id] || [],
+      autorizados: autorizadosMap[r.id] || [],
+    }));
+
+    res.json({ hermanos });
   } catch (err) { next(err); }
 });
 

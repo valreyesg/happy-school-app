@@ -1,7 +1,47 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)**
+
+---
+
+## ✅ SESIÓN XX+33 (2026-05-06) — FASE C: Registro en Cadena de Hermanos (Entrada + Salida)
+
+**Fecha:** 2026-05-06 | **Estado:** Pendiente validación Valeria
+
+### Resumen
+
+Registro en cadena de hermanos: al registrar entrada o salida de un alumno, el sistema detecta automáticamente hermanos pendientes y ofrece registrarlos en secuencia sin escanear QR adicionales. Funciona en web y mobile, con paridad completa.
+
+### Tareas ejecutadas
+
+1. **Backend — Endpoint GET /alumnos/:id/hermanos enriquecido**
+   - **Archivo:** `backend/src/routes/alumnos.js` (líneas 453-542)
+   - **Cambio:** Retorna `{ hermanos: [...] }` con estado del día (entrada_hoy, salida_hoy, estado_asistencia, puede_entrar), padres, autorizados, extensión, foto, grupo. Query con JOINs a registro_entrada, registro_salida, asistencia, config_horario_alumno, alumno_padre, personas_autorizadas.
+   - **Status:** ✅ Completada
+
+2. **Web — Cadena de hermanos en FiltroEntrada.jsx**
+   - **Archivo:** `web/src/pages/maestra/FiltroEntrada.jsx`
+   - **Cambio:** Nuevo componente `ModalHermanosCadena` con checkboxes. Al registrar entrada exitosamente → consulta hermanos → si hay sin entrada → muestra modal → abre ModalEntrada para cada uno en secuencia. Cola de hermanos con estado `colaHermanos`.
+   - **Status:** ✅ Completada
+
+3. **Web — Cadena de hermanos en FiltroSalida.jsx**
+   - **Archivo:** `web/src/pages/maestra/FiltroSalida.jsx`
+   - **Cambio:** Mismo `ModalHermanosCadena` adaptado para salida. Pre-llena "quién recoge" del hermano anterior con `quienRecogeRef`. ModalSalida acepta prop `quienRecogeDefault` y reporta `quienRecoge` en onSuccess.
+   - **Status:** ✅ Completada
+
+4. **Mobile — Cadena de hermanos en qr-scanner.jsx**
+   - **Archivo:** `mobile/app/(maestra)/qr-scanner.jsx`
+   - **Cambio:** Nuevo componente `PantallaHermanos` con selección visual. `handleSiguiente` reemplaza `resetScanner` en ResultadoEntrada — busca hermanos pendientes antes de resetear. Cola de hermanos con `colaHermanos`. Funciona en modo entrada y salida.
+   - **Status:** ✅ Completada
+
+### Archivos modificados
+- `backend/src/routes/alumnos.js` — Endpoint hermanos enriquecido
+- `web/src/pages/maestra/FiltroEntrada.jsx` — ModalHermanosCadena + flujo cadena
+- `web/src/pages/maestra/FiltroSalida.jsx` — ModalHermanosCadena + pre-llenado quién recoge
+- `mobile/app/(maestra)/qr-scanner.jsx` — PantallaHermanos + handleSiguiente + estilos
+
+### Paridad Web ↔ Mobile: ✅
 
 ---
 

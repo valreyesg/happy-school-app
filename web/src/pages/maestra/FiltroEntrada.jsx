@@ -404,6 +404,75 @@ function RelojHora() {
   return <span className="font-mono text-2xl font-black text-hs-purple tabular-nums">{hora}</span>;
 }
 
+// ── Modal hermanos en cadena ──────────────────────────────────────────────────
+
+function ModalHermanosCadena({ hermanos, tipo, onRegistrar, onOmitir }) {
+  const [seleccionados, setSeleccionados] = useState(
+    () => new Set(hermanos.map(h => h.id))
+  );
+
+  const toggle = (id) => {
+    setSeleccionados(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const label = tipo === 'entrada' ? 'entrada' : 'salida';
+
+  return (
+    <Modal open={true} onClose={onOmitir} title={null} size="sm" closeOnBackdrop={true}>
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+        <span className="text-3xl">👨‍👩‍👧‍👦</span>
+        <div>
+          <p className="font-black text-gray-800">Hermanos detectados</p>
+          <p className="text-xs text-gray-500 font-semibold">
+            {hermanos.length === 1 ? '1 hermano' : `${hermanos.length} hermanos`} sin {label} registrada
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2 mt-4">
+        {hermanos.map(h => (
+          <button key={h.id} type="button" onClick={() => toggle(h.id)}
+            className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 transition-all text-left
+              ${seleccionados.has(h.id)
+                ? 'border-hs-purple bg-hs-purple/10'
+                : 'border-gray-200 bg-white'}`}>
+            <span className={`w-5 h-5 rounded border-2 flex items-center justify-center text-xs
+              ${seleccionados.has(h.id) ? 'border-hs-purple bg-hs-purple text-white' : 'border-gray-300'}`}>
+              {seleccionados.has(h.id) && '✓'}
+            </span>
+            <AvatarAlumno alumno={h} size="sm" />
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-gray-800 text-sm truncate">{h.nombre_completo}</p>
+              <p className="text-xs text-gray-500 font-semibold">{h.grupo_nombre}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex gap-3 mt-5">
+        <button onClick={onOmitir}
+          className="px-4 py-3 rounded-2xl font-black text-gray-600 border-2 border-gray-200 hover:bg-gray-50 text-sm">
+          Omitir
+        </button>
+        <button
+          onClick={() => {
+            const seleccion = hermanos.filter(h => seleccionados.has(h.id));
+            if (seleccion.length > 0) onRegistrar(seleccion);
+            else onOmitir();
+          }}
+          disabled={seleccionados.size === 0}
+          className="flex-1 py-3 rounded-2xl font-black text-white bg-hs-purple hover:bg-hs-purple-dark transition-all disabled:opacity-50 text-sm">
+          Registrar {label} →
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Vista principal ────────────────────────────────────────────────────────────
 
 export default function FiltroEntrada() {
@@ -420,6 +489,11 @@ export default function FiltroEntrada() {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [showQR, setShowQR] = useState(false);
+
+  // Estado para cadena de hermanos
+  const [hermanosPendientes, setHermanosPendientes] = useState(null); // lista de hermanos sin entrada
+  const [colaHermanos, setColaHermanos] = useState([]); // cola de hermanos a registrar en secuencia
+  const ultimoAlumnoIdRef = useRef(null);
 
   const irDia = (delta) => {
     const d = new Date(fecha + 'T12:00:00');
@@ -619,8 +693,56 @@ export default function FiltroEntrada() {
       {alumnoSeleccionado && (
         <ModalEntrada
           alumno={alumnoSeleccionado}
-          onClose={() => setAlumnoSeleccionado(null)}
-          onSuccess={() => setAlumnoSeleccionado(null)}
+          onClose={() => {
+            setAlumnoSeleccionado(null);
+            // Si hay más hermanos en cola, abrir el siguiente
+            if (colaHermanos.length > 0) {
+              const [siguiente, ...resto] = colaHermanos;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(siguiente), 200);
+            }
+          }}
+          onSuccess={async () => {
+            const alumnoId = alumnoSeleccionado.id;
+            setAlumnoSeleccionado(null);
+
+            // Si hay más hermanos en cola, abrir el siguiente
+            if (colaHermanos.length > 0) {
+              const [siguiente, ...resto] = colaHermanos;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(siguiente), 200);
+              return;
+            }
+
+            // Si no venimos de una cadena, buscar hermanos
+            try {
+              const res = await api.get(`/alumnos/${alumnoId}/hermanos`);
+              const sinEntrada = (res.data.hermanos || []).filter(h => !h.entrada_hoy);
+              if (sinEntrada.length > 0) {
+                ultimoAlumnoIdRef.current = alumnoId;
+                setHermanosPendientes(sinEntrada);
+              }
+            } catch {
+              // Si falla, no pasa nada — flujo normal
+            }
+          }}
+        />
+      )}
+
+      {/* Modal cadena de hermanos */}
+      {hermanosPendientes && hermanosPendientes.length > 0 && (
+        <ModalHermanosCadena
+          hermanos={hermanosPendientes}
+          tipo="entrada"
+          onRegistrar={(seleccion) => {
+            setHermanosPendientes(null);
+            if (seleccion.length > 0) {
+              const [primero, ...resto] = seleccion;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(primero), 200);
+            }
+          }}
+          onOmitir={() => setHermanosPendientes(null)}
         />
       )}
     </div>

@@ -36,7 +36,7 @@ function esSalidaTardia(alumno, horaInicioCobro) {
 
 // ── Modal salida ───────────────────────────────────────────────────────────────
 
-function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuccess }) {
+function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuccess, quienRecogeDefault }) {
   const queryClient = useQueryClient();
 
   // Construir opciones para el selector
@@ -46,10 +46,24 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
     { tipo: 'otro', id: 'otro', label: '👤 Otro (escribir nombre)' },
   ];
 
+  // Pre-seleccionar quién recoge si viene de cadena de hermanos
+  const defaultSeleccion = (() => {
+    if (!quienRecogeDefault) return opciones[0]?.id || 'otro';
+    if (quienRecogeDefault.padre_id) {
+      const match = opciones.find(o => o.tipo === 'padre' && o.id === quienRecogeDefault.padre_id);
+      if (match) return match.id;
+    }
+    if (quienRecogeDefault.persona_autorizada_id) {
+      const match = opciones.find(o => o.tipo === 'autorizado' && o.id === quienRecogeDefault.persona_autorizada_id);
+      if (match) return match.id;
+    }
+    return opciones[0]?.id || 'otro';
+  })();
+
   // Estado Paso 1 — Quién recoge
   const [paso, setPaso] = useState(1);
-  const [seleccion, setSeleccion] = useState(opciones[0]?.id || 'otro');
-  const [nombreOtro, setNombreOtro] = useState('');
+  const [seleccion, setSeleccion] = useState(defaultSeleccion);
+  const [nombreOtro, setNombreOtro] = useState(quienRecogeDefault?.nombre_quien_recoge || '');
   const [motivoAnticipada, setMotivoAnticipada] = useState('');
 
   // Estado Paso 2 — Checklist sanitario
@@ -68,7 +82,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
 
   const mutation = useMutation({
     mutationFn: (data) => api.post('/asistencia/salida', data).then(r => r.data),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       if (!data.autorizado) {
         toast.error(`🚨 ALERTA — ${alumno.nombre_completo.split(' ')[0]} retirado por persona NO autorizada`);
       } else if (data.es_salida_tardia && data.pago_salida_tardia) {
@@ -79,7 +93,12 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
         toast.success(`🚪 Salida registrada — ${alumno.nombre_completo.split(' ')[0]}`);
       }
       queryClient.invalidateQueries({ queryKey: ['filtro-salida'] });
-      onSuccess();
+      // Reportar quién recogió para cadena de hermanos
+      onSuccess({
+        padre_id: variables.padre_id || null,
+        persona_autorizada_id: variables.persona_autorizada_id || null,
+        nombre_quien_recoge: variables.nombre_quien_recoge || null,
+      });
     },
     onError: (error) => {
       const msg = error?.response?.data?.error || 'Error al registrar salida';
@@ -323,6 +342,77 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
   );
 }
 
+// ── Modal hermanos en cadena (salida) ─────────────────────────────────────────
+
+function ModalHermanosCadena({ hermanos, tipo, onRegistrar, onOmitir }) {
+  const [seleccionados, setSeleccionados] = useState(
+    () => new Set(hermanos.map(h => h.id))
+  );
+
+  const toggle = (id) => {
+    setSeleccionados(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  return (
+    <Modal open={true} onClose={onOmitir} title={null} size="sm" closeOnBackdrop={true}>
+      <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
+        <span className="text-3xl">👨‍👩‍👧‍👦</span>
+        <div>
+          <p className="font-black text-gray-800">Hermanos detectados</p>
+          <p className="text-xs text-gray-500 font-semibold">
+            {hermanos.length === 1 ? '1 hermano' : `${hermanos.length} hermanos`} sin salida registrada
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2 mt-4">
+        {hermanos.map(h => (
+          <button key={h.id} type="button" onClick={() => toggle(h.id)}
+            className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 transition-all text-left
+              ${seleccionados.has(h.id)
+                ? 'border-hs-orange bg-hs-orange/10'
+                : 'border-gray-200 bg-white'}`}>
+            <span className={`w-5 h-5 rounded border-2 flex items-center justify-center text-xs
+              ${seleccionados.has(h.id) ? 'border-hs-orange bg-hs-orange text-white' : 'border-gray-300'}`}>
+              {seleccionados.has(h.id) && '✓'}
+            </span>
+            <AvatarAlumno alumno={h} size="sm" />
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-gray-800 text-sm truncate">{h.nombre_completo}</p>
+              <p className="text-xs text-gray-500 font-semibold">{h.grupo_nombre}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <p className="text-xs text-gray-400 font-semibold mt-3 px-1">
+        Se usará la misma persona que recogió al hermano anterior
+      </p>
+
+      <div className="flex gap-3 mt-4">
+        <button onClick={onOmitir}
+          className="px-4 py-3 rounded-2xl font-black text-gray-600 border-2 border-gray-200 hover:bg-gray-50 text-sm">
+          Omitir
+        </button>
+        <button
+          onClick={() => {
+            const seleccion = hermanos.filter(h => seleccionados.has(h.id));
+            if (seleccion.length > 0) onRegistrar(seleccion);
+            else onOmitir();
+          }}
+          disabled={seleccionados.size === 0}
+          className="flex-1 py-3 rounded-2xl font-black text-white bg-hs-orange hover:bg-hs-orange-dark transition-all disabled:opacity-50 text-sm">
+          Registrar salida →
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Tarjeta alumno ─────────────────────────────────────────────────────────────
 
 function TarjetaAlumno({ alumno, onTap }) {
@@ -418,6 +508,11 @@ export default function FiltroSalida() {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [showQR, setShowQR] = useState(false);
+
+  // Estado para cadena de hermanos
+  const [hermanosPendientes, setHermanosPendientes] = useState(null);
+  const [colaHermanos, setColaHermanos] = useState([]);
+  const quienRecogeRef = useRef(null); // datos de quién recogió al primer hermano
 
   const irDia = (delta) => {
     const d = new Date(fecha + 'T12:00:00');
@@ -589,8 +684,66 @@ export default function FiltroSalida() {
           alumno={alumnoSeleccionado}
           horaSalidaNormal={horaSalidaNormal}
           horaInicioCobro={horaInicioCobro}
-          onClose={() => setAlumnoSeleccionado(null)}
-          onSuccess={() => setAlumnoSeleccionado(null)}
+          quienRecogeDefault={quienRecogeRef.current}
+          onClose={() => {
+            setAlumnoSeleccionado(null);
+            // Si hay más hermanos en cola, abrir el siguiente
+            if (colaHermanos.length > 0) {
+              const [siguiente, ...resto] = colaHermanos;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(siguiente), 200);
+            } else {
+              quienRecogeRef.current = null;
+            }
+          }}
+          onSuccess={async (quienRecoge) => {
+            const alumnoId = alumnoSeleccionado.id;
+            setAlumnoSeleccionado(null);
+
+            // Si hay más hermanos en cola, abrir el siguiente con mismos datos de quién recoge
+            if (colaHermanos.length > 0) {
+              if (quienRecoge) quienRecogeRef.current = quienRecoge;
+              const [siguiente, ...resto] = colaHermanos;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(siguiente), 200);
+              return;
+            }
+
+            // Si no venimos de una cadena, buscar hermanos sin salida
+            quienRecogeRef.current = null;
+            try {
+              const res = await api.get(`/alumnos/${alumnoId}/hermanos`);
+              const sinSalida = (res.data.hermanos || []).filter(
+                h => h.entrada_hoy && h.entrada_hoy.puede_entrar && !h.salida_hoy
+              );
+              if (sinSalida.length > 0) {
+                if (quienRecoge) quienRecogeRef.current = quienRecoge;
+                setHermanosPendientes(sinSalida);
+              }
+            } catch {
+              // Si falla, flujo normal
+            }
+          }}
+        />
+      )}
+
+      {/* Modal cadena de hermanos - salida */}
+      {hermanosPendientes && hermanosPendientes.length > 0 && (
+        <ModalHermanosCadena
+          hermanos={hermanosPendientes}
+          tipo="salida"
+          onRegistrar={(seleccion) => {
+            setHermanosPendientes(null);
+            if (seleccion.length > 0) {
+              const [primero, ...resto] = seleccion;
+              setColaHermanos(resto);
+              setTimeout(() => setAlumnoSeleccionado(primero), 200);
+            }
+          }}
+          onOmitir={() => {
+            setHermanosPendientes(null);
+            quienRecogeRef.current = null;
+          }}
         />
       )}
 

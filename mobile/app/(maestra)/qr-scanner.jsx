@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image, ScrollView } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -17,6 +17,10 @@ export default function QRScannerScreen() {
   const cooldownRef = useRef(false);
   const [horaSalidaNormal, setHoraSalidaNormal] = useState(14);
   const [horaSalidaExtension, setHoraSalidaExtension] = useState('14:45');
+
+  // Estado para cadena de hermanos
+  const [hermanosPendientes, setHermanosPendientes] = useState(null);
+  const [colaHermanos, setColaHermanos] = useState([]);
 
   const horaActual = new Date().getHours();
 
@@ -127,6 +131,41 @@ export default function QRScannerScreen() {
   const resetScanner = () => {
     setScanned(false);
     setAlumnoDetectado(null);
+    setHermanosPendientes(null);
+    setColaHermanos([]);
+  };
+
+  const handleSiguiente = async () => {
+    const alumnoId = alumnoDetectado?.id;
+
+    // Si hay más hermanos en cola, procesar el siguiente
+    if (colaHermanos.length > 0) {
+      const [siguiente, ...resto] = colaHermanos;
+      setColaHermanos(resto);
+      setAlumnoDetectado(siguiente);
+      setScanned(true);
+      return;
+    }
+
+    // Buscar hermanos pendientes
+    if (alumnoId) {
+      try {
+        const res = await api.get(`/alumnos/${alumnoId}/hermanos`);
+        const hermanos = res.data.hermanos || [];
+        const pendientes = modo === 'entrada'
+          ? hermanos.filter(h => !h.entrada_hoy)
+          : hermanos.filter(h => h.entrada_hoy && h.entrada_hoy.puede_entrar && !h.salida_hoy);
+
+        if (pendientes.length > 0) {
+          setHermanosPendientes(pendientes);
+          return;
+        }
+      } catch {
+        // Si falla, flujo normal
+      }
+    }
+
+    resetScanner();
   };
 
   const confirmarEntrada = (checklistData) => {
@@ -199,12 +238,32 @@ export default function QRScannerScreen() {
       )}
 
       {/* Resultado */}
-      {alumnoDetectado?.resultado && (
+      {alumnoDetectado?.resultado && !hermanosPendientes && (
         <ResultadoEntrada
           alumno={alumnoDetectado}
           resultado={alumnoDetectado.resultado}
           modo={modo}
-          onSiguiente={resetScanner}
+          onSiguiente={handleSiguiente}
+        />
+      )}
+
+      {/* Pantalla de hermanos detectados */}
+      {hermanosPendientes && hermanosPendientes.length > 0 && (
+        <PantallaHermanos
+          hermanos={hermanosPendientes}
+          modo={modo}
+          onRegistrar={(seleccion) => {
+            setHermanosPendientes(null);
+            if (seleccion.length > 0) {
+              const [primero, ...resto] = seleccion;
+              setColaHermanos(resto);
+              setAlumnoDetectado(primero);
+              setScanned(true);
+            } else {
+              resetScanner();
+            }
+          }}
+          onOmitir={resetScanner}
         />
       )}
     </SafeAreaView>
@@ -390,6 +449,81 @@ function ResultadoEntrada({ alumno, resultado, modo, onSiguiente }) {
   );
 }
 
+// Pantalla de selección de hermanos para registro en cadena
+function PantallaHermanos({ hermanos, modo, onRegistrar, onOmitir }) {
+  const [seleccionados, setSeleccionados] = useState(
+    () => new Set(hermanos.map(h => h.id))
+  );
+
+  const toggle = (id) => {
+    setSeleccionados(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const label = modo === 'entrada' ? 'entrada' : 'salida';
+
+  return (
+    <View style={styles.hermanosContainer}>
+      <Text style={{ fontSize: 48, textAlign: 'center' }}>👨‍👩‍👧‍👦</Text>
+      <Text style={styles.hermanosTitulo}>Hermanos detectados</Text>
+      <Text style={styles.hermanosDesc}>
+        {hermanos.length === 1 ? '1 hermano' : `${hermanos.length} hermanos`} sin {label} registrada
+      </Text>
+
+      <ScrollView style={{ width: '100%', maxHeight: 300 }} contentContainerStyle={{ gap: 8, paddingVertical: 8 }}>
+        {hermanos.map(h => (
+          <TouchableOpacity
+            key={h.id}
+            style={[
+              styles.hermanoItem,
+              seleccionados.has(h.id) && styles.hermanoItemSelected,
+            ]}
+            onPress={() => toggle(h.id)}
+            activeOpacity={0.7}
+          >
+            <View style={[
+              styles.hermanoCheck,
+              seleccionados.has(h.id) && styles.hermanoCheckSelected,
+            ]}>
+              {seleccionados.has(h.id) && <Text style={{ color: '#fff', fontSize: 12, fontWeight: '900' }}>✓</Text>}
+            </View>
+            {h.foto_url ? (
+              <Image source={{ uri: h.foto_url }} style={styles.hermanoFoto} />
+            ) : (
+              <View style={[styles.hermanoFoto, { backgroundColor: '#E9D5FF', alignItems: 'center', justifyContent: 'center' }]}>
+                <Text style={{ fontSize: 20 }}>👧🏻</Text>
+              </View>
+            )}
+            <View style={{ flex: 1 }}>
+              <Text style={styles.hermanoNombre}>{h.nombre_completo}</Text>
+              <Text style={styles.hermanoGrupo}>{h.grupo_nombre}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <View style={styles.hermanosBtns}>
+        <TouchableOpacity style={styles.hermanosOmitirBtn} onPress={onOmitir}>
+          <Text style={styles.hermanosOmitirText}>Omitir</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.hermanosRegistrarBtn, seleccionados.size === 0 && { opacity: 0.5 }]}
+          onPress={() => {
+            const seleccion = hermanos.filter(h => seleccionados.has(h.id));
+            onRegistrar(seleccion);
+          }}
+          disabled={seleccionados.size === 0}
+        >
+          <Text style={styles.hermanosRegistrarText}>Registrar {label} →</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#1a1a2e' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16, padding: 24 },
@@ -483,4 +617,36 @@ const styles = StyleSheet.create({
     backgroundColor: '#805AD5', borderRadius: RADIUS.lg, paddingHorizontal: 24, paddingVertical: 14,
   },
   permissionBtnText: { color: '#fff', fontWeight: '900', fontSize: 16 },
+  // Pantalla hermanos
+  hermanosContainer: {
+    flex: 1, backgroundColor: '#F3E8FF', alignItems: 'center',
+    justifyContent: 'center', padding: 24, gap: 8,
+  },
+  hermanosTitulo: { fontSize: 24, fontWeight: '900', color: '#553C9A', textAlign: 'center' },
+  hermanosDesc: { fontSize: 14, fontWeight: '600', color: '#6B46C1', textAlign: 'center', marginBottom: 8 },
+  hermanoItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 14, borderRadius: RADIUS.lg, borderWidth: 2,
+    borderColor: '#E2E8F0', backgroundColor: '#fff',
+  },
+  hermanoItemSelected: { borderColor: '#805AD5', backgroundColor: '#FAF5FF' },
+  hermanoCheck: {
+    width: 22, height: 22, borderRadius: 4, borderWidth: 2,
+    borderColor: '#CBD5E0', alignItems: 'center', justifyContent: 'center',
+  },
+  hermanoCheckSelected: { borderColor: '#805AD5', backgroundColor: '#805AD5' },
+  hermanoFoto: { width: 40, height: 40, borderRadius: RADIUS.lg },
+  hermanoNombre: { fontSize: 14, fontWeight: '800', color: '#2D3748' },
+  hermanoGrupo: { fontSize: 12, fontWeight: '600', color: '#805AD5' },
+  hermanosBtns: { flexDirection: 'row', gap: 12, marginTop: 16, width: '100%' },
+  hermanosOmitirBtn: {
+    flex: 1, padding: 14, borderRadius: RADIUS.lg, borderWidth: 2,
+    borderColor: '#E2E8F0', alignItems: 'center', backgroundColor: '#fff',
+  },
+  hermanosOmitirText: { fontWeight: '800', color: '#718096', fontSize: 14 },
+  hermanosRegistrarBtn: {
+    flex: 2, padding: 14, borderRadius: RADIUS.lg,
+    backgroundColor: '#805AD5', alignItems: 'center',
+  },
+  hermanosRegistrarText: { fontWeight: '900', color: '#fff', fontSize: 14 },
 });

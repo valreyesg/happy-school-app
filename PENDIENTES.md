@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)
+**Última actualización:** 2026-05-06 — Sesión XX+33 (Fase C: Registro en cadena de hermanos)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -34,8 +34,7 @@
 
 ### ~~💰 Configuración Precios diferenciados por nivel~~ ✅ Completada Sesión XX+32
 
-### 🚪 Seguridad — Detección Hermanos en QR salida
-- [ ] Al escanear QR salida, alerta si hay hermanos en otros grupos
+### ~~🚪 Registro en Cadena de Hermanos (Entrada + Salida)~~ ✅ Completada Sesión XX+33
 
 ### 📊 Reportes básicos
 - [ ] Reporte Asistencia: Excel + PDF (por grupo, mes, alumno)

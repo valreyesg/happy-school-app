@@ -80,7 +80,7 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
     metodo_pago: 'efectivo',
     referencia: '',
     notas: '',
-    fecha_pago: new Date().toISOString().slice(0, 10),
+    fecha_pago: new Date().toLocaleDateString('en-CA'),
     aplicar_recargo: true,
   });
   const [error, setError] = useState('');

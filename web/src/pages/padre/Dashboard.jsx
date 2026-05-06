@@ -12,8 +12,8 @@ function proximos3Dias() {
   const hasta = new Date(hoy);
   hasta.setDate(hoy.getDate() + 3);
   return {
-    desde: hoy.toISOString().substring(0, 10),
-    hasta: hasta.toISOString().substring(0, 10),
+    desde: hoy.toLocaleDateString('en-CA'),
+    hasta: hasta.toLocaleDateString('en-CA'),
   };
 }
 

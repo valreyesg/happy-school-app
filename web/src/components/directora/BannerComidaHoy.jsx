@@ -20,7 +20,7 @@ const BannerComidaHoy = () => {
           lunes.setDate(lunes.getDate() - 7);
         }
 
-        const semanaInicio = lunes.toISOString().split('T')[0];
+        const semanaInicio = lunes.toLocaleDateString('en-CA');
 
         const res = await api.get(`/comida/confirmaciones?semana=${semanaInicio}`);
         setStats(res.data);

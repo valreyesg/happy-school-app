@@ -7,7 +7,7 @@ import { SkeletonList } from '@/components/ui/SkeletonCard';
 import Modal from '@/components/ui/Modal';
 
 export default function DirectoraVisitantes() {
-  const [fecha, setFecha] = useState(new Date().toISOString().split('T')[0]);
+  const [fecha, setFecha] = useState(new Date().toLocaleDateString('en-CA'));
   const [modalAbierto, setModalAbierto] = useState(false);
   const queryClient = useQueryClient();
 

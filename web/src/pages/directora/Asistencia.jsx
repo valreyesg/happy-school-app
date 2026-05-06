@@ -428,7 +428,7 @@ function VistaMensual({ grupoId }) {
 export default function DirectoraAsistencia() {
   const [grupoSeleccionado, setGrupoSeleccionado] = useState(null);
   const [modo, setModo] = useState('hoy'); // 'hoy' | 'mensual'
-  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toISOString().slice(0, 10));
+  const [fechaSeleccionada, setFechaSeleccionada] = useState(new Date().toLocaleDateString('en-CA'));
 
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
   const fechaActualLabel = new Date(fechaSeleccionada + 'T12:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });

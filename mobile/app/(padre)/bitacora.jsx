@@ -96,7 +96,7 @@ function SelectorFecha({ fecha, onChange }) {
   anterior.setDate(anterior.getDate() - 1);
   const siguiente = new Date(date);
   siguiente.setDate(siguiente.getDate() + 1);
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = new Date().toLocaleDateString('en-CA');
   const esHoy = fecha === hoy;
 
   const fmt = (d) => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -105,7 +105,7 @@ function SelectorFecha({ fecha, onChange }) {
     <View style={s.fechaRow}>
       <TouchableOpacity
         style={s.fechaBtn}
-        onPress={() => onChange(anterior.toISOString().split('T')[0])}
+        onPress={() => onChange(anterior.toLocaleDateString('en-CA'))}
       >
         <Text style={s.fechaBtnTxt}>‹</Text>
       </TouchableOpacity>
@@ -115,7 +115,7 @@ function SelectorFecha({ fecha, onChange }) {
       </View>
       <TouchableOpacity
         style={[s.fechaBtn, esHoy && s.fechaBtnDis]}
-        onPress={() => !esHoy && onChange(siguiente.toISOString().split('T')[0])}
+        onPress={() => !esHoy && onChange(siguiente.toLocaleDateString('en-CA'))}
         disabled={esHoy}
       >
         <Text style={[s.fechaBtnTxt, esHoy && { color: '#CBD5E0' }]}>›</Text>
@@ -129,7 +129,7 @@ function SelectorFecha({ fecha, onChange }) {
 export default function BitacoraPadreScreen() {
   const { alumnoId, nombre } = useLocalSearchParams();
   const router = useRouter();
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = new Date().toLocaleDateString('en-CA');
   const [fecha, setFecha] = useState(hoy);
   const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');

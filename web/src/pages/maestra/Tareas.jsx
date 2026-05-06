@@ -58,7 +58,7 @@ function proximoDiaHabil(fecha = new Date()) {
   while (d.getDay() === 0 || d.getDay() === 6) {
     d.setDate(d.getDate() + 1);
   }
-  return d.toISOString().substring(0, 10);
+  return d.toLocaleDateString('en-CA');
 }
 
 function ModalEditarTarea({ tarea, onClose, onSuccess }) {

@@ -126,7 +126,7 @@ function SelectorAlumno() {
 function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const fecha = new Date().toISOString().split('T')[0];
+  const fecha = new Date().toLocaleDateString('en-CA');
 
   const mostrarEsfinteres = !usaPanial && ['maternal', 'prekinder', 'kinder1'].includes(nivelCodigo);
 

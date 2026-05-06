@@ -83,7 +83,7 @@ function BitacoraDiaria({ data }) {
 }
 
 export default function BitacoraDirectora() {
-  const hoy = new Date().toISOString().substring(0, 10);
+  const hoy = new Date().toLocaleDateString('en-CA');
   const [fecha, setFecha] = useState(hoy);
   const [grupoSeleccionado, setGrupoSeleccionado] = useState(null);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);

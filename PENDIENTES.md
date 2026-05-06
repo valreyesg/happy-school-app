@@ -7,39 +7,39 @@
 
 ## ⚡ FASE A — Esta sesión o la próxima (30 min – 2 horas)
 
-### 🐛 Bug fechas UTC vs CDMX — 20 archivos
+### ✅ Bug fechas UTC vs CDMX — 20 archivos
 > Algunos portales muestran un día adelantado después de las 6 PM (usan `toISOString()` que retorna UTC).
 
 **Fix doble:**
-1. `backend/.env` → agregar `TZ=America/Mexico_City`
-2. Reemplazar `toISOString().split('T')[0]` → `toLocaleDateString('en-CA')` en:
+1. ✅ `backend/.env` → agregar `TZ=America/Mexico_City`
+2. ✅ Reemplazar `toISOString().split('T')[0]` → `toLocaleDateString('en-CA')` en:
 
-**Web (8 archivos):**
-- [ ] `web/src/pages/directora/Asistencia.jsx:431`
-- [ ] `web/src/pages/directora/Bitacora.jsx:86`
-- [ ] `web/src/pages/directora/Pagos.jsx:83`
-- [ ] `web/src/pages/directora/Visitantes.jsx:10`
-- [ ] `web/src/pages/maestra/Tareas.jsx:61`
-- [ ] `web/src/pages/padre/Dashboard.jsx:15-16`
-- [ ] `web/src/pages/padre/ComidaSemanal.jsx:69`
-- [ ] `web/src/components/directora/BannerComidaHoy.jsx:23`
+**Web (8 archivos):** ✅ TODOS
+- ✅ `web/src/pages/directora/Asistencia.jsx:431`
+- ✅ `web/src/pages/directora/Bitacora.jsx:86`
+- ✅ `web/src/pages/directora/Pagos.jsx:83`
+- ✅ `web/src/pages/directora/Visitantes.jsx:10`
+- ✅ `web/src/pages/maestra/Tareas.jsx:61`
+- ✅ `web/src/pages/padre/Dashboard.jsx:15-16`
+- ✅ `web/src/pages/padre/ComidaSemanal.jsx:69`
+- ✅ `web/src/components/directora/BannerComidaHoy.jsx:23`
 
-**Mobile (5 archivos):**
-- [ ] `mobile/app/(padre)/bitacora.jsx:99,108,118,132`
-- [ ] `mobile/app/(padre)/comida.jsx:59`
-- [ ] `mobile/app/(padre)/index.jsx:30-31`
-- [ ] `mobile/app/(maestra)/bitacora.jsx:129`
-- [ ] `mobile/app/(maestra)/tareas.jsx:72`
+**Mobile (5 archivos):** ✅ TODOS
+- ✅ `mobile/app/(padre)/bitacora.jsx:99,108,118,132`
+- ✅ `mobile/app/(padre)/comida.jsx:59`
+- ✅ `mobile/app/(padre)/index.jsx:30-31`
+- ✅ `mobile/app/(maestra)/bitacora.jsx:129`
+- ✅ `mobile/app/(maestra)/tareas.jsx:72`
 
-**Backend (3 archivos):**
-- [ ] `backend/src/routes/bitacora.js:64`
-- [ ] `backend/src/routes/tareas.js:57`
-- [ ] `backend/src/routes/visitantes.js:15`
+**Backend (3 archivos):** ✅ TODOS
+- ✅ `backend/src/routes/bitacora.js:64`
+- ✅ `backend/src/routes/tareas.js:57`
+- ✅ `backend/src/routes/visitantes.js:15`
 
 ---
 
-### 🐛 Bug tareas.js — foto_url guarda objeto en lugar de URL
-- [ ] `backend/src/routes/tareas.js:302,368` — cambiar a destructuring `const { url, public_id } = await uploadToCloudinary(...)` (igual que todos los demás archivos)
+### ✅ Bug tareas.js — foto_url guarda objeto en lugar de URL
+- ✅ `backend/src/routes/tareas.js:302,368` — cambiar a destructuring `const { url, public_id } = await uploadToCloudinary(...)` (igual que todos los demás archivos)
 
 ---
 

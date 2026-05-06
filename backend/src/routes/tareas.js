@@ -299,7 +299,8 @@ router.post('/', authorize('maestra_titular', 'maestra_especial'), upload.single
 
     let foto_url = null;
     if (req.file) {
-      foto_url = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
+      const { url } = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
+      foto_url = url;
     }
 
     const fecha = fecha_limite || proximoDiaHabil();
@@ -365,7 +366,8 @@ router.put('/:id', authorize('maestra_titular', 'maestra_especial'), upload.sing
     // Subir foto si viene
     let foto_url = null;
     if (req.file) {
-      foto_url = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
+      const { url } = await uploadToCloudinary(req.file.buffer, { folder: 'tareas' });
+      foto_url = url;
     }
 
     // Actualizar

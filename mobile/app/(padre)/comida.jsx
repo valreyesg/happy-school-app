@@ -56,7 +56,7 @@ const ComidaSemanal = () => {
     const hoy = new Date();
     const lunes = new Date(hoy);
     lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
-    return lunes.toISOString().split('T')[0];
+    return lunes.toLocaleDateString('en-CA');
   };
 
   const semanaActual = getSemanActual();

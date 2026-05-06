@@ -66,7 +66,7 @@ const ComidaSemanal = () => {
     const diasHasta = (8 - hoy.getDay()) % 7 || 7;
     const lunes = new Date(hoy);
     lunes.setDate(hoy.getDate() + diasHasta);
-    return lunes.toISOString().split('T')[0];
+    return lunes.toLocaleDateString('en-CA');
   };
 
   const semanaActual = getProximoLunes();

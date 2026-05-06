@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+34 (Fase C: Reportes básicos Asistencia + Tareas)
+**Última actualización:** 2026-05-06 — Sesión XX+35 (Auditoría Hardcoded FASE 8+)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -32,19 +32,8 @@
 - [ ] Actualizar `backend/.env` y activar `CLOUDINARY_ENABLED=true`
 - [ ] Audit completo de uploads: QR, foto alumno, foto personal, foto tutor, galería
 
-### ~~💰 Configuración Precios diferenciados por nivel~~ ✅ Completada Sesión XX+32
-
-### ~~🚪 Registro en Cadena de Hermanos (Entrada + Salida)~~ ✅ Completada Sesión XX+33
-
-### ~~📊 Reportes básicos~~ ✅ Completada Sesión XX+34
-
 ### 📱 Panel Plantillas WhatsApp editable (directora)
 - [ ] UI para editar las 19 plantillas desde el portal directora
-
-### 🗂️ Auditoría Hardcoded adicional (FASE 8+)
-- [ ] Scan profundo → Estatus, Grados, Tipos Pago, Motivos Salida, Emojis, etc.
-- [ ] Crear tablas dinámicas nuevas para catálogos identificados
-- [ ] Panel settings editable (recargos, tolerancia, horarios dashboard)
 
 ---
 
@@ -56,7 +45,7 @@
 - [ ] Resumen ingresos del mes
 - [ ] Lista alumnos con adeudos
 - [ ] Registro manual de pagos
-- [x] Estado colegiatura por alumno (12 cargos automáticos con recargo día 6) ✅ Job cron + recargo % implementados en Sesión XX+32
+- [x] ~~Estado colegiatura por alumno~~ ✅ Cubierto parcialmente — job cron implementado Sesión XX+32 (ver ARCHIVE_LOG)
 - [ ] Historial cobros: extensión, comida
 - [ ] Segmentación servicios: Regulares, Solo Extensión, Estancia por Día
 - [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre

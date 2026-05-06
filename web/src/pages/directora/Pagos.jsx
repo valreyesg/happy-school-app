@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import Modal from '@/components/ui/Modal';
+import { SEMAFORO, ESTADO_PAGO } from '@/utils/pagos';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -17,20 +18,6 @@ const PALETA_NIVELES = [
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-
-const SEMAFORO = {
-  verde:      { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Al corriente' },
-  amarillo:   { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Atención'     },
-  rojo:       { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Vencido'      },
-  suspendido: { bg: 'bg-gray-200',   text: 'text-gray-600',   label: 'Suspendido'   },
-};
-
-const ESTADO_PAGO = {
-  pagado:    { bg: 'bg-green-100 text-green-700',   label: 'Pagado'    },
-  pendiente: { bg: 'bg-yellow-100 text-yellow-700', label: 'Pendiente' },
-  vencido:   { bg: 'bg-red-100 text-red-700',       label: 'Vencido'   },
-  cancelado: { bg: 'bg-gray-100 text-gray-500',     label: 'Cancelado' },
-};
 
 
 function fmt(n) {
@@ -621,7 +608,7 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
                         <div key={p.id} className="bg-white rounded-xl p-3 shadow-sm border">
                           <div className="flex items-center justify-between mb-1">
                             <p className="text-xs font-black text-gray-700">{p.concepto_nombre}</p>
-                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${ep.bg}`}>{ep.label}</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${ep.bg} ${ep.text}`}>{ep.label}</span>
                           </div>
                           <p className="text-lg font-black text-gray-900">{fmt(p.monto_total)}</p>
                           {p.monto_recargo > 0 && (

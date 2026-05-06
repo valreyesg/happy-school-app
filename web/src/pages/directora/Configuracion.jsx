@@ -19,9 +19,10 @@ const CAMPOS = [
     seccion: '🏫 Horario académico y salida',
     color: 'green',
     campos: [
-      { clave: 'hora_salida_normal',    label: 'Salida normal',           tipo: 'time', desc: 'Hora de salida regular' },
-      { clave: 'hora_salida_extension', label: 'Salida con extensión',    tipo: 'time', desc: 'Máximo con extensión de horario' },
-      { clave: 'alerta_minutos_sin_recoger', label: 'Minutos de tolerancia (sin recoger)', tipo: 'number', desc: 'Minutos después de salida para alertar al padre' },
+      { clave: 'hora_salida_normal',         label: 'Salida normal',                   tipo: 'time',   desc: 'Hora de salida regular' },
+      { clave: 'hora_inicio_cobro_extension',label: 'Inicio cobro extensión',           tipo: 'time',   desc: 'A partir de esta hora se cobra extensión (aunque sea unos minutos tarde)' },
+      { clave: 'hora_salida_extension',      label: 'Límite con extensión',             tipo: 'time',   desc: 'Máximo permitido con extensión de horario' },
+      { clave: 'alerta_minutos_sin_recoger', label: 'Minutos de tolerancia sin recoger',tipo: 'number', desc: 'Minutos después de salida para alertar al padre' },
     ],
   },
   {

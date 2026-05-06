@@ -1,7 +1,64 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)**
+
+---
+
+## ✅ SESIÓN XX+35 (2026-05-06) — Auditoría Hardcoded FASE 8+
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Scan profundo de valores hardcodeados en todo el proyecto (web, mobile, backend). Se identificaron y corrigieron 7 issues concretos. El panel de configuración de la directora ya estaba implementado — solo faltaba el campo `hora_inicio_cobro_extension`.
+
+### Tareas ejecutadas
+
+1. **Estatus alumnos en cierre de ciclo — CiclosEscolares.jsx**
+   - **Archivo:** `web/src/pages/directora/CiclosEscolares.jsx`
+   - **Cambio:** Select `reinscrito/baja` hardcodeado → usa `useCatalogo('estados-alumno')` filtrado a esos dos keys. Agrega `ESTADOS_CIERRE` con el hook ya existente.
+   - **Status:** ✅ Completada
+
+2. **Horarios/montos — sin cambio necesario**
+   - **Verificación:** Backend ya lee desde `configuracion_general` (25 filas en BD). `FiltroEntrada.jsx` ya usa `usePrecioDia()` desde API. `FiltroSalida.jsx` ya lee horarios desde API.
+   - **Status:** ✅ Ya estaba bien implementado
+
+3. **Semáforo de pagos — centralizado en utils/pagos.js**
+   - **Archivo nuevo:** `web/src/utils/pagos.js`
+   - **Cambio:** `SEMAFORO` y `ESTADO_PAGO` duplicados con labels distintos en `padre/Pagos.jsx` y `directora/Pagos.jsx` → eliminados y reemplazados por import de utils/pagos.js. Fix adicional en `directora/Pagos.jsx` línea 611: badge usaba solo `ep.bg` sin `ep.text`.
+   - **Status:** ✅ Completada
+
+4. **Emojis faltantes en mobile**
+   - **Archivo:** `mobile/src/constants/catalogos.js`
+   - **Cambio:** `CONDICIONES_PANIAL`, `TIPOS_INSUMO`, `VOMITO_INTENSIDAD` — agregado campo `emoji` separado (igual que el resto de catálogos mobile).
+   - **Status:** ✅ Completada
+
+5. **Sincronización estados asistencia web↔mobile**
+   - **Archivo:** `mobile/src/constants/asistencia.js`
+   - **Cambio:** Mobile tenía `ausente` (rojo/✗) y `pendiente` (morado/?) que no coincidían con lo que devuelve el backend (`ausente` = sin registrar). Alineado a `presente | retardo | no_entrada | ausente`. Eliminado estado `pendiente` inexistente en backend.
+   - **Status:** ✅ Completada
+
+6. **NIVELES en mobile**
+   - **Archivo:** `mobile/src/constants/catalogos.js`
+   - **Cambio:** Agregado `export const NIVELES` con los 5 niveles (maternal, prekinder, kinder1, kinder2, kinder3) para uso futuro.
+   - **Status:** ✅ Completada
+
+7. **Campo faltante en UI settings — hora_inicio_cobro_extension**
+   - **Archivo:** `web/src/pages/directora/Configuracion.jsx`
+   - **Cambio:** El campo `hora_inicio_cobro_extension` existía en backend (`CLAVES_HORARIO`) y en BD, pero no aparecía en la UI. Agregado en sección "Horario académico y salida" con descripción clara.
+   - **Status:** ✅ Completada
+
+### Archivos modificados
+- `web/src/pages/directora/CiclosEscolares.jsx` — estatus alumnos a catálogo dinámico
+- `web/src/utils/pagos.js` — **nuevo** — SEMAFORO + ESTADO_PAGO centralizados
+- `web/src/pages/padre/Pagos.jsx` — import desde utils/pagos.js
+- `web/src/pages/directora/Pagos.jsx` — import desde utils/pagos.js + fix badge
+- `web/src/pages/directora/Configuracion.jsx` — campo hora_inicio_cobro_extension
+- `mobile/src/constants/catalogos.js` — emojis + NIVELES
+- `mobile/src/constants/asistencia.js` — alineación con backend
+
+### Paridad Web ↔ Mobile: ✅ Aplicada (los cambios mobile son parte central de esta sesión)
 
 ---
 

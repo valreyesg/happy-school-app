@@ -33,21 +33,29 @@ export const TIEMPOS_COMIDA = [
 ];
 
 export const CONDICIONES_PANIAL = [
-  { key: 'limpio',  label: 'Limpio'   },
-  { key: 'orina',   label: 'Pipí'     },
-  { key: 'heces',   label: 'Popó'     },
-  { key: 'mixto',   label: 'Mixto'    },
-  { key: 'diarrea', label: '⚠️ Diarrea' },
+  { key: 'limpio',  emoji: '✅', label: 'Limpio'   },
+  { key: 'orina',   emoji: '💧', label: 'Pipí'     },
+  { key: 'heces',   emoji: '💩', label: 'Popó'     },
+  { key: 'mixto',   emoji: '🔄', label: 'Mixto'    },
+  { key: 'diarrea', emoji: '⚠️', label: 'Diarrea'  },
 ];
 
 export const TIPOS_INSUMO = [
-  { key: 'panial',    label: 'Pañal'     },
-  { key: 'toallitas', label: 'Toallitas' },
-  { key: 'crema',     label: 'Crema'     },
+  { key: 'panial',    emoji: '👶', label: 'Pañal'     },
+  { key: 'toallitas', emoji: '🧻', label: 'Toallitas' },
+  { key: 'crema',     emoji: '🧴', label: 'Crema'     },
 ];
 
 export const VOMITO_INTENSIDAD = [
-  { key: 'leve',     label: 'Leve'     },
-  { key: 'moderado', label: 'Moderado' },
-  { key: 'fuerte',   label: 'Fuerte'   },
+  { key: 'leve',     emoji: '🤢', label: 'Leve'     },
+  { key: 'moderado', emoji: '🤮', label: 'Moderado' },
+  { key: 'fuerte',   emoji: '🚨', label: 'Fuerte'   },
+];
+
+export const NIVELES = [
+  { key: 'maternal',  label: 'Maternal'  },
+  { key: 'prekinder', label: 'Prekinder' },
+  { key: 'kinder1',   label: 'Kinder 1'  },
+  { key: 'kinder2',   label: 'Kinder 2'  },
+  { key: 'kinder3',   label: 'Kinder 3'  },
 ];

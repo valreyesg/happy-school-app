@@ -105,6 +105,10 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
   const { items: NIVELES_CATALOGO } = useCatalogo('niveles');
   const NIVELES = NIVELES_CATALOGO.map(n => ({ nivel: n.label, nivel_codigo: n.key }));
 
+  const { items: ESTADOS_CIERRE } = useCatalogo('estados-alumno');
+  // En cierre de ciclo solo aplican reinscrito y baja (egresado se detecta por kinder3)
+  const estadosCierre = ESTADOS_CIERRE.filter(e => ['reinscrito', 'baja'].includes(e.key));
+
   const cambiarEstado = (idx, nuevoEstado) => {
     setAjustes(a => {
       const copia = [...a];
@@ -495,8 +499,9 @@ function ModalPromocion({ cicloActual, ciclos, alumnos: alumnosOriginal, onClose
                                 onChange={e => cambiarEstado(idx, e.target.value)}
                                 className="input-hs text-xs py-1 px-2"
                               >
-                                <option value="reinscrito">Reinscrito</option>
-                                <option value="baja">Baja</option>
+                                {estadosCierre.map(e => (
+                                  <option key={e.key} value={e.key}>{e.label}</option>
+                                ))}
                               </select>
                             )}
                           </td>

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { X, CalendarPlus } from 'lucide-react';
+import { X, CalendarPlus, QrCode } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Modal from '@/components/ui/Modal';
+import toast from 'react-hot-toast';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -488,6 +489,84 @@ function TareaRecienteCard({ hijo }) {
   );
 }
 
+function QRAccesoSection({ hijos }) {
+  const [qrModal, setQrModal] = useState(null);
+
+  const handleDescargar = async (hijo) => {
+    if (!hijo.qr_code_url) return;
+    try {
+      // Para data URLs, crear blob directamente
+      let blob;
+      if (hijo.qr_code_url.startsWith('data:')) {
+        const res = await fetch(hijo.qr_code_url);
+        blob = await res.blob();
+      } else {
+        const res = await fetch(hijo.qr_code_url);
+        blob = await res.blob();
+      }
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `QR-${hijo.nombre_completo.replace(/\s+/g, '-')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('QR descargado');
+    } catch {
+      toast.error('Error al descargar el QR');
+    }
+  };
+
+  const hijosConQR = hijos.filter(h => h.qr_code_url);
+  if (hijosConQR.length === 0) return null;
+
+  return (
+    <>
+      <div>
+        <h2 className="text-base font-black text-gray-700 mb-3">📱 QR de acceso</h2>
+        <div className="space-y-2">
+          {hijosConQR.map(hijo => (
+            <div key={hijo.id} className="card-hs px-4 py-3 flex items-center gap-3 border border-hs-purple/20">
+              <QrCode size={24} className="text-hs-purple shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-black text-gray-800 truncate">{hijo.nombre_completo}</p>
+                <p className="text-xs font-semibold text-gray-500">Código para entrada y salida</p>
+              </div>
+              <button
+                onClick={() => setQrModal(hijo)}
+                className="px-3 py-1.5 rounded-xl bg-hs-purple/10 text-hs-purple font-bold text-xs hover:bg-hs-purple/20 transition-colors"
+              >
+                Ver QR
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <Modal open={!!qrModal} onClose={() => setQrModal(null)} title="QR de acceso" size="sm">
+        {qrModal && (
+          <div className="text-center">
+            <p className="font-bold text-gray-700 mb-4">{qrModal.nombre_completo}</p>
+            <img
+              src={qrModal.qr_code_url}
+              alt="QR de acceso"
+              className="w-56 h-56 mx-auto rounded-2xl border-4 border-hs-purple/20 object-contain"
+            />
+            <p className="text-xs text-gray-500 mt-3 mb-4">Presenta este código en la entrada y salida del kínder</p>
+            <button
+              onClick={() => handleDescargar(qrModal)}
+              className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm hover:bg-hs-purple-dark transition-colors"
+            >
+              ⬇️ Descargar QR
+            </button>
+          </div>
+        )}
+      </Modal>
+    </>
+  );
+}
+
 export default function PadreDashboard() {
   const { usuario } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
@@ -539,6 +618,9 @@ export default function PadreDashboard() {
           ))}
         </div>
       </div>
+
+      {/* QR de acceso */}
+      <QRAccesoSection hijos={hijos} />
 
       {/* Tareas pendientes */}
       <div>

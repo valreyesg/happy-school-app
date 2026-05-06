@@ -1,28 +1,7 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-05 — Sesión XX+29 (FASE A: Bug fechas UTC + tareas.js)
+**Última actualización:** 2026-05-05 — Sesión XX+30 (Fase A completada + QR padre)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
-
----
-
-## ⚡ FASE A — Esta sesión o la próxima (30 min – 2 horas)
-
-### 🔌 Módulo WhatsApp desacoplado (ya casi listo)
-> WhatsApp es opcional. Si no hay credenciales Twilio → notificaciones en-app siguen, Twilio silenciado sin errores.
-
-- [ ] `backend/src/services/whatsappService.js` — proteger inicialización: si `TWILIO_ACCOUNT_SID` vacío → no-op silencioso
-- [ ] `backend/.env` — agregar `WHATSAPP_ENABLED=false`
-- [ ] `backend/.env.example` — documentar flag
-
----
-
-### 🔌 Fix qrService.js — usar cloudinaryService centralizado
-- [ ] `backend/src/services/qrService.js` — refactorizar para usar `cloudinaryService.js` en vez de cloudinary directo (así hereda el modo disabled)
-
----
-
-### 🌐 Validación en browser pendiente — Batch D.4+
-- [ ] `directora/Alumnos.jsx` — ModalQR: validar mostrar QR, descargar, regenerar (UI implementada)
 
 ---
 

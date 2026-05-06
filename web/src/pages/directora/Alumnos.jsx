@@ -220,10 +220,18 @@ function ModalQR({ alumno, onCerrar, regenerarMutation }) {
   const [qrUrl, setQrUrl] = useState(alumno.qr_code_url);
   const [descargando, setDescargando] = useState(false);
 
+  // Sincronizar si el prop cambia (ej: después de invalidateQueries)
+  useEffect(() => {
+    if (alumno.qr_code_url && alumno.qr_code_url !== qrUrl) {
+      setQrUrl(alumno.qr_code_url);
+    }
+  }, [alumno.qr_code_url]);
+
   const handleRegenerar = () => {
     regenerarMutation.mutate(undefined, {
       onSuccess: (res) => {
-        setQrUrl(res.qr_code_url || alumno.qr_code_url);
+        const url = res.data?.qr_code_url || res.qr_code_url || alumno.qr_code_url;
+        setQrUrl(url);
       },
     });
   };

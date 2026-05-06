@@ -1,11 +1,7 @@
 const QRCode = require('qrcode');
-const cloudinary = require('cloudinary').v2;
+const { uploadToCloudinary } = require('./cloudinaryService');
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const isProduction = process.env.NODE_ENV === 'production';
 
 const generarQR = async (alumnoId, data) => {
   // Generar QR como buffer PNG
@@ -16,22 +12,21 @@ const generarQR = async (alumnoId, data) => {
     color: { dark: '#2D3748', light: '#FFFFFF' },
   });
 
-  // Subir a Cloudinary
-  return new Promise((resolve, reject) => {
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: `happy-school/qr-codes`,
-        public_id: `alumno-${alumnoId}`,
-        overwrite: true,
-        resource_type: 'image',
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        resolve({ qr_url: result.secure_url, public_id: result.public_id });
-      }
-    );
-    uploadStream.end(qrBuffer);
-  });
+  if (isProduction) {
+    // Producción: subir a Cloudinary
+    const result = await uploadToCloudinary(qrBuffer, {
+      folder: 'happy-school/qr-codes',
+      public_id: `alumno-${alumnoId}`,
+      overwrite: true,
+      resource_type: 'image',
+    });
+    return { qr_url: result.url, public_id: result.public_id };
+  } else {
+    // Desarrollo: retornar como data URL (imagen real visible sin Cloudinary)
+    const base64 = qrBuffer.toString('base64');
+    const qr_url = `data:image/png;base64,${base64}`;
+    return { qr_url, public_id: null };
+  }
 };
 
 module.exports = { generarQR };

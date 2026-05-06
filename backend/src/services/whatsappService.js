@@ -27,6 +27,9 @@ const rellenarPlantilla = (plantilla, variables) => {
 };
 
 const enviarMensaje = async ({ telefono, clave, variables, alumnoId, mensajeDirecto }) => {
+  // Flag de entorno: si WHATSAPP_ENABLED=false → no-op sin tocar BD
+  if (process.env.WHATSAPP_ENABLED === 'false') return { omitido: true };
+
   const whatsappActivo = await query(
     "SELECT valor FROM configuracion_general WHERE clave = 'whatsapp_activo'"
   );

@@ -1,7 +1,7 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Ãšltima actualizaciÃ³n:** 2026-05-04 | Sesiones documentadas: 7 â†’ 82 â†’ XX â†’ 83 â†’ 84 â†’ 85 â†’ 86 â†’ XX (insumos) â†’ XX (Mejoras Salud) â†’ XX+1 (Salida Anticipada) â†’ XX+2 (Mobile Bloques 3+5B) â†’ XX+3 (Pendientes ValidaciÃ³n Salud) â†’ XX+4 (ValidaciÃ³n SesiÃ³n 81 + Fixes Tutores) â†’ XX+5 (Validaciones Edge + Limpieza PENDIENTES) â†’ XX+6 (CatÃ¡logos Administrables FASES 1-3 + inicio FASE 4) â†’ XX+7 (CatÃ¡logos FASE 4 COMPLETADA) â†’ XX+8 (CatÃ¡logos FASE 5 + ValidaciÃ³n PaÃ±alâ†’Insumos) â†’ XX+11 (IntegraciÃ³n CatÃ¡logos + Docs Tutores + Notificaciones + CategorÃ­as Eventos) â†’ XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 DecisiÃ³n NativeWind) â†’ XX+18 (ValidaciÃ³n FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) â†’ XX+19 (FASE 5.2 Batch C ValidaciÃ³n + Fix Tareas FormData) â†’ XX+20 (FASE 5.2 Batch D.1-3 ValidaciÃ³n Personal + 3 Bug Fixes) â†’ XX+21 (FASE 5.2 Batch B ValidaciÃ³n Usuarios.jsx) â†’ XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) â†’ **XX+23 (Asignar Maestras Titulares en Grupos)** â†’ **XX+24 (ModalAlumno Alergias + ModalQR)** â†’ **XX+25 (Bug Comida â€” DÃ­as Desplazados)** â†’ **XX+26 (AuditorÃ­a UX/UI â€” Consistency web + mobile)** â†’ **XX+27 (FASE 7 CatÃ¡logos DinÃ¡micos â€” Tareas 6-10)**
+**Ãšltima actualizaciÃ³n:** 2026-05-05 | Sesiones documentadas: 7 â†’ 82 â†’ XX â†’ 83 â†’ 84 â†’ 85 â†’ 86 â†’ XX (insumos) â†’ XX (Mejoras Salud) â†’ XX+1 (Salida Anticipada) â†’ XX+2 (Mobile Bloques 3+5B) â†’ XX+3 (Pendientes ValidaciÃ³n Salud) â†’ XX+4 (ValidaciÃ³n SesiÃ³n 81 + Fixes Tutores) â†’ XX+5 (Validaciones Edge + Limpieza PENDIENTES) â†’ XX+6 (CatÃ¡logos Administrables FASES 1-3 + inicio FASE 4) â†’ XX+7 (CatÃ¡logos FASE 4 COMPLETADA) â†’ XX+8 (CatÃ¡logos FASE 5 + ValidaciÃ³n PaÃ±alâ†’Insumos) â†’ XX+11 (IntegraciÃ³n CatÃ¡logos + Docs Tutores + Notificaciones + CategorÃ­as Eventos) â†’ XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 DecisiÃ³n NativeWind) â†’ XX+18 (ValidaciÃ³n FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) â†’ XX+19 (FASE 5.2 Batch C ValidaciÃ³n + Fix Tareas FormData) â†’ XX+20 (FASE 5.2 Batch D.1-3 ValidaciÃ³n Personal + 3 Bug Fixes) â†’ XX+21 (FASE 5.2 Batch B ValidaciÃ³n Usuarios.jsx) â†’ XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) â†’ **XX+23 (Asignar Maestras Titulares en Grupos)** â†’ **XX+24 (ModalAlumno Alergias + ModalQR)** â†’ **XX+25 (Bug Comida â€” DÃ­as Desplazados)** â†’ **XX+26 (AuditorÃ­a UX/UI â€” Consistency web + mobile)** â†’ **XX+27 (FASE 7 CatÃ¡logos DinÃ¡micos â€” Tareas 6-10)** â†’ **XX+30 (Fase A + QR Padre)**
 
 ---
 
@@ -3882,6 +3882,42 @@ APP-KINDER/
 - [ ] AuditorÃ­a hardcodeados (estatus, grados, roles, tipos pago, etc)
 - [ ] Crear tablas dinÃ¡micas para catÃ¡logos nuevos
 - [ ] Panel settings editable
+
+---
+
+## ✅ SESIÓN XX+30 (2026-05-05) — Fase A Completada + QR Portal Padre
+
+**Fecha:** 2026-05-05 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Completada toda la Fase A de PENDIENTES: módulo WhatsApp desacoplado, qrService refactorizado, ModalQR fix, y QR visible en portal padre/tutor.
+
+### Tareas ejecutadas
+
+1. **Módulo WhatsApp desacoplado**
+   - **Archivo:** `backend/src/services/whatsappService.js`
+   - **Cambio:** Agregado check `WHATSAPP_ENABLED=false` → no-op silencioso sin tocar BD
+   - **Archivos config:** `.env` y `.env.example` con flag documentado
+   - **Status:** ✅ Completada
+
+2. **Fix qrService.js — usar cloudinaryService centralizado**
+   - **Archivo:** `backend/src/services/qrService.js`
+   - **Cambio:** Eliminado `require('cloudinary')` directo, ahora usa `cloudinaryService.uploadToCloudinary()`. En dev retorna data URL base64 (imagen visible sin Cloudinary real)
+   - **Status:** ✅ Completada
+
+3. **Fix ModalQR — no mostraba QR después de generar**
+   - **Archivo:** `web/src/pages/directora/Alumnos.jsx`
+   - **Bugs corregidos:**
+     - `onSuccess` accedía `res.qr_code_url` en vez de `res.data.qr_code_url` (axios wrapper)
+     - Faltaba `useEffect` para sincronizar cuando `alumno.qr_code_url` cambia post-refetch
+   - **Status:** ✅ Completada
+
+4. **QR visible en portal padre/tutor (web)**
+   - **Archivo:** `web/src/pages/padre/Dashboard.jsx`
+   - **Cambio:** Nueva sección `QRAccesoSection` con modal para ver y descargar QR
+   - **Paridad mobile:** Ya existía `mobile/app/(padre)/qr.jsx` ✅
+   - **Status:** ✅ Completada
 
 ---
 

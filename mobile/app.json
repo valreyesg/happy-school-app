@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#E9D5FF"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "mx.happyschool.app",
@@ -53,7 +55,8 @@
         {
           "cameraPermission": "Necesitamos acceso a la cámara para escanear QR y tomar fotos"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "scheme": "happyschool",
     "extra": {

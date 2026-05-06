@@ -1,7 +1,63 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Ãšltima actualizaciÃ³n:** 2026-05-05 | Sesiones documentadas: 7 â†’ 82 â†’ XX â†’ 83 â†’ 84 â†’ 85 â†’ 86 â†’ XX (insumos) â†’ XX (Mejoras Salud) â†’ XX+1 (Salida Anticipada) â†’ XX+2 (Mobile Bloques 3+5B) â†’ XX+3 (Pendientes ValidaciÃ³n Salud) â†’ XX+4 (ValidaciÃ³n SesiÃ³n 81 + Fixes Tutores) â†’ XX+5 (Validaciones Edge + Limpieza PENDIENTES) â†’ XX+6 (CatÃ¡logos Administrables FASES 1-3 + inicio FASE 4) â†’ XX+7 (CatÃ¡logos FASE 4 COMPLETADA) â†’ XX+8 (CatÃ¡logos FASE 5 + ValidaciÃ³n PaÃ±alâ†’Insumos) â†’ XX+11 (IntegraciÃ³n CatÃ¡logos + Docs Tutores + Notificaciones + CategorÃ­as Eventos) â†’ XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 DecisiÃ³n NativeWind) â†’ XX+18 (ValidaciÃ³n FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) â†’ XX+19 (FASE 5.2 Batch C ValidaciÃ³n + Fix Tareas FormData) â†’ XX+20 (FASE 5.2 Batch D.1-3 ValidaciÃ³n Personal + 3 Bug Fixes) â†’ XX+21 (FASE 5.2 Batch B ValidaciÃ³n Usuarios.jsx) â†’ XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) â†’ **XX+23 (Asignar Maestras Titulares en Grupos)** â†’ **XX+24 (ModalAlumno Alergias + ModalQR)** â†’ **XX+25 (Bug Comida â€” DÃ­as Desplazados)** â†’ **XX+26 (AuditorÃ­a UX/UI â€” Consistency web + mobile)** â†’ **XX+27 (FASE 7 CatÃ¡logos DinÃ¡micos â€” Tareas 6-10)** â†’ **XX+30 (Fase A + QR Padre)**
+**Última actualización:** 2026-05-05 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)**
+
+---
+
+## ✅ SESIÓN XX+31 (2026-05-05) — FASE B parcial: Cloudinary desacoplado + Mobile en celular Android
+
+**Fecha:** 2026-05-05 | **Estado:** ✅ VALIDADO POR VALERIA
+
+### Resumen
+
+Fase B parcial completada: Cloudinary desacoplado con flag `CLOUDINARY_ENABLED`, app mobile funcionando en celular Android via Expo Go (SDK 54), imports duplicados corregidos en 9 archivos, y botón cerrar sesión agregado en portales padre y maestra.
+
+### Tareas ejecutadas
+
+1. **Cloudinary desacoplado — flag CLOUDINARY_ENABLED**
+   - **Archivo:** `backend/src/services/cloudinaryService.js`
+   - **Cambio:** Nuevo flag `CLOUDINARY_ENABLED` en .env. Si `false` → mock silencioso sin error 500
+   - **Archivos adicionales:** `backend/.env`, `backend/.env.example`
+   - **Status:** ✅ Completada
+
+2. **Acceso mobile desde celular Android via Expo Go**
+   - **Archivo:** `mobile/.env` — API_URL apuntando a IP local `192.168.1.91:3000`
+   - **Cambio:** Configuración red local + reglas firewall Windows puertos 3000 y 8081
+   - **Status:** ✅ Completada y validada en celular
+
+3. **Fix imports duplicados en 9 archivos mobile**
+   - **Archivos:** `(maestra)/_layout.jsx`, `(maestra)/tareas.jsx`, `(maestra)/bitacora.jsx`, `(padre)/_layout.jsx`, `(padre)/index.jsx`, `(padre)/bitacora.jsx`, `(padre)/calendario.jsx`, `(padre)/pagos.jsx`, `(padre)/qr.jsx`, `login.jsx`
+   - **Cambio:** Eliminación de imports duplicados de `@/constants/theme` intercalados entre cada import
+   - **Status:** ✅ Completada
+
+4. **Actualización SDK 52 → SDK 54**
+   - **Archivo:** `mobile/package.json` — expo ^54.0.34, react 19.1.0, react-native 0.81.5
+   - **Cambio:** Actualización completa de dependencias para compatibilidad con Expo Go SDK 54
+   - **Dependencias agregadas:** `react-native-toast-message`, `expo-linking`, `expo-constants`, `expo-system-ui`, `react-native-worklets`
+   - **Status:** ✅ Completada
+
+5. **Remoción plugin nativewind/babel (no usado)**
+   - **Archivo:** `mobile/babel.config.js`
+   - **Cambio:** Eliminado `nativewind/babel` del array de plugins (no se usa en el proyecto)
+   - **Status:** ✅ Completada
+
+6. **Creación assets placeholder**
+   - **Archivos:** `mobile/assets/icon.png`, `splash.png`, `adaptive-icon.png`, `favicon.png`, `notification-icon.png`
+   - **Cambio:** PNGs mínimos placeholder para que Expo no falle al iniciar
+   - **Status:** ✅ Completada
+
+7. **Botón cerrar sesión en portales padre y maestra**
+   - **Archivos:** `mobile/app/(padre)/index.jsx`, `mobile/app/(maestra)/index.jsx`
+   - **Cambio:** Botón 🚪 con fondo rosa en header → Alert confirmación → logout → redirect login
+   - **Status:** ✅ Completada y validada
+
+### Bugs encontrados y corregidos
+- Import duplicado `COLORS` / `COLORS, RADIUS` en 9 archivos (generación de código previa)
+- Plugin `nativewind/babel` referenciado pero no instalado ni usado
+- Assets faltantes (`icon.png`, `splash.png`, etc.)
+- Paquete `react-native-toast-message` faltante
+- SDK 52 incompatible con Expo Go SDK 54
 
 ---
 

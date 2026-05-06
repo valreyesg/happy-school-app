@@ -1,42 +1,25 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-05 — Sesión XX+30 (Fase A completada + QR padre)
+**Última actualización:** 2026-05-05 — Sesión XX+31 (Fase B parcial: Cloudinary desacoplado + Mobile en celular + SDK 54)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🔧 FASE B — Próximas 1–2 sesiones
-
-### 🔌 Módulo Cloudinary desacoplado (opcional para la directora)
-> Si no se tienen credenciales Cloudinary → fotos no suben pero el sistema no da error 500.
-
-- [ ] `backend/src/services/cloudinaryService.js` — agregar flag `CLOUDINARY_ENABLED`: si `false` → retorna `{ url: null, public_id: null }` sin errores
-- [ ] `backend/.env` — agregar `CLOUDINARY_ENABLED=false`
-- [ ] `backend/.env.example` — documentar flag
-- [ ] Configurar credenciales reales de Cloudinary cuando estén disponibles
-
----
-
-### 📱 Acceso desde celular / otra computadora
-> Valeria quiere ver la app desde su celular o desde otra compu.
-
-**Opción A — Red local (10 min, sin internet):**
-- [ ] `web/vite.config.js` — agregar `server: { host: '0.0.0.0' }` para exponer en red local
-- [ ] Obtener IP local: `ipconfig` en Windows
-- [ ] Mobile: `npx expo start --lan` para ver en Expo Go con la misma red WiFi
-- [ ] Acceso: `http://192.168.x.x:5173` desde celular en la misma red
-
-**Opción C — Deploy real (producción, 1 sesión):**
-- [ ] Backend en Railway o Render (plan gratis disponible)
-- [ ] Web en Vercel o Netlify
-- [ ] Mobile en Expo Go o generar APK
-
----
+## 🔧 FASE B — Pendientes restantes
 
 ### 🧪 Validación Módulo SALUD Y MEDICACIÓN — casos edge
 - [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → validar NO ejecuta
 - [ ] Job cron a las 15:58 (dentro de rango lun-vie) → validar ejecuta correctamente
 - [ ] Cambio de fecha (medianoche) → datos de ayer no aparecen (aislamiento por día)
+
+### 📱 Deploy real (producción)
+- [ ] Backend en Railway o Render (plan gratis disponible)
+- [ ] Web en Vercel o Netlify
+- [ ] Mobile en Expo Go o generar APK
+
+### 📝 Feedback Valeria — Portal Padre Mobile
+- [ ] Revisar comentarios de Valeria sobre portal padre (próxima sesión)
+- [ ] Mejoras UX portal padre mobile
 
 ---
 

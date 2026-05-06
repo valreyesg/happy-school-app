@@ -2,24 +2,16 @@ import { useState } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
-  ActivityIndicator,
+  ActivityIndicator, Alert,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { router } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
-import { COLORS, RADIUS } from '@/constants/theme';
 import api from '@/services/api';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '@/hooks/useCatalogo';
-import { COLORS, RADIUS } from '@/constants/theme';
 import NotificationBell from '@/components/NotificationBell';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
-import { COLORS, RADIUS } from '@/constants/theme';
 import Button from '@/components/Button';
 
 function proximos3Dias() {
@@ -132,7 +124,7 @@ function ModalEvento({ ev, onClose }) {
 }
 
 export default function PadreDashboard() {
-  const { usuario } = useAuthStore();
+  const { usuario, logout } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
@@ -159,15 +151,23 @@ export default function PadreDashboard() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greeting} numberOfLines={1}>
               {saludoPadre(usuario?.parentesco, usuario?.nombre)} 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <NotificationBell />
-            <Text style={{ fontSize: 36 }}>👨🏻‍👩🏻‍👧🏻</Text>
+            <TouchableOpacity
+              onPress={() => Alert.alert('Cerrar sesión', '¿Segura que quieres salir?', [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Salir', style: 'destructive', onPress: async () => { await logout(); router.replace('/login'); } },
+              ])}
+              style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontSize: 20 }}>🚪</Text>
+            </TouchableOpacity>
           </View>
         </View>
 

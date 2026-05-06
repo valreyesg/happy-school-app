@@ -1,13 +1,9 @@
 import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { RADIUS } from '@/constants/theme';
 import { useQuery } from '@tanstack/react-query';
-import { RADIUS } from '@/constants/theme';
 import api from '@/services/api';
-import { RADIUS } from '@/constants/theme';
 import { useState } from 'react';
-import { RADIUS } from '@/constants/theme';
 
 export default function PadreQRScreen() {
   const [selectedIndex, setSelectedIndex] = useState(0);

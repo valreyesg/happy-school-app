@@ -1,10 +1,11 @@
 const crypto = require('crypto');
 
-// Mock de Cloudinary para desarrollo (sin credenciales reales)
 const isProduction = process.env.NODE_ENV === 'production';
-const cloudinary = isProduction ? require('cloudinary').v2 : null;
+const cloudinaryEnabled = process.env.CLOUDINARY_ENABLED === 'true';
 
-if (isProduction && cloudinary) {
+let cloudinary = null;
+if (isProduction && cloudinaryEnabled) {
+  cloudinary = require('cloudinary').v2;
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -13,8 +14,8 @@ if (isProduction && cloudinary) {
 }
 
 const uploadToCloudinary = async (buffer, options = {}) => {
-  if (isProduction && cloudinary) {
-    // Subida real a Cloudinary en producción
+  if (cloudinary) {
+    // Subida real a Cloudinary
     return new Promise((resolve, reject) => {
       const { Readable } = require('stream');
       const stream = cloudinary.uploader.upload_stream(
@@ -31,7 +32,7 @@ const uploadToCloudinary = async (buffer, options = {}) => {
       readable.pipe(stream);
     });
   } else {
-    // Mock para desarrollo: generar URL simulada
+    // Cloudinary desactivado o desarrollo: generar URL simulada
     const publicId = `mock/${options.folder || 'default'}/${crypto.randomBytes(8).toString('hex')}`;
     const url = `https://res.cloudinary.com/mock-dev/image/upload/v1/${publicId}`;
     return { url, public_id: publicId };
@@ -40,10 +41,9 @@ const uploadToCloudinary = async (buffer, options = {}) => {
 
 const deleteFromCloudinary = async (publicId) => {
   if (!publicId) return;
-  if (isProduction && cloudinary) {
+  if (cloudinary) {
     return cloudinary.uploader.destroy(publicId);
   }
-  // Mock: no hacer nada
   return { result: 'ok' };
 };
 

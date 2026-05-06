@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Image, ActivityIndicator, FlatList,
+  StyleSheet, Image, ActivityIndicator, FlatList, Alert,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -19,7 +19,7 @@ function saludoHora() {
 }
 
 export default function MaestraDashboard() {
-  const { usuario } = useAuthStore();
+  const { usuario, logout } = useAuthStore();
   const { items: itemsAnimo } = useCatalogo('animo');
   const EMOJIS_ANIMO = Object.fromEntries(
     (itemsAnimo || []).map(i => [i.valor, i.etiqueta])
@@ -50,14 +50,22 @@ export default function MaestraDashboard() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.greeting} numberOfLines={1}>
               ¡{saludoHora()}, {usuario?.genero === 'm' ? 'Teacher' : 'Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <View style={styles.avatarMaestra}>
-            <Text style={{ fontSize: 24 }}>👩🏻‍🏫</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <TouchableOpacity
+              onPress={() => Alert.alert('Cerrar sesión', '¿Segura que quieres salir?', [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Salir', style: 'destructive', onPress: async () => { await logout(); router.replace('/login'); } },
+              ])}
+              style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontSize: 20 }}>🚪</Text>
+            </TouchableOpacity>
           </View>
         </View>
 

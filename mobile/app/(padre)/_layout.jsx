@@ -1,7 +1,6 @@
 import { Tabs } from 'expo-router';
 import { COLORS } from '@/constants/theme';
 import { View, Text } from 'react-native';
-import { COLORS } from '@/constants/theme';
 
 const TabIcon = ({ emoji, label, focused }) => (
   <View style={{ alignItems: 'center', gap: 2 }}>

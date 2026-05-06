@@ -5,15 +5,10 @@ import {
   StyleSheet, ActivityIndicator, Alert, Switch, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
-import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

@@ -5,15 +5,10 @@ import {
   StyleSheet, ActivityIndicator, Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useFocusEffect } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useQuery } from '@tanstack/react-query';
-import { COLORS, RADIUS } from '@/constants/theme';
 import api from '../../src/services/api';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { buildGoogleCalendarUrl } from '../../src/utils/googleCalendar';
-import { COLORS, RADIUS } from '@/constants/theme';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

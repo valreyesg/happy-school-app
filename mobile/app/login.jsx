@@ -5,11 +5,8 @@ import {
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, RADIUS } from '@/constants/theme';
 import { useAuthStore } from '@/store/authStore';
-import { COLORS, RADIUS } from '@/constants/theme';
 
 export default function LoginScreen() {
   const { login } = useAuthStore();

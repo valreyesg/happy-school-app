@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Download, FileSpreadsheet, FileText } from 'lucide-react';
 import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
@@ -123,6 +123,29 @@ function FilaAlumno({ alumno }) {
 
 // ── Vista mensual ─────────────────────────────────────────────────────────────
 
+function descargarReporte(tipo, formato, mes, anio, grupoId) {
+  const params = new URLSearchParams({ mes, anio, formato });
+  if (grupoId) params.append('grupo_id', grupoId);
+
+  const ext = formato === 'excel' ? 'xlsx' : 'pdf';
+  const MESES_LABEL = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const filename = `${tipo}-${MESES_LABEL[mes]}-${anio}.${ext}`;
+
+  toast.promise(
+    api.get(`/reportes/${tipo}?${params.toString()}`, { responseType: 'blob' }).then(({ data }) => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    }),
+    { loading: 'Generando reporte...', success: `Descargado: ${filename}`, error: 'Error al generar reporte' }
+  );
+}
+
 function VistaMensual({ grupoId }) {
   const queryClient = useQueryClient();
   const hoy = new Date();
@@ -187,7 +210,7 @@ function VistaMensual({ grupoId }) {
 
   return (
     <div className="space-y-4">
-      {/* Navegador de mes */}
+      {/* Navegador de mes + botones descarga */}
       <div className="flex items-center gap-3">
         <button onClick={prev} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
           <ChevronLeft size={20} className="text-gray-600" />
@@ -196,15 +219,51 @@ function VistaMensual({ grupoId }) {
         <button onClick={next} className="p-2 rounded-xl hover:bg-gray-100 transition-colors">
           <ChevronRight size={20} className="text-gray-600" />
         </button>
+
+        <div className="flex gap-1 ml-2">
+          <button
+            onClick={() => descargarReporte('asistencia', 'excel', mes, anio, grupoId)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+            title="Descargar Excel"
+          >
+            <FileSpreadsheet size={14} /> Excel
+          </button>
+          <button
+            onClick={() => descargarReporte('asistencia', 'pdf', mes, anio, grupoId)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+            title="Descargar PDF"
+          >
+            <FileText size={14} /> PDF
+          </button>
+        </div>
       </div>
 
-      {/* Leyenda */}
-      <div className="flex gap-3 text-xs font-bold flex-wrap">
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-400 inline-block" /> Presente</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-400 inline-block" /> Retardo</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> No entró</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-hs-blue inline-block" /> Justificado</span>
-        <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Sin dato</span>
+      {/* Leyenda + Reporte Tareas */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex gap-3 text-xs font-bold flex-wrap">
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-green-400 inline-block" /> Presente</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-yellow-400 inline-block" /> Retardo</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-red-500 inline-block" /> No entró</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-hs-blue inline-block" /> Justificado</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block" /> Sin dato</span>
+        </div>
+        <div className="flex gap-1">
+          <span className="text-xs font-bold text-gray-400 self-center mr-1">Tareas:</span>
+          <button
+            onClick={() => descargarReporte('tareas', 'excel', mes, anio, grupoId)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+            title="Reporte Tareas Excel"
+          >
+            <FileSpreadsheet size={12} /> Excel
+          </button>
+          <button
+            onClick={() => descargarReporte('tareas', 'pdf', mes, anio, grupoId)}
+            className="flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+            title="Reporte Tareas PDF"
+          >
+            <FileText size={12} /> PDF
+          </button>
+        </div>
       </div>
 
       {isLoading ? (

@@ -1,7 +1,48 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)**
+
+---
+
+## ✅ SESIÓN XX+34 (2026-05-06) — FASE C: Reportes básicos Asistencia + Tareas
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ VALIDADO POR VALERIA
+
+### Resumen
+
+Reportes básicos descargables en Excel y PDF integrados directamente en los módulos correspondientes: reporte de asistencia y tareas desde la vista mensual de Asistencia (directora), y reporte de tareas desde el módulo Tareas (maestra).
+
+### Tareas ejecutadas
+
+1. **Backend — Endpoint GET /reportes/asistencia**
+   - **Archivo:** `backend/src/routes/reportes.js`
+   - **Cambio:** Excel con columna por día hábil, celdas coloreadas (P/R/A/J/NE), totales y % asistencia. PDF resumen A4 landscape. Días hábiles: lunes-viernes excluyendo eventos tipo Suspensión del calendario.
+   - **Fix:** Tabla `calendario_escolar` no existe → usa `eventos` + `categorias_evento`
+   - **Status:** ✅ Completada
+
+2. **Backend — Endpoint GET /reportes/tareas**
+   - **Archivo:** `backend/src/routes/reportes.js`
+   - **Cambio:** Excel con 2 hojas (resumen por alumno + detalle por tarea), colores por % entrega (<70% rojo, 70-90% amarillo, >90% verde). PDF resumen A4 portrait.
+   - **Roles:** directora, administrativo, maestra_titular, maestra_especial
+   - **Status:** ✅ Completada
+
+3. **Web — Botones descarga en Directora/Asistencia (vista Mensual)**
+   - **Archivo:** `web/src/pages/directora/Asistencia.jsx`
+   - **Cambio:** Función `descargarReporte()` con `toast.promise`. Botones Excel/PDF para asistencia junto al navegador de mes. Botones Excel/PDF para tareas junto a la leyenda. Usa grupo y mes ya seleccionados.
+   - **Status:** ✅ Completada
+
+4. **Web — Botones descarga en Maestra/Tareas**
+   - **Archivo:** `web/src/pages/maestra/Tareas.jsx`
+   - **Cambio:** Botones Excel/PDF en el header junto a "Nueva Tarea". Descarga tareas del mes actual del grupo de la maestra.
+   - **Status:** ✅ Completada
+
+### Archivos modificados
+- `backend/src/routes/reportes.js` — 2 nuevos endpoints (asistencia + tareas), Excel + PDF
+- `web/src/pages/directora/Asistencia.jsx` — función descargarReporte + 4 botones en vista mensual
+- `web/src/pages/maestra/Tareas.jsx` — 2 botones Excel/PDF en header
+
+### Paridad Web ↔ Mobile: N/A (reportes solo para directora/admin/maestra — no aplica mobile)
 
 ---
 

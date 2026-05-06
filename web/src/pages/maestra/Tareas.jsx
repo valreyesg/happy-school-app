@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Upload, Clock, Trash2, X, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Upload, Clock, Trash2, X, Edit, ChevronLeft, ChevronRight, FileSpreadsheet, FileText } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
@@ -594,14 +594,72 @@ export default function MaestraTareas() {
           <h1 className="text-2xl font-black text-gray-800">📋 Tareas Grupales</h1>
           <p className="text-sm text-gray-600 mt-1">Grupo: {grupo?.nombre}</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          disabled={!grupo?.id}
-          className="flex items-center gap-2 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Plus size={20} />
-          Nueva Tarea
-        </button>
+        <div className="flex items-center gap-2">
+          {grupo?.id && (
+            <div className="flex gap-1">
+              <button
+                onClick={() => {
+                  const hoyDate = new Date();
+                  const mes = hoyDate.getMonth() + 1;
+                  const anio = hoyDate.getFullYear();
+                  const params = new URLSearchParams({ mes, anio, formato: 'excel', grupo_id: grupo.id });
+                  const MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                  toast.promise(
+                    api.get(`/reportes/tareas?${params}`, { responseType: 'blob' }).then(({ data }) => {
+                      const url = window.URL.createObjectURL(new Blob([data]));
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.setAttribute('download', `tareas-${MESES[mes]}-${anio}.xlsx`);
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                      window.URL.revokeObjectURL(url);
+                    }),
+                    { loading: 'Generando...', success: 'Reporte descargado', error: 'Error al generar' }
+                  );
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
+                title="Descargar reporte Excel del mes actual"
+              >
+                <FileSpreadsheet size={14} /> Excel
+              </button>
+              <button
+                onClick={() => {
+                  const hoyDate = new Date();
+                  const mes = hoyDate.getMonth() + 1;
+                  const anio = hoyDate.getFullYear();
+                  const params = new URLSearchParams({ mes, anio, formato: 'pdf', grupo_id: grupo.id });
+                  const MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+                  toast.promise(
+                    api.get(`/reportes/tareas?${params}`, { responseType: 'blob' }).then(({ data }) => {
+                      const url = window.URL.createObjectURL(new Blob([data]));
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.setAttribute('download', `tareas-${MESES[mes]}-${anio}.pdf`);
+                      document.body.appendChild(link);
+                      link.click();
+                      link.remove();
+                      window.URL.revokeObjectURL(url);
+                    }),
+                    { loading: 'Generando...', success: 'Reporte descargado', error: 'Error al generar' }
+                  );
+                }}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
+                title="Descargar reporte PDF del mes actual"
+              >
+                <FileText size={14} /> PDF
+              </button>
+            </div>
+          )}
+          <button
+            onClick={() => setShowModal(true)}
+            disabled={!grupo?.id}
+            className="flex items-center gap-2 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Plus size={20} />
+            Nueva Tarea
+          </button>
+        </div>
       </div>
 
       {totalTareas === 0 ? (

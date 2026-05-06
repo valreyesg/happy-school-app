@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+33 (Fase C: Registro en cadena de hermanos)
+**Última actualización:** 2026-05-06 — Sesión XX+34 (Fase C: Reportes básicos Asistencia + Tareas)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -36,9 +36,7 @@
 
 ### ~~🚪 Registro en Cadena de Hermanos (Entrada + Salida)~~ ✅ Completada Sesión XX+33
 
-### 📊 Reportes básicos
-- [ ] Reporte Asistencia: Excel + PDF (por grupo, mes, alumno)
-- [ ] Reporte Tareas: Excel con % entrega por grupo/alumno
+### ~~📊 Reportes básicos~~ ✅ Completada Sesión XX+34
 
 ### 📱 Panel Plantillas WhatsApp editable (directora)
 - [ ] UI para editar las 19 plantillas desde el portal directora

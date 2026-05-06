@@ -3907,6 +3907,33 @@ APP-KINDER/
 | 14 | **Preview-promocion duplica por mÃºltiples grupos** (sesiÃ³n 33) | LEFT JOIN retornaba filas duplicadas con varios grupos por nivel | LATERAL + LIMIT 1 para tomar solo el primer grupo |
 
 
+## SESION XX+29 (2026-05-05) - FASE A: Bug Fechas UTC + tareas.js foto_url (COMPLETADO)
+
+**Fecha:** 2026-05-05 | **Estado:** COMPLETADO | **Commit:** 2f1cdea
+
+### Resumen
+Fix bug UTC que mostraba fechas un dia adelantado despues de las 6 PM. Fix destructuring foto_url en tareas.js.
+
+### Tareas ejecutadas
+
+1. **Bug Fechas UTC vs CDMX — 20 archivos**
+   - Causa: `toISOString()` retorna UTC; despues de las 6 PM CDMX retorna dia siguiente
+   - Fix frontend (web 8 + mobile 5): `toISOString().split('T')[0]` -> `toLocaleDateString('en-CA')`
+   - Backend: MANTIENE `toISOString()` compatible con YYYY-MM-DD que espera la BD
+   - backend/.env: Agregado `TZ=America/Mexico_City`
+   - LECCION: `toLocaleDateString('en-CA')` en Node.js NO retorna YYYY-MM-DD. Backend debe mantener `toISOString()`.
+   - Status: Completada y validado en browser
+
+2. **Bug tareas.js — foto_url guardaba objeto en lugar de URL**
+   - Archivos: `backend/src/routes/tareas.js` lineas 302 y 368
+   - Fix: destructuring `const { url } = await uploadToCloudinary(...); foto_url = url;`
+   - Status: Completada
+
+### Paridad Web vs Mobile
+8 archivos web + 5 archivos mobile corregidos en misma sesion
+
+---
+
 ## ðŸ“‹ VALIDACIONES PENDIENTES
 
 ## ðŸ”§ CRÃTICO â€” REVISIÃ“N CONFIGURACIÃ“N CLOUDINARY

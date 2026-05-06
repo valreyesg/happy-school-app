@@ -10,7 +10,7 @@ const path = require('path');
 const readline = require('readline');
 const { execSync } = require('child_process');
 
-const PROJECT_ROOT = path.join(__dirname, '../../..');
+const PROJECT_ROOT = path.join(__dirname, '../..');
 
 // Construir lista de tools para listar
 const tools = [
@@ -454,6 +454,23 @@ function handleMessage(message) {
       });
     }
 
+    // Handshake MCP obligatorio
+    if (request.method === 'initialize') {
+      return JSON.stringify({
+        jsonrpc: '2.0',
+        id: request.id,
+        result: {
+          protocolVersion: '2024-11-05',
+          capabilities: { tools: {} },
+          serverInfo: { name: 'happy-school-skills', version: '1.0.0' }
+        }
+      });
+    }
+
+    if (request.method === 'notifications/initialized') {
+      return null; // notificación, no requiere respuesta
+    }
+
     // Listar tools disponibles
     if (request.method === 'tools/list') {
       return JSON.stringify({
@@ -528,7 +545,9 @@ const rl = readline.createInterface({
 rl.on('line', (line) => {
   if (line.trim()) {
     const response = handleMessage(line);
-    console.log(response);
+    if (response !== null) {
+      console.log(response);
+    }
   }
 });
 

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-04 — Sesión XX+28 (Reorganización prioridades)
+**Última actualización:** 2026-05-05 — Sesión XX+29 (FASE A: Bug fechas UTC + tareas.js)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

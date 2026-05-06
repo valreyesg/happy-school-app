@@ -113,6 +113,7 @@ const CLAVES_NEGOCIO = [
   'max_tutores_por_alumno',
   'max_morosos_dashboard',
   'dia_registro_comida',
+  'recargo_porcentaje_default',
 ];
 
 // GET /api/config/negocio — lectura para todos los roles autenticados

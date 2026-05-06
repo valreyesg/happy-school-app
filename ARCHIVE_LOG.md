@@ -1,7 +1,86 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-05 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)**
+
+---
+
+## ✅ SESIÓN XX+32 (2026-05-06) — FASE C: Precios por nivel + Cargos automáticos mensuales + Recargo %
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ VALIDADO POR VALERIA
+
+### Resumen
+
+Fase C completada: precios diferenciados por nivel educativo (Maternal → Kinder 3), job cron para generar cargos automáticos mensuales el día 1, recargo porcentaje configurable (10% default) por mes vencido, y auto-generación de cargos de extensión al dar de alta.
+
+### Tareas ejecutadas
+
+1. **Migration 043 — tabla `precios_nivel` + campo recargo_porcentaje**
+   - **Archivo NUEVO:** `backend/migrations/043_precios_nivel.sql`
+   - **Cambio:** Tabla `precios_nivel(concepto_id, nivel_key, monto)` con UNIQUE constraint. Campo `recargo_porcentaje` en `conceptos_pago`. Config `recargo_porcentaje_default = 10`.
+   - **Status:** ✅ Completada y migración ejecutada
+
+2. **Backend — CRUD precios por nivel + helper obtenerMontoConcepto**
+   - **Archivo:** `backend/src/routes/pagos.js`
+   - **Cambio:** GET/PUT `/conceptos/:id/precios`, GET `/conceptos/:id/monto-alumno/:alumnoId`, helper `obtenerMontoConcepto(conceptoId, nivelKey, montoDefault)` con fallback a monto genérico
+   - **Status:** ✅ Completada
+
+3. **Backend — Recargo porcentaje (nueva lógica)**
+   - **Archivo:** `backend/src/routes/pagos.js` — función `calcularRecargo()`
+   - **Cambio:** Si `recargo_porcentaje` existe → recargo = monto × (% / 100) una vez por mes vencido. Fallback a `monto_recargo_dia` (legacy). Backwards compatible.
+   - **Status:** ✅ Completada
+
+4. **Backend — Job cron cargos mensuales automáticos**
+   - **Archivo NUEVO:** `backend/src/jobs/cargosMensualesJob.js`
+   - **Cambio:** Cron día 1 a las 00:05 AM (America/Mexico_City). Genera cargos pendientes para conceptos `es_mensual=true` con monto por nivel. Incluye extensión mensual para alumnos con extensión activa.
+   - **Status:** ✅ Completada
+
+5. **Backend — Registro job cron en index.js**
+   - **Archivo:** `backend/src/index.js`
+   - **Cambio:** Import + llamada `iniciarJobCargosMensuales()`
+   - **Status:** ✅ Completada
+
+6. **Backend — Generar-mes manual actualizado**
+   - **Archivo:** `backend/src/routes/pagos.js` — POST `/generar-mes`
+   - **Cambio:** Usa precios por nivel + genera cargos extensión mensual
+   - **Status:** ✅ Completada
+
+7. **Backend — Auto-cargo extensión al dar alta**
+   - **Archivo:** `backend/src/controllers/alumnosController.js`
+   - **Cambio:** Al registrar alta extensión con `genera_cargos=true`, busca nivel del alumno y genera cargo con monto por nivel
+   - **Status:** ✅ Completada
+
+8. **Backend — Config recargo_porcentaje_default**
+   - **Archivo:** `backend/src/routes/config.js`
+   - **Cambio:** Agregada clave `recargo_porcentaje_default` a `CLAVES_NEGOCIO`
+   - **Status:** ✅ Completada
+
+9. **Web — UI precios por nivel en ModalConceptos**
+   - **Archivo:** `web/src/pages/directora/Pagos.jsx`
+   - **Cambio:** ModalConceptos reescrito con soporte edición, sección "Precios por nivel" (tabla azul con inputs por nivel), campo "Recargo %", botón cancelar edición. ModalPago precarga monto correcto por nivel del alumno.
+   - **Status:** ✅ Completada
+
+10. **Web — Configuración recargo % en portal directora**
+    - **Archivo:** `web/src/pages/directora/Configuracion.jsx`
+    - **Cambio:** Sección naranja "Recargo por morosidad" con campo editable porcentaje
+    - **Status:** ✅ Completada
+
+### Archivos nuevos
+- `backend/migrations/043_precios_nivel.sql`
+- `backend/src/jobs/cargosMensualesJob.js`
+
+### Archivos modificados
+- `backend/src/routes/pagos.js` — CRUD precios nivel, calcularRecargo %, generar-mes con nivel, monto-alumno endpoint
+- `backend/src/controllers/alumnosController.js` — auto-cargo extensión con precio nivel
+- `backend/src/index.js` — registro job cron
+- `backend/src/routes/config.js` — clave recargo_porcentaje_default
+- `web/src/pages/directora/Pagos.jsx` — UI precios nivel + recargo % + precarga monto
+- `web/src/pages/directora/Configuracion.jsx` — campo recargo %
+
+### Notas
+- **Mobile no afectado:** No tiene portal de pagos. Los montos llegan calculados del backend.
+- **Backwards compatible:** Si `recargo_porcentaje` es NULL, se usa `monto_recargo_dia` (lógica legacy).
+- La tarea "Estado colegiatura por alumno (12 cargos automáticos con recargo día 6)" de Fase D queda parcialmente cubierta por el job cron implementado.
 
 ---
 

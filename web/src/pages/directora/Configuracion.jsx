@@ -271,6 +271,26 @@ export default function Configuracion() {
               </div>
             </div>
 
+            {/* Recargo porcentaje */}
+            <div className="rounded-2xl border-2 bg-orange-50 border-orange-200 p-5 space-y-4">
+              <h2 className="font-black text-base text-orange-800">📊 Recargo por morosidad</h2>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Recargo por mes vencido (%)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  value={valoresConfig.recargo_porcentaje_default ?? ''}
+                  onChange={e => handleConfigChange('recargo_porcentaje_default', e.target.value)}
+                  className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-orange-400 bg-white"
+                />
+                <p className="text-xs text-gray-400 mt-1">Se usa como default al crear nuevos conceptos. Cada concepto puede tener su propio %.</p>
+              </div>
+            </div>
+
             {/* Semáforo de morosidad */}
             <div className="rounded-2xl border-2 bg-red-50 border-red-200 p-5 space-y-4">
               <h2 className="font-black text-base text-red-800">🚨 Semáforo de morosidad</h2>

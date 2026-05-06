@@ -7,26 +7,51 @@ router.use(authenticate);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function calcularRecargo(concepto, mes, anio) {
+function calcularRecargo(concepto, mes, anio, montoBase) {
   if (!concepto.dia_recargo) return { monto_recargo: 0, dias_atraso: 0 };
   const hoy = new Date();
   const diaActual = hoy.getDate();
   const mesActual = hoy.getMonth() + 1;
   const anioActual = hoy.getFullYear();
+
+  const recargoPorcentaje = parseFloat(concepto.recargo_porcentaje);
+  const usaPorcentaje = !isNaN(recargoPorcentaje) && recargoPorcentaje > 0;
   const montoPorDia = parseFloat(concepto.monto_recargo_dia) || 0;
 
-  // Mes anterior o más → recargo desde el día de vencimiento hasta hoy
+  // Determinar si hay atraso
+  let diasAtraso = 0;
+  let hayRecargo = false;
+
   if (anio < anioActual || (anio === anioActual && mes < mesActual)) {
     const fechaVencimiento = new Date(anio, mes - 1, concepto.dia_recargo);
-    const diasAtraso = Math.max(0, Math.floor((hoy - fechaVencimiento) / 86400000));
-    return { monto_recargo: +(diasAtraso * montoPorDia).toFixed(2), dias_atraso: diasAtraso };
+    diasAtraso = Math.max(0, Math.floor((hoy - fechaVencimiento) / 86400000));
+    hayRecargo = diasAtraso > 0;
+  } else if (mes === mesActual && anio === anioActual && diaActual >= concepto.dia_recargo) {
+    diasAtraso = diaActual - concepto.dia_recargo + 1;
+    hayRecargo = true;
   }
-  // Mes actual → recargo si ya pasó el día de recargo
-  if (mes === mesActual && anio === anioActual && diaActual >= concepto.dia_recargo) {
-    const diasAtraso = diaActual - concepto.dia_recargo + 1;
-    return { monto_recargo: +(diasAtraso * montoPorDia).toFixed(2), dias_atraso: diasAtraso };
+
+  if (!hayRecargo) return { monto_recargo: 0, dias_atraso: 0 };
+
+  if (usaPorcentaje) {
+    // Recargo porcentaje: se aplica UNA VEZ por mes vencido (10% del monto base)
+    const base = parseFloat(montoBase || concepto.monto) || 0;
+    const monto_recargo = +(base * recargoPorcentaje / 100).toFixed(2);
+    return { monto_recargo, dias_atraso: diasAtraso };
   }
-  return { monto_recargo: 0, dias_atraso: 0 };
+
+  // Fallback: recargo diario (lógica original)
+  return { monto_recargo: +(diasAtraso * montoPorDia).toFixed(2), dias_atraso: diasAtraso };
+}
+
+// Helper: obtener monto correcto para un concepto según nivel del alumno
+async function obtenerMontoConcepto(conceptoId, nivelKey, montoDefault) {
+  if (!nivelKey) return parseFloat(montoDefault);
+  const result = await query(
+    'SELECT monto FROM precios_nivel WHERE concepto_id = $1 AND nivel_key = $2',
+    [conceptoId, nivelKey]
+  );
+  return result.rows[0] ? parseFloat(result.rows[0].monto) : parseFloat(montoDefault);
 }
 
 async function getSemaforoConfig() {
@@ -70,17 +95,18 @@ router.get('/conceptos', async (req, res, next) => {
 router.post('/conceptos', authorize('directora'), async (req, res, next) => {
   try {
     const { nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
-            dia_pago, dia_recargo, monto_recargo_dia } = req.body;
+            dia_pago, dia_recargo, monto_recargo_dia, recargo_porcentaje } = req.body;
     if (!nombre || !monto || !tipo)
       return res.status(400).json({ error: 'nombre, monto y tipo son obligatorios' });
 
     const r = await query(`
       INSERT INTO conceptos_pago
-        (nombre, descripcion, monto, tipo, es_mensual, es_recurrente, dia_pago, dia_recargo, monto_recargo_dia)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *
+        (nombre, descripcion, monto, tipo, es_mensual, es_recurrente, dia_pago, dia_recargo, monto_recargo_dia, recargo_porcentaje)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *
     `, [nombre, descripcion || null, monto, tipo,
         es_mensual ?? false, es_recurrente ?? false,
-        dia_pago || null, dia_recargo || null, monto_recargo_dia || 0]);
+        dia_pago || null, dia_recargo || null, monto_recargo_dia || 0,
+        recargo_porcentaje != null ? recargo_porcentaje : null]);
     res.status(201).json(r.rows[0]);
   } catch (err) { next(err); }
 });
@@ -88,12 +114,12 @@ router.post('/conceptos', authorize('directora'), async (req, res, next) => {
 router.put('/conceptos/:id', authorize('directora'), async (req, res, next) => {
   try {
     const { nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
-            dia_pago, dia_recargo, monto_recargo_dia, activo } = req.body;
+            dia_pago, dia_recargo, monto_recargo_dia, recargo_porcentaje, activo } = req.body;
     await query(`
       UPDATE conceptos_pago SET
         nombre           = COALESCE($1, nombre),
         descripcion      = COALESCE($2, descripcion),
-        monto       = COALESCE($3, monto),
+        monto            = COALESCE($3, monto),
         tipo             = COALESCE($4, tipo),
         es_mensual       = COALESCE($5, es_mensual),
         es_recurrente    = COALESCE($6, es_recurrente),
@@ -101,10 +127,13 @@ router.put('/conceptos/:id', authorize('directora'), async (req, res, next) => {
         dia_recargo      = COALESCE($8, dia_recargo),
         monto_recargo_dia= COALESCE($9, monto_recargo_dia),
         activo           = COALESCE($10, activo),
+        recargo_porcentaje = $11,
         updated_at       = NOW()
-      WHERE id = $11
+      WHERE id = $12
     `, [nombre, descripcion, monto, tipo, es_mensual, es_recurrente,
-        dia_pago, dia_recargo, monto_recargo_dia, activo, req.params.id]);
+        dia_pago, dia_recargo, monto_recargo_dia, activo,
+        recargo_porcentaje !== undefined ? recargo_porcentaje : null,
+        req.params.id]);
     res.json({ ok: true });
   } catch (err) { next(err); }
 });
@@ -113,6 +142,61 @@ router.delete('/conceptos/:id', authorize('directora'), async (req, res, next) =
   try {
     await query('UPDATE conceptos_pago SET activo = false WHERE id = $1', [req.params.id]);
     res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// ─── PRECIOS POR NIVEL ───────────────────────────────────────────────────────
+
+router.get('/conceptos/:id/precios', async (req, res, next) => {
+  try {
+    const result = await query(
+      'SELECT id, nivel_key, monto FROM precios_nivel WHERE concepto_id = $1 ORDER BY nivel_key',
+      [req.params.id]
+    );
+    res.json(result.rows);
+  } catch (err) { next(err); }
+});
+
+router.put('/conceptos/:id/precios', authorize('directora'), async (req, res, next) => {
+  try {
+    const { precios } = req.body; // [{ nivel_key, monto }]
+    if (!Array.isArray(precios))
+      return res.status(400).json({ error: 'precios debe ser un array de { nivel_key, monto }' });
+
+    for (const { nivel_key, monto } of precios) {
+      if (!nivel_key) continue;
+      if (monto === null || monto === '' || monto === undefined) {
+        await query(
+          'DELETE FROM precios_nivel WHERE concepto_id = $1 AND nivel_key = $2',
+          [req.params.id, nivel_key]
+        );
+      } else {
+        await query(`
+          INSERT INTO precios_nivel (concepto_id, nivel_key, monto)
+          VALUES ($1, $2, $3)
+          ON CONFLICT (concepto_id, nivel_key)
+          DO UPDATE SET monto = $3, updated_at = NOW()
+        `, [req.params.id, nivel_key, monto]);
+      }
+    }
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// GET monto para un alumno específico según su nivel
+router.get('/conceptos/:id/monto-alumno/:alumnoId', async (req, res, next) => {
+  try {
+    const alumno = await query(
+      'SELECT g.nivel_codigo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id WHERE a.id = $1',
+      [req.params.alumnoId]
+    );
+    if (!alumno.rows[0]) return res.status(404).json({ error: 'Alumno no encontrado' });
+
+    const concepto = await query('SELECT monto FROM conceptos_pago WHERE id = $1', [req.params.id]);
+    if (!concepto.rows[0]) return res.status(404).json({ error: 'Concepto no encontrado' });
+
+    const monto = await obtenerMontoConcepto(req.params.id, alumno.rows[0].nivel_codigo, concepto.rows[0].monto);
+    res.json({ monto, nivel_codigo: alumno.rows[0].nivel_codigo });
   } catch (err) { next(err); }
 });
 
@@ -308,11 +392,10 @@ router.post('/', authorize('directora', 'administrativo'), async (req, res, next
     const cp = await query('SELECT * FROM conceptos_pago WHERE id = $1', [concepto_id]);
     if (!cp.rows[0]) return res.status(404).json({ error: 'Concepto no encontrado' });
 
-    const { monto_recargo, dias_atraso } = aplicar_recargo !== false
-      ? calcularRecargo(cp.rows[0], m, a)
-      : { monto_recargo: 0, dias_atraso: 0 };
-
     const base  = parseFloat(monto);
+    const { monto_recargo, dias_atraso } = aplicar_recargo !== false
+      ? calcularRecargo(cp.rows[0], m, a, base)
+      : { monto_recargo: 0, dias_atraso: 0 };
     const total = +(base + monto_recargo).toFixed(2);
     const fechaLimite = cp.rows[0].dia_pago
       ? new Date(a, m - 1, cp.rows[0].dia_pago).toISOString().slice(0, 10)
@@ -342,12 +425,17 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
     const m = parseInt(req.body.mes)  || new Date().getMonth() + 1;
     const a = parseInt(req.body.anio) || new Date().getFullYear();
 
+    // Conceptos mensuales
     const conceptos = await query(
       `SELECT * FROM conceptos_pago WHERE es_mensual = true AND activo = true`
     );
-    const alumnos = await query(
-      `SELECT id FROM alumnos WHERE deleted_at IS NULL`
-    );
+    // Alumnos con su nivel
+    const alumnos = await query(`
+      SELECT a.id, g.nivel_codigo
+      FROM alumnos a
+      JOIN grupos g ON a.grupo_id = g.id
+      WHERE a.deleted_at IS NULL
+    `);
 
     let creados = 0;
     for (const cp of conceptos.rows) {
@@ -356,7 +444,6 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
         : null;
 
       for (const al of alumnos.rows) {
-        // evitar duplicados
         const existe = await query(
           `SELECT 1 FROM pagos WHERE alumno_id=$1 AND concepto_id=$2
            AND mes_correspondiente=$3 AND anio_correspondiente=$4`,
@@ -364,15 +451,55 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
         );
         if (existe.rows.length) continue;
 
+        const monto = await obtenerMontoConcepto(cp.id, al.nivel_codigo, cp.monto);
+
         await query(`
           INSERT INTO pagos
             (alumno_id, concepto_id, monto_base, monto_recargo, monto_total,
              estado, mes_correspondiente, anio_correspondiente, fecha_limite, registrado_por)
           VALUES ($1,$2,$3,0,$3,'pendiente',$4,$5,$6,$7)
-        `, [al.id, cp.id, cp.monto, m, a, fechaLimite, req.user.id]);
+        `, [al.id, cp.id, monto, m, a, fechaLimite, req.user.id]);
         creados++;
       }
     }
+
+    // Extensión mensual: generar cargos para alumnos con extensión activa
+    const conceptoExt = await query(
+      `SELECT * FROM conceptos_pago WHERE tipo = 'extension' AND es_mensual = true AND activo = true LIMIT 1`
+    );
+    if (conceptoExt.rows[0]) {
+      const cpExt = conceptoExt.rows[0];
+      const alumnosExt = await query(`
+        SELECT a.id, g.nivel_codigo
+        FROM alumnos a
+        JOIN grupos g ON a.grupo_id = g.id
+        JOIN config_horario_alumno cha ON cha.alumno_id = a.id AND cha.tiene_extension = true
+        WHERE a.deleted_at IS NULL
+      `);
+      const fechaLimiteExt = cpExt.dia_pago
+        ? new Date(a, m - 1, cpExt.dia_pago).toISOString().slice(0, 10)
+        : null;
+
+      for (const al of alumnosExt.rows) {
+        const existe = await query(
+          `SELECT 1 FROM pagos WHERE alumno_id=$1 AND concepto_id=$2
+           AND mes_correspondiente=$3 AND anio_correspondiente=$4`,
+          [al.id, cpExt.id, m, a]
+        );
+        if (existe.rows.length) continue;
+
+        const monto = await obtenerMontoConcepto(cpExt.id, al.nivel_codigo, cpExt.monto);
+
+        await query(`
+          INSERT INTO pagos
+            (alumno_id, concepto_id, monto_base, monto_recargo, monto_total,
+             estado, mes_correspondiente, anio_correspondiente, fecha_limite, registrado_por)
+          VALUES ($1,$2,$3,0,$3,'pendiente',$4,$5,$6,$7)
+        `, [al.id, cpExt.id, monto, m, a, fechaLimiteExt, req.user.id]);
+        creados++;
+      }
+    }
+
     res.json({ ok: true, creados });
   } catch (err) { next(err); }
 });

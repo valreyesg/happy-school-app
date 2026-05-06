@@ -88,26 +88,45 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
 
   const conceptoSel = conceptos.find(c => c.id === form.concepto_id);
 
-  // Calcular recargo preview (misma lógica que el backend)
+  // Obtener monto correcto por nivel del alumno
+  const { data: montoNivel } = useQuery({
+    queryKey: ['monto-alumno', form.concepto_id, form.alumno_id],
+    queryFn: () => api.get(`/pagos/conceptos/${form.concepto_id}/monto-alumno/${form.alumno_id}`).then(r => r.data),
+    enabled: !!form.concepto_id && !!form.alumno_id,
+  });
+
+  // Calcular recargo preview (soporta porcentaje y diario)
   const recargoPreview = useMemo(() => {
     if (!conceptoSel?.dia_recargo || !form.aplicar_recargo || !form.monto) return 0;
     const hoy = new Date();
     const diaActual = hoy.getDate();
     const mesActual = hoy.getMonth() + 1;
     const anioActual = hoy.getFullYear();
-    const montoPorDia = parseFloat(conceptoSel.monto_recargo_dia) || 0;
     const m = form.mes_correspondiente;
     const a = form.anio_correspondiente;
+
+    const recargoPct = parseFloat(conceptoSel.recargo_porcentaje);
+    const usaPorcentaje = !isNaN(recargoPct) && recargoPct > 0;
+    const montoPorDia = parseFloat(conceptoSel.monto_recargo_dia) || 0;
+
+    let hayRecargo = false;
+    let diasAtraso = 0;
+
     if (a < anioActual || (a === anioActual && m < mesActual)) {
       const fechaVenc = new Date(a, m - 1, conceptoSel.dia_recargo);
-      const dias = Math.max(0, Math.floor((hoy - fechaVenc) / 86400000));
-      return +(dias * montoPorDia).toFixed(2);
+      diasAtraso = Math.max(0, Math.floor((hoy - fechaVenc) / 86400000));
+      hayRecargo = diasAtraso > 0;
+    } else if (m === mesActual && a === anioActual && diaActual >= conceptoSel.dia_recargo) {
+      diasAtraso = diaActual - conceptoSel.dia_recargo + 1;
+      hayRecargo = true;
     }
-    if (m === mesActual && a === anioActual && diaActual >= conceptoSel.dia_recargo) {
-      const dias = diaActual - conceptoSel.dia_recargo + 1;
-      return +(dias * montoPorDia).toFixed(2);
+
+    if (!hayRecargo) return 0;
+
+    if (usaPorcentaje) {
+      return +(parseFloat(form.monto) * recargoPct / 100).toFixed(2);
     }
-    return 0;
+    return +(diasAtraso * montoPorDia).toFixed(2);
   }, [conceptoSel, form.aplicar_recargo, form.monto, form.mes_correspondiente, form.anio_correspondiente]);
 
   const totalPreview = form.monto ? +(parseFloat(form.monto) + recargoPreview).toFixed(2) : 0;
@@ -123,9 +142,17 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
     onError: e => setError(e.response?.data?.error || 'Error al registrar pago'),
   });
 
-  const handleConcepto = (id) => {
+  const handleConcepto = async (id) => {
     const cp = conceptos.find(c => c.id === id);
-    setForm(f => ({ ...f, concepto_id: id, monto: cp ? cp.monto : '' }));
+    let monto = cp ? cp.monto : '';
+    // Si hay alumno seleccionado, intentar obtener precio por nivel
+    if (cp && form.alumno_id) {
+      try {
+        const res = await api.get(`/pagos/conceptos/${id}/monto-alumno/${form.alumno_id}`);
+        monto = res.data.monto;
+      } catch { /* fallback al monto default */ }
+    }
+    setForm(f => ({ ...f, concepto_id: id, monto }));
   };
 
   const submit = (e) => {
@@ -309,13 +336,82 @@ function ModalPago({ alumno, conceptos, metodos, tiposConcepto, mes, anio, onClo
 // ─── Modal Conceptos ──────────────────────────────────────────────────────────
 
 function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
-  const [form, setForm] = useState({ nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 });
+  const FORM_INICIAL = { nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0, recargo_porcentaje: '' };
+  const [form, setForm] = useState(FORM_INICIAL);
+  const [editandoId, setEditandoId] = useState(null);
+  const [preciosNivel, setPreciosNivel] = useState({});
   const [error, setError] = useState('');
   const qc = useQueryClient();
 
+  const { items: niveles } = useCatalogo('niveles');
+
+  const { data: preciosData } = useQuery({
+    queryKey: ['precios-nivel', editandoId],
+    queryFn: () => api.get(`/pagos/conceptos/${editandoId}/precios`).then(r => r.data),
+    enabled: !!editandoId,
+  });
+
+  // Cargar precios por nivel al seleccionar concepto para editar
+  const handleEditar = (c) => {
+    setEditandoId(c.id);
+    setForm({
+      nombre: c.nombre,
+      tipo: c.tipo,
+      monto: c.monto,
+      es_mensual: c.es_mensual,
+      dia_pago: c.dia_pago || 1,
+      dia_recargo: c.dia_recargo || 6,
+      monto_recargo_dia: c.monto_recargo_dia || 0,
+      recargo_porcentaje: c.recargo_porcentaje ?? '',
+    });
+    setPreciosNivel({});
+  };
+
+  // Cuando cargan los precios del concepto seleccionado
+  const preciosActuales = useMemo(() => {
+    if (!preciosData) return preciosNivel;
+    const mapa = {};
+    preciosData.forEach(p => { mapa[p.nivel_key] = p.monto; });
+    return { ...mapa, ...preciosNivel };
+  }, [preciosData, preciosNivel]);
+
+  const handleCancelarEdicion = () => {
+    setEditandoId(null);
+    setForm(FORM_INICIAL);
+    setPreciosNivel({});
+    setError('');
+  };
+
   const crear = useMutation({
     mutationFn: d => api.post('/pagos/conceptos', d).then(r => r.data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pagos-conceptos'] }); setForm({ nombre: '', tipo: 'colegiatura', monto: '', es_mensual: true, dia_pago: 1, dia_recargo: 6, monto_recargo_dia: 0 }); },
+    onSuccess: async (data) => {
+      // Guardar precios por nivel si hay
+      const preciosArr = niveles.map(n => ({
+        nivel_key: n.key,
+        monto: preciosNivel[n.key] !== undefined && preciosNivel[n.key] !== '' ? preciosNivel[n.key] : null,
+      })).filter(p => p.monto !== null);
+      if (preciosArr.length > 0) {
+        await api.put(`/pagos/conceptos/${data.id}/precios`, { precios: preciosArr });
+      }
+      qc.invalidateQueries({ queryKey: ['pagos-conceptos'] });
+      handleCancelarEdicion();
+    },
+    onError: e => setError(e.response?.data?.error || 'Error'),
+  });
+
+  const actualizar = useMutation({
+    mutationFn: d => api.put(`/pagos/conceptos/${editandoId}`, d).then(r => r.data),
+    onSuccess: async () => {
+      // Guardar precios por nivel
+      const preciosArr = niveles.map(n => ({
+        nivel_key: n.key,
+        monto: preciosActuales[n.key] !== undefined && preciosActuales[n.key] !== '' ? preciosActuales[n.key] : null,
+      }));
+      await api.put(`/pagos/conceptos/${editandoId}/precios`, { precios: preciosArr });
+      qc.invalidateQueries({ queryKey: ['pagos-conceptos'] });
+      qc.invalidateQueries({ queryKey: ['precios-nivel'] });
+      handleCancelarEdicion();
+    },
     onError: e => setError(e.response?.data?.error || 'Error'),
   });
 
@@ -323,6 +419,16 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
     mutationFn: id => api.delete(`/pagos/conceptos/${id}`).then(r => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['pagos-conceptos'] }),
   });
+
+  const handleSubmit = () => {
+    if (editandoId) {
+      actualizar.mutate(form);
+    } else {
+      crear.mutate(form);
+    }
+  };
+
+  const isPending = crear.isPending || actualizar.isPending;
 
   return (
     <Modal
@@ -332,29 +438,41 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
       size="lg"
       closeOnBackdrop={false}
     >
-      <div className="space-y-4">
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
           {/* Lista */}
           <div className="space-y-2">
             {conceptos.map(c => (
-              <div key={c.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+              <div key={c.id} className={`flex items-center justify-between p-3 rounded-xl transition-colors ${editandoId === c.id ? 'bg-hs-purple/10 ring-2 ring-hs-purple/30' : 'bg-gray-50'}`}>
                 <div>
                   <p className="font-bold text-gray-800 text-sm">{c.nombre}</p>
-                  <p className="text-xs text-gray-500">{c.tipo} · {fmt(c.monto)}
-                    {c.dia_recargo ? ` · Recargo día ${c.dia_recargo}` : ''}
+                  <p className="text-xs text-gray-500">
+                    {c.tipo} · {fmt(c.monto)}
+                    {c.recargo_porcentaje ? ` · ${c.recargo_porcentaje}% recargo` : c.dia_recargo ? ` · Recargo día ${c.dia_recargo}` : ''}
                   </p>
                 </div>
-                <button onClick={() => eliminar.mutate(c.id)}
-                  className="text-red-400 hover:text-red-600 text-sm font-bold px-2 py-1 rounded-lg hover:bg-red-50">
-                  Quitar
-                </button>
+                <div className="flex gap-1">
+                  <button onClick={() => handleEditar(c)}
+                    className="text-hs-purple hover:text-hs-purple-dark text-sm font-bold px-2 py-1 rounded-lg hover:bg-hs-purple/10">
+                    Editar
+                  </button>
+                  <button onClick={() => eliminar.mutate(c.id)}
+                    className="text-red-400 hover:text-red-600 text-sm font-bold px-2 py-1 rounded-lg hover:bg-red-50">
+                    Quitar
+                  </button>
+                </div>
               </div>
             ))}
             {!conceptos.length && <p className="text-gray-400 text-sm text-center py-4">Sin conceptos</p>}
           </div>
 
-          {/* Formulario nuevo */}
+          {/* Formulario crear/editar */}
           <div className="border-t pt-4 space-y-3">
-            <p className="text-sm font-black text-gray-700">Nuevo concepto</p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-black text-gray-700">{editandoId ? 'Editar concepto' : 'Nuevo concepto'}</p>
+              {editandoId && (
+                <button onClick={handleCancelarEdicion} className="text-xs font-bold text-gray-400 hover:text-gray-600">Cancelar</button>
+              )}
+            </div>
             <input className="input-hs" placeholder="Nombre *" value={form.nombre}
               onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))} />
             <div className="grid grid-cols-2 gap-3">
@@ -365,35 +483,66 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 block mb-1">Monto base</label>
+                <label className="text-xs font-bold text-gray-500 block mb-1">Monto base (default)</label>
                 <input type="number" step="0.01" className="input-hs" value={form.monto}
                   onChange={e => setForm(f => ({ ...f, monto: e.target.value }))} />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 block mb-1">Día de pago</label>
+                <label className="text-xs font-bold text-gray-500 block mb-1">Dia de pago</label>
                 <input type="number" min="1" max="28" className="input-hs" value={form.dia_pago}
                   onChange={e => setForm(f => ({ ...f, dia_pago: parseInt(e.target.value) }))} />
               </div>
               <div>
-                <label className="text-xs font-bold text-gray-500 block mb-1">Día inicio recargo</label>
+                <label className="text-xs font-bold text-gray-500 block mb-1">Dia inicio recargo</label>
                 <input type="number" min="1" max="31" className="input-hs" value={form.dia_recargo}
                   onChange={e => setForm(f => ({ ...f, dia_recargo: parseInt(e.target.value) }))} />
               </div>
             </div>
-            <div>
-              <label className="text-xs font-bold text-gray-500 block mb-1">Recargo por día ($)</label>
-              <input type="number" step="0.01" className="input-hs" value={form.monto_recargo_dia}
-                onChange={e => setForm(f => ({ ...f, monto_recargo_dia: parseFloat(e.target.value) }))} />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-bold text-gray-500 block mb-1">Recargo por dia ($)</label>
+                <input type="number" step="0.01" className="input-hs" value={form.monto_recargo_dia}
+                  onChange={e => setForm(f => ({ ...f, monto_recargo_dia: parseFloat(e.target.value) || 0 }))} />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 block mb-1">Recargo (%)</label>
+                <input type="number" step="0.1" min="0" max="100" className="input-hs" value={form.recargo_porcentaje}
+                  placeholder="Ej: 10"
+                  onChange={e => setForm(f => ({ ...f, recargo_porcentaje: e.target.value === '' ? '' : parseFloat(e.target.value) }))} />
+                <p className="text-xs text-gray-400 mt-0.5">Si se llena, se usa en vez del recargo diario</p>
+              </div>
             </div>
+
+            {/* Precios por nivel */}
+            {niveles.length > 0 && (
+              <div className="bg-blue-50 rounded-xl p-3 space-y-2">
+                <p className="text-xs font-black text-blue-700">Precios por nivel (opcional)</p>
+                <p className="text-xs text-blue-500 mb-2">Si se deja vacio, usa el monto base de arriba</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {niveles.map(n => (
+                    <div key={n.key}>
+                      <label className="text-xs font-bold text-gray-600 block mb-0.5">{n.label}</label>
+                      <input
+                        type="number" step="0.01" className="input-hs text-sm"
+                        placeholder={form.monto ? `$${form.monto}` : '—'}
+                        value={preciosActuales[n.key] ?? ''}
+                        onChange={e => setPreciosNivel(p => ({ ...p, [n.key]: e.target.value === '' ? '' : e.target.value }))}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="w-4 h-4" checked={form.es_mensual}
                 onChange={e => setForm(f => ({ ...f, es_mensual: e.target.checked }))} />
               <span className="text-sm font-semibold text-gray-700">Cargo mensual recurrente</span>
             </label>
             {error && <p className="text-red-600 text-sm">{error}</p>}
-            <button onClick={() => crear.mutate(form)} disabled={crear.isPending}
+            <button onClick={handleSubmit} disabled={isPending}
               className="w-full py-2 rounded-xl bg-hs-purple-dark text-white font-black text-sm disabled:opacity-50">
-              {crear.isPending ? 'Guardando…' : '+ Agregar concepto'}
+              {isPending ? 'Guardando...' : editandoId ? 'Guardar cambios' : '+ Agregar concepto'}
             </button>
           </div>
       </div>

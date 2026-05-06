@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-05 — Sesión XX+31 (Fase B parcial: Cloudinary desacoplado + Mobile en celular + SDK 54)
+**Última actualización:** 2026-05-06 — Sesión XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,9 +17,11 @@
 - [ ] Web en Vercel o Netlify
 - [ ] Mobile en Expo Go o generar APK
 
-### 📝 Feedback Valeria — Portal Padre Mobile
-- [ ] Revisar comentarios de Valeria sobre portal padre (próxima sesión)
+### 📝 Feedback Valeria — Portales Mobile
+- [ ] Revisar comentarios de Valeria sobre portal padre mobile (próxima sesión)
 - [ ] Mejoras UX portal padre mobile
+- [ ] Revisar comentarios de Valeria sobre portal maestra mobile (próxima sesión)
+- [ ] Mejoras UX portal maestra mobile
 
 ---
 
@@ -30,8 +32,7 @@
 - [ ] Actualizar `backend/.env` y activar `CLOUDINARY_ENABLED=true`
 - [ ] Audit completo de uploads: QR, foto alumno, foto personal, foto tutor, galería
 
-### 💰 Configuración Precios diferenciados por nivel
-- [ ] Costos diferenciados: Maternal → Kinder 3
+### ~~💰 Configuración Precios diferenciados por nivel~~ ✅ Completada Sesión XX+32
 
 ### 🚪 Seguridad — Detección Hermanos en QR salida
 - [ ] Al escanear QR salida, alerta si hay hermanos en otros grupos
@@ -58,7 +59,7 @@
 - [ ] Resumen ingresos del mes
 - [ ] Lista alumnos con adeudos
 - [ ] Registro manual de pagos
-- [ ] Estado colegiatura por alumno (12 cargos automáticos con recargo día 6)
+- [x] Estado colegiatura por alumno (12 cargos automáticos con recargo día 6) ✅ Job cron + recargo % implementados en Sesión XX+32
 - [ ] Historial cobros: extensión, comida
 - [ ] Segmentación servicios: Regulares, Solo Extensión, Estancia por Día
 - [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre

@@ -532,7 +532,23 @@ const registrarHistorialServicio = async (req, res, next) => {
             return res.status(400).json({ error: 'No hay un concepto de extensión activo. Créalo en la sección de Pagos.' });
           }
 
-          const { id: concepto_id, monto } = conceptoRes.rows[0];
+          const { id: concepto_id, monto: montoDefault } = conceptoRes.rows[0];
+
+          // Obtener nivel del alumno para precio diferenciado
+          const alumnoNivel = await query(
+            'SELECT g.nivel_codigo FROM alumnos a JOIN grupos g ON a.grupo_id = g.id WHERE a.id = $1',
+            [alumno_id]
+          );
+          const nivelKey = alumnoNivel.rows[0]?.nivel_codigo;
+          let montoFinal = parseFloat(montoDefault);
+          if (nivelKey) {
+            const precioNivel = await query(
+              'SELECT monto FROM precios_nivel WHERE concepto_id = $1 AND nivel_key = $2',
+              [concepto_id, nivelKey]
+            );
+            if (precioNivel.rows[0]) montoFinal = parseFloat(precioNivel.rows[0].monto);
+          }
+
           const months = [];
           let m = mes_inicio, a = anio_inicio;
           const endMonth = mes_fin || mes_inicio;
@@ -553,7 +569,7 @@ const registrarHistorialServicio = async (req, res, next) => {
                 WHERE alumno_id = $1 AND concepto_id = $2
                   AND mes_correspondiente = $4 AND anio_correspondiente = $5
               )
-            `, [alumno_id, concepto_id, monto, mes, anio, usuario_id]);
+            `, [alumno_id, concepto_id, montoFinal, mes, anio, usuario_id]);
           }
         }
       } else if (accion === 'baja') {

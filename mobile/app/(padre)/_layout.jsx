@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { COLORS } from '@/constants/theme';
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 
 const TabIcon = ({ emoji, label, focused }) => (
   <View style={{ alignItems: 'center', gap: 2 }}>
@@ -20,8 +20,8 @@ export default function PadreTabLayout() {
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
           borderTopColor: '#FED7D7',
-          height: 70,
-          paddingBottom: 8,
+          height: Platform.OS === 'android' ? 65 : 70,
+          paddingBottom: Platform.OS === 'android' ? 10 : 8,
           paddingTop: 4,
         },
         tabBarShowLabel: false,
@@ -35,9 +35,13 @@ export default function PadreTabLayout() {
       <Tabs.Screen name="pagos"
         options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="💰" label="Pagos" focused={focused} /> }} />
       <Tabs.Screen name="calendario"
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📅" label="Eventos" focused={focused} /> }} />
-      <Tabs.Screen name="chat"
-        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="💬" label="Chat" focused={focused} /> }} />
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📅" label="Calendario" focused={focused} /> }} />
+
+      {/* Screens ocultas del tab bar — accesibles por navegación directa */}
+      <Tabs.Screen name="chat"     options={{ href: null }} />
+      <Tabs.Screen name="galeria"  options={{ href: null }} />
+      <Tabs.Screen name="comida"   options={{ href: null }} />
+      <Tabs.Screen name="qr"       options={{ href: null }} />
     </Tabs>
   );
 }

@@ -85,8 +85,28 @@ async function getSemaforoConfig() {
 
 function semaforoAlumno(pagos, cfg = { amarillo: 1, rojo: 30, suspendido: 60 }) {
   if (!pagos.length) return 'verde';
-  const maxAtraso = Math.max(...pagos.map(p => p.dias_atraso || 0));
-  const tieneVencido = pagos.some(p => p.estado === 'vencido');
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+  const maxAtraso = Math.max(...pagos.map(p => {
+    // Si tiene dias_atraso guardado, usarlo
+    if (p.dias_atraso > 0) return p.dias_atraso;
+    // Si tiene fecha_limite y ya pasó, calcular días de atraso real
+    if (p.fecha_limite) {
+      const limite = new Date(p.fecha_limite);
+      limite.setHours(0, 0, 0, 0);
+      if (hoy > limite) return Math.floor((hoy - limite) / 86400000);
+    }
+    return 0;
+  }));
+  const tieneVencido = pagos.some(p => {
+    if (p.estado === 'vencido') return true;
+    if (p.fecha_limite) {
+      const limite = new Date(p.fecha_limite);
+      limite.setHours(0, 0, 0, 0);
+      return hoy > limite;
+    }
+    return false;
+  });
   if (maxAtraso >= cfg.suspendido || (tieneVencido && maxAtraso >= cfg.rojo)) return 'suspendido';
   if (maxAtraso >= cfg.rojo || tieneVencido) return 'rojo';
   if (maxAtraso >= cfg.amarillo) return 'amarillo';

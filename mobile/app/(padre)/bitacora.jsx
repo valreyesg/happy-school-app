@@ -87,21 +87,46 @@ function SelectorCiclo({ alumnoId, cicloId, onChangeCiclo }) {
 
 function SelectorFecha({ fecha, onChange }) {
   const date = new Date(fecha + 'T12:00:00');
-  const anterior = new Date(date);
-  anterior.setDate(anterior.getDate() - 1);
-  const siguiente = new Date(date);
-  siguiente.setDate(siguiente.getDate() + 1);
   const hoy = new Date().toLocaleDateString('en-CA');
   const esHoy = fecha === hoy;
 
   const fmt = (d) => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
+  const irAnterior = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() - 1);
+    // Skipear sábado (6) y domingo (0)
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() - 1);
+    }
+    onChange(d.toLocaleDateString('en-CA'));
+  };
+
+  const irSiguiente = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    // Skipear sábado (6) y domingo (0)
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() + 1);
+    }
+    const siguienteFecha = d.toLocaleDateString('en-CA');
+    if (siguienteFecha <= hoy) {
+      onChange(siguienteFecha);
+    }
+  };
+
+  const siguienteFechaValida = (() => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString('en-CA');
+  })();
+
+  const bloqueadoSiguiente = siguienteFechaValida > hoy;
+
   return (
     <View style={s.fechaRow}>
-      <TouchableOpacity
-        style={s.fechaBtn}
-        onPress={() => onChange(anterior.toLocaleDateString('en-CA'))}
-      >
+      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
         <Text style={s.fechaBtnTxt}>‹</Text>
       </TouchableOpacity>
       <View style={{ flex: 1, alignItems: 'center' }}>
@@ -109,11 +134,11 @@ function SelectorFecha({ fecha, onChange }) {
         {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
       </View>
       <TouchableOpacity
-        style={[s.fechaBtn, esHoy && s.fechaBtnDis]}
-        onPress={() => !esHoy && onChange(siguiente.toLocaleDateString('en-CA'))}
-        disabled={esHoy}
+        style={[s.fechaBtn, bloqueadoSiguiente && s.fechaBtnDis]}
+        onPress={irSiguiente}
+        disabled={bloqueadoSiguiente}
       >
-        <Text style={[s.fechaBtnTxt, esHoy && { color: '#CBD5E0' }]}>›</Text>
+        <Text style={[s.fechaBtnTxt, bloqueadoSiguiente && { color: '#CBD5E0' }]}>›</Text>
       </TouchableOpacity>
     </View>
   );
@@ -124,8 +149,15 @@ function SelectorFecha({ fecha, onChange }) {
 export default function BitacoraPadreScreen() {
   const { alumnoId, nombre } = useLocalSearchParams();
   const router = useRouter();
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const [fecha, setFecha] = useState(hoy);
+  const hoyRaw = new Date();
+  // Si hoy es fin de semana, retroceder al viernes
+  const ultimoDiaHabil = (() => {
+    const d = new Date(hoyRaw);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  })();
+  const hoy = hoyRaw.toLocaleDateString('en-CA');
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');
 

@@ -59,12 +59,12 @@
       "expo-secure-store"
     ],
     "scheme": "happyschool",
+    "updates": {
+      "enabled": false
+    },
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "tu-project-id"
       }
     }
   }

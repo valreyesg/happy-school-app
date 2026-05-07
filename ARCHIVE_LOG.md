@@ -1,7 +1,57 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)**
+
+---
+
+## ✅ SESIÓN XX+39 (2026-05-07) — Portal Padre Mobile: Feedback Valeria completo
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Corrección completa del Portal Padre Mobile basado en feedback de Valeria (Sesión XX+38). 11 bugs resueltos, semáforo de pagos corregido en backend, notificaciones funcionando con swipe-to-close, y error de expo-notifications en Expo Go SDK 53 silenciado.
+
+### Bugs resueltos
+
+1. **Saludo se corta en header** — `fontSize: 18`, `numberOfLines={2}`, `flexShrink: 0` en iconos
+2. **Icono QR muestra celular** — cambiado emoji 📱 → 🔲
+3. **Banner de adeudo no aparece** — nuevo `HijoCard` consulta `/pagos/estado/:id` + `SEMAFORO_CFG` con colores por semáforo
+4. **Semáforo siempre verde aunque hay adeudo** — `semaforoAlumno()` en backend ahora calcula `dias_atraso` desde `fecha_limite` aunque `estado` siga en `'pendiente'` (cron no ha corrido)
+5. **Campanita badge "1" sin lista** — fix layout: `sheet` con `height: '75%'` fijo (ScrollView colapsaba con `maxHeight`); query con `enabled: !!token` + `invalidateQueries` al abrir
+6. **Notificaciones no cargaban** — token de zustand persist no disponible en mount; agregado `useAuthStore` en `NotificationBell` con `enabled: !!token`
+7. **Calendario no muestra eventos pasados** — meses anteriores muestran todos sus eventos (solo mes actual filtra desde hoy)
+8. **Bitácora navega a sábados/domingos** — `irAnterior()`/`irSiguiente()` skipean fines de semana (paridad con web); fecha inicial también ajustada
+9. **3 iconos broken en barra inferior** — `chat`, `galeria`, `comida`, `qr` declarados con `href: null` en `_layout.jsx`
+10. **Barra inferior Android sin safe area** — `Platform.OS === 'android' ? 65 : 70` height + padding diferenciado
+11. **"Eventos" en barra inferior** — renombrado a "Calendario"
+12. **Chat y Fotos en dashboard** — removidos de accesos rápidos (no desarrollados)
+
+### Correcciones adicionales
+
+- **expo-notifications en Expo Go SDK 53** — `setNotificationHandler` y `registrarPushToken` condicionados a `Constants.appOwnership !== 'expo'`; elimina banner de error en Android
+- **app.json** — removido `"eas": { "projectId": "tu-project-id" }` (causaba error OTA); agregado `"updates": { "enabled": false }`
+- **Swipe-to-close notificaciones** — `PanResponder` + `Animated.View` en sheet de notificaciones; arrastra handle bar hacia abajo para cerrar
+- **Color botón Pagos** — cambiado de verde `#38A169` a dorado `#D69E2E` (verde confundía con "al corriente")
+
+### Archivos modificados
+
+- `mobile/app/(padre)/index.jsx` — saludo, QR icon, banner adeudo, staleTime: 0, color pagos
+- `mobile/app/(padre)/_layout.jsx` — Platform safe area, "Calendario", href:null screens
+- `mobile/app/(padre)/bitacora.jsx` — weekend-skip navigation
+- `mobile/app/(padre)/calendario.jsx` — meses pasados muestran todos eventos
+- `mobile/src/components/NotificationBell.jsx` — layout fix, token guard, swipe-to-close, PanResponder
+- `mobile/src/store/authStore.js` — isExpoGo guard para push token
+- `mobile/app/_layout.jsx` — isExpoGo guard para setNotificationHandler
+- `mobile/app.json` — updates.enabled: false, sin EAS projectId
+- `backend/src/routes/pagos.js` — semaforoAlumno() con fecha_limite fallback
+
+### Pendiente de esta sesión
+
+- Modal push en tiempo real (admin → mobile) — requiere polling/WebSocket
+- Features paridad web: medicamentos mobile, módulo Comida mobile, cambio contraseña
+- UX: iconos anticuados, nombres barra inferior se cortan
 
 ---
 

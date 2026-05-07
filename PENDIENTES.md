@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+38 (FASE D: D5+D7 — Recibo PDF + WhatsApp + Comprobante Comida)
+**Última actualización:** 2026-05-07 — Sesión XX+39 (Portal Padre Mobile — Feedback Valeria completo)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,31 +17,19 @@
 - [ ] Web en Vercel o Netlify
 - [ ] Mobile en Expo Go o generar APK
 
-### 📝 Feedback Valeria — Portal Padre Mobile (Sesión XX+38)
+### 📝 Feedback Valeria — Portal Padre Mobile — Pendientes restantes
 
-#### 🔴 Bugs / Funcionalidad rota
-- [ ] Saludo se corta — nombre no cabe por iconos campanita y puerta en el header
-- [ ] Icono QR muestra icono de celular en lugar de QR — confuso
-- [ ] Modal de adeudo NO aparece aunque el alumno tiene deuda
-- [ ] Campanita muestra badge "1" pero al abrir no hay notificaciones
-- [ ] Calendario no carga eventos pasados (abril tenía eventos, no aparecen)
-- [ ] Pagos dice "al corriente" en verde aunque hay adeudo real
-- [ ] Bitácora: no se ven sábados/domingos corregidos (web ya lo tiene arreglado — paridad pendiente)
-- [ ] Bitácora: registro del 29 de abril existe en web pero no aparece en mobile
-- [ ] 3 iconos en barra inferior muestran X (broken icons)
-- [ ] Barra inferior ocupa espacio del botón de regreso de Android — iconos no clickeables
+#### 🔴 Notificaciones push en tiempo real — mobile
+- [ ] Modal push al recibir aviso del admin — en web aparece modal en tiempo real; en mobile no hay listener activo. Implementar polling o WebSocket listener en mobile para mostrar modal cuando llega notificación nueva mientras la app está abierta.
 
 #### 🟡 Features faltantes (paridad con web)
 - [ ] Bitácora: no se puede dar de alta medicamentos ni declararlos (solo web)
 - [ ] No aparece módulo de Comida (existe en web)
 - [ ] No hay opción de cambiar contraseña
 
-#### 🟡 UX / Diseño
+#### 🟡 UX / Diseño — Pendientes
 - [ ] Iconos en general se ven anticuados y diferentes al portal web
-- [ ] Dashboard: tiene iconos de Chat y Fotos que no están desarrollados — quitar o deshabilitar
-- [ ] Dashboard: intención es ver eventos próximos + adeudo + tarea pendiente
 - [ ] Barra inferior: nombres de módulos se cortan, no caben completos
-- [ ] Barra inferior: nombre "Eventos" debería ser "Calendario" para coincidir con web
 
 #### 🟡 Flujo de pagos (nuevo requerimiento)
 - [ ] Portal padre: permitir registrar pago subiendo comprobante de transferencia

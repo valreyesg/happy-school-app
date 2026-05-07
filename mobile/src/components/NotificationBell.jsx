@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,28 +7,54 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
+  ActivityIndicator,
+  PanResponder,
+  Animated,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
+import { useAuthStore } from '../store/authStore';
 
 export default function NotificationBell() {
   const [modalVisible, setModalVisible] = useState(false);
   const queryClient = useQueryClient();
+  const { token } = useAuthStore();
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  const panResponder = useRef(PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: (_, g) => g.dy > 5,
+    onPanResponderMove: (_, g) => {
+      if (g.dy > 0) translateY.setValue(g.dy);
+    },
+    onPanResponderRelease: (_, g) => {
+      if (g.dy > 80) {
+        Animated.timing(translateY, { toValue: 600, duration: 200, useNativeDriver: true }).start(() => {
+          setModalVisible(false);
+          translateY.setValue(0);
+        });
+      } else {
+        Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+      }
+    },
+  })).current;
 
   // Count de no leídas — polling cada 30 s
   const { data: badgeData } = useQuery({
     queryKey: ['mobile-notif-count'],
     queryFn: () => api.get('/notificaciones/no-leidas').then(r => r.data),
     refetchInterval: 30_000,
+    enabled: !!token,
   });
   const count = badgeData?.count || 0;
 
-  // Lista completa — solo cuando el modal está abierto
-  const { data: notifs = [], refetch } = useQuery({
+  // Lista completa — solo cuando hay token, refetch al abrir modal
+  const { data: notifs = [], isLoading: loadingNotifs, isError: notifError, refetch } = useQuery({
     queryKey: ['mobile-notificaciones'],
     queryFn: () => api.get('/notificaciones').then(r => r.data),
-    enabled: modalVisible,
+    staleTime: 0,
+    enabled: !!token,
+    retry: 1,
   });
 
   const marcarUna = useMutation({
@@ -63,7 +89,10 @@ export default function NotificationBell() {
     <>
       {/* Botón campanita */}
       <TouchableOpacity
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          setModalVisible(true);
+          queryClient.invalidateQueries({ queryKey: ['mobile-notificaciones'] });
+        }}
         style={styles.bellButton}
       >
         <Text style={styles.bellText}>🔔</Text>
@@ -87,19 +116,24 @@ export default function NotificationBell() {
           style={styles.overlay}
           onPress={() => setModalVisible(false)}
         >
-          <Pressable
-            style={styles.sheet}
-            onPress={() => {}}
+          <Animated.View
+            style={[styles.sheet, { transform: [{ translateY }] }]}
           >
-            {/* Handle bar */}
-            <View style={styles.handleBar} />
+            {/* Handle bar — arrastra para cerrar */}
+            <View style={styles.handleBarContainer} {...panResponder.panHandlers}>
+              <View style={styles.handleBar} />
+            </View>
 
             {/* Title */}
             <Text style={styles.sheetTitle}>Notificaciones</Text>
 
             {/* List */}
             <ScrollView style={styles.listContainer}>
-              {notifs.length === 0 ? (
+              {loadingNotifs ? (
+                <ActivityIndicator color="#E53E3E" style={{ marginVertical: 24 }} />
+              ) : notifError ? (
+                <Text style={styles.emptyText}>Error al cargar notificaciones</Text>
+              ) : notifs.length === 0 ? (
                 <Text style={styles.emptyText}>Sin notificaciones por ahora</Text>
               ) : (
                 notifs.map(n => (
@@ -124,7 +158,7 @@ export default function NotificationBell() {
                 ))
               )}
             </ScrollView>
-          </Pressable>
+          </Animated.View>
         </Pressable>
       </Modal>
     </>
@@ -166,17 +200,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '80%',
+    height: '75%',
     paddingBottom: 20,
+    flex: 0,
+  },
+  handleBarContainer: {
+    paddingVertical: 12,
+    alignItems: 'center',
   },
   handleBar: {
     width: 40,
     height: 4,
     backgroundColor: '#ccc',
     borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 16,
   },
   sheetTitle: {
     fontSize: 18,
@@ -189,6 +225,7 @@ const styles = StyleSheet.create({
   listContainer: {
     flex: 1,
     paddingHorizontal: 8,
+    flexGrow: 1,
   },
   notifItem: {
     flexDirection: 'row',

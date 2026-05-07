@@ -46,7 +46,14 @@ export const useAuthStore = create(
       },
 
       registrarPushToken: async () => {
+        // Push tokens no disponibles en Expo Go SDK 53+ (Android)
+        // Solo funciona en development build o producción
         try {
+          const Constants = require('expo-constants').default;
+          const isExpoGo = Constants.appOwnership === 'expo' ||
+            Constants.executionEnvironment === 'storeClient';
+          if (isExpoGo) return;
+
           const { status } = await Notifications.requestPermissionsAsync();
           if (status !== 'granted') return;
           const { data: fcmToken } = await Notifications.getExpoPushTokenAsync();

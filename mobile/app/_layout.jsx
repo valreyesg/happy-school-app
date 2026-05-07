@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { useAuthStore } from '@/store/authStore';
 
 SplashScreen.preventAutoHideAsync();
@@ -14,13 +15,18 @@ const queryClient = new QueryClient({
   },
 });
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// Solo configurar push notifications fuera de Expo Go (SDK 53+ removió soporte Android)
+const isExpoGo = Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === 'storeClient';
+if (!isExpoGo) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+}
 
 export default function RootLayout() {
   const { registrarPushToken } = useAuthStore();

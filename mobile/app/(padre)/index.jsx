@@ -151,22 +151,22 @@ export default function PadreDashboard() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.greeting} numberOfLines={1}>
+          <View style={{ flex: 1, marginRight: 8 }}>
+            <Text style={styles.greeting} numberOfLines={2}>
               {saludoPadre(usuario?.parentesco, usuario?.nombre)} 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             <NotificationBell />
             <TouchableOpacity
               onPress={() => Alert.alert('Cerrar sesión', '¿Segura que quieres salir?', [
                 { text: 'Cancelar', style: 'cancel' },
                 { text: 'Salir', style: 'destructive', onPress: async () => { await logout(); router.replace('/login'); } },
               ])}
-              style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+              style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 38, height: 38, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 20 }}>🚪</Text>
+              <Text style={{ fontSize: 18 }}>🚪</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -217,9 +217,7 @@ export default function PadreDashboard() {
         <View style={styles.accionesGrid}>
           {[
             { emoji: '📅', label: 'Calendario', route: '/(padre)/calendario', color: '#805AD5' },
-            { emoji: '💰', label: 'Pagos', route: '/(padre)/pagos', color: '#38A169' },
-            { emoji: '💬', label: 'Chat', route: '/(padre)/chat', color: '#E53E3E' },
-            { emoji: '📸', label: 'Fotos', route: '/(padre)/galeria', color: '#D69E2E' },
+            { emoji: '💰', label: 'Pagos', route: '/(padre)/pagos', color: '#D69E2E' },
           ].map(({ emoji, label, route, color }) => (
             <TouchableOpacity
               key={route}
@@ -350,7 +348,23 @@ function HijoTareasPendientes({ hijoId, hijoNombre }) {
   );
 }
 
+const SEMAFORO_CFG = {
+  amarillo:   { color: '#D69E2E', bg: '#FFFFF0', label: 'Atención',   icon: '⚠️' },
+  rojo:       { color: '#E53E3E', bg: '#FFF5F5', label: 'Adeudo',     icon: '🔴' },
+  suspendido: { color: '#718096', bg: '#F7FAFC', label: 'Suspendido', icon: '⛔' },
+};
+
 function HijoCard({ hijo }) {
+  const { data: estadoPago } = useQuery({
+    queryKey: ['estado-alumno-dash', hijo.id],
+    queryFn: () => api.get(`/pagos/estado/${hijo.id}`).then(r => r.data).catch(() => null),
+    staleTime: 0,
+  });
+
+  const sfCfg = estadoPago && estadoPago.semaforo !== 'verde'
+    ? SEMAFORO_CFG[estadoPago.semaforo]
+    : null;
+
   return (
     <TouchableOpacity
       style={styles.hijoCard}
@@ -375,9 +389,31 @@ function HijoCard({ hijo }) {
           style={styles.qrBtn}
           onPress={() => router.push(`/(padre)/qr?alumnoId=${hijo.id}`)}
         >
-          <Text style={{ fontSize: 24 }}>📱</Text>
+          <Text style={{ fontSize: 22 }}>🔲</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Banner de adeudo */}
+      {sfCfg && (
+        <TouchableOpacity
+          style={[styles.adeudoBanner, { backgroundColor: sfCfg.bg, borderColor: sfCfg.color }]}
+          onPress={() => router.push('/(padre)/pagos')}
+          activeOpacity={0.8}
+        >
+          <Text style={{ fontSize: 18 }}>{sfCfg.icon}</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.adeudoLabel, { color: sfCfg.color }]}>
+              {sfCfg.label} — Saldo pendiente
+            </Text>
+            {estadoPago.saldo_pendiente > 0 && (
+              <Text style={[styles.adeudoMonto, { color: sfCfg.color }]}>
+                {new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(estadoPago.saldo_pendiente)}
+              </Text>
+            )}
+          </View>
+          <Text style={[styles.adeudoFlecha, { color: sfCfg.color }]}>›</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Bitácora de hoy */}
       {hijo.bitacora_hoy && (
@@ -449,7 +485,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 20, paddingTop: 16, paddingBottom: 8,
   },
-  greeting: { fontSize: 24, fontWeight: '900', color: '#2D3748' },
+  greeting: { fontSize: 18, fontWeight: '900', color: '#2D3748', lineHeight: 24 },
   fecha: { fontSize: 13, fontWeight: '600', color: '#718096', textTransform: 'capitalize' },
   loadingCard: {
     margin: 16, padding: 32, backgroundColor: COLORS.white, borderRadius: 24,
@@ -513,6 +549,14 @@ const styles = StyleSheet.create({
   alertaTxt: { fontSize: 11, fontWeight: '800', color: '#C53030' },
   alertaNaranja: { flexDirection: 'column', alignItems: 'center', backgroundColor: '#FFFAF0', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#FEEBC8', padding: 10, gap: 6 },
   alertaNaranjaTxt: { fontSize: 11, fontWeight: '800', color: '#C05621' },
+  adeudoBanner: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    marginHorizontal: 12, marginTop: 8, marginBottom: 4,
+    padding: 10, borderRadius: RADIUS.md, borderWidth: 1.5,
+  },
+  adeudoLabel: { fontSize: 12, fontWeight: '800' },
+  adeudoMonto: { fontSize: 16, fontWeight: '900', marginTop: 2 },
+  adeudoFlecha: { fontSize: 20, fontWeight: '900' },
   notasBox: { backgroundColor: '#FFFFF0', borderRadius: RADIUS.md, padding: 10 },
   notasTxt: { fontSize: 13, color: '#744210', fontStyle: 'italic' },
 

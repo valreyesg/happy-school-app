@@ -161,12 +161,16 @@ export default function CalendarioPadreScreen() {
   const esHoy = (dia) => dia && year === hoy.getFullYear() && month === hoy.getMonth() && dia === hoy.getDate();
   const tieneEventos = (dia) => eventosPorDia(dia).length > 0;
 
-  // Próximos eventos desde hoy
-  const proximosEventos = eventos.filter(e => {
-    const f = new Date(e.fecha_inicio);
-    const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-    return f >= inicio;
-  }).slice(0, 10);
+  // Si es el mes actual → mostrar desde hoy. Si es mes pasado → mostrar todos. Si es futuro → mostrar todos.
+  const esMesActual = year === hoy.getFullYear() && month === hoy.getMonth();
+  const eventosLista = esMesActual
+    ? eventos.filter(e => {
+        const f = new Date(e.fecha_inicio);
+        const inicio = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+        return f >= inicio;
+      })
+    : eventos;
+  const proximosEventos = eventosLista.slice(0, 10);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
@@ -239,7 +243,9 @@ export default function CalendarioPadreScreen() {
         {/* Próximos eventos */}
         <View style={s.proximosSection}>
           <Text style={s.proximosTitulo}>
-            {proximosEventos.length > 0 ? 'Próximos eventos' : 'Sin eventos próximos este mes'}
+            {proximosEventos.length > 0
+              ? (esMesActual ? 'Próximos eventos' : `Eventos de ${MESES[month]}`)
+              : (esMesActual ? 'Sin eventos próximos este mes' : `Sin eventos en ${MESES[month]}`)}
           </Text>
           {proximosEventos.map(e => {
             const color = e.categoria_color || '#805AD5';

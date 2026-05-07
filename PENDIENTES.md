@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)
+**Última actualización:** 2026-05-06 — Sesión XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -46,11 +46,11 @@
 - [x] ~~Lista alumnos con adeudos~~ ✅ Módulo Alertas de Pago con semáforo — Sesión XX+36
 - [x] ~~Alertas modales a padres con adeudo~~ ✅ Tipo alerta_pago + configurable — Sesión XX+36
 - [x] ~~Estado colegiatura por alumno~~ ✅ Cubierto parcialmente — job cron implementado Sesión XX+32 (ver ARCHIVE_LOG)
-- [ ] Registro manual de pagos (desde portal admin, no directora)
-- [ ] Historial cobros: extensión, comida
-- [ ] Segmentación servicios: Regulares, Solo Extensión, Estancia por Día
+- [x] ~~Registro manual de pagos (desde portal admin, no directora)~~ ✅ Ya existía en ModalPago — confirmado Sesión XX+37
+- [x] ~~Historial cobros: extensión, comida~~ ✅ TabExtension + TabComida — Sesión XX+37
+- [x] ~~Segmentación servicios: Regulares, Solo Extensión, Estancia por Día~~ ✅ TabSegmentacion 4 grupos — Sesión XX+37
 - [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre
-- [ ] Exportación contable: Excel filtrable para admin
+- [x] ~~Exportación contable: Excel filtrable para admin~~ ✅ 3-sheet ExcelJS — Sesión XX+37
 - [ ] Comprobante Comida: adjuntar foto transferencia O marcar "Efectivo Lunes"
 
 ### 🎓 Evaluaciones y Boletas

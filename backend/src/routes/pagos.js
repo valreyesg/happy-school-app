@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
+const ExcelJS = require('exceljs');
 
 router.use(authenticate);
 
@@ -583,6 +584,363 @@ router.post('/comida', authorize('directora', 'administrativo'), async (req, res
       RETURNING *
     `, [alumno_id, semana_inicio, monto || 0]);
     res.status(201).json(r.rows[0]);
+  } catch (err) { next(err); }
+});
+
+// ─── HISTORIAL COMIDA POR MES ─────────────────────────────────────────────────
+// GET /pagos/comida/historial?mes=5&anio=2026&grupo_id=...
+
+router.get('/comida/historial', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { mes, anio, grupo_id } = req.query;
+    const m = parseInt(mes) || new Date().getMonth() + 1;
+    const a = parseInt(anio) || new Date().getFullYear();
+
+    // Primer y último día del mes
+    const fechaInicio = new Date(a, m - 1, 1).toISOString().slice(0, 10);
+    const fechaFin    = new Date(a, m, 0).toISOString().slice(0, 10);
+
+    const params = [fechaInicio, fechaFin];
+    let filtroGrupo = '';
+    if (grupo_id) { params.push(grupo_id); filtroGrupo = ` AND g.id = $${params.length}`; }
+
+    const result = await query(`
+      SELECT pcs.*,
+             a.nombre_completo AS alumno_nombre, a.foto_url,
+             g.nombre AS grupo_nombre, g.color_hex
+      FROM pago_comida_semanal pcs
+      JOIN alumnos a ON pcs.alumno_id = a.id
+      JOIN grupos g ON a.grupo_id = g.id
+      WHERE pcs.semana_inicio BETWEEN $1 AND $2
+        ${filtroGrupo}
+      ORDER BY pcs.semana_inicio DESC, g.nombre, a.nombre_completo
+    `, params);
+
+    // Totales del mes
+    const totalesResult = await query(`
+      SELECT
+        COUNT(*) AS total_registros,
+        COALESCE(SUM(monto) FILTER (WHERE estado = 'pagado'), 0) AS recaudado,
+        COUNT(DISTINCT alumno_id) AS alumnos_unicos
+      FROM pago_comida_semanal
+      WHERE semana_inicio BETWEEN $1 AND $2
+    `, [fechaInicio, fechaFin]);
+
+    res.json({
+      mes: m, anio: a,
+      totales: totalesResult.rows[0],
+      registros: result.rows,
+    });
+  } catch (err) { next(err); }
+});
+
+// ─── SEGMENTACIÓN DE SERVICIOS ────────────────────────────────────────────────
+// GET /pagos/segmentacion — alumnos agrupados por servicios activos
+
+router.get('/segmentacion', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const ciclo = await query(
+      `SELECT id FROM ciclos_escolares WHERE activo = true LIMIT 1`
+    );
+    const cicloId = ciclo.rows[0]?.id;
+
+    const alumnos = await query(`
+      SELECT
+        a.id, a.nombre_completo, a.foto_url,
+        g.nombre AS grupo_nombre, g.color_hex, g.nivel,
+        cha.tiene_extension,
+        cha.hora_salida_extension,
+        EXISTS(
+          SELECT 1 FROM pago_comida_semanal pcs
+          WHERE pcs.alumno_id = a.id
+            AND pcs.semana_inicio >= date_trunc('month', CURRENT_DATE)::date
+            AND pcs.estado = 'pagado'
+        ) AS tiene_comida_activa,
+        (
+          SELECT cp.nombre FROM pagos p
+          JOIN conceptos_pago cp ON cp.id = p.concepto_id
+          WHERE p.alumno_id = a.id
+            AND cp.tipo = 'extension'
+            AND p.estado IN ('pagado','pendiente')
+            AND p.mes_correspondiente = EXTRACT(MONTH FROM CURRENT_DATE)
+            AND p.anio_correspondiente = EXTRACT(YEAR  FROM CURRENT_DATE)
+          LIMIT 1
+        ) AS tipo_extension_activa
+      FROM alumnos a
+      JOIN grupos g ON a.grupo_id = g.id
+      LEFT JOIN config_horario_alumno cha ON cha.alumno_id = a.id AND cha.activo = true
+      WHERE a.deleted_at IS NULL
+        AND g.activo = true
+        ${cicloId ? 'AND g.ciclo_id = $1' : ''}
+      ORDER BY g.nombre, a.nombre_completo
+    `, cicloId ? [cicloId] : []);
+
+    // Agrupar por tipo de servicio
+    const regulares   = [];
+    const conExtension = [];
+    const conComida   = [];
+    const conAmbos    = [];
+
+    alumnos.rows.forEach(al => {
+      const ext   = !!al.tiene_extension;
+      const comida = !!al.tiene_comida_activa;
+      if (ext && comida) conAmbos.push(al);
+      else if (ext)      conExtension.push(al);
+      else if (comida)   conComida.push(al);
+      else               regulares.push(al);
+    });
+
+    res.json({
+      total: alumnos.rows.length,
+      regulares:    { count: regulares.length,    alumnos: regulares },
+      con_extension:{ count: conExtension.length, alumnos: conExtension },
+      con_comida:   { count: conComida.length,    alumnos: conComida },
+      con_ambos:    { count: conAmbos.length,     alumnos: conAmbos },
+    });
+  } catch (err) { next(err); }
+});
+
+// ─── EXPORTACIÓN CONTABLE EXCEL ───────────────────────────────────────────────
+// GET /pagos/exportar?mes=5&anio=2026&estado=&concepto_id=&grupo_id=
+
+router.get('/exportar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { mes, anio, estado, concepto_id, grupo_id } = req.query;
+    const m = parseInt(mes) || new Date().getMonth() + 1;
+    const a = parseInt(anio) || new Date().getFullYear();
+
+    const MESES_NOMBRE = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    const nombreMes = MESES_NOMBRE[m];
+
+    // ── Pagos regulares ──
+    const params = [m, a];
+    let sql = `
+      SELECT p.*,
+             cp.nombre AS concepto_nombre, cp.tipo AS concepto_tipo,
+             al.nombre_completo AS alumno_nombre,
+             g.nombre AS grupo_nombre, g.nivel,
+             u.nombre AS registrado_por_nombre
+      FROM pagos p
+      JOIN conceptos_pago cp ON p.concepto_id = cp.id
+      JOIN alumnos al ON p.alumno_id = al.id
+      JOIN grupos g ON al.grupo_id = g.id
+      LEFT JOIN usuarios u ON p.registrado_por = u.id
+      WHERE p.mes_correspondiente = $1 AND p.anio_correspondiente = $2
+    `;
+    if (estado)      { params.push(estado);      sql += ` AND p.estado = $${params.length}`; }
+    if (concepto_id) { params.push(concepto_id); sql += ` AND p.concepto_id = $${params.length}`; }
+    if (grupo_id)    { params.push(grupo_id);    sql += ` AND g.id = $${params.length}`; }
+    sql += ' ORDER BY g.nombre, al.nombre_completo, cp.nombre';
+
+    const pagosResult = await query(sql, params);
+    const pagos = pagosResult.rows;
+
+    // ── Comida semanal del mes ──
+    const fechaInicio = new Date(a, m - 1, 1).toISOString().slice(0, 10);
+    const fechaFin    = new Date(a, m, 0).toISOString().slice(0, 10);
+    const comidaResult = await query(`
+      SELECT pcs.*, a.nombre_completo AS alumno_nombre, g.nombre AS grupo_nombre
+      FROM pago_comida_semanal pcs
+      JOIN alumnos a ON pcs.alumno_id = a.id
+      JOIN grupos g ON a.grupo_id = g.id
+      WHERE pcs.semana_inicio BETWEEN $1 AND $2
+      ORDER BY pcs.semana_inicio, g.nombre, a.nombre_completo
+    `, [fechaInicio, fechaFin]);
+
+    // ── Construir Excel ──
+    const workbook = new ExcelJS.Workbook();
+    workbook.creator = 'Happy School';
+    workbook.created = new Date();
+
+    const HEADER_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF7C3AED' } };
+    const HEADER_FONT = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
+    const SUBTOTAL_FILL = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } };
+
+    const ESTADO_LABEL = { pagado: 'Pagado', pendiente: 'Pendiente', vencido: 'Vencido', cancelado: 'Cancelado' };
+
+    // ── Hoja 1: Detalle de Pagos ──
+    const wsDetalle = workbook.addWorksheet(`Pagos ${nombreMes} ${a}`);
+
+    wsDetalle.columns = [
+      { header: 'Alumno',          key: 'alumno',    width: 28 },
+      { header: 'Grupo',           key: 'grupo',     width: 16 },
+      { header: 'Nivel',           key: 'nivel',     width: 10 },
+      { header: 'Concepto',        key: 'concepto',  width: 24 },
+      { header: 'Tipo',            key: 'tipo',      width: 12 },
+      { header: 'Estado',          key: 'estado',    width: 12 },
+      { header: 'Monto Base',      key: 'base',      width: 14 },
+      { header: 'Recargo',         key: 'recargo',   width: 12 },
+      { header: 'Total',           key: 'total',     width: 14 },
+      { header: 'Método Pago',     key: 'metodo',    width: 14 },
+      { header: 'Fecha Pago',      key: 'fecha',     width: 14 },
+      { header: 'Referencia',      key: 'ref',       width: 18 },
+      { header: 'Registrado por',  key: 'usuario',   width: 22 },
+      { header: 'Notas',           key: 'notas',     width: 30 },
+    ];
+
+    // Estilo encabezado
+    const hdr1 = wsDetalle.getRow(1);
+    hdr1.font = HEADER_FONT;
+    hdr1.fill = HEADER_FILL;
+    hdr1.alignment = { horizontal: 'center', vertical: 'middle' };
+    hdr1.height = 18;
+
+    // Colores por estado
+    const ESTADO_COLOR = {
+      pagado:    'FFD1FAE5',
+      pendiente: 'FFFEF9C3',
+      vencido:   'FFFEE2E2',
+      cancelado: 'FFF3F4F6',
+    };
+
+    let totalRecaudado = 0, totalRecargos = 0, totalPendiente = 0, totalVencido = 0;
+
+    pagos.forEach(p => {
+      const row = wsDetalle.addRow({
+        alumno:   p.alumno_nombre,
+        grupo:    p.grupo_nombre,
+        nivel:    p.nivel || '',
+        concepto: p.concepto_nombre,
+        tipo:     p.concepto_tipo,
+        estado:   ESTADO_LABEL[p.estado] || p.estado,
+        base:     parseFloat(p.monto_base),
+        recargo:  parseFloat(p.monto_recargo),
+        total:    parseFloat(p.monto_total),
+        metodo:   p.metodo_pago || '',
+        fecha:    p.fecha_pago ? new Date(p.fecha_pago).toLocaleDateString('es-MX') : '',
+        ref:      p.referencia || '',
+        usuario:  p.registrado_por_nombre || '',
+        notas:    p.notas || '',
+      });
+
+      // Formato numérico
+      ['base', 'recargo', 'total'].forEach(k => {
+        const col = wsDetalle.getColumn(k);
+        row.getCell(col.number).numFmt = '"$"#,##0.00';
+      });
+
+      // Color por estado
+      const fgColor = ESTADO_COLOR[p.estado] || 'FFFFFFFF';
+      row.eachCell(cell => {
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fgColor } };
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+      });
+
+      if (p.estado === 'pagado')    { totalRecaudado += parseFloat(p.monto_total); totalRecargos += parseFloat(p.monto_recargo); }
+      if (p.estado === 'pendiente') totalPendiente += parseFloat(p.monto_total);
+      if (p.estado === 'vencido')   totalVencido   += parseFloat(p.monto_total);
+    });
+
+    // Fila totales
+    const totalRow = wsDetalle.addRow({
+      alumno: 'TOTALES', estado: '',
+      base: '', recargo: totalRecargos, total: totalRecaudado + totalPendiente + totalVencido,
+    });
+    totalRow.font = { bold: true, size: 10 };
+    totalRow.fill = SUBTOTAL_FILL;
+    const tcol = wsDetalle.getColumn('recargo');
+    totalRow.getCell(tcol.number).numFmt = '"$"#,##0.00';
+    const ttcol = wsDetalle.getColumn('total');
+    totalRow.getCell(ttcol.number).numFmt = '"$"#,##0.00';
+
+    // ── Hoja 2: Resumen por Concepto ──
+    const wsResumen = workbook.addWorksheet('Resumen por Concepto');
+    wsResumen.columns = [
+      { header: 'Concepto',   key: 'concepto',   width: 26 },
+      { header: 'Tipo',       key: 'tipo',        width: 14 },
+      { header: 'Pagados',    key: 'pagados',     width: 10 },
+      { header: 'Pendientes', key: 'pendientes',  width: 12 },
+      { header: 'Vencidos',   key: 'vencidos',    width: 10 },
+      { header: 'Recaudado',  key: 'recaudado',   width: 16 },
+      { header: 'Por Cobrar', key: 'por_cobrar',  width: 16 },
+      { header: 'Vencido $',  key: 'vencido_monto', width: 14 },
+    ];
+    const hdr2 = wsResumen.getRow(1);
+    hdr2.font = HEADER_FONT;
+    hdr2.fill = HEADER_FILL;
+    hdr2.alignment = { horizontal: 'center', vertical: 'middle' };
+    hdr2.height = 18;
+
+    const resumenMap = new Map();
+    pagos.forEach(p => {
+      const k = p.concepto_nombre;
+      if (!resumenMap.has(k)) resumenMap.set(k, { concepto: k, tipo: p.concepto_tipo, pagados: 0, pendientes: 0, vencidos: 0, recaudado: 0, por_cobrar: 0, vencido_monto: 0 });
+      const r = resumenMap.get(k);
+      const monto = parseFloat(p.monto_total);
+      if (p.estado === 'pagado')    { r.pagados++;    r.recaudado    += monto; }
+      if (p.estado === 'pendiente') { r.pendientes++; r.por_cobrar   += monto; }
+      if (p.estado === 'vencido')   { r.vencidos++;   r.vencido_monto += monto; }
+    });
+
+    resumenMap.forEach(r => {
+      const row = wsResumen.addRow(r);
+      ['recaudado', 'por_cobrar', 'vencido_monto'].forEach(k => {
+        row.getCell(wsResumen.getColumn(k).number).numFmt = '"$"#,##0.00';
+      });
+      row.eachCell(cell => {
+        cell.border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+      });
+    });
+
+    // Fila totales resumen
+    const tr2 = wsResumen.addRow({
+      concepto: 'TOTAL', tipo: '',
+      pagados: pagos.filter(p=>p.estado==='pagado').length,
+      pendientes: pagos.filter(p=>p.estado==='pendiente').length,
+      vencidos: pagos.filter(p=>p.estado==='vencido').length,
+      recaudado: totalRecaudado, por_cobrar: totalPendiente, vencido_monto: totalVencido,
+    });
+    tr2.font = { bold: true, size: 10 };
+    tr2.fill = SUBTOTAL_FILL;
+    ['recaudado', 'por_cobrar', 'vencido_monto'].forEach(k => {
+      tr2.getCell(wsResumen.getColumn(k).number).numFmt = '"$"#,##0.00';
+    });
+
+    // ── Hoja 3: Comida Semanal (si hay datos) ──
+    if (comidaResult.rows.length > 0) {
+      const wsComida = workbook.addWorksheet('Comida Semanal');
+      wsComida.columns = [
+        { header: 'Semana',   key: 'semana',  width: 14 },
+        { header: 'Alumno',   key: 'alumno',  width: 28 },
+        { header: 'Grupo',    key: 'grupo',   width: 16 },
+        { header: 'Estado',   key: 'estado',  width: 12 },
+        { header: 'Monto',    key: 'monto',   width: 12 },
+        { header: 'Fecha Pago', key: 'fecha', width: 14 },
+      ];
+      const hdr3 = wsComida.getRow(1);
+      hdr3.font = HEADER_FONT;
+      hdr3.fill = HEADER_FILL;
+      hdr3.alignment = { horizontal: 'center', vertical: 'middle' };
+      hdr3.height = 18;
+
+      let totalComida = 0;
+      comidaResult.rows.forEach(r => {
+        const row = wsComida.addRow({
+          semana: r.semana_inicio,
+          alumno: r.alumno_nombre,
+          grupo:  r.grupo_nombre,
+          estado: ESTADO_LABEL[r.estado] || r.estado,
+          monto:  parseFloat(r.monto || 0),
+          fecha:  r.fecha_pago ? new Date(r.fecha_pago).toLocaleDateString('es-MX') : '',
+        });
+        row.getCell(wsComida.getColumn('monto').number).numFmt = '"$"#,##0.00';
+        row.eachCell(cell => {
+          cell.border = { bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } } };
+        });
+        totalComida += parseFloat(r.monto || 0);
+      });
+      const trc = wsComida.addRow({ semana: 'TOTAL', monto: totalComida });
+      trc.font = { bold: true }; trc.fill = SUBTOTAL_FILL;
+      trc.getCell(wsComida.getColumn('monto').number).numFmt = '"$"#,##0.00';
+    }
+
+    // ── Enviar respuesta ──
+    const filename = `pagos-${nombreMes.toLowerCase()}-${a}.xlsx`;
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    await workbook.xlsx.write(res);
+    res.end();
   } catch (err) { next(err); }
 });
 

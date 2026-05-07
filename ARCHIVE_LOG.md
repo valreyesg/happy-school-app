@@ -1,7 +1,64 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)**
+
+---
+
+## ✅ SESIÓN XX+37 (2026-05-06) — FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Implementación de tres módulos del Portal Admin Finanzas: historial detallado de cobros por tipo (extensión y comida), segmentación de alumnos por servicios activos y exportación contable a Excel en 3 hojas.
+
+### Tareas ejecutadas
+
+1. **D3 — Historial cobros Extensión (`TabExtension`)**
+   - `web/src/pages/directora/Pagos.jsx` → nuevo componente `TabExtension`
+   - Filtra `GET /pagos` por `concepto_tipo === 'extension'` del mes seleccionado
+   - Stats: Recaudado / Por cobrar / Vencido
+   - Tabla: alumno, concepto, estado badge, monto, recargo, método, fecha
+   - **Status:** ✅ Completada y validada
+
+2. **D3 — Historial cobros Comida (`TabComida`)**
+   - `backend/src/routes/pagos.js` → nuevo endpoint `GET /pagos/comida/historial?mes&anio&grupo_id`
+   - Agrupa registros de `pago_comida_semanal` por semana, devuelve totales y detalle por alumno
+   - `web/src/pages/directora/Pagos.jsx` → nuevo componente `TabComida`
+   - Cards por semana con monto total; muestra mensaje informativo si DB vacía
+   - **Status:** ✅ Completada y validada
+
+3. **D4 — Segmentación de servicios (`TabSegmentacion`)**
+   - `backend/src/routes/pagos.js` → nuevo endpoint `GET /pagos/segmentacion`
+   - Query con LEFT JOIN `config_horario_alumno` + EXISTS subquery `pago_comida_semanal`
+   - 4 grupos: `regulares` / `con_extension` / `con_comida` / `con_ambos`
+   - `web/src/pages/directora/Pagos.jsx` → nuevo componente `TabSegmentacion` + constante `SEG_TABS`
+   - Grid de 4 tarjetas coloreadas + lista de alumnos al seleccionar segmento
+   - **Status:** ✅ Completada y validada
+
+4. **D6 — Exportación contable Excel**
+   - `backend/src/routes/pagos.js` → nuevo endpoint `GET /pagos/exportar?mes&anio&estado&concepto_id&grupo_id`
+   - 3 hojas: Detalle de Pagos (14 cols, filas coloreadas por estado), Resumen por Concepto, Comida Semanal (solo si hay datos)
+   - Usa `ExcelJS` (ya instalado como dep)
+   - `web/src/pages/directora/Pagos.jsx` → `handleExportarExcel` con `responseType: 'blob'` + blob URL download
+   - Botón `📊 Excel` en header del módulo Pagos
+   - **Status:** ✅ Completada y validada
+
+5. **Navegación multi-tab en Pagos.jsx**
+   - Constante `MAIN_TABS` con 4 tabs: Pagos / Extensión / Comida / Servicios
+   - Estado `[tab, setTab]` controla qué panel se muestra
+   - Navegación mes/año oculta en tab Servicios (que no lo necesita)
+
+### Archivos modificados
+- `backend/src/routes/pagos.js` — 3 nuevos endpoints GET (comida/historial, segmentacion, exportar) + require ExcelJS
+- `web/src/pages/directora/Pagos.jsx` — TabExtension, TabComida, TabSegmentacion, MAIN_TABS, handleExportarExcel, botón Excel
+
+### Bugs / notas técnicas
+- **Route ordering**: Las rutas `GET /comida/historial` y `GET /segmentacion` deben estar ANTES de `PUT /:id` / `DELETE /:id` (Express, rutas estáticas primero)
+- **Excel con auth**: Usar `api.get(..., {responseType: 'blob'})` en lugar de `window.open()` para incluir el header Authorization automáticamente
+- **Windows PID kill**: Cuando `pkill -f node` falla en bash-on-Windows, usar `netstat -ano | grep ":3000"` + `taskkill //PID XXXXX //F`
+- **JSX fragments en condicionales**: `{cond && (<>...</>)}` puede confundir a Babel; preferir `{cond && (<div>...</div>)}` con `</div>` y `)}` en líneas separadas
 
 ---
 

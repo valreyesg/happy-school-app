@@ -641,10 +641,297 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   );
 }
 
+// ─── Tab Historial Extensión ──────────────────────────────────────────────────
+
+function TabExtension({ mes, anio, conceptos, metodos, tiposConcepto }) {
+  const [busqueda, setBusqueda] = useState('');
+
+  const { data: pagos = [], isLoading } = useQuery({
+    queryKey: ['pagos-extension', mes, anio],
+    queryFn: () => api.get('/pagos', { params: { mes, anio } }).then(r =>
+      r.data.filter(p => p.concepto_tipo === 'extension')
+    ),
+  });
+
+  const filtrados = busqueda
+    ? pagos.filter(p => p.alumno_nombre?.toLowerCase().includes(busqueda.toLowerCase()))
+    : pagos;
+
+  // Totales
+  const recaudado   = filtrados.filter(p => p.estado === 'pagado').reduce((s, p) => s + parseFloat(p.monto_total), 0);
+  const porCobrar   = filtrados.filter(p => p.estado === 'pendiente').reduce((s, p) => s + parseFloat(p.monto_total), 0);
+  const vencido     = filtrados.filter(p => p.estado === 'vencido').reduce((s, p) => s + parseFloat(p.monto_total), 0);
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Recaudado extensión" valor={fmt(recaudado)} sub={`${filtrados.filter(p=>p.estado==='pagado').length} pagos`} color="border-hs-green" />
+        <StatCard label="Por cobrar" valor={fmt(porCobrar)} sub={`${filtrados.filter(p=>p.estado==='pendiente').length} pendientes`} color="border-yellow-500" />
+        <StatCard label="Vencido" valor={fmt(vencido)} sub={`${filtrados.filter(p=>p.estado==='vencido').length} vencidos`} color="border-red-500" />
+      </div>
+
+      <input type="text" placeholder="Buscar alumno…" className="input-hs"
+        value={busqueda} onChange={e => setBusqueda(e.target.value)} />
+
+      {isLoading ? (
+        <div className="flex justify-center py-8"><div className="w-8 h-8 rounded-full border-4 border-purple-600 border-t-transparent animate-spin" /></div>
+      ) : filtrados.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-2">📋</p>
+          <p className="text-gray-500 font-semibold">Sin cobros de extensión este mes</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs text-gray-500 border-b bg-gray-50">
+                <th className="text-left px-4 py-2 font-bold">Alumno</th>
+                <th className="text-left px-4 py-2 font-bold">Concepto</th>
+                <th className="text-left px-4 py-2 font-bold">Estado</th>
+                <th className="text-right px-4 py-2 font-bold">Monto</th>
+                <th className="text-right px-4 py-2 font-bold">Recargo</th>
+                <th className="text-left px-4 py-2 font-bold">Método</th>
+                <th className="text-left px-4 py-2 font-bold">Fecha pago</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtrados.map(p => {
+                const ep = ESTADO_PAGO[p.estado] || ESTADO_PAGO.pendiente;
+                return (
+                  <tr key={p.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {p.foto_url
+                          ? <img src={p.foto_url} className="w-7 h-7 rounded-full object-cover" alt="" />
+                          : <div className="w-7 h-7 rounded-full bg-hs-purple/20 flex items-center justify-center text-hs-purple-dark font-black text-xs">{p.alumno_nombre?.[0]}</div>
+                        }
+                        <div>
+                          <p className="font-bold text-gray-800 text-sm">{p.alumno_nombre}</p>
+                          <p className="text-xs text-gray-400"
+                            style={{ color: p.color_hex }}>{p.grupo_nombre}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700">{p.concepto_nombre}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${ep.bg} ${ep.text}`}>{ep.label}</span>
+                    </td>
+                    <td className="px-4 py-3 text-right font-black text-gray-800">{fmt(p.monto_total)}</td>
+                    <td className="px-4 py-3 text-right text-red-500 font-semibold text-xs">
+                      {p.monto_recargo > 0 ? `+${fmt(p.monto_recargo)}` : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-sm capitalize text-gray-600">{p.metodo_pago || '—'}</td>
+                    <td className="px-4 py-3 text-sm text-gray-500">{fmtFecha(p.fecha_pago)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab Historial Comida ─────────────────────────────────────────────────────
+
+function TabComida({ mes, anio }) {
+  const [grupoFiltro, setGrupoFiltro] = useState('');
+
+  const { data: grupos = [] } = useQuery({
+    queryKey: ['grupos'],
+    queryFn: () => api.get('/grupos').then(r => r.data),
+  });
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['comida-historial', mes, anio, grupoFiltro],
+    queryFn: () => api.get('/pagos/comida/historial', {
+      params: { mes, anio, ...(grupoFiltro ? { grupo_id: grupoFiltro } : {}) }
+    }).then(r => r.data),
+  });
+
+  const registros = data?.registros || [];
+  const totales   = data?.totales   || {};
+
+  // Agrupar por semana
+  const porSemana = useMemo(() => {
+    const mapa = new Map();
+    registros.forEach(r => {
+      if (!mapa.has(r.semana_inicio)) mapa.set(r.semana_inicio, []);
+      mapa.get(r.semana_inicio).push(r);
+    });
+    return Array.from(mapa.entries()).sort((a, b) => b[0].localeCompare(a[0]));
+  }, [registros]);
+
+  return (
+    <div className="space-y-4">
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        <StatCard label="Recaudado comida" valor={fmt(totales.recaudado)} sub={`${totales.total_registros || 0} registros`} color="border-hs-green" />
+        <StatCard label="Alumnos únicos" valor={totales.alumnos_unicos || 0} sub="este mes" color="border-hs-blue" />
+        <StatCard label="Semanas" valor={porSemana.length} sub="con registros" color="border-hs-purple" />
+      </div>
+
+      {/* Filtro grupo */}
+      <select className="input-hs" value={grupoFiltro} onChange={e => setGrupoFiltro(e.target.value)}>
+        <option value="">Todos los grupos</option>
+        {grupos.map(g => <option key={g.id} value={g.id}>{g.nombre}</option>)}
+      </select>
+
+      {isLoading ? (
+        <div className="flex justify-center py-8"><div className="w-8 h-8 rounded-full border-4 border-purple-600 border-t-transparent animate-spin" /></div>
+      ) : isError ? (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-2">⚠️</p>
+          <p className="text-red-500 font-semibold">Error al cargar: {error?.response?.data?.error || error?.message}</p>
+        </div>
+      ) : porSemana.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-2">🍽️</p>
+          <p className="text-gray-500 font-semibold">Sin registros de comida este mes</p>
+          <p className="text-gray-400 text-xs mt-1">Los pagos de comida se registran desde el módulo de Servicio de Comida</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {porSemana.map(([semana, regs]) => {
+            const totalSemana = regs.reduce((s, r) => s + parseFloat(r.monto || 0), 0);
+            const viernes = new Date(semana);
+            viernes.setDate(viernes.getDate() + 4);
+            return (
+              <div key={semana} className="card-hs p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="font-black text-gray-800 text-sm">
+                      Semana del {fmtFecha(semana)} al {fmtFecha(viernes.toISOString())}
+                    </p>
+                    <p className="text-xs text-gray-400">{regs.length} alumnos pagaron</p>
+                  </div>
+                  <p className="font-black text-hs-green text-lg">{fmt(totalSemana)}</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {regs.map(r => (
+                    <div key={r.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl">
+                      {r.foto_url
+                        ? <img src={r.foto_url} className="w-7 h-7 rounded-full object-cover" alt="" />
+                        : <div className="w-7 h-7 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-black text-xs">{r.alumno_nombre?.[0]}</div>
+                      }
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-gray-800 truncate">{r.alumno_nombre}</p>
+                        <p className="text-xs text-gray-400" style={{ color: r.color_hex }}>{r.grupo_nombre}</p>
+                      </div>
+                      <p className="text-xs font-black text-green-700 whitespace-nowrap">{fmt(r.monto)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab Segmentación ─────────────────────────────────────────────────────────
+
+const SEG_TABS = [
+  { key: 'regulares',     label: 'Regulares',          color: 'bg-blue-100 text-blue-700',   emoji: '🎓' },
+  { key: 'con_extension', label: 'Con Extensión',       color: 'bg-purple-100 text-purple-700', emoji: '🕐' },
+  { key: 'con_comida',    label: 'Con Comida',          color: 'bg-green-100 text-green-700', emoji: '🍽️' },
+  { key: 'con_ambos',     label: 'Extensión + Comida',  color: 'bg-orange-100 text-orange-700', emoji: '⭐' },
+];
+
+function TabSegmentacion() {
+  const [segTab, setSegTab] = useState('regulares');
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['segmentacion-servicios'],
+    queryFn: () => api.get('/pagos/segmentacion').then(r => r.data),
+  });
+
+  const segActual = data?.[segTab] || { count: 0, alumnos: [] };
+
+  return (
+    <div className="space-y-4">
+      {/* Resumen chips */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {SEG_TABS.map(st => {
+          const info = data?.[st.key] || { count: 0 };
+          return (
+            <button key={st.key}
+              onClick={() => setSegTab(st.key)}
+              className={`p-4 rounded-2xl text-left transition-all border-2 ${
+                segTab === st.key ? 'border-hs-purple shadow-md' : 'border-transparent'
+              } ${st.color.split(' ')[0]} hover:opacity-90`}
+            >
+              <p className="text-2xl mb-1">{st.emoji}</p>
+              <p className={`text-2xl font-black ${st.color.split(' ')[1]}`}>{info.count}</p>
+              <p className={`text-xs font-bold ${st.color.split(' ')[1]} opacity-80`}>{st.label}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Total */}
+      {data && (
+        <p className="text-xs text-gray-400 font-semibold">
+          Total alumnos activos: <span className="text-gray-700 font-black">{data.total}</span>
+        </p>
+      )}
+
+      {/* Lista del segmento seleccionado */}
+      {isLoading ? (
+        <div className="flex justify-center py-8"><div className="w-8 h-8 rounded-full border-4 border-purple-600 border-t-transparent animate-spin" /></div>
+      ) : isError ? (
+        <div className="text-center py-10">
+          <p className="text-3xl mb-2">⚠️</p>
+          <p className="text-red-500 font-semibold text-sm">Error al cargar: {error?.response?.data?.error || error?.message}</p>
+        </div>
+      ) : segActual.alumnos.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-3xl mb-2">{SEG_TABS.find(s=>s.key===segTab)?.emoji}</p>
+          <p className="text-gray-400 font-semibold text-sm">Sin alumnos en esta categoría</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {segActual.alumnos.map(al => (
+            <div key={al.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border">
+              {al.foto_url
+                ? <img src={al.foto_url} className="w-9 h-9 rounded-full object-cover" alt="" />
+                : <div className="w-9 h-9 rounded-full bg-hs-purple/20 flex items-center justify-center text-hs-purple-dark font-black text-sm">{al.nombre_completo?.[0]}</div>
+              }
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-gray-800 text-sm truncate">{al.nombre_completo}</p>
+                <p className="text-xs font-semibold" style={{ color: al.color_hex }}>{al.grupo_nombre}</p>
+                {al.tiene_extension && al.hora_salida_extension && (
+                  <p className="text-xs text-purple-500">Salida: {al.hora_salida_extension}</p>
+                )}
+              </div>
+              <div className="flex flex-col gap-1 items-end">
+                {al.tiene_extension && <span className="text-xs bg-purple-100 text-purple-700 font-bold px-1.5 py-0.5 rounded-full">Ext</span>}
+                {al.tiene_comida_activa && <span className="text-xs bg-green-100 text-green-700 font-bold px-1.5 py-0.5 rounded-full">Comida</span>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Pantalla principal ───────────────────────────────────────────────────────
+
+const MAIN_TABS = [
+  { key: 'pagos',       label: 'Pagos',       emoji: '💰' },
+  { key: 'extension',   label: 'Extensión',   emoji: '🕐' },
+  { key: 'comida',      label: 'Comida',      emoji: '🍽️' },
+  { key: 'segmentacion',label: 'Servicios',   emoji: '📊' },
+];
 
 export default function PagosDirectora() {
   const hoy = new Date();
+  const [tab, setTab]       = useState('pagos');
   const [mes, setMes]   = useState(hoy.getMonth() + 1);
   const [anio, setAnio] = useState(hoy.getFullYear());
   const [busqueda, setBusqueda] = useState('');
@@ -653,9 +940,30 @@ export default function PagosDirectora() {
   const [showModalConceptos, setShowModalConceptos] = useState(false);
   const [showModalPagoGlobal, setShowModalPagoGlobal] = useState(false);
   const qc = useQueryClient();
+  const [exportando, setExportando] = useState(false);
 
   const { items: metodos }       = useCatalogo('metodos-pago');
   const { items: tiposConcepto } = useCatalogo('conceptos-pago');
+
+  const handleExportarExcel = async () => {
+    setExportando(true);
+    try {
+      const resp = await api.get('/pagos/exportar', {
+        params: { mes, anio },
+        responseType: 'blob',
+      });
+      const url = URL.createObjectURL(resp.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pagos-${MESES[mes - 1].toLowerCase()}-${anio}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Error al exportar: ' + (e.response?.data?.error || e.message));
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const { data: dashboard } = useQuery({
     queryKey: ['pagos-dashboard', mes, anio],
@@ -764,22 +1072,61 @@ export default function PagosDirectora() {
             className="px-4 py-2 rounded-xl border-2 border-hs-blue/40 text-hs-blue-dark font-bold text-sm hover:bg-hs-blue/10">
             📋 Generar mes
           </button>
+          <button onClick={handleExportarExcel} disabled={exportando}
+            className="px-4 py-2 rounded-xl border-2 border-green-400/60 text-green-700 font-bold text-sm hover:bg-green-50 disabled:opacity-50">
+            {exportando ? '⏳ Exportando…' : '📊 Excel'}
+          </button>
           <button onClick={() => setShowModalPagoGlobal(true)} className="btn-hs">
             + Registrar pago
           </button>
         </div>
       </div>
 
-      {/* Navegación mes */}
-      <div className="flex items-center gap-3">
-        <button onClick={() => { const d = new Date(anio, mes - 2, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
-          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">‹</button>
-        <span className="text-lg font-black text-gray-800 min-w-[160px] text-center">
-          {MESES[mes - 1]} {anio}
-        </span>
-        <button onClick={() => { const d = new Date(anio, mes, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
-          className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">›</button>
+      {/* Tabs principales */}
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-2xl w-fit">
+        {MAIN_TABS.map(t => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+              tab === t.key
+                ? 'bg-white shadow text-gray-800'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}>
+            {t.emoji} {t.label}
+          </button>
+        ))}
       </div>
+
+      {/* Navegación mes — solo para tabs que lo usan */}
+      {tab !== 'segmentacion' && (
+        <div className="flex items-center gap-3">
+          <button onClick={() => { const d = new Date(anio, mes - 2, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
+            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">‹</button>
+          <span className="text-lg font-black text-gray-800 min-w-[160px] text-center">
+            {MESES[mes - 1]} {anio}
+          </span>
+          <button onClick={() => { const d = new Date(anio, mes, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
+            className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">›</button>
+        </div>
+      )}
+
+      {/* Tab Extensión */}
+      {tab === 'extension' && (
+        <TabExtension mes={mes} anio={anio} conceptos={conceptos} metodos={metodos} tiposConcepto={tiposConcepto} />
+      )}
+
+      {/* Tab Comida */}
+      {tab === 'comida' && (
+        <TabComida mes={mes} anio={anio} />
+      )}
+
+      {/* Tab Segmentación */}
+      {tab === 'segmentacion' && (
+        <TabSegmentacion />
+      )}
+
+      {/* Contenido tab Pagos (principal) */}
+      {tab === 'pagos' && (
+      <div className="space-y-6">
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -936,6 +1283,9 @@ export default function PagosDirectora() {
           onClose={() => setShowModalPagoGlobal(false)}
         />
       )}
+
+      </div>
+      )} {/* fin tab pagos */}
     </div>
   );
 }

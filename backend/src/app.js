@@ -5,13 +5,14 @@ const cors = require('cors');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const routes = require('./routes');
 const { errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
 
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(compression());
 app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
@@ -42,6 +43,9 @@ app.use('/api', (req, res, next) => {
   res.set('ETag', 'W/"disabled"');
   next();
 });
+
+// Servir archivos subidos localmente (desarrollo sin Cloudinary)
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use('/api', routes);
 

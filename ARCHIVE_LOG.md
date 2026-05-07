@@ -1,7 +1,47 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)**
+
+---
+
+## ✅ SESIÓN XX+43 (2026-05-07) — Flujo de Pagos: Padre sube comprobante, Directora valida
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Implementación completa del flujo de pagos donde el padre sube comprobante de transferencia y la directora lo aprueba o rechaza. Paridad web + mobile.
+
+### Cambios implementados
+
+1. **Migración 046** — Nuevo estado `por_confirmar` en enum `estado_pago_tipo` + 6 columnas en tabla `pagos`: `comprobante_url`, `comprobante_fecha`, `comprobante_subido_por`, `confirmado_por`, `confirmado_at`, `rechazo_nota`
+2. **Backend endpoints** — `POST /pagos/:id/comprobante` (padre sube imagen), `GET /pagos/por-confirmar` (directora lista pendientes), `PATCH /pagos/:id/confirmar` (directora aprueba/rechaza)
+3. **Dashboard** — Agregado conteo `por_confirmar` en query del dashboard financiero
+4. **Web padre** — Botón "Subir comprobante" en pagos pendientes/vencidos, modal con upload de imagen + referencia, badge "En revisión" (azul), nota de rechazo visible
+5. **Web directora** — Nuevo tab "Comprobantes" con badge contador rojo, cards con detalle + imagen ampliable, botones aprobar/rechazar con modal de nota para rechazo
+6. **Mobile padre** — Mismo flujo con expo-image-picker, modal bottom-sheet, estados visuales idénticos
+7. **Cloudinary dev fix** — `cloudinaryService.js` ahora guarda archivos localmente en `backend/uploads/` en desarrollo en vez de generar URLs mock rotas. `app.js` sirve `/uploads/` como static con CORS correcto.
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `backend/migrations/046_comprobante_pago_padre.sql` | NUEVO — migración BD |
+| `backend/src/routes/pagos.js` | 3 endpoints + dashboard count |
+| `backend/src/services/cloudinaryService.js` | Uploads locales en dev |
+| `backend/src/app.js` | Static serving `/uploads/` + helmet CORP |
+| `web/src/utils/pagos.js` | Estado `por_confirmar` |
+| `web/src/pages/padre/Pagos.jsx` | Modal comprobante + estados |
+| `web/src/pages/directora/Pagos.jsx` | Tab Comprobantes + validación |
+| `mobile/app/(padre)/pagos.jsx` | Modal comprobante + estados |
+
+### Flujo completo
+
+1. Padre ve pago pendiente/vencido → "Subir comprobante" → selecciona imagen + referencia
+2. Pago cambia a "En revisión" (azul)
+3. Directora ve tab "Comprobantes" con badge → ve imagen → Aprueba (pagado) o Rechaza (pendiente + nota)
+4. Si rechazado, padre ve nota y puede reintentar
 
 ---
 

@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { SEMAFORO, ESTADO_PAGO } from '@/utils/pagos';
+import Modal from '@/components/ui/Modal';
+import { Upload, Clock, CheckCircle, XCircle } from 'lucide-react';
 
 const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
@@ -9,24 +11,56 @@ function fmt$(n) {
   return Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
 }
 
-function FilaPagos({ pagos }) {
+function FilaPagos({ pagos, onSubirComprobante }) {
   return (
     <div className="space-y-2">
       {pagos.map(p => {
         const est = ESTADO_PAGO[p.estado] || ESTADO_PAGO.pendiente;
+        const puedeSubir = ['pendiente', 'vencido'].includes(p.estado);
+        const enRevision = p.estado === 'por_confirmar';
+
         return (
-          <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-gray-50 last:border-0">
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold text-gray-800 truncate">{p.concepto_nombre}</p>
-              <p className="text-xs text-gray-400 font-semibold">
-                {p.mes_correspondiente ? `${MESES[p.mes_correspondiente - 1]} ${p.anio_correspondiente}` : '—'}
-                {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago.substring(0, 10) + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
-              </p>
+          <div key={p.id} className="py-2.5 border-b border-gray-50 last:border-0">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-gray-800 truncate">{p.concepto_nombre}</p>
+                <p className="text-xs text-gray-400 font-semibold">
+                  {p.mes_correspondiente ? `${MESES[p.mes_correspondiente - 1]} ${p.anio_correspondiente}` : '—'}
+                  {p.fecha_pago ? ` · Pagado ${new Date(p.fecha_pago.substring(0, 10) + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}` : ''}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 ml-4">
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${est.bg} ${est.text}`}>{est.label}</span>
+                <span className="text-sm font-black text-gray-800 whitespace-nowrap">{fmt$(p.monto_total)}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-3 ml-4">
-              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${est.bg} ${est.text}`}>{est.label}</span>
-              <span className="text-sm font-black text-gray-800 whitespace-nowrap">{fmt$(p.monto_total)}</span>
-            </div>
+
+            {/* Botón subir comprobante para pagos pendientes/vencidos */}
+            {puedeSubir && (
+              <button
+                onClick={() => onSubirComprobante(p)}
+                className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors"
+              >
+                <Upload size={14} />
+                Subir comprobante de transferencia
+              </button>
+            )}
+
+            {/* Indicador en revisión */}
+            {enRevision && (
+              <div className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold">
+                <Clock size={14} />
+                Comprobante enviado, pendiente de aprobación
+              </div>
+            )}
+
+            {/* Nota de rechazo si la hay */}
+            {p.rechazo_nota && p.estado === 'pendiente' && (
+              <div className="mt-2 flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-bold">
+                <XCircle size={14} />
+                Comprobante rechazado: {p.rechazo_nota}
+              </div>
+            )}
           </div>
         );
       })}
@@ -34,8 +68,133 @@ function FilaPagos({ pagos }) {
   );
 }
 
+function ModalComprobante({ pago, onClose }) {
+  const queryClient = useQueryClient();
+  const fileRef = useRef(null);
+  const [file, setFile] = useState(null);
+  const [referencia, setReferencia] = useState('');
+  const [preview, setPreview] = useState(null);
+
+  const mutation = useMutation({
+    mutationFn: (formData) => api.post(`/pagos/${pago.id}/comprobante`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['estado-alumno'] });
+      onClose();
+    },
+  });
+
+  const handleFile = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    const reader = new FileReader();
+    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.readAsDataURL(f);
+  };
+
+  const handleSubmit = () => {
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('foto', file);
+    if (referencia.trim()) fd.append('referencia', referencia.trim());
+    mutation.mutate(fd);
+  };
+
+  return (
+    <Modal open title="Subir comprobante de pago" onClose={onClose} size="sm">
+      <div className="space-y-4">
+        {/* Info del pago */}
+        <div className="bg-gray-50 rounded-xl p-3">
+          <p className="text-sm font-bold text-gray-800">{pago.concepto_nombre}</p>
+          <p className="text-xs text-gray-500 font-semibold">
+            {pago.mes_correspondiente ? `${MESES[pago.mes_correspondiente - 1]} ${pago.anio_correspondiente}` : ''}
+          </p>
+          <p className="text-lg font-black text-gray-800 mt-1">{fmt$(pago.monto_total)}</p>
+        </div>
+
+        {/* Selector de imagen */}
+        <div>
+          <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Imagen del comprobante *</label>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFile}
+            className="hidden"
+          />
+          {preview ? (
+            <div className="mt-2 relative">
+              <img src={preview} alt="Comprobante" className="w-full rounded-xl border border-gray-200 max-h-48 object-contain bg-gray-50" />
+              <button
+                onClick={() => { setFile(null); setPreview(null); fileRef.current.value = ''; }}
+                className="absolute top-2 right-2 bg-white/90 rounded-full p-1 shadow hover:bg-red-50"
+              >
+                <XCircle size={18} className="text-red-500" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="mt-2 w-full border-2 border-dashed border-gray-300 rounded-xl py-8 flex flex-col items-center gap-2 text-gray-400 hover:border-purple-400 hover:text-purple-500 transition-colors"
+            >
+              <Upload size={28} />
+              <span className="text-sm font-bold">Toca para seleccionar imagen</span>
+            </button>
+          )}
+        </div>
+
+        {/* Referencia opcional */}
+        <div>
+          <label className="text-xs font-bold text-gray-600 uppercase tracking-wide">Referencia de transferencia (opcional)</label>
+          <input
+            type="text"
+            value={referencia}
+            onChange={(e) => setReferencia(e.target.value)}
+            placeholder="Ej: Ref. 12345678"
+            className="mt-1 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none"
+          />
+        </div>
+
+        {/* Error */}
+        {mutation.isError && (
+          <p className="text-sm text-red-600 font-bold">
+            {mutation.error?.response?.data?.error || 'Error al subir comprobante'}
+          </p>
+        )}
+
+        {/* Botones */}
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!file || mutation.isPending}
+            className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          >
+            {mutation.isPending ? (
+              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+            ) : (
+              <>
+                <CheckCircle size={16} />
+                Enviar comprobante
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 function PanelHijo({ alumnoId }) {
   const [verTodos, setVerTodos] = useState(false);
+  const [pagoComprobante, setPagoComprobante] = useState(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['estado-alumno', alumnoId],
@@ -104,13 +263,13 @@ function PanelHijo({ alumnoId }) {
         {pagosActuales.length === 0 ? (
           <p className="text-center text-sm text-gray-400 font-semibold py-2">Sin movimientos este mes</p>
         ) : (
-          <FilaPagos pagos={pagosActuales} />
+          <FilaPagos pagos={pagosActuales} onSubirComprobante={setPagoComprobante} />
         )}
 
         {verTodos && pagosAnteriores.length > 0 && (
           <div className="mt-4">
             <p className="text-xs font-black text-gray-400 uppercase tracking-wide mb-3">Meses anteriores</p>
-            <FilaPagos pagos={pagosAnteriores} />
+            <FilaPagos pagos={pagosAnteriores} onSubirComprobante={setPagoComprobante} />
           </div>
         )}
 
@@ -123,6 +282,11 @@ function PanelHijo({ alumnoId }) {
           </button>
         )}
       </div>
+
+      {/* Modal subir comprobante */}
+      {pagoComprobante && (
+        <ModalComprobante pago={pagoComprobante} onClose={() => setPagoComprobante(null)} />
+      )}
     </div>
   );
 }

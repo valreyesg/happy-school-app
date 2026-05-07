@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)
+**Última actualización:** 2026-05-07 — Sesión XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -23,10 +23,6 @@
 - [ ] Modal push al recibir aviso del admin — en web aparece modal en tiempo real; en mobile no hay listener activo. Implementar polling o WebSocket listener en mobile para mostrar modal cuando llega notificación nueva mientras la app está abierta.
 
 #### 🟡 Features faltantes (paridad con web)
-
-#### 🟡 Flujo de pagos (nuevo requerimiento)
-- [ ] Portal padre: permitir registrar pago subiendo comprobante de transferencia
-- [ ] Portal directora/admin: validar ese pago en lugar de capturarlo manualmente
 
 ### 📝 Feedback Valeria — Portal Maestra Mobile
 - [ ] Revisar portal maestra mobile (pendiente)

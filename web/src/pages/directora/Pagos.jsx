@@ -1152,13 +1152,156 @@ function TabSegmentacion() {
   );
 }
 
+// ─── Tab Comprobantes por validar ────────────────────────────────────────────
+
+function TabComprobantes() {
+  const qc = useQueryClient();
+  const [imgModal, setImgModal] = useState(null);
+  const [rechazarPago, setRechazarPago] = useState(null);
+  const [notaRechazo, setNotaRechazo] = useState('');
+
+  const { data: comprobantes = [], isLoading } = useQuery({
+    queryKey: ['pagos-por-confirmar'],
+    queryFn: () => api.get('/pagos/por-confirmar').then(r => r.data),
+  });
+
+  const confirmar = useMutation({
+    mutationFn: ({ id, accion, nota }) => api.patch(`/pagos/${id}/confirmar`, { accion, nota }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['pagos-por-confirmar'] });
+      qc.invalidateQueries({ queryKey: ['pagos-dashboard'] });
+      qc.invalidateQueries({ queryKey: ['pagos-lista'] });
+      setRechazarPago(null);
+      setNotaRechazo('');
+    },
+  });
+
+  if (isLoading) return (
+    <div className="card-hs p-8 flex items-center justify-center">
+      <div className="animate-spin w-7 h-7 border-4 border-hs-purple border-t-transparent rounded-full" />
+    </div>
+  );
+
+  if (comprobantes.length === 0) return (
+    <div className="card-hs p-8 text-center">
+      <p className="text-4xl mb-3">✅</p>
+      <p className="text-lg font-black text-gray-700">Sin comprobantes pendientes</p>
+      <p className="text-sm text-gray-400 font-semibold mt-1">Todos los comprobantes han sido revisados</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm font-bold text-gray-500">{comprobantes.length} comprobante{comprobantes.length !== 1 ? 's' : ''} por validar</p>
+
+      {comprobantes.map(c => (
+        <div key={c.id} className="card-hs p-4 space-y-3">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            {c.foto_url
+              ? <img src={c.foto_url} alt="" className="w-10 h-10 rounded-xl object-cover" />
+              : <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-lg font-black text-purple-700">{c.alumno_nombre?.[0]}</div>
+            }
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-black text-gray-800 truncate">{c.alumno_nombre}</p>
+              <p className="text-xs font-semibold text-gray-400">{c.grupo_nombre}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-lg font-black text-gray-800">{fmt(c.monto_total)}</p>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">En revisión</span>
+            </div>
+          </div>
+
+          {/* Detalle */}
+          <div className="bg-gray-50 rounded-xl p-3 text-sm space-y-1">
+            <p><span className="font-bold text-gray-600">Concepto:</span> {c.concepto_nombre}</p>
+            <p><span className="font-bold text-gray-600">Periodo:</span> {MESES[(c.mes_correspondiente || 1) - 1]} {c.anio_correspondiente}</p>
+            {c.referencia && <p><span className="font-bold text-gray-600">Referencia:</span> {c.referencia}</p>}
+            {c.subido_por_nombre && <p><span className="font-bold text-gray-600">Enviado por:</span> {c.subido_por_nombre}</p>}
+            {c.comprobante_fecha && (
+              <p><span className="font-bold text-gray-600">Fecha envío:</span> {fmtFecha(c.comprobante_fecha)}</p>
+            )}
+          </div>
+
+          {/* Imagen comprobante */}
+          {c.comprobante_url && (
+            <button onClick={() => setImgModal(c.comprobante_url)} className="w-full">
+              <img
+                src={c.comprobante_url}
+                alt="Comprobante"
+                className="w-full max-h-48 object-contain rounded-xl border border-gray-200 bg-gray-50 cursor-pointer hover:opacity-80 transition-opacity"
+              />
+              <p className="text-xs text-gray-400 font-semibold mt-1 text-center">Click para ampliar</p>
+            </button>
+          )}
+
+          {/* Acciones */}
+          <div className="flex gap-3 pt-1">
+            <button
+              onClick={() => confirmar.mutate({ id: c.id, accion: 'aprobar' })}
+              disabled={confirmar.isPending}
+              className="flex-1 py-2.5 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 disabled:opacity-50 transition-colors"
+            >
+              ✓ Aprobar pago
+            </button>
+            <button
+              onClick={() => setRechazarPago(c)}
+              disabled={confirmar.isPending}
+              className="flex-1 py-2.5 rounded-xl bg-red-50 text-red-600 border border-red-200 text-sm font-bold hover:bg-red-100 disabled:opacity-50 transition-colors"
+            >
+              ✗ Rechazar
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {/* Modal imagen ampliada */}
+      <Modal open={!!imgModal} onClose={() => setImgModal(null)} title="Comprobante" size="lg">
+        {imgModal && <img src={imgModal} alt="Comprobante" className="w-full rounded-xl" />}
+      </Modal>
+
+      {/* Modal rechazo */}
+      <Modal open={!!rechazarPago} onClose={() => { setRechazarPago(null); setNotaRechazo(''); }} title="Rechazar comprobante" size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-gray-600">
+            Indica al padre por qué se rechaza este comprobante de <span className="font-bold">{rechazarPago?.alumno_nombre}</span>.
+          </p>
+          <textarea
+            value={notaRechazo}
+            onChange={(e) => setNotaRechazo(e.target.value)}
+            placeholder="Ej: Imagen borrosa, monto no corresponde..."
+            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-red-300 focus:border-red-400 outline-none resize-none"
+            rows={3}
+          />
+          <div className="flex gap-3">
+            <button
+              onClick={() => { setRechazarPago(null); setNotaRechazo(''); }}
+              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-bold hover:bg-gray-50"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() => confirmar.mutate({ id: rechazarPago.id, accion: 'rechazar', nota: notaRechazo || 'Comprobante rechazado' })}
+              disabled={confirmar.isPending}
+              className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 disabled:opacity-50"
+            >
+              Rechazar
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </div>
+  );
+}
+
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
 const MAIN_TABS = [
-  { key: 'pagos',       label: 'Pagos',       emoji: '💰' },
-  { key: 'extension',   label: 'Extensión',   emoji: '🕐' },
-  { key: 'comida',      label: 'Comida',      emoji: '🍽️' },
-  { key: 'segmentacion',label: 'Servicios',   emoji: '📊' },
+  { key: 'pagos',        label: 'Pagos',        emoji: '💰' },
+  { key: 'comprobantes', label: 'Comprobantes', emoji: '📎' },
+  { key: 'extension',    label: 'Extensión',    emoji: '🕐' },
+  { key: 'comida',       label: 'Comida',       emoji: '🍽️' },
+  { key: 'segmentacion', label: 'Servicios',    emoji: '📊' },
 ];
 
 export default function PagosDirectora() {
@@ -1210,6 +1353,12 @@ export default function PagosDirectora() {
   const { data: grupos = [] } = useQuery({
     queryKey: ['grupos'],
     queryFn: () => api.get('/grupos').then(r => r.data),
+  });
+
+  // Comprobantes pendientes (para badge en tab)
+  const { data: comprobantesCount = [] } = useQuery({
+    queryKey: ['pagos-por-confirmar'],
+    queryFn: () => api.get('/pagos/por-confirmar').then(r => r.data),
   });
 
   // Lista de alumnos con su estado financiero del mes
@@ -1324,12 +1473,17 @@ export default function PagosDirectora() {
                 : 'text-gray-500 hover:text-gray-700'
             }`}>
             {t.emoji} {t.label}
+            {t.key === 'comprobantes' && comprobantesCount.length > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-xs font-black min-w-[20px] inline-block text-center">
+                {comprobantesCount.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Navegación mes — solo para tabs que lo usan */}
-      {tab !== 'segmentacion' && (
+      {tab !== 'segmentacion' && tab !== 'comprobantes' && (
         <div className="flex items-center gap-3">
           <button onClick={() => { const d = new Date(anio, mes - 2, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
             className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">‹</button>
@@ -1339,6 +1493,11 @@ export default function PagosDirectora() {
           <button onClick={() => { const d = new Date(anio, mes, 1); setMes(d.getMonth() + 1); setAnio(d.getFullYear()); }}
             className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 font-black text-gray-600 flex items-center justify-center">›</button>
         </div>
+      )}
+
+      {/* Tab Comprobantes */}
+      {tab === 'comprobantes' && (
+        <TabComprobantes />
       )}
 
       {/* Tab Extensión */}

@@ -246,6 +246,7 @@ router.get('/dashboard', authorize('directora', 'administrativo'), async (req, r
           COUNT(*) FILTER (WHERE estado = 'pagado')  AS pagados,
           COUNT(*) FILTER (WHERE estado = 'pendiente') AS pendientes,
           COUNT(*) FILTER (WHERE estado = 'vencido')  AS vencidos,
+          COUNT(*) FILTER (WHERE estado = 'por_confirmar') AS por_confirmar,
           COALESCE(SUM(monto_total) FILTER (WHERE estado = 'pagado'),  0) AS recaudado,
           COALESCE(SUM(monto_total) FILTER (WHERE estado = 'pendiente'), 0) AS por_cobrar,
           COALESCE(SUM(monto_total) FILTER (WHERE estado = 'vencido'),  0) AS vencido_total,
@@ -533,6 +534,31 @@ router.post('/generar-mes', authorize('directora', 'administrativo'), async (req
     }
 
     res.json({ ok: true, creados });
+  } catch (err) { next(err); }
+});
+
+// ─── COMPROBANTES POR CONFIRMAR — DIRECTORA ──────────────────────────────────
+// GET /pagos/por-confirmar (DEBE estar antes de /:id para que Express no lo confunda)
+
+router.get('/por-confirmar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT p.id, p.alumno_id, p.concepto_id, p.monto_base, p.monto_recargo, p.monto_total,
+             p.mes_correspondiente, p.anio_correspondiente, p.referencia, p.metodo_pago,
+             p.comprobante_url, p.comprobante_fecha,
+             al.nombre_completo AS alumno_nombre, al.foto_url,
+             g.nombre AS grupo_nombre, g.color_hex,
+             cp.nombre AS concepto_nombre, cp.tipo AS concepto_tipo,
+             upad.nombre AS subido_por_nombre
+      FROM pagos p
+      JOIN alumnos al ON p.alumno_id = al.id
+      JOIN grupos g ON al.grupo_id = g.id
+      JOIN conceptos_pago cp ON p.concepto_id = cp.id
+      LEFT JOIN usuarios upad ON p.comprobante_subido_por = upad.id
+      WHERE p.estado = 'por_confirmar'
+      ORDER BY p.comprobante_fecha ASC
+    `);
+    res.json(result.rows);
   } catch (err) { next(err); }
 });
 
@@ -1023,6 +1049,108 @@ router.patch('/comida/:id/comprobante', authorize('directora', 'administrativo')
     } catch (err) { next(err); }
   }
 );
+
+// ─── COMPROBANTE DE PAGO — PADRE SUBE ────────────────────────────────────────
+// POST /pagos/:id/comprobante
+// Padre sube imagen de comprobante de transferencia para un pago pendiente/vencido
+
+router.post('/:id/comprobante', uploadMemory.single('foto'), async (req, res, next) => {
+  try {
+    if (req.user.rol_principal !== 'padre') {
+      return res.status(403).json({ error: 'Solo padres pueden subir comprobantes' });
+    }
+
+    const { referencia } = req.body;
+
+    // Verificar que el pago existe y está pendiente/vencido
+    const pagoRes = await query(
+      'SELECT id, alumno_id, estado FROM pagos WHERE id = $1', [req.params.id]
+    );
+    if (!pagoRes.rows[0]) return res.status(404).json({ error: 'Pago no encontrado' });
+
+    const pago = pagoRes.rows[0];
+    if (!['pendiente', 'vencido'].includes(pago.estado)) {
+      return res.status(400).json({ error: 'Solo se pueden subir comprobantes para pagos pendientes o vencidos' });
+    }
+
+    // Verificar que el alumno es hijo del padre
+    const check = await query(
+      `SELECT 1 FROM padres p
+       JOIN alumno_padre ap ON ap.padre_id = p.id
+       WHERE p.usuario_id = $1 AND ap.alumno_id = $2`,
+      [req.user.id, pago.alumno_id]
+    );
+    if (!check.rows.length) return res.status(403).json({ error: 'Acceso denegado' });
+
+    if (!req.file) return res.status(400).json({ error: 'Debes adjuntar una imagen del comprobante' });
+
+    // Subir a Cloudinary
+    const resultado = await uploadToCloudinary(req.file.buffer, {
+      folder: 'happyschool/comprobantes_pago',
+      resource_type: 'image',
+    });
+
+    await query(`
+      UPDATE pagos SET
+        estado = 'por_confirmar',
+        comprobante_url = $1,
+        comprobante_fecha = NOW(),
+        comprobante_subido_por = $2,
+        metodo_pago = 'transferencia',
+        referencia = COALESCE($3, referencia),
+        updated_at = NOW()
+      WHERE id = $4
+    `, [resultado.url, req.user.id, referencia || null, req.params.id]);
+
+    res.json({ ok: true, estado: 'por_confirmar', comprobante_url: resultado.url });
+  } catch (err) { next(err); }
+});
+
+// ─── CONFIRMAR/RECHAZAR COMPROBANTE — DIRECTORA ──────────────────────────────
+// PATCH /pagos/:id/confirmar
+// body: { accion: 'aprobar' | 'rechazar', nota?: string }
+
+router.patch('/:id/confirmar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { accion, nota } = req.body;
+    if (!['aprobar', 'rechazar'].includes(accion)) {
+      return res.status(400).json({ error: 'accion debe ser "aprobar" o "rechazar"' });
+    }
+
+    const pagoRes = await query('SELECT id, estado FROM pagos WHERE id = $1', [req.params.id]);
+    if (!pagoRes.rows[0]) return res.status(404).json({ error: 'Pago no encontrado' });
+    if (pagoRes.rows[0].estado !== 'por_confirmar') {
+      return res.status(400).json({ error: 'Este pago no está pendiente de confirmación' });
+    }
+
+    if (accion === 'aprobar') {
+      await query(`
+        UPDATE pagos SET
+          estado = 'pagado',
+          fecha_pago = NOW(),
+          confirmado_por = $1,
+          confirmado_at = NOW(),
+          updated_at = NOW()
+        WHERE id = $2
+      `, [req.user.id, req.params.id]);
+      res.json({ ok: true, estado: 'pagado' });
+    } else {
+      await query(`
+        UPDATE pagos SET
+          estado = 'pendiente',
+          comprobante_url = NULL,
+          comprobante_fecha = NULL,
+          comprobante_subido_por = NULL,
+          rechazo_nota = $1,
+          confirmado_por = $2,
+          confirmado_at = NOW(),
+          updated_at = NOW()
+        WHERE id = $3
+      `, [nota || 'Comprobante rechazado', req.user.id, req.params.id]);
+      res.json({ ok: true, estado: 'pendiente', rechazo_nota: nota || 'Comprobante rechazado' });
+    }
+  } catch (err) { next(err); }
+});
 
 // ─── RECIBO PDF POR PAGO ──────────────────────────────────────────────────────
 // GET /pagos/:id/recibo  → descarga PDF del recibo

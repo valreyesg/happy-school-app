@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 const isProduction = process.env.NODE_ENV === 'production';
 const cloudinaryEnabled = process.env.CLOUDINARY_ENABLED === 'true';
@@ -32,9 +34,19 @@ const uploadToCloudinary = async (buffer, options = {}) => {
       readable.pipe(stream);
     });
   } else {
-    // Cloudinary desactivado o desarrollo: generar URL simulada
-    const publicId = `mock/${options.folder || 'default'}/${crypto.randomBytes(8).toString('hex')}`;
-    const url = `https://res.cloudinary.com/mock-dev/image/upload/v1/${publicId}`;
+    // Desarrollo: guardar archivo localmente y servir desde /uploads/
+    const folder = options.folder || 'default';
+    const ext = options.format || 'jpg';
+    const filename = `${crypto.randomBytes(8).toString('hex')}.${ext}`;
+    const dirPath = path.join(__dirname, '..', '..', 'uploads', folder);
+    fs.mkdirSync(dirPath, { recursive: true });
+    const filePath = path.join(dirPath, filename);
+    fs.writeFileSync(filePath, buffer);
+
+    const port = process.env.PORT || 3000;
+    const baseUrl = process.env.APP_BASE_URL || `http://localhost:${port}`;
+    const url = `${baseUrl}/uploads/${folder}/${filename}`;
+    const publicId = `local/${folder}/${filename}`;
     return { url, public_id: publicId };
   }
 };
@@ -43,6 +55,12 @@ const deleteFromCloudinary = async (publicId) => {
   if (!publicId) return;
   if (cloudinary) {
     return cloudinary.uploader.destroy(publicId);
+  }
+  // Desarrollo: intentar borrar archivo local
+  if (publicId.startsWith('local/')) {
+    const relPath = publicId.replace('local/', '');
+    const filePath = path.join(__dirname, '..', '..', 'uploads', relPath);
+    try { fs.unlinkSync(filePath); } catch { /* ignorar */ }
   }
   return { result: 'ok' };
 };

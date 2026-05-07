@@ -686,7 +686,12 @@
       "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Seconds 3\")",
       "Bash(grep:*)",
       "Bash(find:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(powershell.exe -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(powershell.exe -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 2000\")",
+      "Bash(PGPASSWORD=happy2026 psql:*)",
+      "Bash(node scripts/migrate-runner.js:*)",
+      "Bash(python3:*)"
     ],
     "additionalDirectories": [
       "\\tmp",

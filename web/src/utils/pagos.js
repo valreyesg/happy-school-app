@@ -8,8 +8,9 @@ export const SEMAFORO = {
 };
 
 export const ESTADO_PAGO = {
-  pagado:    { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Pagado'    },
-  pendiente: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendiente' },
-  vencido:   { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Vencido'   },
-  cancelado: { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Cancelado' },
+  pagado:        { bg: 'bg-green-100',  text: 'text-green-700',  label: 'Pagado'       },
+  pendiente:     { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendiente'    },
+  por_confirmar: { bg: 'bg-blue-100',   text: 'text-blue-700',   label: 'En revisión'  },
+  vencido:       { bg: 'bg-red-100',    text: 'text-red-700',    label: 'Vencido'      },
+  cancelado:     { bg: 'bg-gray-100',   text: 'text-gray-500',   label: 'Cancelado'    },
 };

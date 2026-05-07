@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
-  View, Text, ScrollView,
-  StyleSheet, ActivityIndicator, FlatList,
+  View, Text, ScrollView, TouchableOpacity, Image, TextInput,
+  StyleSheet, ActivityIndicator, Modal as RNModal, Alert, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import api from '../../src/services/api';
 import { useAuthStore } from '../../src/store/authStore';
 import Button from '@/components/Button';
@@ -34,16 +35,136 @@ const SEMAFORO_CFG = {
 };
 
 const ESTADO_CFG = {
-  pagado:    { color: '#38A169', bg: '#F0FFF4', label: 'Pagado'    },
-  pendiente: { color: '#D69E2E', bg: '#FFFFF0', label: 'Pendiente' },
-  vencido:   { color: '#E53E3E', bg: '#FFF5F5', label: 'Vencido'   },
-  cancelado: { color: '#A0AEC0', bg: '#F7FAFC', label: 'Cancelado' },
+  pagado:        { color: '#38A169', bg: '#F0FFF4', label: 'Pagado'      },
+  pendiente:     { color: '#D69E2E', bg: '#FFFFF0', label: 'Pendiente'   },
+  por_confirmar: { color: '#3182CE', bg: '#EBF8FF', label: 'En revisión' },
+  vencido:       { color: '#E53E3E', bg: '#FFF5F5', label: 'Vencido'     },
+  cancelado:     { color: '#A0AEC0', bg: '#F7FAFC', label: 'Cancelado'   },
 };
+
+// ─── Modal Comprobante ──────────────────────────────────────────────────────
+
+function ModalComprobante({ pago, visible, onClose }) {
+  const qc = useQueryClient();
+  const [image, setImage] = useState(null);
+  const [referencia, setReferencia] = useState('');
+
+  const mutation = useMutation({
+    mutationFn: async (formData) => {
+      return api.post(`/pagos/${pago.id}/comprobante`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['estado-alumno'] });
+      setImage(null);
+      setReferencia('');
+      onClose();
+    },
+    onError: (err) => {
+      Alert.alert('Error', err?.response?.data?.error || 'No se pudo subir el comprobante');
+    },
+  });
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería para subir el comprobante');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+      allowsEditing: false,
+    });
+    if (!result.canceled && result.assets?.[0]) {
+      setImage(result.assets[0]);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!image) return;
+    const fd = new FormData();
+    const uri = image.uri;
+    const filename = uri.split('/').pop() || 'comprobante.jpg';
+    const ext = filename.split('.').pop()?.toLowerCase() || 'jpg';
+    const mimeType = ext === 'png' ? 'image/png' : 'image/jpeg';
+    fd.append('foto', { uri, name: filename, type: mimeType });
+    if (referencia.trim()) fd.append('referencia', referencia.trim());
+    mutation.mutate(fd);
+  };
+
+  if (!pago) return null;
+
+  return (
+    <RNModal visible={visible} animationType="slide" transparent>
+      <View style={m.overlay}>
+        <View style={m.container}>
+          <Text style={m.title}>Subir comprobante</Text>
+
+          {/* Info pago */}
+          <View style={m.infoBox}>
+            <Text style={m.infoConcepto}>{pago.concepto_nombre}</Text>
+            <Text style={m.infoPeriodo}>
+              {MESES_LARGO[(pago.mes_correspondiente || 1) - 1]} {pago.anio_correspondiente}
+            </Text>
+            <Text style={m.infoMonto}>{fmt(pago.monto_total)}</Text>
+          </View>
+
+          {/* Imagen */}
+          {image ? (
+            <View style={m.previewBox}>
+              <Image source={{ uri: image.uri }} style={m.previewImg} resizeMode="contain" />
+              <TouchableOpacity style={m.removeBtn} onPress={() => setImage(null)}>
+                <Text style={m.removeTxt}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={m.pickBtn} onPress={pickImage}>
+              <Text style={m.pickIcon}>📷</Text>
+              <Text style={m.pickTxt}>Seleccionar imagen del comprobante</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Referencia */}
+          <TextInput
+            style={m.input}
+            value={referencia}
+            onChangeText={setReferencia}
+            placeholder="Referencia de transferencia (opcional)"
+            placeholderTextColor="#A0AEC0"
+          />
+
+          {/* Botones */}
+          <View style={m.btnRow}>
+            <TouchableOpacity style={m.cancelBtn} onPress={() => { setImage(null); setReferencia(''); onClose(); }}>
+              <Text style={m.cancelTxt}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[m.submitBtn, (!image || mutation.isPending) && { opacity: 0.5 }]}
+              onPress={handleSubmit}
+              disabled={!image || mutation.isPending}
+            >
+              {mutation.isPending ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={m.submitTxt}>Enviar comprobante</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </RNModal>
+  );
+}
 
 // ─── Tarjeta de pago ──────────────────────────────────────────────────────────
 
-function TarjetaPago({ pago }) {
+function TarjetaPago({ pago, onSubirComprobante }) {
   const cfg = ESTADO_CFG[pago.estado] || ESTADO_CFG.pendiente;
+  const puedeSubir = ['pendiente', 'vencido'].includes(pago.estado);
+  const enRevision = pago.estado === 'por_confirmar';
+
   return (
     <View style={[t.card, { borderLeftColor: cfg.color }]}>
       <View style={t.cardTop}>
@@ -67,6 +188,27 @@ function TarjetaPago({ pago }) {
           <Text style={[t.meta, { textTransform: 'capitalize' }]}>{pago.metodo_pago}</Text>
         )}
       </View>
+
+      {/* Botón subir comprobante */}
+      {puedeSubir && (
+        <TouchableOpacity style={t.subirBtn} onPress={() => onSubirComprobante(pago)}>
+          <Text style={t.subirTxt}>📤 Subir comprobante de transferencia</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* En revisión */}
+      {enRevision && (
+        <View style={t.revisionBox}>
+          <Text style={t.revisionTxt}>⏳ Comprobante enviado, pendiente de aprobación</Text>
+        </View>
+      )}
+
+      {/* Nota de rechazo */}
+      {pago.rechazo_nota && pago.estado === 'pendiente' && (
+        <View style={t.rechazoBox}>
+          <Text style={t.rechazoTxt}>❌ Rechazado: {pago.rechazo_nota}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -77,6 +219,7 @@ function PanelHijo({ alumnoId }) {
   const hoy = new Date();
   const [mes, setMes] = useState(hoy.getMonth() + 1);
   const [anio, setAnio] = useState(hoy.getFullYear());
+  const [pagoComprobante, setPagoComprobante] = useState(null);
 
   const { data: estado, isLoading, refetch } = useQuery({
     queryKey: ['estado-alumno', alumnoId],
@@ -173,8 +316,17 @@ function PanelHijo({ alumnoId }) {
           <Text style={p.emptyTxt}>Sin registros en {MESES_LARGO[mes - 1]}</Text>
         </View>
       ) : (
-        pagosMes.map(pago => <TarjetaPago key={pago.id} pago={pago} />)
+        pagosMes.map(pago => (
+          <TarjetaPago key={pago.id} pago={pago} onSubirComprobante={setPagoComprobante} />
+        ))
       )}
+
+      {/* Modal comprobante */}
+      <ModalComprobante
+        pago={pagoComprobante}
+        visible={!!pagoComprobante}
+        onClose={() => setPagoComprobante(null)}
+      />
     </View>
   );
 }
@@ -274,4 +426,33 @@ const t = StyleSheet.create({
   recargo:    { fontSize: 11, color: '#E53E3E', fontWeight: '700' },
   cardBottom: { flexDirection: 'row', gap: 12, marginTop: 6, flexWrap: 'wrap' },
   meta:       { fontSize: 11, color: '#A0AEC0', fontWeight: '600' },
+  subirBtn:   { marginTop: 10, backgroundColor: '#FAF5FF', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 14, borderWidth: 1, borderColor: '#E9D8FD' },
+  subirTxt:   { fontSize: 12, fontWeight: '800', color: '#805AD5', textAlign: 'center' },
+  revisionBox:{ marginTop: 10, backgroundColor: '#EBF8FF', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
+  revisionTxt:{ fontSize: 11, fontWeight: '700', color: '#3182CE', textAlign: 'center' },
+  rechazoBox: { marginTop: 10, backgroundColor: '#FFF5F5', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
+  rechazoTxt: { fontSize: 11, fontWeight: '700', color: '#E53E3E' },
+});
+
+const m = StyleSheet.create({
+  overlay:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  container:  { backgroundColor: '#fff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, maxHeight: '85%' },
+  title:      { fontSize: 18, fontWeight: '900', color: '#2D3748', marginBottom: 16 },
+  infoBox:    { backgroundColor: '#F7FAFC', borderRadius: 12, padding: 12, marginBottom: 16 },
+  infoConcepto: { fontSize: 14, fontWeight: '800', color: '#2D3748' },
+  infoPeriodo:  { fontSize: 12, fontWeight: '600', color: '#718096', marginTop: 2 },
+  infoMonto:    { fontSize: 22, fontWeight: '900', color: '#2D3748', marginTop: 4 },
+  pickBtn:    { borderWidth: 2, borderStyle: 'dashed', borderColor: '#CBD5E0', borderRadius: 14, paddingVertical: 32, alignItems: 'center', marginBottom: 16 },
+  pickIcon:   { fontSize: 32 },
+  pickTxt:    { fontSize: 13, fontWeight: '700', color: '#A0AEC0', marginTop: 8 },
+  previewBox: { marginBottom: 16, position: 'relative' },
+  previewImg: { width: '100%', height: 180, borderRadius: 14, backgroundColor: '#F7FAFC' },
+  removeBtn:  { position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.9)', alignItems: 'center', justifyContent: 'center' },
+  removeTxt:  { fontSize: 14, fontWeight: '900', color: '#E53E3E' },
+  input:      { borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontSize: 14, color: '#2D3748', marginBottom: 16 },
+  btnRow:     { flexDirection: 'row', gap: 12 },
+  cancelBtn:  { flex: 1, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', alignItems: 'center' },
+  cancelTxt:  { fontSize: 14, fontWeight: '800', color: '#718096' },
+  submitBtn:  { flex: 1, paddingVertical: 14, borderRadius: 14, backgroundColor: '#805AD5', alignItems: 'center', justifyContent: 'center' },
+  submitTxt:  { fontSize: 14, fontWeight: '800', color: '#fff' },
 });

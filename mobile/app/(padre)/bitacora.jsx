@@ -12,6 +12,12 @@ import { useCatalogo } from '../../src/hooks/useCatalogo';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
+const TIEMPOS_COMIDA = [
+  { key: 'desayuno',    emoji: '🥐', label: 'Desayuno'    },
+  { key: 'colacion',    emoji: '🍎', label: 'Colación'    },
+  { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
+];
+
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
 function Seccion({ titulo, emoji, children }) {
@@ -166,6 +172,22 @@ export default function BitacoraPadreScreen() {
   const { map: CUANTO } = useCatalogo('cuanto');
   const { map: COMPORTAMIENTO } = useCatalogo('comportamiento');
 
+  // Helper para mostrar cuánto comió sin "undefined undefined"
+  const fmtCuanto = (key) => {
+    const c = CUANTO[key];
+    if (!c) return null;
+    return `${c.emoji} ${c.label}`;
+  };
+
+  // Obtener datos del hijo (usa_panial)
+  const { data: hijosData = {} } = useQuery({
+    queryKey: ['mis-hijos'],
+    queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
+    staleTime: 60000,
+  });
+  const hijoActual = (hijosData.hijos || []).find(h => String(h.id) === String(alumnoId));
+  const usaPanial = hijoActual?.usa_panial || false;
+
   // Obtener ciclos para establecer el activo por defecto
   const { data: ciclos = [] } = useQuery({
     queryKey: ['ciclos-alumno', alumnoId],
@@ -185,6 +207,13 @@ export default function BitacoraPadreScreen() {
     queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}${cicloId ? `&ciclo_id=${cicloId}` : ''}`).then(r => r.data),
     enabled: !!alumnoId,
     retry: 1,
+  });
+
+  // Entrada histórica (para tab Entrada)
+  const { data: entradaHistorica = null } = useQuery({
+    queryKey: ['entrada-historica', alumnoId, fecha],
+    queryFn: () => api.get(`/asistencia/filtro-entrada/${alumnoId}?fecha=${fecha}`).then(r => r.data).catch(() => null),
+    enabled: !!alumnoId && !!fecha,
   });
 
   const { data: historialExt = [] } = useQuery({
@@ -213,6 +242,7 @@ export default function BitacoraPadreScreen() {
   const panial = data?.panial || [];
   const esfinteres = data?.esfinteres;
   const medicamentos = data?.medicamentos || [];
+  const tareas = (data?.tareas || []).filter(t => t.fecha_limite?.substring(0, 10) === fecha);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF8F8' }}>
@@ -241,7 +271,7 @@ export default function BitacoraPadreScreen() {
           <Text style={{ fontSize: 48 }}>😕</Text>
           <Text style={s.emptyTxt}>No se pudo cargar la bitácora.</Text>
         </View>
-      ) : !bit ? (
+      ) : !bit && comidas.length === 0 ? (
         /* Sin bitácora ese día */
         <View style={s.center}>
           <Text style={{ fontSize: 64, marginBottom: 16 }}>📝</Text>
@@ -255,20 +285,25 @@ export default function BitacoraPadreScreen() {
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
 
-          {/* ─ Estado de ánimo (héroe) ─ */}
-          <View style={s.animoHero}>
-            <Text style={s.animoEmoji}>{ANIMO[bit.estado_animo]?.emoji || '🤔'}</Text>
-            <Text style={s.animoLabel}>{ANIMO[bit.estado_animo]?.label || 'Sin registrar'}</Text>
-            <Text style={s.animoSub}>Estado de ánimo del día</Text>
-          </View>
+          {/* ─ Estado de ánimo (héroe) — solo si hay bitácora ─ */}
+          {bit && (
+            <View style={s.animoHero}>
+              <Text style={s.animoEmoji}>{ANIMO[bit.estado_animo]?.emoji || '🤔'}</Text>
+              <Text style={s.animoLabel}>{ANIMO[bit.estado_animo]?.label || 'Sin registrar'}</Text>
+              <Text style={s.animoSub}>Estado de ánimo del día</Text>
+            </View>
+          )}
 
           {/* ─ Tabs de navegación ─ */}
           <View style={s.tabsContainer}>
-            {/* Barra de tabs */}
-            <View style={s.tabsBar}>
+            {/* Barra de tabs — wrapper con flecha indicadora de scroll */}
+            <View style={{ position: 'relative' }}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.tabsBar} contentContainerStyle={{ flexDirection: 'row' }}>
               {[
+                { key: 'entrada',     emoji: '🚪', label: 'Entrada'     },
                 { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
                 { key: 'actividades', emoji: '🎨', label: 'Actividades' },
+                { key: 'tareas',      emoji: '📚', label: 'Tareas'      },
                 { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
                 { key: 'salud',       emoji: '🌡️', label: 'Salud'       },
                 { key: 'incidentes',  emoji: '⚠️', label: 'Incidentes'  },
@@ -285,6 +320,11 @@ export default function BitacoraPadreScreen() {
                   </Text>
                 </TouchableOpacity>
               ))}
+            </ScrollView>
+              {/* Flecha indicadora de scroll */}
+              <View pointerEvents="none" style={s.tabsScrollHint}>
+                <Text style={s.tabsScrollHintTxt}>›</Text>
+              </View>
             </View>
 
             {/* Contenido */}
@@ -301,7 +341,7 @@ export default function BitacoraPadreScreen() {
                         <View key={key} style={s.tiempoComida}>
                           <Text style={s.tiempoTitulo}>{emoji} {label}</Text>
                           {c.que_comio ? <Text style={s.textoNormal}>{c.que_comio}</Text> : null}
-                          <FilaInfo label="¿Cuánto comió?" valor={CUANTO[c.cuanto_comio]?.emoji + ' ' + CUANTO[c.cuanto_comio]?.label} negrita />
+                          <FilaInfo label="¿Cuánto comió?" valor={fmtCuanto(c.cuanto_comio)} negrita />
                           <FilaInfo label="Observaciones" valor={c.observaciones} />
                         </View>
                       );
@@ -315,7 +355,7 @@ export default function BitacoraPadreScreen() {
                           return (
                             <>
                               {cExtra.que_comio ? <Text style={s.textoNormal}>{cExtra.que_comio}</Text> : null}
-                              <FilaInfo label="¿Cuánto comió?" valor={CUANTO[cExtra.cuanto_comio]?.emoji + ' ' + CUANTO[cExtra.cuanto_comio]?.label} negrita />
+                              <FilaInfo label="¿Cuánto comió?" valor={fmtCuanto(cExtra.cuanto_comio)} negrita />
                               <FilaInfo label="Observaciones" valor={cExtra.observaciones} />
                             </>
                           );
@@ -328,10 +368,79 @@ export default function BitacoraPadreScreen() {
                 )
               )}
 
+              {/* Tab: Entrada */}
+              {tabActivo === 'entrada' && (
+                !entradaHistorica ? (
+                  <Text style={s.tabVacio}>Sin registro de entrada para esta fecha</Text>
+                ) : (
+                  <View>
+                    <FilaInfo
+                      label="Hora de entrada"
+                      valor={new Date(entradaHistorica.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      negrita
+                    />
+                    {entradaHistorica.es_retardo && (
+                      <View style={[s.alertaRoja, { borderLeftColor: '#DD6B20', backgroundColor: '#FFFAF0', marginVertical: 6 }]}>
+                        <Text style={[s.alertaTxt, { color: '#C05621' }]}>⏰ Retardo #{entradaHistorica.numero_retardo_mes} del mes</Text>
+                      </View>
+                    )}
+                    <View style={[s.compBadge, {
+                      backgroundColor: entradaHistorica.puede_entrar ? '#C6F6D5' : '#FED7D7',
+                      marginVertical: 6,
+                    }]}>
+                      <Text style={{ fontSize: 16 }}>{entradaHistorica.puede_entrar ? '✓' : '✗'}</Text>
+                      <Text style={[s.compLabel, { color: entradaHistorica.puede_entrar ? '#276749' : '#C53030' }]}>
+                        {entradaHistorica.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
+                      </Text>
+                    </View>
+                    {!entradaHistorica.puede_entrar && entradaHistorica.motivo_no_entrada && (
+                      <View style={[s.alertaRoja, { marginBottom: 8 }]}>
+                        <Text style={s.alertaTxt}>{entradaHistorica.motivo_no_entrada}</Text>
+                      </View>
+                    )}
+                    <Text style={[s.seccionTitulo, { marginTop: 8, marginBottom: 6 }]}>Checklist de entrada</Text>
+                    <View style={s.pildoraRow}>
+                      <PildoraBool label="Uñas cortadas"  valor={entradaHistorica.uñas_cortadas}   />
+                      <PildoraBool label="Uniforme"       valor={entradaHistorica.trae_uniforme}    />
+                      <PildoraBool label="Bata"           valor={entradaHistorica.trae_bata}        />
+                      <PildoraBool label="Agua suficiente" valor={entradaHistorica.agua_suficiente} />
+                      <PildoraBool label="Termo"          valor={entradaHistorica.trae_termo}       />
+                      <PildoraBool label="Sin lagañas"    valor={entradaHistorica.sin_lagañas}      />
+                      <PildoraBool label="Sin fiebre"     valor={entradaHistorica.sin_fiebre}       />
+                      <PildoraBool label="Sin síntomas"   valor={entradaHistorica.sin_sintomas}     />
+                      {usaPanial && <PildoraBool label="Trajo pañales" valor={entradaHistorica.trajo_paniales} />}
+                      {entradaHistorica.trajo_toallitas && <PildoraBool label="Trajo toallitas" valor={true} />}
+                    </View>
+                  </View>
+                )
+              )}
+
+              {/* Tab: Tareas */}
+              {tabActivo === 'tareas' && (
+                tareas.length > 0 ? (
+                  tareas.map((t, i) => (
+                    <View key={i} style={[s.alertaRoja, { borderLeftColor: '#3182CE', backgroundColor: '#EBF8FF', marginBottom: 8 }]}>
+                      <Text style={[s.alertaTxt, { color: '#2B6CB0', marginBottom: 4 }]}>{t.titulo}</Text>
+                      {t.descripcion ? <Text style={{ fontSize: 12, color: '#2B6CB0' }}>{t.descripcion}</Text> : null}
+                      <View style={[s.pildora, {
+                        backgroundColor: t.completada ? '#C6F6D5' : '#FEFCBF',
+                        marginTop: 6, alignSelf: 'flex-start',
+                      }]}>
+                        <Text style={[s.pildoraTxt, { color: t.completada ? '#276749' : '#975A16' }]}>
+                          {t.completada ? '✅ Entregada' : '⏳ Pendiente'}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={s.tabVacio}>Sin tareas para hoy 📚</Text>
+                )
+              )}
+
               {/* Tab: Actividades */}
               {tabActivo === 'actividades' && (
                 <View>
-                  {bit.actividad_realizada !== null && bit.actividad_realizada !== undefined && (
+                  {bit?.actividad_realizada !== null && bit?.actividad_realizada !== undefined && (
                     <View style={[s.compBadge, { backgroundColor: bit.actividad_realizada ? '#C6F6D5' : '#EDF2F7', marginBottom: 12 }]}>
                       <Text style={{ fontSize: 18 }}>{bit.actividad_realizada ? '✓' : '✗'}</Text>
                       <Text style={[s.compLabel, { color: bit.actividad_realizada ? '#276749' : '#718096' }]}>
@@ -353,7 +462,7 @@ export default function BitacoraPadreScreen() {
                       )}
                     </View>
                   ))}
-                  {bit.actividad_realizada === null && bit.actividad_realizada === undefined && (data?.actividades || []).length === 0 && (
+                  {!bit?.actividad_realizada && (data?.actividades || []).length === 0 && (
                     <Text style={s.tabVacio}>Sin registro de actividades</Text>
                   )}
                 </View>
@@ -362,7 +471,8 @@ export default function BitacoraPadreScreen() {
               {/* Tab: Higiene */}
               {tabActivo === 'higiene' && (
                 <View>
-                  {banio && (
+                  {/* Contadores baño — igual que web: solo si NO usa pañal */}
+                  {!usaPanial && banio && (
                     <View style={[s.banioRow, { marginBottom: 12 }]}>
                       <View style={s.banioItem}>
                         <Text style={s.banioNum}>{banio.pipi_count || 0}</Text>
@@ -405,12 +515,12 @@ export default function BitacoraPadreScreen() {
               {/* Tab: Salud */}
               {tabActivo === 'salud' && (
                 <View>
-                  {bit.tuvo_fiebre && (
+                  {bit?.tuvo_fiebre && (
                     <View style={s.alertaRoja}>
                       <Text style={s.alertaTxt}>🌡 Tuvo fiebre{bit.temperatura_dia ? ` — ${bit.temperatura_dia}°C` : ''}</Text>
                     </View>
                   )}
-                  {bit.se_enfermo && (
+                  {bit?.se_enfermo && (
                     <View style={[s.alertaRoja, { marginTop: 8 }]}>
                       <Text style={s.alertaTxt}>⚕️ {bit.descripcion_enfermedad || 'Presentó malestar'}</Text>
                     </View>
@@ -424,7 +534,7 @@ export default function BitacoraPadreScreen() {
                       {m.notas && <Text style={s.medNotas}>{m.notas}</Text>}
                     </View>
                   ))}
-                  {!bit.tuvo_fiebre && !bit.se_enfermo && medicamentos.length === 0 && (
+                  {!bit?.tuvo_fiebre && !bit?.se_enfermo && medicamentos.length === 0 && (
                     <Text style={s.tabVacio}>Sin registros de salud</Text>
                   )}
                 </View>
@@ -458,8 +568,8 @@ export default function BitacoraPadreScreen() {
             </View>
           </View>
 
-          {/* ─ Conducta — siempre visible ─ */}
-          {bit.comportamiento && (
+          {/* ─ Conducta — solo si hay bitácora ─ */}
+          {bit?.comportamiento && (
             <Seccion titulo="Conducta" emoji="🌟">
               <View style={[s.compBadge, { backgroundColor: COMPORTAMIENTO[bit.comportamiento]?.color + '20' }]}>
                 <Text style={{ fontSize: 20 }}>{COMPORTAMIENTO[bit.comportamiento]?.emoji}</Text>
@@ -472,7 +582,7 @@ export default function BitacoraPadreScreen() {
           )}
 
           {/* ─ Notas generales ─ */}
-          {bit.notas && (
+          {bit?.notas && (
             <Seccion titulo="Mensaje de la Miss" emoji="💬">
               <View style={s.notasBox}>
                 <Text style={s.notasTxt}>{bit.notas}</Text>
@@ -481,7 +591,7 @@ export default function BitacoraPadreScreen() {
           )}
 
           {/* ─ Maestra ─ */}
-          {bit.maestra_nombre && (
+          {bit?.maestra_nombre && (
             <Text style={s.maestraTxt}>Bitácora registrada por Miss {bit.maestra_nombre}</Text>
           )}
 
@@ -539,10 +649,12 @@ const s = StyleSheet.create({
 
   // Tabs
   tabsContainer: { marginHorizontal: 16, marginTop: 16, backgroundColor: COLORS.white, borderRadius: RADIUS.lg, shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 2, overflow: 'hidden' },
-  tabsBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
-  tabBtn: { flex: 1, alignItems: 'center', paddingVertical: 10, gap: 2, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tabsBar: { borderBottomWidth: 1, borderBottomColor: '#FFF5F5' },
+  tabsScrollHint: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.85)' },
+  tabsScrollHintTxt: { fontSize: 20, color: '#E53E3E', fontWeight: '900', lineHeight: 24 },
+  tabBtn: { width: 68, alignItems: 'center', paddingVertical: 10, paddingHorizontal: 4, gap: 2, borderBottomWidth: 2, borderBottomColor: 'transparent' },
   tabBtnActivo: { borderBottomColor: '#E53E3E', backgroundColor: '#FFF5F5' },
-  tabLabel: { fontSize: 9, fontWeight: '700', color: '#A0AEC0' },
+  tabLabel: { fontSize: 10, fontWeight: '700', color: '#A0AEC0' },
   tabLabelActivo: { color: '#E53E3E' },
   tabVacio: { textAlign: 'center', color: '#A0AEC0', fontWeight: '600', fontSize: 13, paddingVertical: 24 },
 

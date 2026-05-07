@@ -1,7 +1,34 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)**
+
+---
+
+## ✅ SESIÓN XX+40 (2026-05-06) — Bitácora Mobile: Paridad web — 6 bugs corregidos + tabs nuevos
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ COMPLETADA
+**Archivo:** `mobile/app/(padre)/bitacora.jsx`
+
+### Bugs corregidos
+
+1. **Bitácora no aparecía en fechas sin `bitacora_diaria`** — condición `!bit` → `!bit && comidas.length === 0` (paridad con web). El 29/abr ya muestra comidas aunque no haya registro de maestra.
+2. **"undefined undefined" en tab Comida** — `CUANTO[key]?.emoji + ' ' + CUANTO[key]?.label` cuando key es null concatenaba "undefined undefined". Reemplazado por helper `fmtCuanto(key)` que verifica existencia antes de concatenar.
+3. **Bug preexistente: `TIEMPOS_COMIDA` no definido** — constante usada en línea 299 pero nunca declarada en el archivo. Definida en línea 15.
+4. **Tabs Entrada y Tareas faltaban** — mobile solo tenía 5 tabs vs 7 en web. Agregados ambos tabs con paridad completa de contenido.
+5. **Higiene: contadores Pipí/Popó aparecían para alumnos con pañal** — faltaba guarda `!usaPanial`. Ahora consulta `/alumnos/mis-hijos` para obtener `usa_panial` igual que web.
+6. **Tabs amontonados / sin indicación de scroll** — `flex:1` incompatible con `ScrollView` horizontal. Cambiado a `width: 68` fijo + flecha `›` flotante con `pointerEvents="none"` como affordance visual.
+
+### Nuevas queries en mobile
+
+- `/alumnos/mis-hijos` — para obtener `usa_panial` del hijo actual
+- `/asistencia/filtro-entrada/:alumnoId?fecha=` — para tab Entrada (hora, retardo, checklist)
+
+### Pendiente de esta área
+
+- Declarar medicamentos desde mobile (formulario + foto receta) — solo web tiene esta función
+- Módulo Comida en barra de navegación inferior
+- Cambio de contraseña en mobile
 
 ---
 

@@ -1,7 +1,48 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)** → **XX+47 (Panel Plantillas WhatsApp editable — Directora)**
+
+---
+
+## ✅ SESIÓN XX+47 (2026-05-07) — Panel Plantillas WhatsApp editable (Directora)
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ Completada y validada en browser
+
+### Resumen
+
+Panel para que la Directora edite el texto de las 20 plantillas de WhatsApp automático desde el portal web, sin tocar código. Nuevo tab "Plantillas WA" en Configuración.
+
+### Archivos creados/modificados
+
+| Archivo | Cambio |
+|---|---|
+| `backend/src/routes/plantillas.js` | NUEVO — CRUD completo |
+| `backend/src/routes/index.js` | Registro de ruta `/plantillas` |
+| `web/src/components/directora/PlantillasWhatsApp.jsx` | NUEVO — UI completa |
+| `web/src/pages/directora/Configuracion.jsx` | Nuevo tab "Plantillas WA" |
+
+### Funcionalidades
+
+**Backend `/api/plantillas`:**
+- `GET /` — Lista las 20 plantillas (solo directora)
+- `GET /:id` — Obtener una por ID
+- `PUT /:id` — Editar nombre + texto (clave inmutable por diseño)
+- `PATCH /:id/toggle` — Activar/desactivar
+
+**Web — componente `PlantillasWhatsApp`:**
+- Stats en cards (total / activas / inactivas)
+- Búsqueda por nombre o clave
+- Filtro Todas / Activas / Inactivas
+- Vista expandible inline del texto completo
+- Modal de edición con detección automática de variables `{{}}`
+- Toggle activar/desactivar por plantilla
+
+### Notas técnicas
+
+- La `clave` de cada plantilla es inmutable (está atada al código de envío en cada módulo)
+- Las variables `{{nombre}}`, `{{monto}}`, etc. se detectan automáticamente en el modal de edición
+- Mobile sin cambios — feature exclusiva del portal Directora
 
 ---
 

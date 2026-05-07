@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+46 (Cloudinary: validación browser completa ✅)
+**Última actualización:** 2026-05-07 — Sesión XX+47 (Panel Plantillas WhatsApp editable ✅)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -29,10 +29,7 @@
 
 ---
 
-## 🎯 FASE C — 2–4 sesiones
-
-### 📱 Panel Plantillas WhatsApp editable (directora)
-- [x] ✅ UI para editar las 20 plantillas desde el portal directora (Sesión XX+47)
+## 🎯 FASE C — completada ✅
 
 ---
 

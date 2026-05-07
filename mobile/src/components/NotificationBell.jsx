@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,15 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import NotificacionModalUrgente from './NotificacionModalUrgente';
 
 export default function NotificationBell() {
   const [modalVisible, setModalVisible] = useState(false);
+  const [colaModal, setColaModal] = useState([]);
+  const [modalUrgente, setModalUrgente] = useState(null);
   const queryClient = useQueryClient();
   const { token } = useAuthStore();
+  const yaMostradas = useRef(new Set());
   const translateY = useRef(new Animated.Value(0)).current;
 
   const panResponder = useRef(PanResponder.create({
@@ -39,17 +43,26 @@ export default function NotificationBell() {
     },
   })).current;
 
-  // Count de no leídas — polling cada 30 s
+  // Config de tipos que disparan modal — polling cada 5 min
+  const { data: configNotif } = useQuery({
+    queryKey: ['mobile-config-notificaciones'],
+    queryFn: () => api.get('/config/notificaciones').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!token,
+  });
+  const TIPOS_URGENTES = configNotif?.notificaciones_modal_tipos || [];
+
+  // Count de no leídas — polling cada 15 s
   const { data: badgeData } = useQuery({
     queryKey: ['mobile-notif-count'],
     queryFn: () => api.get('/notificaciones/no-leidas').then(r => r.data),
-    refetchInterval: 30_000,
+    refetchInterval: 15_000,
     enabled: !!token,
   });
   const count = badgeData?.count || 0;
 
   // Lista completa — solo cuando hay token, refetch al abrir modal
-  const { data: notifs = [], isLoading: loadingNotifs, isError: notifError, refetch } = useQuery({
+  const { data: notifs = [], isLoading: loadingNotifs, isError: notifError } = useQuery({
     queryKey: ['mobile-notificaciones'],
     queryFn: () => api.get('/notificaciones').then(r => r.data),
     staleTime: 0,
@@ -57,13 +70,53 @@ export default function NotificationBell() {
     retry: 1,
   });
 
+  // Query paralela: notificaciones urgentes no leídas — siempre activa, polling 15 s
+  const { data: notifUrgentes = [] } = useQuery({
+    queryKey: ['mobile-notif-urgentes'],
+    queryFn: () => api.get('/notificaciones').then(r => r.data),
+    refetchInterval: 15_000,
+    enabled: !!token && TIPOS_URGENTES.length > 0,
+    select: (data) => data.filter(n => !n.leida && TIPOS_URGENTES.includes(n.tipo)),
+  });
+
+  // Detectar nuevas urgentes no mostradas y encolarlas
+  useEffect(() => {
+    const nuevas = notifUrgentes.filter(n => !yaMostradas.current.has(n.id));
+    if (nuevas.length === 0) return;
+
+    nuevas.forEach(n => yaMostradas.current.add(n.id));
+
+    setColaModal(prev => {
+      const idsEnCola = new Set(prev.map(x => x.id));
+      const sinDuplicar = nuevas.filter(n => !idsEnCola.has(n.id));
+      return [...prev, ...sinDuplicar];
+    });
+  }, [notifUrgentes]);
+
+  // Mostrar de la cola cuando no hay modal urgente activo
+  useEffect(() => {
+    if (!modalUrgente && colaModal.length > 0) {
+      const [primera, ...resto] = colaModal;
+      setModalUrgente(primera);
+      setColaModal(resto);
+    }
+  }, [colaModal, modalUrgente]);
+
   const marcarUna = useMutation({
     mutationFn: (id) => api.put(`/notificaciones/${id}/leer`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mobile-notif-count'] });
       queryClient.invalidateQueries({ queryKey: ['mobile-notificaciones'] });
+      queryClient.invalidateQueries({ queryKey: ['mobile-notif-urgentes'] });
     },
   });
+
+  const handleEntendido = () => {
+    if (modalUrgente) {
+      marcarUna.mutate(modalUrgente.id);
+    }
+    setModalUrgente(null);
+  };
 
   const fmtFecha = (iso) => {
     const d = new Date(iso);
@@ -81,12 +134,25 @@ export default function NotificationBell() {
       aviso_extraordinario: '📢',
       medicamento: '💊',
       bitacora_lista: '📝',
+      tarea_nueva: '📚',
+      tarea_cancelada: '📋',
+      alerta_pago: '💳',
+      entrada_rechazada: '🚫',
+      salida_anticipada: '🚪',
+      alerta_vomito: '🤢',
+      alerta_diarrea: '⚠️',
     };
     return iconos[tipo] || '🔔';
   };
 
   return (
     <>
+      {/* Modal urgente — igual que web */}
+      <NotificacionModalUrgente
+        notificacion={modalUrgente}
+        onEntendido={handleEntendido}
+      />
+
       {/* Botón campanita */}
       <TouchableOpacity
         onPress={() => {

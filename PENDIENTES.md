@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+47 (Panel Plantillas WhatsApp editable ✅)
+**Última actualización:** 2026-05-07 — Sesión XX+48 (Notificaciones push en tiempo real — mobile ✅)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -19,8 +19,12 @@
 
 ### 📝 Feedback Valeria — Portal Padre Mobile — Pendientes restantes
 
-#### 🔴 Notificaciones push en tiempo real — mobile
-- [ ] Modal push al recibir aviso del admin — en web aparece modal en tiempo real; en mobile no hay listener activo. Implementar polling o WebSocket listener en mobile para mostrar modal cuando llega notificación nueva mientras la app está abierta.
+#### 🟡 Notificaciones push en tiempo real — mobile — PENDIENTE VALIDACIÓN VALERIA
+- [ ] Validar en Expo Go / device: que al enviar aviso extraordinario desde web, aparece modal urgente en mobile automáticamente (sin tocar la app)
+- [ ] Validar que el badge de campanita sube en ≤15 s al llegar notificación nueva
+- [ ] Validar que al presionar "Entendido" la notificación se marca como leída y el badge baja
+- [ ] Validar que si llegan 2 urgentes seguidas, se muestran en cola (una tras otra, no simultáneas)
+- [ ] Validar que la misma notificación NO aparece dos veces en la misma sesión
 
 #### 🟡 Features faltantes (paridad con web)
 

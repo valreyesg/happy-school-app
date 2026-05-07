@@ -73,6 +73,12 @@ const CONFIG_TIPO = {
     icono: '📋',
     label: 'Tarea cancelada',
   },
+  alerta_pago: {
+    color: '#B7791F',
+    bgLight: '#FFFBEB',
+    icono: '💳',
+    label: 'Recordatorio de pago',
+  },
 };
 
 const fallback = {

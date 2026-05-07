@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+35 (Auditoría Hardcoded FASE 8+)
+**Última actualización:** 2026-05-06 — Sesión XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -42,10 +42,11 @@
 ### 💰 Portal Administrador — Finanzas y Pagos
 > Portal separado (o tab en directora) para gestión completa de pagos.
 
-- [ ] Resumen ingresos del mes
-- [ ] Lista alumnos con adeudos
-- [ ] Registro manual de pagos
+- [x] ~~Resumen ingresos del mes~~ ✅ Dashboard financiero con KPIs — Sesión XX+36
+- [x] ~~Lista alumnos con adeudos~~ ✅ Módulo Alertas de Pago con semáforo — Sesión XX+36
+- [x] ~~Alertas modales a padres con adeudo~~ ✅ Tipo alerta_pago + configurable — Sesión XX+36
 - [x] ~~Estado colegiatura por alumno~~ ✅ Cubierto parcialmente — job cron implementado Sesión XX+32 (ver ARCHIVE_LOG)
+- [ ] Registro manual de pagos (desde portal admin, no directora)
 - [ ] Historial cobros: extensión, comida
 - [ ] Segmentación servicios: Regulares, Solo Extensión, Estancia por Día
 - [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre

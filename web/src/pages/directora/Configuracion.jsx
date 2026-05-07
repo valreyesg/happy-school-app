@@ -56,6 +56,7 @@ const TIPOS_NOTIFICACION = [
   { tipo: 'medicamento',          label: 'Medicamento administrado',   icono: '💊' },
   { tipo: 'tarea_nueva',          label: 'Tarea nueva publicada',     icono: '📚' },
   { tipo: 'tarea_cancelada',      label: 'Tarea cancelada',           icono: '📋' },
+  { tipo: 'alerta_pago',          label: 'Recordatorio de pago',      icono: '💳' },
 ];
 
 const COLOR_MAP = {

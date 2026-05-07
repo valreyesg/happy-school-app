@@ -37,6 +37,8 @@ import DirectoraUsuarios from '@/pages/directora/Usuarios';
 import AdminDashboard from '@/pages/administrativo/Dashboard';
 import AdminPagos from '@/pages/administrativo/Pagos';
 import AdminInscripciones from '@/pages/administrativo/Inscripciones';
+import AdminNotificaciones from '@/pages/administrativo/Notificaciones';
+import AdminReportes from '@/pages/administrativo/Reportes';
 
 // Páginas de maestra
 import MaestraDashboard from '@/pages/maestra/Dashboard';
@@ -116,17 +118,19 @@ export default function App() {
         <Route path="aviso" element={<DirectoraAvisoExtraordinario />} />
       </Route>
 
-      {/* Administrativo */}
+      {/* Administrativo — portal separado, solo rol administrativo */}
       <Route path="/admin" element={
         <PrivateRoute
           element={<AdministrativoLayout />}
-          rolesPermitidos={['administrativo', 'directora']}
+          rolesPermitidos={['administrativo']}
         />
       }>
         <Route index element={<AdminDashboard />} />
         <Route path="pagos" element={<AdminPagos />} />
-        <Route path="inscripciones" element={<AdminInscripciones />} />
         <Route path="comida-pagos" element={<DirectoraComidaPagos />} />
+        <Route path="notificaciones" element={<AdminNotificaciones />} />
+        <Route path="reportes" element={<AdminReportes />} />
+        <Route path="inscripciones" element={<AdminInscripciones />} />
       </Route>
 
       {/* Maestra */}

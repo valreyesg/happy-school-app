@@ -1,7 +1,61 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)**
+
+---
+
+## ✅ SESIÓN XX+36 (2026-05-06) — FASE D: Portal Administrador D1–D2
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Implementación completa de las primeras dos sesiones del Portal Administrador (FASE D). Se construyó la infraestructura del portal (layout + rutas), el dashboard financiero con KPIs y el módulo de Alertas de Pago con notificaciones modales a padres.
+
+### Tareas ejecutadas
+
+1. **D1 — Infraestructura del Portal Admin**
+   - `web/src/layouts/AdministrativoLayout.jsx` → reemplazado por AppShell con sidebar (5 items: Dashboard, Pagos, Comida, Alertas, Reportes)
+   - `web/src/App.jsx` → rutas `/admin` solo para rol `administrativo`
+   - `web/src/pages/administrativo/Pagos.jsx` → re-export de `directora/Pagos.jsx` (cero duplicación)
+   - `web/src/pages/administrativo/Reportes.jsx` → stub para sesión futura
+
+2. **D1 — Dashboard financiero**
+   - `web/src/pages/administrativo/Dashboard.jsx` → KPIs (Recaudado, Por cobrar, Vencido, Recargos), barra de cobranza, tabla por concepto, tabla por grupo con barras de progreso, top morosos clickeables
+   - Usa endpoint existente `GET /pagos/dashboard?mes&anio` + campo `por_grupo`
+
+3. **D2 — Módulo Alertas de Pago**
+   - `backend/src/routes/notificaciones.js` → 2 endpoints nuevos:
+     - `GET /notificaciones/adeudos?mes&anio` — alumnos con adeudo, estado alertas hoy, padres
+     - `POST /notificaciones/alerta-pago` — envía notificación tipo `alerta_pago` a todos los padres del alumno
+   - `web/src/pages/administrativo/Notificaciones.jsx` → módulo completo: stats, tabla semáforo, modal con texto editable precargado, envío masivo
+
+4. **D2 — Alertas tipo modal**
+   - `web/src/components/NotificacionModal.jsx` → agregado tipo `alerta_pago` (💳 dorado)
+   - `web/src/pages/directora/Configuracion.jsx` → checkbox `alerta_pago` en lista de tipos modales
+   - `backend/migrations/044_alerta_pago_modal_default.sql` → seeds `alerta_pago` como tipo modal por defecto (`ON CONFLICT DO NOTHING`)
+
+5. **Bug fixes en módulo Alertas**
+   - **Bug monto histórico estratosférico**: `GET /adeudos` incluía meses futuros en `saldo_total` → corregido con filtro `<= mes/año seleccionado` en ambos JOINs
+   - **Bug saldo incorrecto**: fallback de texto usaba `saldo` sin filtro de mes → query ahora devuelve `saldo_mes` (mes seleccionado) + `saldo_total` (acumulado hasta ese mes)
+   - **UX texto alerta**: eliminado campo "texto adicional" separado → textarea único precargado con `textoAlerta()` + botón "Restaurar texto"
+   - **UX días de retraso**: texto antes decía "antes de la fecha límite" → ahora dice "X días de retraso" cuando `dias > 0`
+
+### Archivos modificados
+- `web/src/layouts/AdministrativoLayout.jsx` — AppShell con sidebar
+- `web/src/pages/administrativo/Dashboard.jsx` — dashboard financiero completo
+- `web/src/pages/administrativo/Pagos.jsx` — re-export directora
+- `web/src/pages/administrativo/Notificaciones.jsx` — módulo alertas completo
+- `web/src/pages/administrativo/Reportes.jsx` — stub
+- `web/src/components/NotificacionModal.jsx` — tipo alerta_pago
+- `web/src/pages/directora/Configuracion.jsx` — checkbox alerta_pago
+- `web/src/App.jsx` — rutas portal admin
+- `backend/src/routes/notificaciones.js` — 2 endpoints nuevos + fixes queries
+- `backend/migrations/044_alerta_pago_modal_default.sql` — migración nueva
+
+### Bugs históricos a registrar
+- **NUNCA** hacer JOIN de `pagos` sin filtro `<= mes/año seleccionado` cuando se calcula saldo acumulado — los cargos automáticos futuros ya existen en BD y distorsionan totales
 
 ---
 

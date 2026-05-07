@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
-  ActivityIndicator, Alert,
+  ActivityIndicator, Alert, TextInput,
 } from 'react-native';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
@@ -126,7 +126,37 @@ function ModalEvento({ ev, onClose }) {
 export default function PadreDashboard() {
   const { usuario, logout } = useAuthStore();
   const [eventoSeleccionado, setEventoSeleccionado] = useState(null);
+  const [mostrarCambioPass, setMostrarCambioPass] = useState(false);
+  const [passActual, setPassActual] = useState('');
+  const [passNuevo, setPassNuevo] = useState('');
+  const [passConfirm, setPassConfirm] = useState('');
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  const cambiarPassMutation = useMutation({
+    mutationFn: () => api.put('/auth/cambiar-password', {
+      passwordActual: passActual,
+      passwordNuevo: passNuevo,
+    }),
+    onSuccess: () => {
+      Alert.alert('Listo', 'Contraseña cambiada correctamente');
+      setMostrarCambioPass(false);
+      setPassActual(''); setPassNuevo(''); setPassConfirm('');
+    },
+    onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se pudo cambiar la contraseña'),
+  });
+
+  const handleCambiarPass = () => {
+    if (!passActual || !passNuevo || !passConfirm) {
+      Alert.alert('Campos obligatorios', 'Completa todos los campos'); return;
+    }
+    if (passNuevo !== passConfirm) {
+      Alert.alert('Error', 'Las nuevas contraseñas no coinciden'); return;
+    }
+    if (passNuevo.length < 8) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 8 caracteres'); return;
+    }
+    cambiarPassMutation.mutate();
+  };
 
   // ── Catálogos dinámicos ──
   const { map: ANIMO } = useCatalogo('animo');
@@ -230,7 +260,80 @@ export default function PadreDashboard() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Mi cuenta */}
+        <View style={{ marginHorizontal: 16, marginBottom: 24 }}>
+          <Text style={styles.sectionTitle}>Mi cuenta</Text>
+          <TouchableOpacity
+            style={styles.cuentaBtn}
+            onPress={() => setMostrarCambioPass(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 22 }}>🔑</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cuentaBtnTitulo}>Cambiar contraseña</Text>
+              <Text style={styles.cuentaBtnSub}>Actualiza tu contraseña de acceso</Text>
+            </View>
+            <Text style={{ fontSize: 16, color: '#A0AEC0' }}>›</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+
+      {/* Modal cambiar contraseña */}
+      <Modal visible={mostrarCambioPass} transparent animationType="slide">
+        <Pressable style={styles.modalOverlay} onPress={() => setMostrarCambioPass(false)}>
+          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#2D3748', marginBottom: 16 }}>🔑 Cambiar contraseña</Text>
+
+            <TextInput
+              placeholder="Contraseña actual"
+              secureTextEntry
+              value={passActual}
+              onChangeText={setPassActual}
+              style={styles.passInput}
+              placeholderTextColor="#A0AEC0"
+            />
+            <TextInput
+              placeholder="Nueva contraseña (mín. 8 caracteres)"
+              secureTextEntry
+              value={passNuevo}
+              onChangeText={setPassNuevo}
+              style={styles.passInput}
+              placeholderTextColor="#A0AEC0"
+            />
+            <TextInput
+              placeholder="Confirmar nueva contraseña"
+              secureTextEntry
+              value={passConfirm}
+              onChangeText={setPassConfirm}
+              style={styles.passInput}
+              placeholderTextColor="#A0AEC0"
+            />
+
+            <Text style={{ fontSize: 11, color: '#718096', marginBottom: 16 }}>
+              Mínimo 8 caracteres, debe incluir letras y números.
+            </Text>
+
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity
+                style={[styles.passBtn, { backgroundColor: '#EDF2F7' }]}
+                onPress={() => { setMostrarCambioPass(false); setPassActual(''); setPassNuevo(''); setPassConfirm(''); }}
+              >
+                <Text style={[styles.passBtnTxt, { color: '#4A5568' }]}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.passBtn, { backgroundColor: '#805AD5', opacity: cambiarPassMutation.isPending ? 0.5 : 1 }]}
+                onPress={handleCambiarPass}
+                disabled={cambiarPassMutation.isPending}
+              >
+                <Text style={[styles.passBtnTxt, { color: '#fff' }]}>
+                  {cambiarPassMutation.isPending ? 'Cambiando...' : 'Cambiar'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -646,4 +749,24 @@ const styles = StyleSheet.create({
     position: 'absolute', top: -40, right: 0, width: 36, height: 36,
     backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 18, alignItems: 'center', justifyContent: 'center',
   },
+
+  // Mi cuenta
+  cuentaBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: 16,
+    shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, elevation: 2,
+  },
+  cuentaBtnTitulo: { fontSize: 14, fontWeight: '800', color: '#2D3748' },
+  cuentaBtnSub: { fontSize: 11, color: '#718096', fontWeight: '600', marginTop: 1 },
+
+  // Modal contraseña
+  passInput: {
+    backgroundColor: '#F7FAFC', borderWidth: 1, borderColor: '#E2E8F0',
+    borderRadius: RADIUS.md, paddingHorizontal: 14, paddingVertical: 12,
+    fontSize: 14, fontWeight: '600', color: '#2D3748', marginBottom: 12,
+  },
+  passBtn: {
+    flex: 1, borderRadius: RADIUS.md, paddingVertical: 12, alignItems: 'center',
+  },
+  passBtnTxt: { fontSize: 14, fontWeight: '900' },
 });

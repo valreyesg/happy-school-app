@@ -1,7 +1,51 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)**
+**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)**
+
+---
+
+## ✅ SESIÓN XX+41 (2026-05-06) — Portal Padre Mobile: Medicamentos + Comida nav + Cambio contraseña
+
+**Fecha:** 2026-05-06 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+3 features de paridad web implementadas en mobile: declarar medicamentos con foto receta, módulo Comida visible en barra de navegación inferior, y opción de cambiar contraseña.
+
+### Features implementadas
+
+1. **Declarar medicamentos desde mobile** (`mobile/app/(padre)/bitacora.jsx`)
+   - Formulario completo en tab "Salud": nombre, dosis, horas programadas (dinámicas), foto receta
+   - Foto con 2 opciones: galería (`expo-image-picker`) o cámara
+   - Lista de recepciones existentes con estado (Pendiente/Recibido/Dado) y opción de eliminar
+   - Endpoint: `POST /bitacora/medicamento/recepcion` con Base64 (mismo que web)
+   - Visible también cuando "Bitácora no disponible" (antes de que Miss registre), igual que web
+   - Mutations: `recepcionMutation`, `borrarMedMutation` con invalidación de cache
+
+2. **Módulo Comida en barra inferior** (`mobile/app/(padre)/_layout.jsx`)
+   - Movido de screen oculta (`href: null`) a tab visible con emoji 🍽️
+   - Posición: entre Bitácora y Pagos (5 tabs visibles total)
+   - Fix layout: reemplazado `Stack.Screen` por `SafeAreaView` + header propio (evita contenido pegado al status bar)
+
+3. **Cambiar contraseña** (`mobile/app/(padre)/index.jsx`)
+   - Sección "Mi cuenta" al final del dashboard con botón 🔑
+   - Modal con campos: contraseña actual, nueva, confirmación
+   - Validaciones: campos obligatorios, mínimo 8 caracteres, coincidencia
+   - Endpoint: `PUT /auth/cambiar-password` (existente)
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `mobile/app/(padre)/bitacora.jsx` | +imports (ImagePicker, useMutation, TextInput, Alert), +estados formulario, +mutations, +UI declarar med en tab Salud Y en estado vacío |
+| `mobile/app/(padre)/_layout.jsx` | Comida movida de `href:null` a tab visible |
+| `mobile/app/(padre)/comida.jsx` | SafeAreaView + header propio (reemplaza Stack.Screen) |
+| `mobile/app/(padre)/index.jsx` | +import TextInput/useMutation, +sección "Mi cuenta", +modal cambiar contraseña |
+
+### Bug fix incluido
+
+- **Declarar medicamentos no aparecía hoy**: cuando `!bit && comidas.length === 0` (Miss no registró aún), se mostraba solo "Bitácora no disponible" sin acceso al formulario. Ahora se muestra la sección de medicamentos arriba del mensaje vacío.
 
 ---
 

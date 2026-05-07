@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+40 (Bitácora Mobile — Paridad web: bugs + tabs + higiene)
+**Última actualización:** 2026-05-06 — Sesión XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -22,20 +22,7 @@
 #### 🔴 Notificaciones push en tiempo real — mobile
 - [ ] Modal push al recibir aviso del admin — en web aparece modal en tiempo real; en mobile no hay listener activo. Implementar polling o WebSocket listener en mobile para mostrar modal cuando llega notificación nueva mientras la app está abierta.
 
-#### 🟡 Features faltantes (paridad con web) — parcialmente resueltas en XX+40
-
-**✅ Resuelto en XX+40 — Bitácora mobile (paridad web):**
-- [x] Bitácora del 29/abr y fechas sin `bitacora_diaria` ahora se muestran si hay comidas (`!bit && comidas.length === 0`)
-- [x] "undefined undefined" en comida corregido con `fmtCuanto()`
-- [x] Tabs Entrada y Tareas agregados (7 tabs con scroll horizontal + flecha indicadora ›)
-- [x] Higiene: contadores Pipí/Popó ocultos cuando alumno usa pañal (paridad web)
-- [x] Bug preexistente: `TIEMPOS_COMIDA` no definido en mobile — corregido
-- [x] Tab Entrada: muestra hora, retardo, estado autorizado/rechazado, checklist completo
-
-**Pendiente aún:**
-- [ ] Bitácora: declarar medicamentos desde mobile (formulario + foto receta) — solo web tiene esta función
-- [ ] No aparece módulo de Comida en barra inferior mobile (existe pantalla `comida.jsx` pero no está en nav)
-- [ ] No hay opción de cambiar contraseña en mobile
+#### 🟡 Features faltantes (paridad con web)
 
 #### 🟡 UX / Diseño — Pendientes
 - [ ] Iconos en general se ven anticuados y diferentes al portal web

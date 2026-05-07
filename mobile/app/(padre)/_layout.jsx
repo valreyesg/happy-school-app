@@ -32,6 +32,8 @@ export default function PadreTabLayout() {
         options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" label="Inicio" focused={focused} /> }} />
       <Tabs.Screen name="bitacora"
         options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="📋" label="Bitácora" focused={focused} /> }} />
+      <Tabs.Screen name="comida"
+        options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="🍽️" label="Comida" focused={focused} /> }} />
       <Tabs.Screen name="pagos"
         options={{ tabBarIcon: ({ focused }) => <TabIcon emoji="💰" label="Pagos" focused={focused} /> }} />
       <Tabs.Screen name="calendario"
@@ -40,7 +42,6 @@ export default function PadreTabLayout() {
       {/* Screens ocultas del tab bar — accesibles por navegación directa */}
       <Tabs.Screen name="chat"     options={{ href: null }} />
       <Tabs.Screen name="galeria"  options={{ href: null }} />
-      <Tabs.Screen name="comida"   options={{ href: null }} />
       <Tabs.Screen name="qr"       options={{ href: null }} />
     </Tabs>
   );

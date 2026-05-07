@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Stack } from 'expo-router';
 import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as DocumentPicker from 'expo-document-picker';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { COLORS, RADIUS } from '@/constants/theme';
 
 const styles = StyleSheet.create({
+  headerBar: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: COLORS.gray[50] },
+  headerTitle: { fontSize: 20, fontWeight: '900', color: '#2D3748' },
   container: { flex: 1, backgroundColor: COLORS.gray[50], paddingHorizontal: 16, paddingVertical: 16 },
   menuCard: { backgroundColor: COLORS.white, borderRadius: RADIUS.xl, paddingHorizontal: 16, paddingVertical: 16, marginBottom: 24, shadowColor: '#000', shadowOpacity: 0.05, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
   menuTitle: { fontSize: 20, fontWeight: '900', color: COLORS.orange.DEFAULT, marginBottom: 12 },
@@ -173,8 +175,11 @@ const ComidaSemanal = () => {
   const esDomingo = hoy.getDay() === 0;
 
   return (
-    <>
-      <Stack.Screen options={{ title: '🍽️ Comida Semanal' }} />
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.gray[50] }}>
+      {/* Header */}
+      <View style={styles.headerBar}>
+        <Text style={styles.headerTitle}>🍽️ Comida Semanal</Text>
+      </View>
       <ScrollView style={styles.container}>
         {/* Menú */}
         {menu && (
@@ -307,7 +312,7 @@ const ComidaSemanal = () => {
           </View>
         )}
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 };
 

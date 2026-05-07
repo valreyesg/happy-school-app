@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, ActivityIndicator,
+  StyleSheet, ActivityIndicator, TextInput, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import api from '../../src/services/api';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
 
@@ -155,6 +156,7 @@ function SelectorFecha({ fecha, onChange }) {
 export default function BitacoraPadreScreen() {
   const { alumnoId, nombre } = useLocalSearchParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const hoyRaw = new Date();
   // Si hoy es fin de semana, retroceder al viernes
   const ultimoDiaHabil = (() => {
@@ -166,6 +168,91 @@ export default function BitacoraPadreScreen() {
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [cicloId, setCicloId] = useState(null);
   const [tabActivo, setTabActivo] = useState('comida');
+
+  // ── Medicamentos: formulario ──
+  const [mostrarFormMed, setMostrarFormMed] = useState(false);
+  const [medNombre, setMedNombre] = useState('');
+  const [medDosis, setMedDosis] = useState('');
+  const [horasMed, setHorasMed] = useState(['']);
+  const [fotoReceta, setFotoReceta] = useState(null); // { uri, base64, fileName }
+
+  const recepcionMutation = useMutation({
+    mutationFn: (payload) => api.post('/bitacora/medicamento/recepcion', payload).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora-padre', alumnoId, fecha] });
+      Alert.alert('✅', 'Medicamento registrado');
+      setMedNombre(''); setMedDosis(''); setHorasMed(['']); setFotoReceta(null); setMostrarFormMed(false);
+    },
+    onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se pudo guardar'),
+  });
+
+  const borrarMedMutation = useMutation({
+    mutationFn: (id) => api.delete(`/bitacora/medicamento/recepcion/${id}`).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora-padre', alumnoId, fecha] });
+      Alert.alert('🗑', 'Medicamento eliminado');
+    },
+    onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se puede eliminar'),
+  });
+
+  const pickFotoReceta = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permisos', 'Se necesitan permisos para acceder a la galería');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.7,
+      base64: true,
+    });
+    if (!result.canceled && result.assets?.[0]) {
+      const asset = result.assets[0];
+      setFotoReceta({
+        uri: asset.uri,
+        base64: `data:image/jpeg;base64,${asset.base64}`,
+        fileName: asset.fileName || 'receta.jpg',
+      });
+    }
+  };
+
+  const tomarFotoReceta = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permisos', 'Se necesitan permisos para usar la cámara');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      quality: 0.7,
+      base64: true,
+    });
+    if (!result.canceled && result.assets?.[0]) {
+      const asset = result.assets[0];
+      setFotoReceta({
+        uri: asset.uri,
+        base64: `data:image/jpeg;base64,${asset.base64}`,
+        fileName: asset.fileName || 'receta.jpg',
+      });
+    }
+  };
+
+  const handleRegistrarMed = () => {
+    if (!medNombre.trim() || !medDosis.trim()) {
+      Alert.alert('Campos obligatorios', 'Nombre y dosis son obligatorios'); return;
+    }
+    if (!fotoReceta) {
+      Alert.alert('Foto obligatoria', 'Adjunta foto de la receta médica'); return;
+    }
+    const horasValidas = horasMed.filter(h => h.trim());
+    recepcionMutation.mutate({
+      alumno_id: alumnoId,
+      nombre: medNombre.trim(),
+      dosis: medDosis.trim(),
+      horas: horasValidas,
+      foto_receta_base64: fotoReceta.base64,
+      foto_receta_name: fotoReceta.fileName,
+    });
+  };
 
   // ── Catálogos dinámicos ──
   const { map: ANIMO } = useCatalogo('animo');
@@ -242,7 +329,9 @@ export default function BitacoraPadreScreen() {
   const panial = data?.panial || [];
   const esfinteres = data?.esfinteres;
   const medicamentos = data?.medicamentos || [];
+  const recepciones = data?.recepciones_medicamento || [];
   const tareas = (data?.tareas || []).filter(t => t.fecha_limite?.substring(0, 10) === fecha);
+  const esHoyFecha = fecha === hoy;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF8F8' }}>
@@ -273,15 +362,146 @@ export default function BitacoraPadreScreen() {
         </View>
       ) : !bit && comidas.length === 0 ? (
         /* Sin bitácora ese día */
-        <View style={s.center}>
-          <Text style={{ fontSize: 64, marginBottom: 16 }}>📝</Text>
-          <Text style={s.emptyTitulo}>Bitácora no disponible</Text>
-          <Text style={s.emptyTxt}>
-            {fecha === hoy
-              ? 'La Miss aún no ha guardado la bitácora de hoy. Vuelve a revisar más tarde.'
-              : 'No hay registro para esta fecha.'}
-          </Text>
-        </View>
+        <ScrollView contentContainerStyle={{ paddingBottom: 32, paddingHorizontal: 16 }} showsVerticalScrollIndicator={false}>
+          {/* Declarar medicamento aunque no haya bitácora (solo hoy) */}
+          {esHoyFecha && (
+            <View style={s.medDeclararBox}>
+              <View style={s.medDeclararHeader}>
+                <Text style={s.medDeclararTitulo}>💊 Medicamentos para hoy</Text>
+                <TouchableOpacity
+                  onPress={() => setMostrarFormMed(v => !v)}
+                  style={s.medDeclararBtn}
+                >
+                  <Text style={s.medDeclararBtnTxt}>{mostrarFormMed ? 'Cancelar' : '+ Declarar'}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Lista de recepciones existentes */}
+              {recepciones.length > 0 && recepciones.map((r, i) => (
+                <View key={i} style={s.recepcionCard}>
+                  <View style={s.recepcionRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={s.recepcionNombre}>{r.nombre}</Text>
+                      <Text style={s.recepcionDosis}>{r.dosis}</Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <View style={[s.recepcionBadge, {
+                        backgroundColor: r.tomas?.every(t => t.administrado) ? '#C6F6D5' :
+                          r.recibido ? '#BEE3F8' : '#FEFCBF',
+                      }]}>
+                        <Text style={[s.recepcionBadgeTxt, {
+                          color: r.tomas?.every(t => t.administrado) ? '#276749' :
+                            r.recibido ? '#2B6CB0' : '#975A16',
+                        }]}>
+                          {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
+                        </Text>
+                      </View>
+                      {!r.recibido && !r.administrado && (
+                        <TouchableOpacity onPress={() => {
+                          Alert.alert('Eliminar', `¿Eliminar declaración de ${r.nombre}?`, [
+                            { text: 'No', style: 'cancel' },
+                            { text: 'Sí, eliminar', style: 'destructive', onPress: () => borrarMedMutation.mutate(r.id) },
+                          ]);
+                        }}>
+                          <Text style={{ fontSize: 16 }}>🗑</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                  {r.tomas?.length > 0 && (
+                    <View style={s.tomasRow}>
+                      {r.tomas.map((t, j) => (
+                        <View key={j} style={s.tomaBadge}>
+                          <Text style={s.tomaBadgeTxt}>
+                            {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              ))}
+
+              {recepciones.length === 0 && !mostrarFormMed && (
+                <Text style={s.medHintTxt}>Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.</Text>
+              )}
+
+              {/* Formulario declarar medicamento */}
+              {mostrarFormMed && (
+                <View style={s.medForm}>
+                  <TextInput
+                    placeholder="Medicamento * (ej. Ibuprofeno)"
+                    value={medNombre}
+                    onChangeText={setMedNombre}
+                    style={s.medInput}
+                    placeholderTextColor="#A0AEC0"
+                  />
+                  <TextInput
+                    placeholder="Dosis * (ej. 5ml cada 8h)"
+                    value={medDosis}
+                    onChangeText={setMedDosis}
+                    style={s.medInput}
+                    placeholderTextColor="#A0AEC0"
+                  />
+                  <View style={s.medHorasHeader}>
+                    <Text style={s.medHorasLabel}>Horas programadas</Text>
+                    <TouchableOpacity onPress={() => setHorasMed(h => [...h, ''])}>
+                      <Text style={s.medHorasAddBtn}>＋ Agregar hora</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {horasMed.map((h, idx) => (
+                    <View key={idx} style={s.medHoraRow}>
+                      <TextInput
+                        placeholder="HH:MM (ej. 10:00)"
+                        value={h}
+                        onChangeText={(val) => setHorasMed(prev => prev.map((x, i) => i === idx ? val : x))}
+                        style={[s.medInput, { flex: 1 }]}
+                        placeholderTextColor="#A0AEC0"
+                        keyboardType="numbers-and-punctuation"
+                      />
+                      {horasMed.length > 1 && (
+                        <TouchableOpacity onPress={() => setHorasMed(prev => prev.filter((_, i) => i !== idx))}>
+                          <Text style={{ fontSize: 18, color: '#E53E3E', marginLeft: 8 }}>✕</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ))}
+                  <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={pickFotoReceta}>
+                      <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={tomarFotoReceta}>
+                      <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
+                    </TouchableOpacity>
+                  </View>
+                  {fotoReceta && (
+                    <Text style={s.medFotoName}>{fotoReceta.fileName}</Text>
+                  )}
+                  <TouchableOpacity
+                    style={[s.medGuardarBtn, recepcionMutation.isPending && { opacity: 0.5 }]}
+                    onPress={handleRegistrarMed}
+                    disabled={recepcionMutation.isPending}
+                  >
+                    <Text style={s.medGuardarBtnTxt}>
+                      {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar medicamento'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </View>
+          )}
+
+          <View style={[s.center, { paddingTop: 24 }]}>
+            <Text style={{ fontSize: 64, marginBottom: 16 }}>📝</Text>
+            <Text style={s.emptyTitulo}>Bitácora no disponible</Text>
+            <Text style={s.emptyTxt}>
+              {fecha === hoy
+                ? 'La Miss aún no ha guardado la bitácora de hoy. Vuelve a revisar más tarde.'
+                : 'No hay registro para esta fecha.'}
+            </Text>
+          </View>
+        </ScrollView>
       ) : (
         <ScrollView contentContainerStyle={{ paddingBottom: 32 }} showsVerticalScrollIndicator={false}>
 
@@ -534,7 +754,143 @@ export default function BitacoraPadreScreen() {
                       {m.notas && <Text style={s.medNotas}>{m.notas}</Text>}
                     </View>
                   ))}
-                  {!bit?.tuvo_fiebre && !bit?.se_enfermo && medicamentos.length === 0 && (
+
+                  {/* ── Declarar medicamento (solo hoy) ── */}
+                  {esHoyFecha && (
+                    <View style={s.medDeclararBox}>
+                      <View style={s.medDeclararHeader}>
+                        <Text style={s.medDeclararTitulo}>💊 Medicamentos para hoy</Text>
+                        <TouchableOpacity
+                          onPress={() => setMostrarFormMed(v => !v)}
+                          style={s.medDeclararBtn}
+                        >
+                          <Text style={s.medDeclararBtnTxt}>{mostrarFormMed ? 'Cancelar' : '+ Declarar'}</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Lista de recepciones existentes */}
+                      {recepciones.length > 0 && recepciones.map((r, i) => (
+                        <View key={i} style={s.recepcionCard}>
+                          <View style={s.recepcionRow}>
+                            <View style={{ flex: 1 }}>
+                              <Text style={s.recepcionNombre}>{r.nombre}</Text>
+                              <Text style={s.recepcionDosis}>{r.dosis}</Text>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                              <View style={[s.recepcionBadge, {
+                                backgroundColor: r.tomas?.every(t => t.administrado) ? '#C6F6D5' :
+                                  r.recibido ? '#BEE3F8' : '#FEFCBF',
+                              }]}>
+                                <Text style={[s.recepcionBadgeTxt, {
+                                  color: r.tomas?.every(t => t.administrado) ? '#276749' :
+                                    r.recibido ? '#2B6CB0' : '#975A16',
+                                }]}>
+                                  {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
+                                </Text>
+                              </View>
+                              {!r.recibido && !r.administrado && (
+                                <TouchableOpacity onPress={() => {
+                                  Alert.alert('Eliminar', `¿Eliminar declaración de ${r.nombre}?`, [
+                                    { text: 'No', style: 'cancel' },
+                                    { text: 'Sí, eliminar', style: 'destructive', onPress: () => borrarMedMutation.mutate(r.id) },
+                                  ]);
+                                }}>
+                                  <Text style={{ fontSize: 16 }}>🗑</Text>
+                                </TouchableOpacity>
+                              )}
+                            </View>
+                          </View>
+                          {r.tomas?.length > 0 && (
+                            <View style={s.tomasRow}>
+                              {r.tomas.map((t, j) => (
+                                <View key={j} style={s.tomaBadge}>
+                                  <Text style={s.tomaBadgeTxt}>
+                                    {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
+                                  </Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                        </View>
+                      ))}
+
+                      {recepciones.length === 0 && !mostrarFormMed && (
+                        <Text style={s.medHintTxt}>Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.</Text>
+                      )}
+
+                      {/* Formulario declarar medicamento */}
+                      {mostrarFormMed && (
+                        <View style={s.medForm}>
+                          <TextInput
+                            placeholder="Medicamento * (ej. Ibuprofeno)"
+                            value={medNombre}
+                            onChangeText={setMedNombre}
+                            style={s.medInput}
+                            placeholderTextColor="#A0AEC0"
+                          />
+                          <TextInput
+                            placeholder="Dosis * (ej. 5ml cada 8h)"
+                            value={medDosis}
+                            onChangeText={setMedDosis}
+                            style={s.medInput}
+                            placeholderTextColor="#A0AEC0"
+                          />
+
+                          {/* Horas programadas */}
+                          <View style={s.medHorasHeader}>
+                            <Text style={s.medHorasLabel}>Horas programadas</Text>
+                            <TouchableOpacity onPress={() => setHorasMed(h => [...h, ''])}>
+                              <Text style={s.medHorasAddBtn}>＋ Agregar hora</Text>
+                            </TouchableOpacity>
+                          </View>
+                          {horasMed.map((h, idx) => (
+                            <View key={idx} style={s.medHoraRow}>
+                              <TextInput
+                                placeholder="HH:MM (ej. 10:00)"
+                                value={h}
+                                onChangeText={(val) => setHorasMed(prev => prev.map((x, i) => i === idx ? val : x))}
+                                style={[s.medInput, { flex: 1 }]}
+                                placeholderTextColor="#A0AEC0"
+                                keyboardType="numbers-and-punctuation"
+                              />
+                              {horasMed.length > 1 && (
+                                <TouchableOpacity onPress={() => setHorasMed(prev => prev.filter((_, i) => i !== idx))}>
+                                  <Text style={{ fontSize: 18, color: '#E53E3E', marginLeft: 8 }}>✕</Text>
+                                </TouchableOpacity>
+                              )}
+                            </View>
+                          ))}
+
+                          {/* Foto receta */}
+                          <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
+                          <View style={{ flexDirection: 'row', gap: 8 }}>
+                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={pickFotoReceta}>
+                              <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={tomarFotoReceta}>
+                              <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
+                            </TouchableOpacity>
+                          </View>
+                          {fotoReceta && (
+                            <Text style={s.medFotoName}>{fotoReceta.fileName}</Text>
+                          )}
+
+                          {/* Botón guardar */}
+                          <TouchableOpacity
+                            style={[s.medGuardarBtn, recepcionMutation.isPending && { opacity: 0.5 }]}
+                            onPress={handleRegistrarMed}
+                            disabled={recepcionMutation.isPending}
+                          >
+                            <Text style={s.medGuardarBtnTxt}>
+                              {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar medicamento'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {!bit?.tuvo_fiebre && !bit?.se_enfermo && medicamentos.length === 0 && recepciones.length === 0 && !esHoyFecha && (
                     <Text style={s.tabVacio}>Sin registros de salud</Text>
                   )}
                 </View>
@@ -704,4 +1060,37 @@ const s = StyleSheet.create({
   notasTxt: { fontSize: 14, color: '#4A5568', lineHeight: 22, fontStyle: 'italic' },
 
   maestraTxt: { textAlign: 'center', color: '#A0AEC0', fontSize: 12, fontWeight: '600', marginTop: 24, marginBottom: 8 },
+
+  // Medicamentos — Declarar
+  medDeclararBox: { marginTop: 16, backgroundColor: '#FAF5FF', borderRadius: RADIUS.md, padding: 12, borderWidth: 1, borderColor: '#E9D8FD' },
+  medDeclararHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  medDeclararTitulo: { fontSize: 13, fontWeight: '900', color: '#44337A' },
+  medDeclararBtn: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#D6BCFA', borderRadius: RADIUS.md, paddingHorizontal: 10, paddingVertical: 5 },
+  medDeclararBtnTxt: { fontSize: 11, fontWeight: '800', color: '#805AD5' },
+  medHintTxt: { fontSize: 11, color: '#9F7AEA', fontWeight: '600', marginTop: 4 },
+
+  // Recepciones lista
+  recepcionCard: { backgroundColor: '#fff', borderRadius: RADIUS.md, padding: 10, marginTop: 8, borderWidth: 1, borderColor: '#E9D8FD' },
+  recepcionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  recepcionNombre: { fontSize: 13, fontWeight: '900', color: '#44337A' },
+  recepcionDosis: { fontSize: 11, color: '#805AD5', fontWeight: '600' },
+  recepcionBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 12 },
+  recepcionBadgeTxt: { fontSize: 10, fontWeight: '800' },
+  tomasRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
+  tomaBadge: { backgroundColor: '#EDE9FE', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
+  tomaBadgeTxt: { fontSize: 10, fontWeight: '700', color: '#6B46C1' },
+
+  // Formulario medicamento
+  medForm: { marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: '#E9D8FD', gap: 10 },
+  medInput: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: RADIUS.md, paddingHorizontal: 12, paddingVertical: 10, fontSize: 13, fontWeight: '600', color: '#2D3748' },
+  medHorasHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  medHorasLabel: { fontSize: 11, fontWeight: '900', color: '#718096', textTransform: 'uppercase' },
+  medHorasAddBtn: { fontSize: 11, fontWeight: '800', color: '#805AD5' },
+  medHoraRow: { flexDirection: 'row', alignItems: 'center' },
+  medFotoBtn: { flex: 1, backgroundColor: '#fff', borderWidth: 2, borderStyle: 'dashed', borderColor: '#CBD5E0', borderRadius: RADIUS.md, paddingVertical: 10, alignItems: 'center' },
+  medFotoBtnDone: { borderColor: '#9F7AEA', backgroundColor: '#FAF5FF' },
+  medFotoBtnTxt: { fontSize: 12, fontWeight: '700', color: '#4A5568' },
+  medFotoName: { fontSize: 11, color: '#805AD5', fontWeight: '600' },
+  medGuardarBtn: { backgroundColor: '#805AD5', borderRadius: RADIUS.md, paddingVertical: 12, alignItems: 'center' },
+  medGuardarBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '900' },
 });

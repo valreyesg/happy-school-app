@@ -5,6 +5,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje, notificarRetardo } = require('../services/whatsappService');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
+const { enviarPush } = require('../services/pushService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -190,6 +191,7 @@ router.post('/entrada', async (req, res, next) => {
           motivoNoEntrada || `${info.nombre_completo} no pudo entrar hoy`,
           JSON.stringify({ alumno_id, motivo: motivoNoEntrada }),
         ]);
+        enviarPush(info.usuario_id, `Entrada rechazada — ${info.nombre_completo}`, motivoNoEntrada || `${info.nombre_completo} no pudo entrar hoy`, { tipo: 'entrada_rechazada', alumno_id: String(alumno_id) });
       }
     }
 
@@ -442,6 +444,7 @@ router.post('/salida', async (req, res, next) => {
             `${tutor.alumno_nombre} fue recogido/a anticipadamente a las ${horaTexto} por ${quienRecoge}. Motivo: ${motivo_salida}`,
             JSON.stringify({ alumno_id, quien_recoge: quienRecoge, motivo: motivo_salida }),
           ]);
+          enviarPush(tutor.usuario_id, `Salida anticipada — ${tutor.alumno_nombre}`, `${tutor.alumno_nombre} fue recogido/a a las ${horaTexto} por ${quienRecoge}.`, { tipo: 'salida_anticipada', alumno_id: String(alumno_id) });
         }
         // WhatsApp
         if (tutor.telefono) {

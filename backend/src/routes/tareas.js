@@ -5,6 +5,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { uploadToCloudinary } = require('../services/cloudinaryService');
 const { enviarMensaje } = require('../services/whatsappService');
+const { enviarPush } = require('../services/pushService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -440,6 +441,8 @@ router.delete('/:id', authorize('maestra_titular', 'maestra_especial'), async (r
           VALUES ($1, 'tarea_cancelada', $2, $3, $4)
         `, [padre.id, `Tarea cancelada: ${tarea.titulo}`, `La tarea "${tarea.titulo}" fue eliminada por la maestra.`, JSON.stringify({ alumno_nombre: padre.alumno_nombre })]);
 
+        enviarPush(padre.id, `Tarea cancelada: ${tarea.titulo}`, `La tarea "${tarea.titulo}" fue eliminada por la maestra.`, { tipo: 'tarea_cancelada' });
+
         if (padre.telefono) {
           const msg = `🚫 La tarea *${tarea.titulo}* de ${padre.alumno_nombre} fue cancelada por la maestra.`;
           await enviarMensaje(padre.telefono, msg).catch(() => {});
@@ -521,6 +524,8 @@ router.put('/:id/publicar', authorize('maestra_titular', 'maestra_especial'), as
           INSERT INTO notificaciones (usuario_id, tipo, titulo, cuerpo, datos_extra)
           VALUES ($1, 'tarea_nueva', $2, $3, $4)
         `, [padre.id, `Tarea nueva: ${tarea.titulo}`, tarea.descripcion || tarea.titulo, JSON.stringify({ tarea_id: id, alumno_nombre: padre.alumno_nombre })]);
+
+        enviarPush(padre.id, `Tarea nueva: ${tarea.titulo}`, tarea.descripcion || tarea.titulo, { tipo: 'tarea_nueva', tarea_id: String(id) });
 
         // Enviar WhatsApp notificacion
         if (padre.telefono) {

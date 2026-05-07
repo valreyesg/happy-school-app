@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje } = require('../services/whatsappService');
+const { enviarPush } = require('../services/pushService');
 
 router.use(authenticate);
 
@@ -119,6 +120,7 @@ router.post('/:alumnoId/solicitar-toallitas', async (req, res, next) => {
           JSON.stringify({ alumno_id: alumnoId }),
         ]
       );
+      enviarPush(info.usuario_id, `Necesitas llevar toallitas — ${info.alumno_nombre}`, 'La escuela necesita que lleves toallitas mañana', { tipo: 'solicitud_toallitas', alumno_id: String(alumnoId) });
     } catch (err) {
       console.error('[insumos] Error insertando notificación:', err.message);
     }
@@ -199,6 +201,7 @@ router.post('/:alumnoId/solicitar-paniales', async (req, res, next) => {
           JSON.stringify({ alumno_id: alumnoId }),
         ]
       );
+      enviarPush(info.usuario_id, `Necesitas llevar pañales — ${info.alumno_nombre}`, 'La escuela necesita que lleves pañales mañana. El stock actual es 0.', { tipo: 'solicitud_paniales', alumno_id: String(alumnoId) });
     } catch (err) {
       console.error('[insumos] Error insertando notificación:', err.message);
     }

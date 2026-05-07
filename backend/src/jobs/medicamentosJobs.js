@@ -1,4 +1,5 @@
 const cron = require('node-cron');
+const { enviarPush } = require('../services/pushService');
 
 const iniciarJobMedicamentos = () => {
   // Cada 5 min, de 7:00 a 16:00, lun-vie
@@ -37,6 +38,9 @@ const iniciarJobMedicamentos = () => {
           `${rec.alumno_nombre} necesita ${rec.nombre} a las ${rec.hora_programada.substring(0, 5)}`,
           JSON.stringify({ deep_link: `/maestra/bitacora?alumnoId=${rec.alumno_id}` }),
         ]);
+
+        // Enviar push a la maestra
+        enviarPush(rec.maestra_usuario_id, '💊 Medicamento pendiente', `${rec.alumno_nombre} necesita ${rec.nombre} a las ${rec.hora_programada.substring(0, 5)}`, { tipo: 'recordatorio_medicamento', alumno_id: String(rec.alumno_id) });
 
         // Marcar recordatorio como enviado en la toma
         await pool.query(

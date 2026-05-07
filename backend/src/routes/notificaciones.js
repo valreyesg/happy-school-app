@@ -2,8 +2,24 @@ const express = require('express');
 const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
+const { enviarPush } = require('../services/pushService');
 
 router.use(authenticate);
+
+// POST /registrar-token — guarda token FCM del dispositivo del usuario autenticado
+router.post('/registrar-token', async (req, res, next) => {
+  try {
+    const { fcmToken } = req.body;
+    if (!fcmToken || typeof fcmToken !== 'string') {
+      return res.status(400).json({ error: 'fcmToken es requerido' });
+    }
+    await query(
+      'UPDATE usuarios SET fcm_token = $1 WHERE id = $2',
+      [fcmToken, req.user.id]
+    );
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
 
 // GET / — últimas 20 notificaciones del usuario autenticado
 router.get('/', async (req, res, next) => {
@@ -105,6 +121,10 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
         `, [usuario_id, titulo, cuerpo, datos])
       )
     );
+
+    // Enviar push a todos los padres
+    const ids = padresResult.rows.map(r => r.usuario_id);
+    enviarPush(ids, titulo, cuerpo, { tipo: 'aviso_extraordinario', aviso_id: String(aviso_id) });
 
     res.json({ ok: true, enviadas: padresResult.rows.length, aviso_id });
   } catch (err) { next(err); }
@@ -303,6 +323,10 @@ router.post('/alerta-pago', authorize('directora', 'administrativo'), async (req
         `, [usuario_id, titulo, cuerpo, datos])
       )
     );
+
+    // Enviar push a los padres del alumno
+    const padreIds = padresRes.rows.map(r => r.usuario_id);
+    enviarPush(padreIds, titulo, cuerpo, { tipo: 'alerta_pago', alumno_id: String(alumno_id) });
 
     res.json({ ok: true, enviadas: padresRes.rows.length, alumno: alumno.nombre_completo });
   } catch (err) { next(err); }

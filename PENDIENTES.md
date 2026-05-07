@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+48 (Notificaciones push en tiempo real — mobile ✅)
+**Última actualización:** 2026-05-07 — Sesión XX+49 (Firebase Push Notifications → Expo Push Service ✅)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -51,11 +51,6 @@
 - [ ] Boletas PDF automáticas
 - [ ] Reporte Desarrollo: PDF mensual por alumno
 
-
-### 🔔 Firebase Push Notifications
-- [ ] Registrar tokens FCM en tabla `usuarios.fcm_token`
-- [ ] Implementar envío push desde backend
-- [ ] Activar campo `enviada_push` en tabla `notificaciones`
 
 ---
 

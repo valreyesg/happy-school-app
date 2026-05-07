@@ -5,6 +5,7 @@ const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje } = require('../services/whatsappService');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
+const { enviarPush } = require('../services/pushService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -114,6 +115,7 @@ router.post('/vomito', async (req, res, next) => {
           `${tipoAlerta} registrado en ${alumno_nombre}.`,
           JSON.stringify({ alumno_id, tipo: 'vomito', intensidad }),
         ]);
+        enviarPush(usuario_id, `${emoji} Alerta de salud — ${alumno_nombre}`, `${tipoAlerta} registrado en ${alumno_nombre}.`, { tipo: 'alerta_vomito', alumno_id: String(alumno_id) });
       }
     }
 
@@ -403,6 +405,7 @@ router.post('/guardar', async (req, res, next) => {
             `La maestra registró la bitácora de hoy de ${alumno_nombre}.`,
             JSON.stringify({ alumno_id }),
           ]);
+          enviarPush(usuario_id, `Bitácora lista — ${alumno_nombre}`, `La maestra registró la bitácora de hoy de ${alumno_nombre}.`, { tipo: 'bitacora_lista', alumno_id: String(alumno_id) });
         }
       }
     }
@@ -509,6 +512,7 @@ router.post('/panial', async (req, res, next) => {
             `Deposición anormal registrada en ${alumno_nombre}.`,
             JSON.stringify({ alumno_id, tipo: 'diarrea' }),
           ]);
+          enviarPush(usuario_id, `⚠️ Alerta de salud — ${alumno_nombre}`, `Deposición anormal registrada en ${alumno_nombre}.`, { tipo: 'alerta_diarrea', alumno_id: String(alumno_id) });
         }
       }
     }
@@ -574,6 +578,7 @@ router.post('/medicamento', async (req, res, next) => {
           'UPDATE medicamentos SET notificacion_enviada = true WHERE id = $1',
           [result.rows[0].id]
         );
+        enviarPush(usuario_id, `Medicamento administrado — ${alumno_nombre}`, `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`, { tipo: 'medicamento', alumno_id: String(alumno_id) });
       }
     }
 
@@ -806,6 +811,7 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
             `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
             JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
           ]);
+          enviarPush(padreUsuarioId, `Medicamento administrado — ${alumno_nombre}`, `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`, { tipo: 'medicamento', alumno_id: String(alumno_id) });
         }
       }
 
@@ -867,6 +873,7 @@ router.patch('/medicamento/recepcion/:recepcionId/administrar', async (req, res,
           `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`,
           JSON.stringify({ alumno_id, medicamento: nombre, dosis }),
         ]);
+        enviarPush(usuario_id, `Medicamento administrado — ${alumno_nombre}`, `Se administró ${nombre} (${dosis}) a ${alumno_nombre}.`, { tipo: 'medicamento', alumno_id: String(alumno_id) });
       }
     }
     await query(
@@ -931,6 +938,7 @@ router.post('/incidente', async (req, res, next) => {
           descripcion || `Se registró un incidente de ${alumno_nombre}.`,
           JSON.stringify({ alumno_id, incidente_id: result.rows[0].id }),
         ]);
+        enviarPush(usuario_id, `Incidente registrado — ${alumno_nombre}`, descripcion || `Se registró un incidente de ${alumno_nombre}.`, { tipo: 'incidente', alumno_id: String(alumno_id) });
       }
     }
 

@@ -46,22 +46,23 @@ export const useAuthStore = create(
       },
 
       registrarPushToken: async () => {
-        // Push tokens no disponibles en Expo Go SDK 53+ (Android)
-        // Solo funciona en development build o producción
+        // Expo Push Token — funciona en development build y producción
+        // En Expo Go estándar el token se obtiene pero no entrega push nativas
         try {
-          const Constants = require('expo-constants').default;
-          const isExpoGo = Constants.appOwnership === 'expo' ||
-            Constants.executionEnvironment === 'storeClient';
-          if (isExpoGo) return;
-
-          const { status } = await Notifications.requestPermissionsAsync();
+          const { status: existente } = await Notifications.getPermissionsAsync();
+          const { status } = existente !== 'granted'
+            ? await Notifications.requestPermissionsAsync()
+            : { status: existente };
           if (status !== 'granted') return;
-          const { data: fcmToken } = await Notifications.getExpoPushTokenAsync();
+
+          const { data: expoPushToken } = await Notifications.getExpoPushTokenAsync();
           const { token } = get();
-          if (token && fcmToken) {
-            await api.post('/notificaciones/registrar-token', { fcmToken });
+          if (token && expoPushToken) {
+            await api.post('/notificaciones/registrar-token', { fcmToken: expoPushToken });
           }
-        } catch {}
+        } catch (err) {
+          // Silencioso — no crítico
+        }
       },
 
       setToken: (token) => {

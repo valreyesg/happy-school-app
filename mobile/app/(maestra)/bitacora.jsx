@@ -9,6 +9,7 @@ import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../src/services/api';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
+import { Ionicons } from '@expo/vector-icons';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -740,7 +741,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         </Seccion>
 
         {/* Medicamentos */}
-        <Seccion titulo={`💊 Medicamentos${bitacoraExistente?.recepciones_medicamento?.some(r => !r.administrado) ? ' 🔴' : ''}`}>
+        <Seccion titulo={`Medicamentos${bitacoraExistente?.recepciones_medicamento?.some(r => !r.administrado) ? ' ●' : ''}`}>
           {bitacoraExistente?.recepciones_medicamento?.length > 0 && bitacoraExistente.recepciones_medicamento.some(r => !r.administrado) && (
             <View style={{ marginBottom: 12, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7AA' }}>
               <Text style={{ fontSize: 12, fontWeight: '900', color: '#B45309', marginBottom: 8, textTransform: 'uppercase' }}>⏳ Pendientes</Text>
@@ -784,7 +785,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
               disabled={recepcionMutation.isPending}
               style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: RADIUS.md, alignItems: 'center' }}
             >
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>📋 Nueva recepción</Text>
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>+ Nueva recepción</Text>
             </TouchableOpacity>
           </View>
 
@@ -829,7 +830,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
         </Seccion>
 
         {/* Salida Sanitaria */}
-        <Seccion titulo="🚪 Salida Sanitaria">
+        <Seccion titulo="Salida Sanitaria">
           {salidaGuardada && (
             <Text style={{ color: '#166534', backgroundColor: '#dcfce7', padding: 8, borderRadius: 8, marginBottom: 8, fontWeight: '600', fontSize: 12 }}>✅ Checklist guardado</Text>
           )}

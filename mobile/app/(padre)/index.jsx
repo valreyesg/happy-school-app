@@ -13,6 +13,7 @@ import { useCatalogo } from '@/hooks/useCatalogo';
 import NotificationBell from '@/components/NotificationBell';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Button from '@/components/Button';
+import { Ionicons } from '@expo/vector-icons';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -74,30 +75,41 @@ function ModalEvento({ ev, onClose }) {
 
           <Text style={styles.modalTitulo}>{ev.titulo}</Text>
 
-          <Text style={styles.modalFecha}>
-            📅 {fmtFecha(fechaInicio)}
-            {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() ? `\n   → ${fmtFecha(fechaFin)}` : ''}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+            <Ionicons name="calendar-outline" size={16} color="#3182CE" />
+            <Text style={[styles.modalFecha, { marginBottom: 0 }]}>
+              {fmtFecha(fechaInicio)}
+              {fechaFin && fechaFin.getTime() !== fechaInicio.getTime() ? ` → ${fmtFecha(fechaFin)}` : ''}
+            </Text>
+          </View>
 
           {ev.grupo_nombre && (
-            <Text style={styles.modalGrupo}>👥 {ev.grupo_nombre}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <Ionicons name="people-outline" size={15} color="#718096" />
+              <Text style={[styles.modalGrupo, { marginBottom: 0 }]}>{ev.grupo_nombre}</Text>
+            </View>
           )}
 
           {ev.ubicacion && (
             <TouchableOpacity
               onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(ev.ubicacion)}`)}
               activeOpacity={0.7}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}
             >
-              <Text style={[styles.modalGrupo, { color: '#3182CE' }]}>📍 {ev.ubicacion}</Text>
+              <Ionicons name="location-outline" size={15} color="#3182CE" />
+              <Text style={[styles.modalGrupo, { color: '#3182CE', marginBottom: 0 }]}>{ev.ubicacion}</Text>
             </TouchableOpacity>
           )}
 
           {ev.recordatorio_horas && (
-            <Text style={styles.modalGrupo}>
-              🔔 {ev.recordatorio_horas < 24
-                ? `${ev.recordatorio_horas}h antes`
-                : `${ev.recordatorio_horas / 24}d antes`}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+              <Ionicons name="notifications-outline" size={15} color="#718096" />
+              <Text style={[styles.modalGrupo, { marginBottom: 0 }]}>
+                {ev.recordatorio_horas < 24
+                  ? `${ev.recordatorio_horas}h antes`
+                  : `${ev.recordatorio_horas / 24}d antes`}
+              </Text>
+            </View>
           )}
 
           {ev.descripcion && (
@@ -108,7 +120,8 @@ function ModalEvento({ ev, onClose }) {
 
           <Button
             variant="outline"
-            label="📅 Añadir a Google Calendar"
+            label="Añadir a Google Calendar"
+            icon={<Ionicons name="calendar-outline" size={16} color={COLORS.purple.DEFAULT} />}
             onPress={() => Linking.openURL(buildGoogleCalendarUrl(ev))}
           />
 
@@ -196,7 +209,7 @@ export default function PadreDashboard() {
               ])}
               style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 38, height: 38, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 18 }}>🚪</Text>
+              <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
             </TouchableOpacity>
           </View>
         </View>
@@ -215,13 +228,16 @@ export default function PadreDashboard() {
         {/* Próximos eventos */}
         {eventosProximos.length > 0 && (
           <View style={{ marginHorizontal: 16, marginBottom: 8 }}>
-            <Text style={styles.sectionTitle}>📅 Próximos eventos</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, marginTop: 8 }}>
+              <Ionicons name="calendar" size={20} color="#2D3748" />
+              <Text style={{ fontSize: 18, fontWeight: '900', color: '#2D3748' }}>Próximos eventos</Text>
+            </View>
             {eventosProximos.map(ev => {
               const fecha = new Date(ev.fecha_inicio.substring(0, 10) + 'T12:00:00');
               const etiqueta = fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
               return (
                 <TouchableOpacity key={ev.id} style={styles.eventoCard} onPress={() => setEventoSeleccionado(ev)} activeOpacity={0.8}>
-                  <Text style={{ fontSize: 20 }}>{ev.categoria_icono || '📅'}</Text>
+                  <Ionicons name="calendar-outline" size={22} color="#3182CE" />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.eventoTitulo} numberOfLines={1}>{ev.titulo}</Text>
                     <Text style={styles.eventoFecha}>{etiqueta}</Text>
@@ -232,7 +248,7 @@ export default function PadreDashboard() {
                       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       style={{ padding: 4 }}
                     >
-                      <Text style={{ fontSize: 16 }}>📅</Text>
+                      <Ionicons name="add-circle-outline" size={18} color="#3182CE" />
                     </TouchableOpacity>
                     <Text style={{ color: '#A0AEC0', fontSize: 18 }}>›</Text>
                   </View>
@@ -246,16 +262,16 @@ export default function PadreDashboard() {
         <Text style={styles.sectionTitle}>Accesos rápidos</Text>
         <View style={styles.accionesGrid}>
           {[
-            { emoji: '📅', label: 'Calendario', route: '/(padre)/calendario', color: '#805AD5' },
-            { emoji: '💰', label: 'Pagos', route: '/(padre)/pagos', color: '#D69E2E' },
-          ].map(({ emoji, label, route, color }) => (
+            { icon: 'calendar', label: 'Calendario', route: '/(padre)/calendario', color: '#805AD5' },
+            { icon: 'card', label: 'Pagos', route: '/(padre)/pagos', color: '#D69E2E' },
+          ].map(({ icon, label, route, color }) => (
             <TouchableOpacity
               key={route}
               style={[styles.accionBtn, { borderColor: color + '30', backgroundColor: color + '10' }]}
               onPress={() => router.push(route)}
               activeOpacity={0.8}
             >
-              <Text style={{ fontSize: 32 }}>{emoji}</Text>
+              <Ionicons name={icon} size={32} color={color} />
               <Text style={[styles.accionLabel, { color }]}>{label}</Text>
             </TouchableOpacity>
           ))}
@@ -269,7 +285,7 @@ export default function PadreDashboard() {
             onPress={() => setMostrarCambioPass(true)}
             activeOpacity={0.8}
           >
-            <Text style={{ fontSize: 22 }}>🔑</Text>
+            <Ionicons name="key-outline" size={22} color="#805AD5" />
             <View style={{ flex: 1 }}>
               <Text style={styles.cuentaBtnTitulo}>Cambiar contraseña</Text>
               <Text style={styles.cuentaBtnSub}>Actualiza tu contraseña de acceso</Text>
@@ -283,7 +299,10 @@ export default function PadreDashboard() {
       <Modal visible={mostrarCambioPass} transparent animationType="slide">
         <Pressable style={styles.modalOverlay} onPress={() => setMostrarCambioPass(false)}>
           <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
-            <Text style={{ fontSize: 20, fontWeight: '900', color: '#2D3748', marginBottom: 16 }}>🔑 Cambiar contraseña</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <Ionicons name="key-outline" size={20} color="#805AD5" />
+              <Text style={{ fontSize: 20, fontWeight: '900', color: '#2D3748' }}>Cambiar contraseña</Text>
+            </View>
 
             <TextInput
               placeholder="Contraseña actual"
@@ -376,7 +395,10 @@ function HijoTareasPendientes({ hijoId, hijoNombre }) {
   return (
     <View style={styles.tareasPendientesBox}>
       <View style={styles.tareasPendientesHeader}>
-        <Text style={styles.tareasPendientesTitle}>📚 Tareas pendientes</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <Ionicons name="document-text" size={16} color="#1E40AF" />
+          <Text style={styles.tareasPendientesTitle}>Tareas pendientes</Text>
+        </View>
         <View style={styles.tareasPendientesCount}>
           <Text style={{ fontWeight: '800', fontSize: 12, color: '#1E40AF' }}>
             {tareasPendientes.length}
@@ -492,7 +514,7 @@ function HijoCard({ hijo }) {
           style={styles.qrBtn}
           onPress={() => router.push(`/(padre)/qr?alumnoId=${hijo.id}`)}
         >
-          <Text style={{ fontSize: 22 }}>🔲</Text>
+          <Ionicons name="qr-code-outline" size={22} color="#E53E3E" />
         </TouchableOpacity>
       </View>
 
@@ -565,7 +587,10 @@ function HijoCard({ hijo }) {
           {/* Notas maestra */}
           {hijo.bitacora_hoy.notas && (
             <View style={styles.notasBox}>
-              <Text style={styles.notasTxt}>💬 {hijo.bitacora_hoy.notas}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}>
+                <Ionicons name="chatbubble-outline" size={14} color="#744210" style={{ marginTop: 2 }} />
+                <Text style={[styles.notasTxt, { flex: 1 }]}>{hijo.bitacora_hoy.notas}</Text>
+              </View>
             </View>
           )}
         </View>

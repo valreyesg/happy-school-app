@@ -10,6 +10,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '@/hooks/useCatalogo';
+import { Ionicons } from '@expo/vector-icons';
 
 function saludoHora() {
   const h = new Date().getHours();
@@ -64,7 +65,7 @@ export default function MaestraDashboard() {
               ])}
               style={{ backgroundColor: '#FED7D7', borderRadius: 20, width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 20 }}>🚪</Text>
+              <Ionicons name="log-out-outline" size={20} color="#E53E3E" />
             </TouchableOpacity>
           </View>
         </View>
@@ -76,12 +77,12 @@ export default function MaestraDashboard() {
             onPress={() => router.push('/(maestra)/qr-scanner')}
             activeOpacity={0.8}
           >
-            <Text style={styles.qrBannerEmoji}>📷</Text>
+            <Ionicons name="qr-code" size={30} color="#fff" />
             <View style={{ flex: 1 }}>
               <Text style={styles.qrBannerTitle}>Modo Entrada Activo</Text>
               <Text style={styles.qrBannerSub}>Toca para escanear QR</Text>
             </View>
-            <Text style={{ fontSize: 22 }}>→</Text>
+            <Ionicons name="chevron-forward" size={22} color="#E9D5FF" />
           </TouchableOpacity>
         )}
 
@@ -92,7 +93,7 @@ export default function MaestraDashboard() {
             onPress={() => router.push('/(maestra)/tareas')}
             activeOpacity={0.8}
           >
-            <Text style={styles.bannerEmoji}>📋</Text>
+            <Ionicons name="clipboard" size={26} color="#1E40AF" />
             <View style={{ flex: 1 }}>
               <Text style={styles.bannerTitle}>
                 {tareasHoy.length} tarea{tareasHoy.length > 1 ? 's' : ''} por recibir hoy
@@ -108,7 +109,7 @@ export default function MaestraDashboard() {
         {/* Banner Alumnos en alerta */}
         {alumnosEnAlerta && alumnosEnAlerta.length > 0 && (
           <View style={styles.alertaBanner}>
-            <Text style={styles.bannerEmoji}>🚨</Text>
+            <Ionicons name="alert-circle" size={26} color="#DC2626" />
             <View style={{ flex: 1 }}>
               <Text style={styles.alertaTitle}>
                 {alumnosEnAlerta.length} alumno{alumnosEnAlerta.length > 1 ? 's' : ''} en seguimiento
@@ -131,19 +132,19 @@ export default function MaestraDashboard() {
         <Text style={styles.sectionTitle}>Acciones rápidas</Text>
         <View style={styles.accionesGrid}>
           {[
-            { emoji: '✅', label: 'Asistencia', route: '/(maestra)/asistencia', color: '#38A169' },
-            { emoji: '📋', label: 'Bitácora', route: '/(maestra)/bitacora', color: '#805AD5' },
-            { emoji: '📬', label: 'Tareas', route: '/(maestra)/tareas', color: '#3B82F6' },
-            { emoji: '📷', label: 'Escanear QR', route: '/(maestra)/qr-scanner', color: '#E53E3E' },
-            { emoji: '📸', label: 'Galería', route: '/(maestra)/galeria', color: '#D69E2E' },
-          ].map(({ emoji, label, route, color }) => (
+            { icon: 'checkmark-circle', label: 'Asistencia', route: '/(maestra)/asistencia', color: '#38A169' },
+            { icon: 'book', label: 'Bitácora', route: '/(maestra)/bitacora', color: '#805AD5' },
+            { icon: 'clipboard', label: 'Tareas', route: '/(maestra)/tareas', color: '#3B82F6' },
+            { icon: 'qr-code', label: 'Escanear QR', route: '/(maestra)/qr-scanner', color: '#E53E3E' },
+            { icon: 'images', label: 'Galería', route: '/(maestra)/galeria', color: '#D69E2E' },
+          ].map(({ icon, label, route, color }) => (
             <TouchableOpacity
               key={route}
               style={[styles.accionBtn, { borderColor: color + '30', backgroundColor: color + '10' }]}
               onPress={() => router.push(route)}
               activeOpacity={0.8}
             >
-              <Text style={{ fontSize: 36 }}>{emoji}</Text>
+              <Ionicons name={icon} size={32} color={color} />
               <Text style={[styles.accionLabel, { color }]}>{label}</Text>
             </TouchableOpacity>
           ))}

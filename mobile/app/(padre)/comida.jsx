@@ -5,6 +5,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/authStore';
 import { COLORS, RADIUS } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
   headerBar: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: COLORS.gray[50] },
@@ -178,19 +179,25 @@ const ComidaSemanal = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.gray[50] }}>
       {/* Header */}
       <View style={styles.headerBar}>
-        <Text style={styles.headerTitle}>🍽️ Comida Semanal</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <Ionicons name="restaurant" size={20} color="#2D3748" />
+          <Text style={styles.headerTitle}>Comida Semanal</Text>
+        </View>
       </View>
       <ScrollView style={styles.container}>
         {/* Menú */}
         {menu && (
           <View style={styles.menuCard}>
-            <Text style={styles.menuTitle}>🍽️ Menú de la Semana</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Ionicons name="restaurant-outline" size={20} color={COLORS.orange.DEFAULT} />
+              <Text style={[styles.menuTitle, { marginBottom: 0 }]}>Menú de la Semana</Text>
+            </View>
             {menu.contenido_texto && (
               <Text style={styles.menuText}>{menu.contenido_texto}</Text>
             )}
             {menu.archivo_menu_url && (
               <Text style={{ fontSize: 12, color: COLORS.orange.DEFAULT, fontWeight: '700' }}>
-                📥 Ver menú completo (abre en navegador)
+                Ver menú completo (abre en navegador)
               </Text>
             )}
           </View>
@@ -199,7 +206,7 @@ const ComidaSemanal = () => {
         {!esDomingo ? (
           <View style={styles.alertBox}>
             <Text style={styles.alertText}>
-              📅 El formulario está disponible solo los domingos
+              El formulario está disponible solo los domingos
             </Text>
           </View>
         ) : (

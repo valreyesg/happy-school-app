@@ -10,6 +10,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
 import api from '../../src/services/api';
 import { useCatalogo } from '../../src/hooks/useCatalogo';
+import { Ionicons } from '@expo/vector-icons';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -21,10 +22,14 @@ const TIEMPOS_COMIDA = [
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
-function Seccion({ titulo, emoji, children }) {
+function Seccion({ titulo, emoji, icon, iconColor = '#2D3748', children }) {
   return (
     <View style={s.seccion}>
-      <Text style={s.seccionTitulo}>{emoji} {titulo}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        {icon ? <Ionicons name={icon} size={18} color={iconColor} /> : null}
+        {emoji && !icon ? <Text style={{ fontSize: 18 }}>{emoji}</Text> : null}
+        <Text style={s.seccionTitulo}>{titulo}</Text>
+      </View>
       {children}
     </View>
   );
@@ -367,7 +372,10 @@ export default function BitacoraPadreScreen() {
           {esHoyFecha && (
             <View style={s.medDeclararBox}>
               <View style={s.medDeclararHeader}>
-                <Text style={s.medDeclararTitulo}>💊 Medicamentos para hoy</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Ionicons name="medical" size={18} color="#805AD5" />
+                  <Text style={s.medDeclararTitulo}>Medicamentos para hoy</Text>
+                </View>
                 <TouchableOpacity
                   onPress={() => setMostrarFormMed(v => !v)}
                   style={s.medDeclararBtn}
@@ -520,13 +528,13 @@ export default function BitacoraPadreScreen() {
             <View style={{ position: 'relative' }}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.tabsBar} contentContainerStyle={{ flexDirection: 'row' }}>
               {[
-                { key: 'entrada',     emoji: '🚪', label: 'Entrada'     },
-                { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
-                { key: 'actividades', emoji: '🎨', label: 'Actividades' },
-                { key: 'tareas',      emoji: '📚', label: 'Tareas'      },
-                { key: 'higiene',     emoji: '🚿', label: 'Higiene'     },
-                { key: 'salud',       emoji: '🌡️', label: 'Salud'       },
-                { key: 'incidentes',  emoji: '⚠️', label: 'Incidentes'  },
+                { key: 'entrada',     icon: 'enter-outline',       label: 'Entrada'     },
+                { key: 'comida',      icon: 'restaurant-outline',  label: 'Comida'      },
+                { key: 'actividades', icon: 'color-palette-outline', label: 'Actividades' },
+                { key: 'tareas',      icon: 'document-text-outline', label: 'Tareas'      },
+                { key: 'higiene',     icon: 'water-outline',       label: 'Higiene'     },
+                { key: 'salud',       icon: 'medical-outline',     label: 'Salud'       },
+                { key: 'incidentes',  icon: 'warning-outline',     label: 'Incidentes'  },
               ].map(tab => (
                 <TouchableOpacity
                   key={tab.key}
@@ -534,7 +542,11 @@ export default function BitacoraPadreScreen() {
                   onPress={() => setTabActivo(tab.key)}
                   activeOpacity={0.7}
                 >
-                  <Text style={{ fontSize: 18 }}>{tab.emoji}</Text>
+                  <Ionicons
+                    name={tabActivo === tab.key ? tab.icon.replace('-outline', '') : tab.icon}
+                    size={18}
+                    color={tabActivo === tab.key ? '#E53E3E' : '#718096'}
+                  />
                   <Text style={[s.tabLabel, tabActivo === tab.key && s.tabLabelActivo]}>
                     {tab.label}
                   </Text>
@@ -759,7 +771,10 @@ export default function BitacoraPadreScreen() {
                   {esHoyFecha && (
                     <View style={s.medDeclararBox}>
                       <View style={s.medDeclararHeader}>
-                        <Text style={s.medDeclararTitulo}>💊 Medicamentos para hoy</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <Ionicons name="medical" size={18} color="#805AD5" />
+                  <Text style={s.medDeclararTitulo}>Medicamentos para hoy</Text>
+                </View>
                         <TouchableOpacity
                           onPress={() => setMostrarFormMed(v => !v)}
                           style={s.medDeclararBtn}
@@ -926,7 +941,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Conducta — solo si hay bitácora ─ */}
           {bit?.comportamiento && (
-            <Seccion titulo="Conducta" emoji="🌟">
+            <Seccion titulo="Conducta" icon="star" iconColor="#D69E2E">
               <View style={[s.compBadge, { backgroundColor: COMPORTAMIENTO[bit.comportamiento]?.color + '20' }]}>
                 <Text style={{ fontSize: 20 }}>{COMPORTAMIENTO[bit.comportamiento]?.emoji}</Text>
                 <Text style={[s.compLabel, { color: COMPORTAMIENTO[bit.comportamiento]?.color }]}>
@@ -939,7 +954,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Notas generales ─ */}
           {bit?.notas && (
-            <Seccion titulo="Mensaje de la Miss" emoji="💬">
+            <Seccion titulo="Mensaje de la Miss" icon="chatbubble-outline" iconColor="#805AD5">
               <View style={s.notasBox}>
                 <Text style={s.notasTxt}>{bit.notas}</Text>
               </View>

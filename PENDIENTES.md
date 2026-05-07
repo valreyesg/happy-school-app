@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)
+**Última actualización:** 2026-05-07 — Sesión XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -23,10 +23,6 @@
 - [ ] Modal push al recibir aviso del admin — en web aparece modal en tiempo real; en mobile no hay listener activo. Implementar polling o WebSocket listener en mobile para mostrar modal cuando llega notificación nueva mientras la app está abierta.
 
 #### 🟡 Features faltantes (paridad con web)
-
-#### 🟡 UX / Diseño — Pendientes
-- [ ] Iconos en general se ven anticuados y diferentes al portal web
-- [ ] Barra inferior: nombres de módulos se cortan, no caben completos
 
 #### 🟡 Flujo de pagos (nuevo requerimiento)
 - [ ] Portal padre: permitir registrar pago subiendo comprobante de transferencia

@@ -1,7 +1,65 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)**
+
+---
+
+## ✅ SESIÓN XX+42 (2026-05-07) — UX/Diseño: Homogeneidad iconos Web↔Mobile
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Migración completa de iconos emoji a Ionicons vectoriales en mobile para lograr paridad visual con los iconos Lucide del portal web. Fix de labels truncados en barra inferior.
+
+### Problema resuelto
+
+Mobile usaba emojis (🏠📋🍽️💰📅) como iconos de UI, mientras web usaba Lucide (clean, outline-based). Esto hacía que mobile se sintiera como una app distinta. Labels del tab bar se cortaban.
+
+### Cambios implementados
+
+1. **Tab bar padre** — 5 emojis reemplazados por Ionicons: home, book, restaurant, card, calendar
+2. **Tab bar maestra** — 6 emojis reemplazados por Ionicons: home, checkmark-circle, book, clipboard, images, qr-code
+3. **Tab bar styling** — fontSize 10→11, letterSpacing -0.2, numberOfLines={1}, altura ajustada por plataforma
+4. **Login** — Password toggle emoji (🙈/👁️) → eye/eye-off Ionicons
+5. **Dashboard padre** — logout, QR, accesos rápidos, eventos, cambiar contraseña, notas → Ionicons
+6. **Dashboard maestra** — logout, QR banner, tareas banner, alerta, action grid → Ionicons
+7. **Bitácora padre** — 7 category tabs (entrada/comida/actividades/tareas/higiene/salud/incidentes) → Ionicons + Seccion component actualizado
+8. **Comida padre** — headers → Ionicons
+9. **Calendario padre** — header, modal info rows, Google Calendar button → Ionicons
+10. **Tareas maestra** — page title, modal headers, tab labels → Ionicons
+11. **Bitácora maestra** — medicamentos, recepción, salida sanitaria → clean text + Ionicons
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `mobile/app/(padre)/_layout.jsx` | Tab bar emojis → Ionicons |
+| `mobile/app/(maestra)/_layout.jsx` | Tab bar emojis → Ionicons |
+| `mobile/app/login.jsx` | Password toggle → Ionicons |
+| `mobile/app/(padre)/index.jsx` | Dashboard UI icons → Ionicons |
+| `mobile/app/(maestra)/index.jsx` | Dashboard UI icons → Ionicons |
+| `mobile/app/(padre)/bitacora.jsx` | Category tabs + Seccion → Ionicons |
+| `mobile/app/(padre)/comida.jsx` | Headers → Ionicons |
+| `mobile/app/(padre)/calendario.jsx` | Modal + header → Ionicons |
+| `mobile/app/(maestra)/tareas.jsx` | Tabs + modals → Ionicons |
+| `mobile/app/(maestra)/bitacora.jsx` | Section headers → Ionicons |
+
+### Mapeo de iconos Web (Lucide) ↔ Mobile (Ionicons)
+
+| Concepto | Web | Mobile |
+|----------|-----|--------|
+| Inicio | LayoutDashboard | home/home-outline |
+| Bitácora | BookOpen | book/book-outline |
+| Comida | UtensilsCrossed | restaurant/restaurant-outline |
+| Pagos | CreditCard | card/card-outline |
+| Calendario | CalendarDays | calendar/calendar-outline |
+| Asistencia | CheckSquare | checkmark-circle/-outline |
+| Tareas | Clipboard | clipboard/clipboard-outline |
+| Galería | Image | images/images-outline |
+| QR | — | qr-code/qr-code-outline |
+| Logout | LogOut | log-out-outline |
 
 ---
 

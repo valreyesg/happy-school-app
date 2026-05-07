@@ -7,6 +7,7 @@ import {
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '@/store/authStore';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function LoginScreen() {
   const { login } = useAuthStore();
@@ -92,7 +93,7 @@ export default function LoginScreen() {
                 onPress={() => setShowPass(!showPass)}
                 style={styles.eyeBtn}
               >
-                <Text style={{ fontSize: 20 }}>{showPass ? '🙈' : '👁️'}</Text>
+                <Ionicons name={showPass ? 'eye-off-outline' : 'eye-outline'} size={22} color="#718096" />
               </TouchableOpacity>
             </View>
           </View>

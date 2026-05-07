@@ -9,6 +9,7 @@ import { useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../src/services/api';
 import { buildGoogleCalendarUrl } from '../../src/utils/googleCalendar';
+import { Ionicons } from '@expo/vector-icons';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -67,12 +68,12 @@ function ModalDetalle({ evento, onClose }) {
             )}
 
             <View style={m.infoRow}>
-              <Text style={m.infoIcon}>📅</Text>
+              <Ionicons name="calendar-outline" size={18} color="#805AD5" />
               <Text style={m.infoTxt} numberOfLines={2}>{fechaCorta(evento.fecha_inicio)}</Text>
             </View>
             {!evento.es_todo_el_dia && (
               <View style={m.infoRow}>
-                <Text style={m.infoIcon}>🕐</Text>
+                <Ionicons name="time-outline" size={18} color="#805AD5" />
                 <Text style={m.infoTxt}>
                   {horaCorta(evento.fecha_inicio)}
                   {evento.fecha_fin ? ` → ${horaCorta(evento.fecha_fin)}` : ''}
@@ -80,7 +81,7 @@ function ModalDetalle({ evento, onClose }) {
               </View>
             )}
             <View style={m.infoRow}>
-              <Text style={m.infoIcon}>🏫</Text>
+              <Ionicons name="people-outline" size={18} color="#805AD5" />
               <Text style={m.infoTxt}>{evento.grupo_nombre || 'Toda la escuela'}</Text>
             </View>
 
@@ -90,14 +91,14 @@ function ModalDetalle({ evento, onClose }) {
                 onPress={() => Linking.openURL(`https://maps.google.com/?q=${encodeURIComponent(evento.ubicacion)}`)}
                 activeOpacity={0.7}
               >
-                <Text style={m.infoIcon}>📍</Text>
+                <Ionicons name="location-outline" size={18} color="#3182CE" />
                 <Text style={[m.infoTxt, m.infoLink]}>{evento.ubicacion}</Text>
               </TouchableOpacity>
             )}
 
             {evento.recordatorio_horas && (
               <View style={m.infoRow}>
-                <Text style={m.infoIcon}>🔔</Text>
+                <Ionicons name="notifications-outline" size={18} color="#805AD5" />
                 <Text style={m.infoTxt}>
                   {evento.recordatorio_horas < 24
                     ? `${evento.recordatorio_horas} hora${evento.recordatorio_horas > 1 ? 's' : ''} antes`
@@ -111,7 +112,10 @@ function ModalDetalle({ evento, onClose }) {
               onPress={() => Linking.openURL(buildGoogleCalendarUrl(evento))}
               activeOpacity={0.8}
             >
-              <Text style={m.gcalTxt}>📅 Añadir a Google Calendar</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Ionicons name="calendar-outline" size={16} color="#2B6CB0" />
+                <Text style={m.gcalTxt}>Añadir a Google Calendar</Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={m.cerrarBtn} onPress={onClose}>
@@ -177,7 +181,10 @@ export default function CalendarioPadreScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={s.header}>
-          <Text style={s.headerTitulo}>Calendario 📅</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="calendar" size={22} color="#805AD5" />
+            <Text style={s.headerTitulo}>Calendario</Text>
+          </View>
           <Text style={s.headerSub}>Eventos de Happy School</Text>
         </View>
 
@@ -258,7 +265,7 @@ export default function CalendarioPadreScreen() {
               >
                 <View style={[s.eventoStripe, { backgroundColor: color }]} />
                 <View style={s.eventoIconBox}>
-                  <Text style={s.eventoIcon}>{e.categoria_icono || '📅'}</Text>
+                  <Ionicons name="calendar-outline" size={20} color={color} />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.eventoTitulo} numberOfLines={1}>{e.titulo}</Text>

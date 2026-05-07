@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import Toast from 'react-native-toast-message';
+import { Ionicons } from '@expo/vector-icons';
 
 function getISOWeek(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -131,7 +132,10 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess, visible }) {
     <Modal visible={visible} animationType="slide" transparent={false}>
       <SafeAreaView style={styles.modal}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>📋 Nueva Tarea</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="clipboard-outline" size={20} color="#2D3748" />
+            <Text style={styles.modalTitle}>Nueva Tarea</Text>
+          </View>
           <TouchableOpacity onPress={onClose}>
             <Text style={{ fontSize: 24 }}>✕</Text>
           </TouchableOpacity>
@@ -277,7 +281,10 @@ function ModalEditarTarea({ tarea, onClose, onSuccess, visible }) {
     <Modal visible={visible} animationType="slide" transparent={false}>
       <SafeAreaView style={styles.modal}>
         <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>✏️ Editar Tarea</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Ionicons name="create-outline" size={20} color="#2D3748" />
+            <Text style={styles.modalTitle}>Editar Tarea</Text>
+          </View>
           <TouchableOpacity onPress={onClose}>
             <Text style={{ fontSize: 24 }}>✕</Text>
           </TouchableOpacity>
@@ -376,7 +383,10 @@ function ModalEntregas({ tareaId, titulo, onClose, visible }) {
       <View style={styles.centeredModal}>
         <View style={styles.entregas}>
           <View style={styles.entregas_header}>
-            <Text style={styles.entregas_title}>📊 Entregas</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="stats-chart-outline" size={18} color="#2D3748" />
+              <Text style={styles.entregas_title}>Entregas</Text>
+            </View>
             <TouchableOpacity onPress={onClose}>
               <Text style={{ fontSize: 22 }}>✕</Text>
             </TouchableOpacity>
@@ -690,9 +700,9 @@ export default function MaestraTareas() {
   const totalTareas = tareas?.length || 0;
 
   const TABS = [
-    { key: 'proximas', label: '📬 Próximas', count: porRecibir.length },
-    { key: 'vencidas', label: '🗂️ Vencidas', count: vencidas.length },
-    { key: 'borradores', label: '📤 Borradores', count: borradores.length },
+    { key: 'proximas', label: 'Próximas', count: porRecibir.length },
+    { key: 'vencidas', label: 'Vencidas', count: vencidas.length },
+    { key: 'borradores', label: 'Borradores', count: borradores.length },
   ];
 
   return (
@@ -701,7 +711,10 @@ export default function MaestraTareas() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.title}>📋 Tareas Grupales</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Ionicons name="clipboard" size={22} color="#2D3748" />
+              <Text style={styles.title}>Tareas Grupales</Text>
+            </View>
             <Text style={styles.subtitle}>Grupo: {grupo?.nombre}</Text>
           </View>
           <TouchableOpacity
@@ -728,7 +741,7 @@ export default function MaestraTareas() {
                 grupos={gruposPorRecibir}
                 indice={indicePorRecibir}
                 setIndice={setIndicePorRecibir}
-                colorEmoji="📬"
+                colorEmoji=""
                 emptyMsg="No hay tareas próximas"
                 onSuccess={handleSuccess}
               />
@@ -740,7 +753,7 @@ export default function MaestraTareas() {
                 grupos={gruposVencidas}
                 indice={indiceVencidas}
                 setIndice={setIndiceVencidas}
-                colorEmoji="🗂️"
+                colorEmoji=""
                 emptyMsg="No hay tareas vencidas"
                 onSuccess={handleSuccess}
               />

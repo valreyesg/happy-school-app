@@ -4,7 +4,7 @@ const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarMensaje } = require('../services/whatsappService');
-const { uploadToCloudinary } = require('../services/cloudinaryService');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -128,7 +128,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas, vomitos, recepciones] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas, vomitos, recepciones, fotosActividad] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -173,11 +173,20 @@ router.get('/:alumnoId', async (req, res, next) => {
       `, [alumnoId, fecha]),
 
       query(`
-        SELECT ag.id, ag.descripcion, ag.foto_url, ag.orden, aa.participo
+        SELECT ag.id, ag.descripcion, ag.foto_url, ag.orden, aa.participo,
+          COALESCE(
+            json_agg(
+              json_build_object('id', af.id, 'foto_url', af.foto_url, 'public_id', af.public_id)
+              ORDER BY af.created_at
+            ) FILTER (WHERE af.id IS NOT NULL),
+            '[]'
+          ) AS fotos_alumno
         FROM actividades_grupo ag
         LEFT JOIN actividades_alumno aa ON aa.actividad_grupo_id = ag.id AND aa.alumno_id = $1
+        LEFT JOIN actividades_fotos af ON af.actividad_grupo_id = ag.id AND af.alumno_id = $1
         WHERE ag.grupo_id = (SELECT grupo_id FROM alumnos WHERE id = $1)
           AND ag.fecha = COALESCE($2::date, CURRENT_DATE)
+        GROUP BY ag.id, ag.descripcion, ag.foto_url, ag.orden, aa.participo
         ORDER BY ag.orden
       `, [alumnoId, fecha]),
 
@@ -215,6 +224,16 @@ router.get('/:alumnoId', async (req, res, next) => {
         GROUP BY rm.id
         ORDER BY rm.created_at DESC
       `, [alumnoId, fecha]),
+
+      // Fotos individuales del alumno en actividades (subidas por la maestra)
+      query(
+        `SELECT id, foto_url, public_id, descripcion, created_at
+         FROM actividades_fotos
+         WHERE alumno_id = $1 AND es_grupal = false
+           AND fecha = COALESCE($2::date, CURRENT_DATE)
+         ORDER BY created_at`,
+        [alumnoId, fecha]
+      ),
     ]);
 
     res.json({
@@ -389,6 +408,58 @@ router.post('/guardar', async (req, res, next) => {
     }
 
     res.json({ ok: true, bitacora_id: bitacoraId });
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/:id/foto ───────────────────────────────────────────────
+// Subir o reemplazar foto del día en bitácora (Cloudinary)
+router.post('/:id/foto', upload.single('foto'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se envió foto' });
+
+    const { id } = req.params;
+
+    // Verificar que la bitácora existe
+    const existing = await query('SELECT id, foto_public_id FROM bitacora_diaria WHERE id = $1', [id]);
+    if (!existing.rows[0]) return res.status(404).json({ error: 'Bitácora no encontrada' });
+
+    // Borrar foto anterior si existe
+    if (existing.rows[0].foto_public_id) {
+      await deleteFromCloudinary(existing.rows[0].foto_public_id);
+    }
+
+    const uploadResult = await uploadToCloudinary(req.file.buffer, {
+      folder: 'happyschool/bitacora',
+      transformation: [{ width: 800, height: 800, crop: 'limit' }],
+    });
+
+    await query(
+      'UPDATE bitacora_diaria SET foto_url = $1, foto_public_id = $2, updated_at = NOW() WHERE id = $3',
+      [uploadResult.url, uploadResult.public_id, id]
+    );
+
+    res.json({ ok: true, foto_url: uploadResult.url });
+  } catch (err) { next(err); }
+});
+
+// ── DELETE /bitacora/:id/foto ─────────────────────────────────────────────
+// Eliminar foto de bitácora
+router.delete('/:id/foto', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const existing = await query('SELECT id, foto_public_id FROM bitacora_diaria WHERE id = $1', [id]);
+    if (!existing.rows[0]) return res.status(404).json({ error: 'Bitácora no encontrada' });
+
+    if (existing.rows[0].foto_public_id) {
+      await deleteFromCloudinary(existing.rows[0].foto_public_id);
+    }
+
+    await query(
+      'UPDATE bitacora_diaria SET foto_url = NULL, foto_public_id = NULL, updated_at = NOW() WHERE id = $1',
+      [id]
+    );
+
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 
@@ -906,6 +977,55 @@ router.post('/actividades/fotos', upload.array('fotos', 10), async (req, res, ne
       ok: true,
       fotos: fotosInsertadas.map(r => r.rows[0]),
     });
+  } catch (err) { next(err); }
+});
+
+// ── POST /bitacora/actividades/:actividadGrupoId/fotos-alumno ─────────────
+// Subir fotos del alumno para una actividad específica
+router.post('/actividades/:actividadGrupoId/fotos-alumno', upload.array('fotos', 10), async (req, res, next) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No se enviaron fotos' });
+    }
+    const { actividadGrupoId } = req.params;
+    const { alumno_id, grupo_id, fecha } = req.body;
+
+    if (!alumno_id || !grupo_id) {
+      return res.status(400).json({ error: 'alumno_id y grupo_id son requeridos' });
+    }
+
+    const uploads = await Promise.all(
+      req.files.map(f => uploadToCloudinary(f.buffer, { folder: 'happyschool/actividades-alumno', transformation: [{ width: 1200, height: 1200, crop: 'limit' }] }))
+    );
+
+    const fotosInsertadas = await Promise.all(
+      uploads.map(u =>
+        query(`
+          INSERT INTO actividades_fotos
+            (actividad_grupo_id, alumno_id, grupo_id, fecha, foto_url, public_id, es_grupal, subido_por)
+          VALUES ($1, $2, $3, COALESCE($4::date, CURRENT_DATE), $5, $6, false, $7)
+          RETURNING id, foto_url, public_id
+        `, [actividadGrupoId, alumno_id, grupo_id, fecha || null, u.url, u.public_id, req.user.id])
+      )
+    );
+
+    res.status(201).json({ ok: true, fotos: fotosInsertadas.map(r => r.rows[0]) });
+  } catch (err) { next(err); }
+});
+
+// ── DELETE /bitacora/actividades/fotos/:fotoId ────────────────────────────
+// Eliminar una foto de actividad del alumno
+router.delete('/actividades/fotos/:fotoId', async (req, res, next) => {
+  try {
+    const { fotoId } = req.params;
+    const existing = await query('SELECT id, public_id FROM actividades_fotos WHERE id = $1', [fotoId]);
+    if (!existing.rows[0]) return res.status(404).json({ error: 'Foto no encontrada' });
+
+    if (existing.rows[0].public_id) {
+      await deleteFromCloudinary(existing.rows[0].public_id);
+    }
+    await query('DELETE FROM actividades_fotos WHERE id = $1', [fotoId]);
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

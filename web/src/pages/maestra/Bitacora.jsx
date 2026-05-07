@@ -339,6 +339,9 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
   const [descAccidente,       setDescAccidente]       = useState('');
   const [necesitaAyuda,       setNecesitaAyuda]       = useState(null);
   const [notasProgreso,       setNotasProgreso]       = useState('');
+  const [fotoDia,              setFotoDia]              = useState(null); // File to upload
+  const [fotoDiaUrl,           setFotoDiaUrl]           = useState(null); // existing URL
+  const fotoDiaRef = useRef();
 
   // Lunes de la semana para consultar menú y confirmación
   const semanaLunes = (() => {
@@ -392,6 +395,7 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
       setSeEnfermo(data.bitacora.se_enfermo || false);
       setDescEnfermedad(data.bitacora.descripcion_enfermedad || '');
       setNotas(data.bitacora.notas || '');
+      setFotoDiaUrl(data.bitacora.foto_url || null);
     }
     // Cargar participación en actividades
     if (data.actividades && Array.isArray(data.actividades)) {
@@ -601,26 +605,32 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
     });
   };
 
-  // Actividades fotos
-  const actFotosMutation = useMutation({
-    mutationFn: (formData) => api.post('/bitacora/actividades/fotos', formData).then(r => r.data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
-      setActividadFotos([]);
-      toast.success('📷 Fotos de actividades subidas');
-    },
-    onError: (err) => toast.error(`Error: ${err?.response?.data?.error || err.message}`),
-  });
-  const subirFotosActividad = () => {
-    if (actividadFotos.length === 0) return;
+  // Fotos del alumno por actividad específica
+  const [uploadingActId, setUploadingActId] = useState(null);
+  const subirFotosAlumnoActividad = (actividadGrupoId, files) => {
+    if (!files || files.length === 0) return;
+    setUploadingActId(actividadGrupoId);
     const fd = new FormData();
-    fd.append('grupo_id', alumno.grupo_id);
     fd.append('alumno_id', alumno.id);
+    fd.append('grupo_id', alumno.grupo_id);
     fd.append('fecha', fecha);
-    fd.append('descripcion', actividades.map(s => s.trim()).filter(s => s.length > 0).join('; ') || null);
-    fd.append('es_grupal', 'false');
-    actividadFotos.forEach(f => fd.append('fotos', f));
-    actFotosMutation.mutate(fd);
+    Array.from(files).forEach(f => fd.append('fotos', f));
+    api.post(`/bitacora/actividades/${actividadGrupoId}/fotos-alumno`, fd)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+        toast.success('📷 Foto subida');
+      })
+      .catch(err => toast.error(`Error: ${err?.response?.data?.error || err.message}`))
+      .finally(() => setUploadingActId(null));
+  };
+
+  const eliminarFotoActividad = (fotoId) => {
+    api.delete(`/bitacora/actividades/fotos/${fotoId}`)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
+        toast.success('Foto eliminada');
+      })
+      .catch(() => toast.error('Error al eliminar foto'));
   };
 
   // Salida Sanitaria (solo lectura)
@@ -687,11 +697,21 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 
   // Guardar
   const guardarMutation = useMutation({
-    mutationFn: (body) => api.post('/bitacora/guardar', body).then(r => r.data),
+    mutationFn: async (body) => {
+      const res = await api.post('/bitacora/guardar', body).then(r => r.data);
+      // Si hay foto nueva, subirla al endpoint separado
+      if (fotoDia && res.bitacora_id) {
+        const fd = new FormData();
+        fd.append('foto', fotoDia);
+        await api.post(`/bitacora/${res.bitacora_id}/foto`, fd).then(r => r.data);
+      }
+      return res;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bitacora', alumno.id, fecha] });
       queryClient.invalidateQueries({ queryKey: ['mi-grupo'] });
       toast.success(`✅ Bitácora de ${alumno.nombre_completo.split(' ')[0]} guardada`);
+      setFotoDia(null);
       onGuardado();
     },
     onError: () => toast.error('Error al guardar la bitácora'),
@@ -999,11 +1019,14 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
           <div className="space-y-3">
             {data.actividades.map((act) => (
               <div key={act.id} className="rounded-xl border-2 border-purple-100 overflow-hidden bg-hs-purple/10">
+                {/* Foto de referencia de la actividad (subida por la miss al crear la actividad) */}
                 {act.foto_url && (
                   <img src={act.foto_url} alt={act.descripcion} className="w-full h-32 object-cover" />
                 )}
                 <div className="p-3 space-y-2">
                   <p className="text-sm font-semibold text-gray-700">{act.descripcion}</p>
+
+                  {/* Participación */}
                   {!soloLectura && (
                     <div className="flex gap-2">
                       <button
@@ -1038,6 +1061,51 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
                     }`}>
                       {act.participo ? '✓ Participó' : '✗ No participó'}
                     </span>
+                  )}
+
+                  {/* Fotos del alumno en esta actividad */}
+                  {(act.fotos_alumno?.length > 0 || !soloLectura) && (
+                    <div className="pt-1 border-t border-purple-100">
+                      <p className="text-xs font-black text-hs-purple uppercase mb-2">📷 Fotos del alumno</p>
+                      {act.fotos_alumno?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-2">
+                          {act.fotos_alumno.map(foto => (
+                            <div key={foto.id} className="relative">
+                              <a href={foto.foto_url} target="_blank" rel="noreferrer">
+                                <img src={foto.foto_url} alt="" className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200 hover:opacity-90" />
+                              </a>
+                              {!soloLectura && (
+                                <button
+                                  onClick={() => eliminarFotoActividad(foto.id)}
+                                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600"
+                                >
+                                  <X size={12} />
+                                </button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {!soloLectura && (
+                        <>
+                          <input
+                            id={`foto-act-${act.id}`}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={e => subirFotosAlumnoActividad(act.id, e.target.files)}
+                          />
+                          <button
+                            onClick={() => document.getElementById(`foto-act-${act.id}`).click()}
+                            disabled={uploadingActId === act.id}
+                            className="text-xs font-bold text-hs-purple px-3 py-1.5 rounded-lg bg-white border border-purple-200 hover:bg-purple-50 disabled:opacity-50 transition-all"
+                          >
+                            {uploadingActId === act.id ? 'Subiendo…' : '📷 Agregar foto'}
+                          </button>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -1184,6 +1252,43 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
         <textarea rows={3} placeholder="Notas adicionales para los papás…"
           value={notas} onChange={e => setNotas(e.target.value)}
           className="w-full border-2 border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold focus:outline-none focus:border-hs-purple resize-none" />
+
+        {/* Foto del día */}
+        <div className="mt-3">
+          <p className="text-xs font-black text-gray-500 uppercase mb-2">📷 Foto del día (opcional)</p>
+          {(fotoDia || fotoDiaUrl) && (
+            <div className="relative inline-block mb-2">
+              <img
+                src={fotoDia ? URL.createObjectURL(fotoDia) : fotoDiaUrl}
+                alt="Foto del día"
+                className="w-32 h-32 object-cover rounded-xl border-2 border-gray-200"
+              />
+              {!soloLectura && (
+                <button
+                  onClick={() => { setFotoDia(null); setFotoDiaUrl(null); }}
+                  className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center text-xs font-bold hover:bg-red-600"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          )}
+          {!soloLectura && !fotoDia && !fotoDiaUrl && (
+            <button
+              onClick={() => fotoDiaRef.current?.click()}
+              className="px-4 py-2 rounded-xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-all"
+            >
+              📷 Agregar foto
+            </button>
+          )}
+          <input
+            ref={fotoDiaRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={e => { if (e.target.files[0]) setFotoDia(e.target.files[0]); }}
+          />
+        </div>
       </Seccion>
 
       {/* Medicamentos */}

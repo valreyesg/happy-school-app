@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
-  View, Text, ScrollView, TouchableOpacity,
+  View, Text, ScrollView, TouchableOpacity, Image,
   StyleSheet, ActivityIndicator, TextInput, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -682,6 +682,10 @@ export default function BitacoraPadreScreen() {
                   )}
                   {(data?.actividades || []).map((act, i) => (
                     <View key={i} style={{ marginBottom: 12, borderRadius: RADIUS.md, borderWidth: 2, borderColor: '#E9D8FD', overflow: 'hidden' }}>
+                      {/* Foto de referencia de la actividad */}
+                      {act.foto_url && (
+                        <Image source={{ uri: act.foto_url }} style={{ width: '100%', height: 160 }} resizeMode="cover" />
+                      )}
                       {act.descripcion ? <Text style={{ padding: 10, fontSize: 13, fontWeight: '700', color: '#4A5568' }}>{act.descripcion}</Text> : null}
                       {act.participo !== null && act.participo !== undefined && (
                         <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
@@ -689,6 +693,19 @@ export default function BitacoraPadreScreen() {
                             <Text style={[s.pildoraTxt, { color: act.participo ? '#276749' : '#C53030' }]}>
                               {act.participo ? '✓ Participó' : '✗ No participó'}
                             </Text>
+                          </View>
+                        </View>
+                      )}
+                      {/* Fotos del alumno haciendo la actividad */}
+                      {act.fotos_alumno?.length > 0 && (
+                        <View style={{ paddingHorizontal: 10, paddingBottom: 12, borderTopWidth: 1, borderTopColor: '#E9D8FD', marginTop: 4, paddingTop: 8 }}>
+                          <Text style={{ fontSize: 11, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase', marginBottom: 8 }}>
+                            📷 Fotos del alumno
+                          </Text>
+                          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                            {act.fotos_alumno.map(foto => (
+                              <Image key={foto.id} source={{ uri: foto.foto_url }} style={{ width: 80, height: 80, borderRadius: RADIUS.sm, borderWidth: 2, borderColor: '#E9D8FD' }} resizeMode="cover" />
+                            ))}
                           </View>
                         </View>
                       )}
@@ -961,6 +978,13 @@ export default function BitacoraPadreScreen() {
             </Seccion>
           )}
 
+          {/* ─ Foto del día ─ */}
+          {bit?.foto_url && (
+            <Seccion titulo="Foto del día" icon="camera-outline" iconColor="#3182CE">
+              <Image source={{ uri: bit.foto_url }} style={s.fotoDia} resizeMode="cover" />
+            </Seccion>
+          )}
+
           {/* ─ Maestra ─ */}
           {bit?.maestra_nombre && (
             <Text style={s.maestraTxt}>Bitácora registrada por Miss {bit.maestra_nombre}</Text>
@@ -1073,6 +1097,7 @@ const s = StyleSheet.create({
   // Notas
   notasBox: { backgroundColor: '#FFFBEB', borderRadius: RADIUS.md, padding: 14 },
   notasTxt: { fontSize: 14, color: '#4A5568', lineHeight: 22, fontStyle: 'italic' },
+  fotoDia: { width: '100%', height: 250, borderRadius: RADIUS.md },
 
   maestraTxt: { textAlign: 'center', color: '#A0AEC0', fontSize: 12, fontWeight: '600', marginTop: 24, marginBottom: 8 },
 

@@ -1,9 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
-  View, Text, ScrollView, TouchableOpacity, TextInput,
+  View, Text, ScrollView, TouchableOpacity, TextInput, Image,
   StyleSheet, ActivityIndicator, Alert, Switch, KeyboardAvoidingView, Platform,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -148,6 +149,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
   const [descripcionAccidente, setDescripcionAccidente] = useState('');
   const [necesitaAyuda, setNecesitaAyuda] = useState(null);
   const [notasProgreso, setNotasProgreso] = useState('');
+  const [fotoDia, setFotoDia] = useState(null); // { uri, fileName }
+  const [fotoDiaUrl, setFotoDiaUrl] = useState(null); // existing URL
 
   // ── Cargar datos existentes ──
   const { isLoading, data: bitacoraExistente } = useQuery({
@@ -188,6 +191,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
       setSeEnfermo(data.bitacora.se_enfermo || false);
       setDescripcionEnfermedad(data.bitacora.descripcion_enfermedad || '');
       setNotas(data.bitacora.notas || '');
+      setFotoDiaUrl(data.bitacora.foto_url || null);
     }
     if (data.banio) {
       setPipiCount(data.banio.pipi_count || 0);
@@ -243,10 +247,26 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
 
   // ── Guardar bitácora ──
   const guardarMutation = useMutation({
-    mutationFn: (body) => api.post('/bitacora/guardar', body),
+    mutationFn: async (body) => {
+      const res = await api.post('/bitacora/guardar', body).then(r => r.data);
+      // Si hay foto nueva, subirla
+      if (fotoDia && res.bitacora_id) {
+        const fd = new FormData();
+        fd.append('foto', {
+          uri: fotoDia.uri,
+          name: fotoDia.fileName || 'foto.jpg',
+          type: 'image/jpeg',
+        });
+        await api.post(`/bitacora/${res.bitacora_id}/foto`, fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+      return res;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
       queryClient.invalidateQueries(['mi-grupo']);
+      setFotoDia(null);
       Alert.alert('¡Listo!', 'Bitácora guardada correctamente.', [
         { text: 'OK', onPress: () => router.back() },
       ]);
@@ -876,6 +896,57 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
             multiline
             textAlignVertical="top"
           />
+
+          {/* Foto del día */}
+          <Text style={s.fotoLabel}>📷 Foto del día (opcional)</Text>
+          {(fotoDia || fotoDiaUrl) && (
+            <View style={s.fotoPreviewWrap}>
+              <Image
+                source={{ uri: fotoDia ? fotoDia.uri : fotoDiaUrl }}
+                style={s.fotoPreview}
+                resizeMode="cover"
+              />
+              <TouchableOpacity
+                style={s.fotoRemoveBtn}
+                onPress={() => { setFotoDia(null); setFotoDiaUrl(null); }}
+              >
+                <Ionicons name="close-circle" size={28} color="#E53E3E" />
+              </TouchableOpacity>
+            </View>
+          )}
+          {!fotoDia && !fotoDiaUrl && (
+            <View style={s.fotoBtnRow}>
+              <TouchableOpacity
+                style={s.fotoPickBtn}
+                onPress={async () => {
+                  const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    quality: 0.7,
+                  });
+                  if (!result.canceled && result.assets[0]) {
+                    setFotoDia({ uri: result.assets[0].uri, fileName: result.assets[0].fileName || 'foto.jpg' });
+                  }
+                }}
+              >
+                <Ionicons name="image-outline" size={20} color={COLORS.purple} />
+                <Text style={s.fotoPickTxt}>Galería</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={s.fotoPickBtn}
+                onPress={async () => {
+                  const result = await ImagePicker.launchCameraAsync({
+                    quality: 0.7,
+                  });
+                  if (!result.canceled && result.assets[0]) {
+                    setFotoDia({ uri: result.assets[0].uri, fileName: result.assets[0].fileName || 'foto.jpg' });
+                  }
+                }}
+              >
+                <Ionicons name="camera-outline" size={20} color={COLORS.purple} />
+                <Text style={s.fotoPickTxt}>Cámara</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </Seccion>
 
       </ScrollView>
@@ -1016,4 +1087,13 @@ const s = StyleSheet.create({
   footerBtn: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 16, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: '#E2E8F0' },
   guardarBtn: { backgroundColor: '#805AD5', borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   guardarTxt: { color: '#fff', fontSize: 16, fontWeight: '900' },
+
+  // Foto del día
+  fotoLabel: { fontSize: 12, fontWeight: '900', color: '#718096', textTransform: 'uppercase', marginTop: 14, marginBottom: 8 },
+  fotoPreviewWrap: { position: 'relative', alignSelf: 'flex-start', marginBottom: 8 },
+  fotoPreview: { width: 120, height: 120, borderRadius: RADIUS.md, borderWidth: 2, borderColor: '#E2E8F0' },
+  fotoRemoveBtn: { position: 'absolute', top: -8, right: -8 },
+  fotoBtnRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
+  fotoPickBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, paddingVertical: 10, backgroundColor: '#F7FAFC', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#E2E8F0' },
+  fotoPickTxt: { fontSize: 14, fontWeight: '700', color: '#805AD5' },
 });

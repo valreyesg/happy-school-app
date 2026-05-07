@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+44 (Cloudinary: configuración + validación uploads)
+**Última actualización:** 2026-05-07 — Sesión XX+45 (Cloudinary: foto bitácora + fotos alumno por actividad)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -31,11 +31,13 @@
 
 ## 🎯 FASE C — 2–4 sesiones
 
-### 🔧 Cloudinary — Validación pendiente (uploads restantes)
-> Credenciales configuradas, 6/8 uploads validados manualmente. Faltan:
-- [ ] Foto actividad bitácora (miss sube foto de actividad del alumno)
-- [ ] Foto visitante (directora registra visitante con foto)
-- [ ] Foto tarea (miss crea tarea con foto)
+### 🔧 Cloudinary — Validación pendiente (validación manual en browser)
+> Backend implementado y testeado con curl. Falta validar en browser:
+- [ ] Foto del día bitácora (maestra sube → padre ve) — web + mobile
+- [ ] Fotos alumno por actividad (maestra sube en bitácora del alumno) — web
+- [ ] Vista padre fotos alumno por actividad — web + mobile
+- [ ] Foto visitante (directora registra visitante con foto) — web
+- [ ] Foto tarea (miss crea tarea con foto) — web
 
 ### 📱 Panel Plantillas WhatsApp editable (directora)
 - [ ] UI para editar las 19 plantillas desde el portal directora

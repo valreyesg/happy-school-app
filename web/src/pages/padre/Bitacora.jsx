@@ -716,6 +716,7 @@ export default function PadreBitacora() {
                       )}
                       {actividades.map((act, i) => (
                         <div key={i} className="rounded-xl border-2 border-purple-100 overflow-hidden">
+                          {/* Foto de referencia de la actividad */}
                           {act.foto_url && (
                             <a href={act.foto_url} target="_blank" rel="noreferrer">
                               <img src={act.foto_url} alt={act.descripcion} className="w-full h-40 object-cover hover:opacity-90 transition-opacity" />
@@ -729,6 +730,19 @@ export default function PadreBitacora() {
                               }`}>
                                 {act.participo ? '✓ Participó' : '✗ No participó'}
                               </span>
+                            )}
+                            {/* Fotos del alumno haciendo la actividad */}
+                            {act.fotos_alumno?.length > 0 && (
+                              <div className="pt-2 border-t border-purple-100">
+                                <p className="text-xs font-black text-hs-purple uppercase mb-2">📷 Fotos del alumno</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {act.fotos_alumno.map(foto => (
+                                    <a key={foto.id} href={foto.foto_url} target="_blank" rel="noreferrer">
+                                      <img src={foto.foto_url} alt="" className="w-20 h-20 object-cover rounded-lg border-2 border-purple-200 hover:opacity-90 transition-opacity" />
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -1064,6 +1078,16 @@ export default function PadreBitacora() {
                   <p className="text-sm text-gray-600 italic bg-yellow-50 rounded-xl p-3 leading-relaxed">
                     {bit.notas}
                   </p>
+                </Seccion>
+              )}
+
+              {/* Foto del día */}
+              {bit?.foto_url && (
+                <Seccion titulo="Foto del día" emoji="📷">
+                  <a href={bit.foto_url} target="_blank" rel="noreferrer">
+                    <img src={bit.foto_url} alt="Foto del día"
+                      className="w-full max-w-sm rounded-xl border-2 border-gray-200 hover:opacity-90 transition-opacity" />
+                  </a>
                 </Seccion>
               )}
 

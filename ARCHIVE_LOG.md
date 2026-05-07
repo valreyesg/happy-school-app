@@ -1,7 +1,62 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)**
+
+---
+
+## ✅ SESIÓN XX+45 (2026-05-07) — Cloudinary: Foto bitácora del día + Fotos alumno por actividad
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ Implementada — pendiente validación manual en browser
+
+### Resumen
+
+Nueva funcionalidad: la maestra puede subir una foto del día en la bitácora general, y subir de 1 a n fotos del alumno realizando cada actividad específica. El padre ve ambos tipos de foto en su portal.
+
+### Cambios implementados
+
+1. **Migración 047** — `ALTER TABLE bitacora_diaria ADD COLUMN foto_url TEXT, foto_public_id TEXT`
+2. **Migración 048** — `ALTER TABLE actividades_fotos ADD COLUMN actividad_grupo_id UUID REFERENCES actividades_grupo(id)` + índice compuesto `(actividad_grupo_id, alumno_id)`
+3. **Backend `bitacora.js`** — 4 nuevos endpoints:
+   - `POST /:id/foto` — foto del día → Cloudinary `happyschool/bitacora/`
+   - `DELETE /:id/foto` — elimina foto del día de Cloudinary + DB
+   - `POST /actividades/:actividadGrupoId/fotos-alumno` — sube 1-n fotos del alumno haciendo la actividad → `happyschool/actividades-alumno/`, guarda con `actividad_grupo_id` FK
+   - `DELETE /actividades/fotos/:fotoId` — elimina foto individual de actividad
+4. **Backend GET `/:alumnoId`** — query de actividades ahora incluye `fotos_alumno` via `json_agg` + LEFT JOIN `actividades_fotos` agrupado por actividad
+5. **Web maestra `Bitacora.jsx`** — UI para subir/ver/eliminar foto del día + botón "Agregar foto" por actividad con preview de fotos del alumno
+6. **Web padre `Bitacora.jsx`** — Sección "Foto del día" + galería de fotos del alumno por actividad (solo lectura)
+7. **Mobile maestra `bitacora.jsx`** — Galería + cámara para foto del día con preview/remove (expo-image-picker)
+8. **Mobile padre `bitacora.jsx`** — Foto del día + fotos alumno por actividad (solo lectura)
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `backend/migrations/047_bitacora_foto.sql` | NUEVO — columnas foto_url, foto_public_id en bitacora_diaria |
+| `backend/migrations/048_actividades_fotos_alumno_fk.sql` | NUEVO — FK actividad_grupo_id en actividades_fotos |
+| `backend/src/routes/bitacora.js` | 4 endpoints nuevos + query GET actualizada con fotos_alumno |
+| `web/src/pages/maestra/Bitacora.jsx` | Foto del día + fotos alumno por actividad (upload/delete) |
+| `web/src/pages/padre/Bitacora.jsx` | Vista foto del día + galería fotos alumno por actividad |
+| `mobile/app/(maestra)/bitacora.jsx` | Foto del día (galería + cámara + preview) |
+| `mobile/app/(padre)/bitacora.jsx` | Vista foto del día + fotos alumno por actividad |
+
+### Validación
+
+| # | Módulo | Estado |
+|---|--------|--------|
+| 1 | POST /:id/foto (curl) | ✅ Testeado — devuelve URL Cloudinary `happyschool/bitacora/` |
+| 2 | POST /actividades/:id/fotos-alumno (curl) | ✅ Testeado — 400 sin archivos, endpoint activo |
+| 3 | DELETE /actividades/fotos/:id (curl) | ✅ Testeado — endpoint activo |
+| 4 | Foto del día en browser (maestra web) | ⏳ Pendiente validación manual |
+| 5 | Fotos alumno por actividad en browser (maestra web) | ⏳ Pendiente validación manual |
+| 6 | Vista padre web (foto día + fotos actividad) | ⏳ Pendiente validación manual |
+| 7 | Mobile maestra — foto del día | ⏳ Pendiente validación manual |
+| 8 | Mobile padre — foto del día + actividades | ⏳ Pendiente validación manual |
+
+### Notas técnicas
+
+- Maestra mobile **no tiene** listado de actividades con fotos por alumno (solo web). Paridad parcial intencional — implementar actividades en mobile sería feature separada mayor.
+- `actividades_fotos.actividad_grupo_id` FK permite ligar la foto al alumno + a la actividad específica (antes no había FK a `actividades_grupo`).
 
 ---
 

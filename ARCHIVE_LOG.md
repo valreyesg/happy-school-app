@@ -1,7 +1,53 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-06 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)**
+
+---
+
+## ✅ SESIÓN XX+38 (2026-05-07) — FASE D: D5+D7 — Recibo PDF + Comprobante Comida
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ COMPLETADA
+
+### Resumen
+
+Implementación de generación de recibos PDF por pago (con descarga directa desde el portal admin) y módulo de comprobante de pago de comida semanal (foto de transferencia o marcado como Efectivo Lunes).
+
+### Tareas ejecutadas
+
+1. **D5 — Recibo PDF por pago (`GET /pagos/:id/recibo`)**
+   - `backend/src/routes/pagos.js` → nuevo endpoint `GET /:id/recibo`
+   - Genera PDF con `pdf-lib` (A5 apaisado): encabezado morado, folio UUID, datos alumno/grupo/concepto, desglose monto, sello PAGADO, pie con fecha
+   - Función `safe()` para sanitizar todos los strings de DB — Helvetica (StandardFonts) solo soporta WinAnsiEncoding, no Unicode
+   - Folio: `String(uuid).replace(/-/g,'').slice(-8).toUpperCase()` (ej: `#12EDA65A`)
+   - `web/src/pages/directora/Pagos.jsx` → `ModalEnviarRecibo` con botón "Descargar PDF" vía `api.get(..., {responseType:'blob'})` (NO `window.open`, requiere header Auth)
+   - Botón "🧾 Recibo" en cada tarjeta de pago pagado en `FilaAlumno`
+   - **Status:** ✅ Completada y validada (PDF descargado correctamente)
+
+2. **D5 — Envío por WhatsApp (`POST /pagos/:id/enviar`)**
+   - Endpoint implementado, mensaje Twilio construido correctamente
+   - **Status:** ⏳ Pendiente de credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
+
+3. **D7 — Comprobante Comida (`PATCH /pagos/comida/:id/comprobante`)**
+   - Migración `045_comprobante_comida.sql`: agrega `metodo_pago_comida`, `comprobante_url`, `notas_comida` a `pago_comida_semanal`
+   - Endpoint con `multer` (memory storage) + `uploadToCloudinary` para foto opcional
+   - 3 métodos válidos: `efectivo`, `efectivo_lunes`, `transferencia`
+   - `web/src/pages/directora/Pagos.jsx` → `ModalComprobanteComida` con selector de método + upload foto
+   - Botón "📎 Agregar/Ver" por alumno en `TabComida`
+   - **Status:** ✅ Completada y validada
+
+### Archivos modificados
+- `backend/src/routes/pagos.js` — imports pdf-lib/multer/cloudinary/twilio, endpoints GET /:id/recibo + POST /:id/enviar + PATCH /comida/:id/comprobante
+- `backend/migrations/045_comprobante_comida.sql` — 3 nuevas columnas en pago_comida_semanal
+- `web/src/pages/directora/Pagos.jsx` — ModalEnviarRecibo, ModalComprobanteComida, botones Recibo y Comprobante
+
+### Bugs corregidos en esta sesión
+
+- **Twilio crash al cargar módulo**: `TWILIO_ACCOUNT_SID=placeholder` era truthy pero inválido → constructor Twilio lanzaba excepción en top-level. Fix: verificar `startsWith('AC')` antes de inicializar + try/catch
+- **`ap.es_principal` no existe**: columna real es `es_tutor_principal` en tabla `alumno_padre`
+- **`t.nombre` no existe**: columna real es `nombre_completo` en tabla `padres`
+- **pdf-lib non-ASCII crash**: `drawText('✓ PAGADO')` lanza excepción síncrona → Express devuelve 404 HTML. Fix: función `safe()` que mapea acentos/eñes a ASCII y elimina símbolos Unicode
+- **`window.open()` sin Auth header**: descarga PDF sin token → 401. Fix: `api.get({responseType:'blob'})` + blob URL programático
 
 ---
 

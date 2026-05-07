@@ -539,9 +539,85 @@ function ModalConceptos({ conceptos, tiposConcepto, onClose }) {
 
 // ─── Fila alumno en la tabla ──────────────────────────────────────────────────
 
+// ─── Modal Enviar Recibo WhatsApp ─────────────────────────────────────────────
+
+function ModalEnviarRecibo({ pago, onClose }) {
+  const [enviando, setEnviando] = useState(false);
+  const [descargando, setDescargando] = useState(false);
+  const [resultado, setResultado] = useState(null);
+
+  const handleDescargar = async () => {
+    setDescargando(true);
+    try {
+      const resp = await api.get(`/pagos/${pago.id}/recibo`, { responseType: 'blob' });
+      const url = URL.createObjectURL(resp.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `recibo-${String(pago.id).replace(/-/g, '').slice(-8).toUpperCase()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setResultado({ ok: false, msg: 'Error al descargar el recibo' });
+    } finally {
+      setDescargando(false);
+    }
+  };
+
+  const handleWhatsApp = async () => {
+    setEnviando(true);
+    try {
+      await api.post(`/pagos/${pago.id}/enviar`, { canal: 'whatsapp' });
+      setResultado({ ok: true, msg: 'Recibo enviado por WhatsApp al tutor' });
+    } catch (e) {
+      setResultado({ ok: false, msg: e.response?.data?.error || 'Error al enviar' });
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  return (
+    <Modal open={true} onClose={onClose} title="Recibo de Pago 🧾" size="sm">
+      <div className="space-y-4">
+        <div className="bg-gray-50 rounded-xl p-4 space-y-1">
+          <p className="font-black text-gray-800 text-sm">{pago.concepto_nombre}</p>
+          <p className="text-xs text-gray-500">{MESES[pago.mes_correspondiente - 1]} {pago.anio_correspondiente}</p>
+          <p className="text-2xl font-black text-gray-900 mt-2">{fmt(pago.monto_total)}</p>
+          {pago.monto_recargo > 0 && <p className="text-xs text-red-500">Incluye recargo: {fmt(pago.monto_recargo)}</p>}
+          <p className="text-xs text-gray-400 mt-1">Folio #{String(pago.id).replace(/-/g, '').slice(-8).toUpperCase()} · {(pago.metodo_pago || 'efectivo').toUpperCase()}</p>
+        </div>
+
+        {resultado && (
+          <div className={`rounded-xl p-3 text-sm font-semibold ${resultado.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+            {resultado.ok ? '✅' : '❌'} {resultado.msg}
+          </div>
+        )}
+
+        <button
+          onClick={handleDescargar}
+          disabled={descargando}
+          className="w-full py-3 rounded-xl bg-hs-purple-dark text-white font-bold text-sm hover:bg-hs-purple transition-colors disabled:opacity-50"
+        >
+          {descargando ? '⏳ Generando PDF…' : '⬇️ Descargar PDF'}
+        </button>
+
+        <button
+          onClick={handleWhatsApp}
+          disabled={enviando}
+          className="w-full py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+        >
+          {enviando ? '⏳ Enviando…' : '💬 Enviar por WhatsApp al tutor'}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
+// ─── Fila Alumno ──────────────────────────────────────────────────────────────
+
 function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   const [expandido, setExpandido] = useState(false);
   const [modalPago, setModalPago] = useState(false);
+  const [modalRecibo, setModalRecibo] = useState(null); // pago seleccionado
 
   const { data: estado } = useQuery({
     queryKey: ['estado-alumno', alumno.id, mes, anio],
@@ -615,6 +691,14 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
                             <p className="text-xs text-red-500">+{fmt(p.monto_recargo)} recargo</p>
                           )}
                           {p.fecha_pago && <p className="text-xs text-gray-400 mt-1">{fmtFecha(p.fecha_pago)} · {p.metodo_pago}</p>}
+                          {p.estado === 'pagado' && (
+                            <button
+                              onClick={() => setModalRecibo(p)}
+                              className="mt-2 w-full py-1 rounded-lg bg-hs-purple/10 text-hs-purple-dark text-xs font-bold hover:bg-hs-purple/20 transition-colors"
+                            >
+                              🧾 Recibo
+                            </button>
+                          )}
                         </div>
                       );
                     })}
@@ -636,6 +720,10 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
           onClose={() => setModalPago(false)}
           onSaved={() => setExpandido(true)}
         />
+      )}
+
+      {modalRecibo && (
+        <ModalEnviarRecibo pago={modalRecibo} onClose={() => setModalRecibo(null)} />
       )}
     </>
   );
@@ -734,10 +822,116 @@ function TabExtension({ mes, anio, conceptos, metodos, tiposConcepto }) {
   );
 }
 
+// ─── Modal Comprobante Comida ─────────────────────────────────────────────────
+
+function ModalComprobanteComida({ registro, onClose, onSaved }) {
+  const [metodo, setMetodo] = useState(registro.metodo_pago_comida || 'efectivo');
+  const [notas, setNotas]   = useState(registro.notas_comida || '');
+  const [foto, setFoto]     = useState(null);
+  const [preview, setPreview] = useState(registro.comprobante_url || null);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError]   = useState('');
+
+  const METODOS = [
+    { key: 'efectivo',       label: 'Efectivo',        emoji: '💵' },
+    { key: 'efectivo_lunes', label: 'Efectivo Lunes',  emoji: '📅' },
+    { key: 'transferencia',  label: 'Transferencia',   emoji: '💳' },
+  ];
+
+  const handleFoto = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    setFoto(f);
+    setPreview(URL.createObjectURL(f));
+  };
+
+  const handleGuardar = async () => {
+    setGuardando(true);
+    setError('');
+    try {
+      const formData = new FormData();
+      formData.append('metodo_pago_comida', metodo);
+      if (notas) formData.append('notas_comida', notas);
+      if (foto)  formData.append('foto', foto);
+
+      await api.patch(`/pagos/comida/${registro.id}/comprobante`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      onSaved?.();
+      onClose();
+    } catch (e) {
+      setError(e.response?.data?.error || 'Error al guardar');
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+  return (
+    <Modal open={true} onClose={onClose} title="Comprobante de Comida 🍽️" size="sm" closeOnBackdrop={false}>
+      <div className="space-y-4">
+        {/* Info alumno */}
+        <div className="bg-green-50 rounded-xl p-3">
+          <p className="font-black text-gray-800 text-sm">{registro.alumno_nombre}</p>
+          <p className="text-xs text-gray-500">{registro.grupo_nombre} · Semana {registro.semana_inicio}</p>
+          <p className="text-lg font-black text-green-700 mt-1">{fmt(registro.monto)}</p>
+        </div>
+
+        {/* Método de pago */}
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-2">Método de pago</label>
+          <div className="flex gap-2">
+            {METODOS.map(m => (
+              <button key={m.key} type="button"
+                onClick={() => setMetodo(m.key)}
+                className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+                  metodo === m.key
+                    ? 'bg-hs-purple-dark text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}>
+                {m.emoji} {m.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Comprobante foto (solo transferencia) */}
+        {metodo === 'transferencia' && (
+          <div>
+            <label className="block text-xs font-bold text-gray-600 mb-2">Foto comprobante</label>
+            {preview && (
+              <img src={preview} alt="Comprobante" className="w-full h-40 object-cover rounded-xl mb-2 border" />
+            )}
+            <label className="block w-full py-3 text-center rounded-xl border-2 border-dashed border-hs-purple/30 text-hs-purple-dark font-bold text-sm cursor-pointer hover:bg-hs-purple/5 transition-colors">
+              {preview ? '📷 Cambiar foto' : '📷 Adjuntar foto'}
+              <input type="file" accept="image/*" onChange={handleFoto} className="hidden" />
+            </label>
+          </div>
+        )}
+
+        {/* Notas */}
+        <div>
+          <label className="block text-xs font-bold text-gray-600 mb-1">Notas (opcional)</label>
+          <input type="text" className="input-hs" placeholder="Observaciones…" value={notas}
+            onChange={e => setNotas(e.target.value)} />
+        </div>
+
+        {error && <p className="text-red-500 text-sm font-semibold">❌ {error}</p>}
+
+        <button onClick={handleGuardar} disabled={guardando}
+          className="w-full btn-hs disabled:opacity-50">
+          {guardando ? '⏳ Guardando…' : '✅ Guardar comprobante'}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 // ─── Tab Historial Comida ─────────────────────────────────────────────────────
 
 function TabComida({ mes, anio }) {
   const [grupoFiltro, setGrupoFiltro] = useState('');
+  const [modalComprobante, setModalComprobante] = useState(null);
+  const qc = useQueryClient();
 
   const { data: grupos = [] } = useQuery({
     queryKey: ['grupos'],
@@ -810,24 +1004,62 @@ function TabComida({ mes, anio }) {
                   <p className="font-black text-hs-green text-lg">{fmt(totalSemana)}</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  {regs.map(r => (
-                    <div key={r.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl">
-                      {r.foto_url
-                        ? <img src={r.foto_url} className="w-7 h-7 rounded-full object-cover" alt="" />
-                        : <div className="w-7 h-7 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-black text-xs">{r.alumno_nombre?.[0]}</div>
-                      }
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-gray-800 truncate">{r.alumno_nombre}</p>
-                        <p className="text-xs text-gray-400" style={{ color: r.color_hex }}>{r.grupo_nombre}</p>
+                  {regs.map(r => {
+                    const tieneComprobante = !!r.comprobante_url;
+                    const metodoLabel = {
+                      efectivo:       '💵 Efectivo',
+                      efectivo_lunes: '📅 Efectivo Lunes',
+                      transferencia:  '💳 Transferencia',
+                    }[r.metodo_pago_comida] || '';
+                    return (
+                      <div key={r.id} className="flex flex-col gap-1 p-2 bg-gray-50 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          {r.foto_url
+                            ? <img src={r.foto_url} className="w-7 h-7 rounded-full object-cover" alt="" />
+                            : <div className="w-7 h-7 rounded-full bg-green-200 flex items-center justify-center text-green-700 font-black text-xs">{r.alumno_nombre?.[0]}</div>
+                          }
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-gray-800 truncate">{r.alumno_nombre}</p>
+                            <p className="text-xs text-gray-400" style={{ color: r.color_hex }}>{r.grupo_nombre}</p>
+                          </div>
+                          <p className="text-xs font-black text-green-700 whitespace-nowrap">{fmt(r.monto)}</p>
+                        </div>
+                        {/* Fila método + botón */}
+                        <div className="flex items-center justify-between gap-1 mt-0.5">
+                          {metodoLabel
+                            ? <span className="text-xs text-gray-400">{metodoLabel}</span>
+                            : <span className="text-xs text-gray-300">Sin método</span>
+                          }
+                          <button
+                            onClick={() => setModalComprobante(r)}
+                            className={`text-xs font-bold px-2 py-0.5 rounded-lg transition-colors ${
+                              tieneComprobante
+                                ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                : 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                            }`}
+                          >
+                            {tieneComprobante ? '📎 Ver' : '📎 Agregar'}
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-xs font-black text-green-700 whitespace-nowrap">{fmt(r.monto)}</p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {modalComprobante && (
+        <ModalComprobanteComida
+          registro={modalComprobante}
+          onClose={() => setModalComprobante(null)}
+          onSaved={() => {
+            setModalComprobante(null);
+            qc.invalidateQueries({ queryKey: ['comida-historial'] });
+          }}
+        />
       )}
     </div>
   );

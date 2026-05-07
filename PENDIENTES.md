@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-06 — Sesión XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)
+**Última actualización:** 2026-05-07 — Sesión XX+38 (FASE D: D5+D7 — Recibo PDF + WhatsApp + Comprobante Comida)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -40,18 +40,9 @@
 ## 🏦 FASE D — 5–8 sesiones
 
 ### 💰 Portal Administrador — Finanzas y Pagos
-> Portal separado (o tab en directora) para gestión completa de pagos.
+> Portal separado (o tab en directora) para gestión completa de pagos. — Ver historial completo en ARCHIVE_LOG (Sesiones XX+36, XX+37, XX+38)
 
-- [x] ~~Resumen ingresos del mes~~ ✅ Dashboard financiero con KPIs — Sesión XX+36
-- [x] ~~Lista alumnos con adeudos~~ ✅ Módulo Alertas de Pago con semáforo — Sesión XX+36
-- [x] ~~Alertas modales a padres con adeudo~~ ✅ Tipo alerta_pago + configurable — Sesión XX+36
-- [x] ~~Estado colegiatura por alumno~~ ✅ Cubierto parcialmente — job cron implementado Sesión XX+32 (ver ARCHIVE_LOG)
-- [x] ~~Registro manual de pagos (desde portal admin, no directora)~~ ✅ Ya existía en ModalPago — confirmado Sesión XX+37
-- [x] ~~Historial cobros: extensión, comida~~ ✅ TabExtension + TabComida — Sesión XX+37
-- [x] ~~Segmentación servicios: Regulares, Solo Extensión, Estancia por Día~~ ✅ TabSegmentacion 4 grupos — Sesión XX+37
-- [ ] Generación recibos PDF automático + envío WhatsApp/Correo al padre
-- [x] ~~Exportación contable: Excel filtrable para admin~~ ✅ 3-sheet ExcelJS — Sesión XX+37
-- [ ] Comprobante Comida: adjuntar foto transferencia O marcar "Efectivo Lunes"
+- [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
 
 ### 🎓 Evaluaciones y Boletas
 - [ ] Indicadores configurables por nivel (catálogos dinámicos)

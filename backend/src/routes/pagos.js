@@ -3,6 +3,17 @@ const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const ExcelJS = require('exceljs');
+const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
+const multer = require('multer');
+const { uploadToCloudinary } = require('../services/cloudinaryService');
+let twilio = null;
+try {
+  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_ACCOUNT_SID.startsWith('AC')) {
+    twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  }
+} catch (e) { /* Twilio no configurado */ }
+
+const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 router.use(authenticate);
 
@@ -941,6 +952,281 @@ router.get('/exportar', authorize('directora', 'administrativo'), async (req, re
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     await workbook.xlsx.write(res);
     res.end();
+  } catch (err) { next(err); }
+});
+
+// ─── COMPROBANTE COMIDA SEMANAL ───────────────────────────────────────────────
+// PATCH /pagos/comida/:id/comprobante
+// body (multipart): foto? (file) + metodo_pago_comida + notas_comida
+// Sin foto: solo actualiza metodo (efectivo, efectivo_lunes)
+// Con foto: sube imagen a Cloudinary y guarda URL
+
+router.patch('/comida/:id/comprobante', authorize('directora', 'administrativo'),
+  uploadMemory.single('foto'), async (req, res, next) => {
+    try {
+      const { metodo_pago_comida = 'efectivo', notas_comida } = req.body;
+
+      const METODOS_VALIDOS = ['efectivo', 'efectivo_lunes', 'transferencia'];
+      if (!METODOS_VALIDOS.includes(metodo_pago_comida)) {
+        return res.status(400).json({ error: `metodo_pago_comida debe ser uno de: ${METODOS_VALIDOS.join(', ')}` });
+      }
+
+      let comprobante_url = null;
+
+      if (req.file) {
+        // Subir foto comprobante a Cloudinary
+        const resultado = await uploadToCloudinary(req.file.buffer, {
+          folder: 'happyschool/comprobantes_comida',
+          resource_type: 'image',
+        });
+        comprobante_url = resultado.url;
+      }
+
+      // Verificar que el registro existe
+      const check = await query('SELECT id FROM pago_comida_semanal WHERE id = $1', [req.params.id]);
+      if (!check.rows[0]) return res.status(404).json({ error: 'Registro de comida no encontrado' });
+
+      await query(`
+        UPDATE pago_comida_semanal SET
+          metodo_pago_comida = $1,
+          notas_comida       = COALESCE($2, notas_comida),
+          comprobante_url    = CASE WHEN $3::text IS NOT NULL THEN $3::text ELSE comprobante_url END,
+          updated_at         = NOW()
+        WHERE id = $4
+      `, [metodo_pago_comida, notas_comida || null, comprobante_url, req.params.id]);
+
+      const updated = await query(
+        'SELECT id, metodo_pago_comida, comprobante_url, notas_comida FROM pago_comida_semanal WHERE id = $1',
+        [req.params.id]
+      );
+      res.json({ ok: true, ...updated.rows[0] });
+    } catch (err) { next(err); }
+  }
+);
+
+// ─── RECIBO PDF POR PAGO ──────────────────────────────────────────────────────
+// GET /pagos/:id/recibo  → descarga PDF del recibo
+
+router.get('/:id/recibo', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const result = await query(`
+      SELECT p.*,
+             cp.nombre AS concepto_nombre, cp.tipo AS concepto_tipo,
+             al.nombre_completo AS alumno_nombre, al.foto_url,
+             g.nombre AS grupo_nombre,
+             u.nombre AS registrado_por_nombre,
+             t.nombre_completo AS tutor_nombre, t.telefono AS tutor_telefono
+      FROM pagos p
+      JOIN conceptos_pago cp ON p.concepto_id = cp.id
+      JOIN alumnos al ON p.alumno_id = al.id
+      JOIN grupos g ON al.grupo_id = g.id
+      LEFT JOIN usuarios u ON p.registrado_por = u.id
+      LEFT JOIN alumno_padre ap ON ap.alumno_id = al.id AND ap.es_tutor_principal = true
+      LEFT JOIN padres t ON t.id = ap.padre_id
+      WHERE p.id = $1
+    `, [req.params.id]);
+
+    if (!result.rows[0]) return res.status(404).json({ error: 'Pago no encontrado' });
+    const p = result.rows[0];
+
+    // ── Construir PDF ──
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([595.28, 350]); // A5 apaisado aprox
+    const { width, height } = page.getSize();
+
+    const fontBold   = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const fontNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    const C = {
+      purple: rgb(0.55, 0.27, 0.87),
+      purpleLight: rgb(0.82, 0.70, 0.97),
+      green:  rgb(0.13, 0.67, 0.45),
+      gray:   rgb(0.40, 0.40, 0.40),
+      dark:   rgb(0.10, 0.10, 0.10),
+      white:  rgb(1, 1, 1),
+      bg:     rgb(0.97, 0.95, 1.00),
+    };
+
+    const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
+
+    // Sanitizar strings para Helvetica (solo Latin-1 básico, sin acentos problemáticos)
+    const safe = (s) => {
+      if (!s) return '';
+      return String(s)
+        .replace(/\u2014|\u2013/g, '-')   // em dash, en dash -> -
+        .replace(/\u00e1/g, 'a').replace(/\u00e9/g, 'e')
+        .replace(/\u00ed/g, 'i').replace(/\u00f3/g, 'o')
+        .replace(/\u00fa/g, 'u').replace(/\u00fc/g, 'u')
+        .replace(/\u00c1/g, 'A').replace(/\u00c9/g, 'E')
+        .replace(/\u00cd/g, 'I').replace(/\u00d3/g, 'O')
+        .replace(/\u00da/g, 'U').replace(/\u00dc/g, 'U')
+        .replace(/\u00f1/g, 'n').replace(/\u00d1/g, 'N')
+        .replace(/[^\x20-\x7E]/g, '?');  // cualquier otro no-ASCII -> ?
+    };
+
+    const fmtFecha = (iso) => {
+      if (!iso) return '-';
+      return safe(new Date(iso).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' }));
+    };
+
+    const MESES_ES = ['', 'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    // Fondo encabezado
+    page.drawRectangle({ x: 0, y: height - 70, width, height: 70, color: C.purple });
+
+    // Título
+    page.drawText('Happy School', { x: 24, y: height - 28, size: 20, font: fontBold, color: C.white });
+    page.drawText('RECIBO DE PAGO', { x: 24, y: height - 48, size: 9, font: fontNormal, color: C.purpleLight });
+
+    // Folio — últimos 8 chars del UUID en mayúsculas
+    const folio = `#${String(p.id).replace(/-/g, '').slice(-8).toUpperCase()}`;
+    const folioW = fontBold.widthOfTextAtSize(folio, 18);
+    page.drawText(folio, { x: width - folioW - 24, y: height - 38, size: 18, font: fontBold, color: C.white });
+    page.drawText('FOLIO', { x: width - folioW - 24, y: height - 54, size: 7, font: fontNormal, color: C.purpleLight });
+
+    // Fondo cuerpo
+    page.drawRectangle({ x: 0, y: 0, width, height: height - 70, color: C.bg });
+
+    // Sección alumno
+    let y = height - 95;
+    page.drawText('ALUMNO', { x: 24, y, size: 7, font: fontBold, color: C.gray });
+    y -= 16;
+    page.drawText(safe(p.alumno_nombre), { x: 24, y, size: 13, font: fontBold, color: C.dark });
+    y -= 14;
+    page.drawText(safe(p.grupo_nombre), { x: 24, y, size: 9, font: fontNormal, color: C.gray });
+
+    // Línea divisora
+    y -= 14;
+    page.drawLine({ start: { x: 24, y }, end: { x: width - 24, y }, thickness: 0.5, color: C.purpleLight });
+
+    // Concepto
+    y -= 20;
+    page.drawText('CONCEPTO', { x: 24, y, size: 7, font: fontBold, color: C.gray });
+    y -= 14;
+    page.drawText(safe(p.concepto_nombre), { x: 24, y, size: 11, font: fontBold, color: C.dark });
+    page.drawText(`${MESES_ES[p.mes_correspondiente]} ${p.anio_correspondiente}`, {
+      x: 24, y: y - 12, size: 9, font: fontNormal, color: C.gray,
+    });
+
+    // Montos (columna derecha)
+    const xRight = width - 150;
+    let yR = height - 95;
+    page.drawText('DETALLE', { x: xRight, y: yR, size: 7, font: fontBold, color: C.gray });
+    yR -= 16;
+    page.drawText('Monto base:', { x: xRight, y: yR, size: 8, font: fontNormal, color: C.gray });
+    page.drawText(fmt(p.monto_base), { x: xRight + 80, y: yR, size: 8, font: fontBold, color: C.dark });
+    yR -= 14;
+    if (parseFloat(p.monto_recargo) > 0) {
+      page.drawText('Recargo:', { x: xRight, y: yR, size: 8, font: fontNormal, color: C.gray });
+      page.drawText(fmt(p.monto_recargo), { x: xRight + 80, y: yR, size: 8, font: fontBold, color: rgb(0.85, 0.2, 0.2) });
+      yR -= 14;
+    }
+    page.drawLine({ start: { x: xRight, y: yR + 4 }, end: { x: width - 24, y: yR + 4 }, thickness: 0.5, color: C.purpleLight });
+    yR -= 4;
+    page.drawText('TOTAL:', { x: xRight, y: yR, size: 10, font: fontBold, color: C.dark });
+    const totalStr = fmt(p.monto_total);
+    const totalW = fontBold.widthOfTextAtSize(totalStr, 14);
+    page.drawText(totalStr, { x: width - 24 - totalW, y: yR, size: 14, font: fontBold, color: C.green });
+
+    // Método y fecha
+    yR -= 22;
+    page.drawText('Método:', { x: xRight, y: yR, size: 8, font: fontNormal, color: C.gray });
+    page.drawText(safe((p.metodo_pago || 'efectivo').toUpperCase()), { x: xRight + 60, y: yR, size: 8, font: fontBold, color: C.dark });
+    yR -= 12;
+    page.drawText('Fecha:', { x: xRight, y: yR, size: 8, font: fontNormal, color: C.gray });
+    page.drawText(fmtFecha(p.fecha_pago), { x: xRight + 60, y: yR, size: 8, font: fontBold, color: C.dark });
+    if (p.referencia) {
+      yR -= 12;
+      page.drawText('Ref:', { x: xRight, y: yR, size: 8, font: fontNormal, color: C.gray });
+      page.drawText(safe(p.referencia), { x: xRight + 60, y: yR, size: 8, font: fontBold, color: C.dark });
+    }
+
+    // Sello PAGADO
+    if (p.estado === 'pagado') {
+      page.drawRectangle({ x: xRight - 4, y: yR - 28, width: 110, height: 22, color: rgb(0.13, 0.67, 0.45), borderRadius: 4 });
+      page.drawText('** PAGADO **', { x: xRight + 4, y: yR - 20, size: 10, font: fontBold, color: C.white });
+    }
+
+    // Pie
+    page.drawRectangle({ x: 0, y: 0, width, height: 22, color: C.purple });
+    const pieText = safe(`Happy School  |  Generado el ${new Date().toLocaleDateString('es-MX')}  |  Folio ${folio}`);
+    page.drawText(pieText, { x: 24, y: 6, size: 7, font: fontNormal, color: C.white });
+
+    // Nota tutor
+    if (p.tutor_nombre) {
+      page.drawText(safe(`Padre/Tutor: ${p.tutor_nombre}`), { x: 24, y: 28, size: 8, font: fontNormal, color: C.gray });
+    }
+    if (p.notas) {
+      page.drawText(safe(`Notas: ${p.notas.substring(0, 80)}`), { x: 24, y: 16, size: 7, font: fontNormal, color: C.gray });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="recibo-${folio}.pdf"`);
+    res.end(Buffer.from(pdfBytes));
+  } catch (err) { next(err); }
+});
+
+// ─── ENVIAR RECIBO POR WHATSAPP ────────────────────────────────────────────────
+// POST /pagos/:id/enviar   body: { canal: 'whatsapp' }
+// Requiere: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM, APP_BASE_URL
+
+router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { canal = 'whatsapp' } = req.body;
+
+    // Obtener pago + tutor con teléfono
+    const result = await query(`
+      SELECT p.*,
+             cp.nombre AS concepto_nombre,
+             al.nombre_completo AS alumno_nombre,
+             g.nombre AS grupo_nombre,
+             t.nombre_completo AS tutor_nombre, t.telefono AS tutor_telefono
+      FROM pagos p
+      JOIN conceptos_pago cp ON p.concepto_id = cp.id
+      JOIN alumnos al ON p.alumno_id = al.id
+      JOIN grupos g ON al.grupo_id = g.id
+      LEFT JOIN alumno_padre ap ON ap.alumno_id = al.id AND ap.es_tutor_principal = true
+      LEFT JOIN padres t ON t.id = ap.padre_id
+      WHERE p.id = $1
+    `, [req.params.id]);
+
+    if (!result.rows[0]) return res.status(404).json({ error: 'Pago no encontrado' });
+    const p = result.rows[0];
+
+    if (!p.tutor_telefono) return res.status(400).json({ error: 'El alumno no tiene tutor con teléfono registrado' });
+
+    const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
+    const MESES_ES = ['', 'Enero','Febrero','Marzo','Abril','Mayo','Junio',
+      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+    const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
+    const linkRecibo = `${baseUrl}/api/pagos/${p.id}/recibo`;
+
+    // Número limpio (10 dígitos MX)
+    const tel = p.tutor_telefono.replace(/\D/g, '');
+    const toWA = `whatsapp:+52${tel.length === 10 ? tel : tel.slice(-10)}`;
+    const from = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
+
+    const folio = `#${String(p.id).replace(/-/g, '').slice(-8).toUpperCase()}`;
+    const mensaje = `🧾 *Recibo de Pago — Happy School*\n\n` +
+      `Hola ${p.tutor_nombre || 'Estimado padre/madre'},\n` +
+      `Adjuntamos el recibo de pago de *${p.alumno_nombre}*.\n\n` +
+      `📋 *Concepto:* ${p.concepto_nombre}\n` +
+      `📅 *Periodo:* ${MESES_ES[p.mes_correspondiente]} ${p.anio_correspondiente}\n` +
+      `💰 *Total pagado:* ${fmt(p.monto_total)}\n` +
+      `🔖 *Folio:* ${folio}\n\n` +
+      `Descarga tu recibo: ${linkRecibo}\n\n` +
+      `_Happy School — Donde los niños son felices_ 🌟`;
+
+    if (canal === 'whatsapp') {
+      if (!twilio) return res.status(503).json({ error: 'WhatsApp no configurado (TWILIO_ACCOUNT_SID no definido)' });
+      await twilio.messages.create({ body: mensaje, from, to: toWA });
+      res.json({ ok: true, canal: 'whatsapp', destinatario: p.tutor_nombre, telefono: p.tutor_telefono });
+    } else {
+      return res.status(400).json({ error: 'Canal no soportado. Usa: whatsapp' });
+    }
   } catch (err) { next(err); }
 });
 

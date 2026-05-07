@@ -410,7 +410,7 @@ function SeccionHermanos({ alumnoId }) {
 
   const { data: hermanos = [], isLoading } = useQuery({
     queryKey: ['hermanos', alumnoId],
-    queryFn: () => api.get(`/alumnos/${alumnoId}/hermanos`).then(r => r.data),
+    queryFn: () => api.get(`/alumnos/${alumnoId}/hermanos`).then(r => r.data.hermanos ?? r.data),
     enabled: !!alumnoId,
   });
 

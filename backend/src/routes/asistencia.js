@@ -787,9 +787,9 @@ router.patch('/:alumnoId/justificar', upload.single('comprobante'), authorize('d
     if (req.file) {
       const uploadResult = await uploadToCloudinary(req.file.buffer, {
         folder: 'justificantes',
-        resource_type: 'auto',
+        resource_type: 'image',
       });
-      comprobanteUrl = uploadResult.secure_url;
+      comprobanteUrl = uploadResult.url;
       comprobantePublicId = uploadResult.public_id;
     }
 

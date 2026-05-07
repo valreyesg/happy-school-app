@@ -2,11 +2,10 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const isProduction = process.env.NODE_ENV === 'production';
 const cloudinaryEnabled = process.env.CLOUDINARY_ENABLED === 'true';
 
 let cloudinary = null;
-if (isProduction && cloudinaryEnabled) {
+if (cloudinaryEnabled) {
   cloudinary = require('cloudinary').v2;
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,7 +20,7 @@ const uploadToCloudinary = async (buffer, options = {}) => {
     return new Promise((resolve, reject) => {
       const { Readable } = require('stream');
       const stream = cloudinary.uploader.upload_stream(
-        { resource_type: 'auto', ...options },
+        { resource_type: 'image', ...options },
         (error, result) => {
           if (error) return reject(error);
           resolve({ url: result.secure_url, public_id: result.public_id });

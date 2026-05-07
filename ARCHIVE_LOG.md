@@ -1,7 +1,63 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)**
+**Última actualización:** 2026-05-07 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)**
+
+---
+
+## ✅ SESIÓN XX+44 (2026-05-07) — Cloudinary: Configuración + Validación uploads
+
+**Fecha:** 2026-05-07 | **Estado:** ✅ COMPLETADA (parcial — 3 uploads pendientes de validación manual)
+
+### Resumen
+
+Configuración completa de Cloudinary con credenciales reales (plan Free). Auditoría de 18 puntos de upload, pruebas automatizadas con curl y validación manual de 6 módulos. Corrección de 4 bugs encontrados durante la validación.
+
+### Cambios implementados
+
+1. **Credenciales Cloudinary** — `.env` actualizado con `CLOUDINARY_CLOUD_NAME=dt67glxfo`, API Key y Secret reales. `CLOUDINARY_ENABLED=true`
+2. **cloudinaryService.js** — Eliminada condición `isProduction`, ahora usa Cloudinary cuando `CLOUDINARY_ENABLED=true` sin importar entorno. Default `resource_type` cambiado de `'auto'` a `'image'` (Cloudinary Free bloquea `raw` con 401)
+3. **qrService.js** — Misma corrección: eliminada condición `isProduction`, usa `CLOUDINARY_ENABLED`
+4. **Bug fix: `secure_url` → `url`** — `asistencia.js` y `bitacora.js` usaban `uploadResult.secure_url` pero nuestro servicio devuelve `.url`. Corregido en ambos
+5. **Bug fix: Menú PDF** — PDFs se subían como `resource_type: 'auto'` causando 401. Cambiado a `'image'` + frontend muestra preview JPG de primera página
+6. **Bug fix: Justificante PDF** — Mismo problema, misma solución. Frontend detecta `.pdf` y convierte a `.jpg` para preview
+7. **Bug fix: SeccionHermanos crash** — `queryFn` devolvía `{hermanos: [...]}` pero componente esperaba array. Corregido con `r.data.hermanos ?? r.data`
+8. **Auditoría global** — Todos los `resource_type: 'auto'` y `'raw'` en rutas cambiados a `'image'` para compatibilidad con Cloudinary Free
+
+### Validaciones manuales completadas
+
+| # | Módulo | Estado |
+|---|--------|--------|
+| 1 | Foto perfil alumno | ✅ Validado |
+| 2 | Regenerar QR | ✅ Validado |
+| 3 | Menú comida (PDF) | ✅ Validado (preview JPG) |
+| 4 | Justificante asistencia | ✅ Validado |
+| 5 | Comprobante de pago | ✅ Validado |
+| 6 | Foto perfil alumno (Cloudinary URL) | ✅ Validado |
+| 7 | Foto actividad bitácora | Pendiente próxima sesión |
+| 8 | Foto visitante | Pendiente próxima sesión |
+| 9 | Foto tarea | Pendiente próxima sesión |
+
+### Archivos modificados
+
+| Archivo | Cambio |
+|---------|--------|
+| `backend/.env` | Credenciales Cloudinary reales + ENABLED=true |
+| `backend/src/services/cloudinaryService.js` | Quitó isProduction, default resource_type='image' |
+| `backend/src/services/qrService.js` | Quitó isProduction, usa CLOUDINARY_ENABLED |
+| `backend/src/routes/asistencia.js` | Fix secure_url→url, resource_type='image' |
+| `backend/src/routes/bitacora.js` | Fix secure_url→url, resource_type='image' |
+| `backend/src/controllers/comidaController.js` | resource_type='image' en ambos uploads |
+| `web/src/pages/directora/ServicioComida.jsx` | PDF→JPG preview para menú |
+| `web/src/pages/directora/Asistencia.jsx` | PDF→JPG preview para justificante |
+| `web/src/pages/directora/AlumnoPerfil.jsx` | Fix queryFn hermanos (objeto→array) |
+
+### Nota técnica: Cloudinary Free
+
+- Plan Free: 25 créditos/mes (~25K transformaciones)
+- **`resource_type: 'raw'` da 401** — todos los uploads deben usar `'image'`
+- PDFs subidos como `'image'` permiten preview JPG de primera página (`.pdf` → `.jpg`)
+- PDFs NO se pueden descargar como archivo en plan Free
 
 ---
 

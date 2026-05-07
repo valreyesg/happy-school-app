@@ -441,21 +441,19 @@ function VistaMensual({ grupoId }) {
             {viendoJustificacion.comprobante_url && (
               <div className="mb-4">
                 <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-1">Comprobante</p>
-                {/\.(jpg|jpeg|png|webp|gif)$/i.test(viendoJustificacion.comprobante_url)
-                  ? <img
-                      src={viendoJustificacion.comprobante_url}
-                      alt="Comprobante"
-                      className="w-full rounded-xl border border-gray-200 max-h-48 object-contain"
-                    />
-                  : <a
-                      href={viendoJustificacion.comprobante_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-hs-blue-dark font-semibold text-sm underline"
-                    >
-                      Ver documento
-                    </a>
-                }
+                <img
+                  src={viendoJustificacion.comprobante_url.match(/\.pdf$/i)
+                    ? viendoJustificacion.comprobante_url.replace(/\.pdf$/i, '.jpg')
+                    : viendoJustificacion.comprobante_url}
+                  alt="Comprobante"
+                  className="w-full rounded-xl border border-gray-200 max-h-48 object-contain cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => window.open(
+                    viendoJustificacion.comprobante_url.match(/\.pdf$/i)
+                      ? viendoJustificacion.comprobante_url.replace(/\.pdf$/i, '.jpg')
+                      : viendoJustificacion.comprobante_url,
+                    '_blank'
+                  )}
+                />
               </div>
             )}
             <div className="text-xs text-gray-400 space-y-0.5 mb-4">

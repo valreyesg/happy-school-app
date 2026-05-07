@@ -1,7 +1,7 @@
 const QRCode = require('qrcode');
 const { uploadToCloudinary } = require('./cloudinaryService');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const cloudinaryEnabled = process.env.CLOUDINARY_ENABLED === 'true';
 
 const generarQR = async (alumnoId, data) => {
   // Generar QR como buffer PNG
@@ -12,7 +12,7 @@ const generarQR = async (alumnoId, data) => {
     color: { dark: '#2D3748', light: '#FFFFFF' },
   });
 
-  if (isProduction) {
+  if (cloudinaryEnabled) {
     // Producción: subir a Cloudinary
     const result = await uploadToCloudinary(qrBuffer, {
       folder: 'happy-school/qr-codes',

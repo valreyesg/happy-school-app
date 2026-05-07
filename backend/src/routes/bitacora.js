@@ -531,10 +531,10 @@ router.post('/medicamento/recepcion', async (req, res, next) => {
 
         const recetaResult = await uploadToCloudinary(buffer, {
           folder: 'happyschool/medicamentos-recepcion',
-          resource_type: 'auto',
+          resource_type: 'image',
           public_id: `receta_${Date.now()}`
         });
-        fotoRecetaUrl = recetaResult.secure_url;
+        fotoRecetaUrl = recetaResult.url;
         fotoRecetaPublicId = recetaResult.public_id;
       } catch (uploadErr) {
         // En desarrollo, si Cloudinary falla, continuar sin foto

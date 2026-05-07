@@ -44,7 +44,7 @@ exports.crearOActualizarMenu = async (req, res) => {
       try {
         const upload = await cloudinaryService.uploadToCloudinary(req.file.buffer, {
           folder: 'happyschool/comida/menus',
-          resource_type: 'auto'
+          resource_type: 'image'
         });
         archivo_url = upload.url;
         archivo_public_id = upload.public_id;
@@ -223,7 +223,7 @@ exports.confirmarComida = async (req, res) => {
     if (metodo_pago === 'transferencia' && req.file) {
       const upload = await cloudinaryService.uploadToCloudinary(req.file.buffer, {
         folder: 'happyschool/comida/comprobantes',
-        resource_type: 'auto'
+        resource_type: 'image'
       });
       comprobante_url = upload.url;
       comprobante_public_id = upload.public_id;

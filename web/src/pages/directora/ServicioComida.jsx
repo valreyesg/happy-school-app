@@ -515,7 +515,15 @@ export default function ServicioComida() {
           {menu && (menu.archivo_menu_url || menu.contenido_texto || menu.dias_menu) ? (
             <div className="space-y-3">
               {menu.archivo_menu_url && (
-                <img src={menu.archivo_menu_url} alt="Menú" className="rounded-xl w-full object-cover max-h-72" />
+                <img
+                  src={menu.archivo_menu_url.match(/\.pdf$/i) ? menu.archivo_menu_url.replace(/\.pdf$/i, '.jpg') : menu.archivo_menu_url}
+                  alt="Menú semanal"
+                  className="rounded-xl w-full object-cover max-h-96 cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => window.open(
+                    menu.archivo_menu_url.match(/\.pdf$/i) ? menu.archivo_menu_url.replace(/\.pdf$/i, '.jpg') : menu.archivo_menu_url,
+                    '_blank'
+                  )}
+                />
               )}
               {menu.dias_menu ? (
                 <div className="space-y-2">

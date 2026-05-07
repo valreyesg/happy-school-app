@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
+const crypto = require('crypto');
 const { authenticate, authorize } = require('../middleware/auth');
 const ctrl = require('../controllers/alumnosController');
 const { query } = require('../config/database');
 const { uploadToCloudinary, uploadPDF, deleteFromCloudinary } = require('../services/cloudinaryService');
+const { generarQR } = require('../services/qrService');
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -563,6 +565,104 @@ router.post('/:id/familia', authorize('directora', 'administrativo'), async (req
 router.delete('/:id/familia', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
     await query('UPDATE alumnos SET familia_id = NULL WHERE id = $1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// ── GET /alumnos/:id/qr-temporal — obtener QR temporal vigente del día ───────
+router.get('/:id/qr-temporal', authorize('padre'), async (req, res, next) => {
+  try {
+    // Verificar que el padre es tutor del alumno
+    const padreRes = await query(
+      `SELECT p.id FROM padres p
+       JOIN alumno_padre ap ON ap.padre_id = p.id
+       WHERE p.usuario_id = $1 AND ap.alumno_id = $2 AND ap.activo = true`,
+      [req.user.id, req.params.id]
+    );
+    if (padreRes.rows.length === 0)
+      return res.status(403).json({ error: 'No autorizado para este alumno' });
+
+    const result = await query(
+      `SELECT * FROM qr_temporales
+       WHERE alumno_id = $1 AND fecha_vigencia = CURRENT_DATE AND cancelado = false
+       ORDER BY created_at DESC LIMIT 1`,
+      [req.params.id]
+    );
+    res.json({ qr_temporal: result.rows[0] || null });
+  } catch (err) { next(err); }
+});
+
+// ── POST /alumnos/:id/qr-temporal — generar QR temporal (1 por día) ──────────
+router.post('/:id/qr-temporal', authorize('padre'), async (req, res, next) => {
+  try {
+    const { nombre_autorizado } = req.body;
+    if (!nombre_autorizado || !nombre_autorizado.trim())
+      return res.status(400).json({ error: 'nombre_autorizado es obligatorio' });
+
+    // Verificar que el padre es tutor del alumno
+    const padreRes = await query(
+      `SELECT p.id FROM padres p
+       JOIN alumno_padre ap ON ap.padre_id = p.id
+       WHERE p.usuario_id = $1 AND ap.alumno_id = $2 AND ap.activo = true`,
+      [req.user.id, req.params.id]
+    );
+    if (padreRes.rows.length === 0)
+      return res.status(403).json({ error: 'No autorizado para este alumno' });
+
+    // Solo 1 QR temporal activo por alumno por día
+    const existente = await query(
+      `SELECT id FROM qr_temporales
+       WHERE alumno_id = $1 AND fecha_vigencia = CURRENT_DATE AND cancelado = false`,
+      [req.params.id]
+    );
+    if (existente.rows.length > 0)
+      return res.status(409).json({ error: 'Ya existe un QR temporal activo para hoy. Cancélalo primero.' });
+
+    // Generar token único
+    const token = crypto.randomBytes(24).toString('hex');
+    const qrData = `HAPPYSCHOOL:TEMP:${token}`;
+
+    // Obtener nombre del alumno para el QR
+    const alumnoRes = await query('SELECT nombre_completo FROM alumnos WHERE id = $1', [req.params.id]);
+    const alumnoNombre = alumnoRes.rows[0]?.nombre_completo || 'Alumno';
+
+    // Generar imagen QR
+    const { qr_url } = await generarQR(`temp-${token}`, qrData);
+
+    // Guardar en BD
+    const result = await query(
+      `INSERT INTO qr_temporales (alumno_id, padre_id, nombre_autorizado, token, fecha_vigencia, qr_url)
+       VALUES ($1, $2, $3, $4, CURRENT_DATE, $5)
+       RETURNING *`,
+      [req.params.id, req.user.id, nombre_autorizado.trim(), token, qr_url]
+    );
+
+    res.status(201).json({ qr_temporal: result.rows[0], alumno_nombre: alumnoNombre });
+  } catch (err) { next(err); }
+});
+
+// ── DELETE /alumnos/:id/qr-temporal — cancelar QR temporal del día ───────────
+router.delete('/:id/qr-temporal', authorize('padre'), async (req, res, next) => {
+  try {
+    // Verificar que el padre es tutor del alumno
+    const padreRes = await query(
+      `SELECT p.id FROM padres p
+       JOIN alumno_padre ap ON ap.padre_id = p.id
+       WHERE p.usuario_id = $1 AND ap.alumno_id = $2 AND ap.activo = true`,
+      [req.user.id, req.params.id]
+    );
+    if (padreRes.rows.length === 0)
+      return res.status(403).json({ error: 'No autorizado para este alumno' });
+
+    const result = await query(
+      `UPDATE qr_temporales SET cancelado = true
+       WHERE alumno_id = $1 AND fecha_vigencia = CURRENT_DATE AND cancelado = false
+       RETURNING id`,
+      [req.params.id]
+    );
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'No hay QR temporal activo para cancelar' });
+
     res.json({ ok: true });
   } catch (err) { next(err); }
 });

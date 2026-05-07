@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { X, CalendarPlus, QrCode } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
@@ -489,21 +489,187 @@ function TareaRecienteCard({ hijo }) {
   );
 }
 
+function QRTemporalCard({ hijo }) {
+  const queryClient = useQueryClient();
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [nombreAutorizado, setNombreAutorizado] = useState('');
+  const [qrTempModal, setQrTempModal] = useState(null);
+
+  const { data: tempData, isLoading: loadingTemp } = useQuery({
+    queryKey: ['qr-temporal', hijo.id],
+    queryFn: () => api.get(`/alumnos/${hijo.id}/qr-temporal`).then(r => r.data.qr_temporal),
+    staleTime: 30000,
+  });
+
+  const generarMutation = useMutation({
+    mutationFn: () => api.post(`/alumnos/${hijo.id}/qr-temporal`, { nombre_autorizado: nombreAutorizado }).then(r => r.data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['qr-temporal', hijo.id] });
+      setModalAbierto(false);
+      setNombreAutorizado('');
+      setQrTempModal(data.qr_temporal);
+      toast.success('QR temporal generado');
+    },
+    onError: (e) => toast.error(e.response?.data?.error || 'Error al generar QR temporal'),
+  });
+
+  const cancelarMutation = useMutation({
+    mutationFn: () => api.delete(`/alumnos/${hijo.id}/qr-temporal`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['qr-temporal', hijo.id] });
+      toast.success('QR temporal cancelado');
+    },
+    onError: () => toast.error('Error al cancelar el QR'),
+  });
+
+  const handleDescargar = async (qr_url, nombre) => {
+    try {
+      const res = await fetch(qr_url);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `QR-Temporal-${nombre.replace(/\s+/g, '-')}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('QR descargado');
+    } catch {
+      toast.error('Error al descargar el QR');
+    }
+  };
+
+  const handleCompartirWhatsApp = (qr_url, nombre, alumnoNombre) => {
+    const texto = encodeURIComponent(`Pase temporal para recoger/dejar a ${alumnoNombre} en Happy School hoy.\nAutorizado: ${nombre}\n\nPor favor muestra el QR al llegar.`);
+    window.open(`https://wa.me/?text=${texto}`, '_blank');
+    toast('Descarga el QR y adjúntalo al mensaje de WhatsApp', { icon: 'ℹ️' });
+    handleDescargar(qr_url, nombre);
+  };
+
+  const handleCompartirEmail = (nombre, alumnoNombre) => {
+    const asunto = encodeURIComponent(`Pase temporal kínder — ${alumnoNombre}`);
+    const cuerpo = encodeURIComponent(`Hola,\n\nTe autorizo para recoger/dejar a ${alumnoNombre} en Happy School el día de hoy.\n\nNombre autorizado: ${nombre}\n\nPor favor descarga y presenta el QR adjunto en la entrada/salida.\n\nEste pase es válido solo hoy.`);
+    window.open(`mailto:?subject=${asunto}&body=${cuerpo}`, '_blank');
+  };
+
+  const qrActivo = tempData;
+
+  return (
+    <>
+      <div className="mt-3 border-t border-hs-purple/10 pt-3">
+        <p className="text-xs font-black text-gray-500 mb-2">🔐 Pase temporal (casos extraordinarios)</p>
+        {loadingTemp ? (
+          <p className="text-xs text-gray-400">Cargando...</p>
+        ) : qrActivo ? (
+          <div className="bg-amber-50 border border-amber-300 rounded-xl px-3 py-2 flex items-center gap-2">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-black text-amber-800">Activo para: {qrActivo.nombre_autorizado}</p>
+              <p className="text-xs text-amber-600">Válido solo hoy</p>
+            </div>
+            <button
+              onClick={() => setQrTempModal(qrActivo)}
+              className="px-2 py-1 rounded-lg bg-amber-200 text-amber-800 font-bold text-xs hover:bg-amber-300 transition-colors"
+            >
+              Ver
+            </button>
+            <button
+              onClick={() => cancelarMutation.mutate()}
+              disabled={cancelarMutation.isPending}
+              className="px-2 py-1 rounded-lg bg-red-100 text-red-700 font-bold text-xs hover:bg-red-200 transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="w-full px-3 py-2 rounded-xl border-2 border-dashed border-hs-purple/30 text-hs-purple font-bold text-xs hover:bg-hs-purple/5 transition-colors"
+          >
+            + Generar pase temporal para hoy
+          </button>
+        )}
+      </div>
+
+      {/* Modal generar QR temporal */}
+      <Modal open={modalAbierto} onClose={() => { setModalAbierto(false); setNombreAutorizado(''); }} title="Pase temporal de acceso" size="sm">
+        <div className="space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+            <p className="text-xs font-bold text-amber-800">
+              ⚠️ Solo para casos extraordinarios. Las personas ya registradas en el círculo de confianza usan el QR permanente.
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">Nombre completo de quien recogerá/dejará a {hijo.nombre_completo.split(' ')[0]}</label>
+            <input
+              type="text"
+              value={nombreAutorizado}
+              onChange={e => setNombreAutorizado(e.target.value)}
+              placeholder="Ej: Abuela Rosa García"
+              className="w-full px-3 py-2 rounded-xl border border-gray-300 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-hs-purple/40"
+            />
+          </div>
+          <p className="text-xs text-gray-500">Este pase es válido únicamente hoy. Puedes cancelarlo en cualquier momento.</p>
+          <button
+            onClick={() => generarMutation.mutate()}
+            disabled={!nombreAutorizado.trim() || generarMutation.isPending}
+            className="w-full px-4 py-3 rounded-2xl bg-hs-purple text-white font-bold text-sm disabled:opacity-50 hover:bg-hs-purple-dark transition-colors"
+          >
+            {generarMutation.isPending ? 'Generando...' : 'Generar pase temporal'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Modal mostrar QR temporal generado */}
+      <Modal open={!!qrTempModal} onClose={() => setQrTempModal(null)} title="Pase temporal" size="sm">
+        {qrTempModal && (
+          <div className="text-center space-y-3">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              <p className="text-xs font-black text-amber-800">Autorizado: {qrTempModal.nombre_autorizado}</p>
+              <p className="text-xs text-amber-600">Válido solo hoy — entrada y salida</p>
+            </div>
+            <img
+              src={qrTempModal.qr_url}
+              alt="QR temporal"
+              className="w-56 h-56 mx-auto rounded-2xl border-4 border-amber-300 object-contain"
+            />
+            <p className="text-xs text-gray-500">La maestra verá el nombre de quien autorizaste al escanear</p>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => handleDescargar(qrTempModal.qr_url, qrTempModal.nombre_autorizado)}
+                className="px-3 py-2 rounded-xl bg-hs-purple/10 text-hs-purple font-bold text-xs hover:bg-hs-purple/20 transition-colors"
+              >
+                ⬇️ Descargar
+              </button>
+              <button
+                onClick={() => handleCompartirWhatsApp(qrTempModal.qr_url, qrTempModal.nombre_autorizado, hijo.nombre_completo)}
+                className="px-3 py-2 rounded-xl bg-green-100 text-green-700 font-bold text-xs hover:bg-green-200 transition-colors"
+              >
+                📱 WhatsApp
+              </button>
+              <button
+                onClick={() => handleCompartirEmail(qrTempModal.nombre_autorizado, hijo.nombre_completo)}
+                className="px-3 py-2 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs hover:bg-blue-200 transition-colors"
+              >
+                ✉️ Email
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
+    </>
+  );
+}
+
 function QRAccesoSection({ hijos }) {
   const [qrModal, setQrModal] = useState(null);
 
   const handleDescargar = async (hijo) => {
     if (!hijo.qr_code_url) return;
     try {
-      // Para data URLs, crear blob directamente
       let blob;
-      if (hijo.qr_code_url.startsWith('data:')) {
-        const res = await fetch(hijo.qr_code_url);
-        blob = await res.blob();
-      } else {
-        const res = await fetch(hijo.qr_code_url);
-        blob = await res.blob();
-      }
+      const res = await fetch(hijo.qr_code_url);
+      blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -518,27 +684,41 @@ function QRAccesoSection({ hijos }) {
     }
   };
 
-  const hijosConQR = hijos.filter(h => h.qr_code_url);
-  if (hijosConQR.length === 0) return null;
+  if (hijos.length === 0) return null;
 
   return (
     <>
       <div>
         <h2 className="text-base font-black text-gray-700 mb-3">📱 QR de acceso</h2>
         <div className="space-y-2">
-          {hijosConQR.map(hijo => (
-            <div key={hijo.id} className="card-hs px-4 py-3 flex items-center gap-3 border border-hs-purple/20">
-              <QrCode size={24} className="text-hs-purple shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-black text-gray-800 truncate">{hijo.nombre_completo}</p>
-                <p className="text-xs font-semibold text-gray-500">Código para entrada y salida</p>
-              </div>
-              <button
-                onClick={() => setQrModal(hijo)}
-                className="px-3 py-1.5 rounded-xl bg-hs-purple/10 text-hs-purple font-bold text-xs hover:bg-hs-purple/20 transition-colors"
-              >
-                Ver QR
-              </button>
+          {hijos.map(hijo => (
+            <div key={hijo.id} className="card-hs px-4 py-3 border border-hs-purple/20">
+              {/* QR permanente — solo si está generado */}
+              {hijo.qr_code_url ? (
+                <div className="flex items-center gap-3">
+                  <QrCode size={24} className="text-hs-purple shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-gray-800 truncate">{hijo.nombre_completo}</p>
+                    <p className="text-xs font-semibold text-gray-500">Código para entrada y salida</p>
+                  </div>
+                  <button
+                    onClick={() => setQrModal(hijo)}
+                    className="px-3 py-1.5 rounded-xl bg-hs-purple/10 text-hs-purple font-bold text-xs hover:bg-hs-purple/20 transition-colors"
+                  >
+                    Ver QR
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <QrCode size={24} className="text-gray-300 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-black text-gray-800 truncate">{hijo.nombre_completo}</p>
+                    <p className="text-xs font-semibold text-gray-400">QR permanente no generado aún</p>
+                  </div>
+                </div>
+              )}
+              {/* Pase temporal — siempre visible */}
+              <QRTemporalCard hijo={hijo} />
             </div>
           ))}
         </div>

@@ -99,7 +99,7 @@ export default function QRScannerScreen() {
 
   const handleBarCodeScanned = ({ data }) => {
     if (cooldownRef.current || scanned) return;
-    if (!data.startsWith('HAPPYSCHOOL:ALUMNO:') && !data.startsWith('HAPPYSCHOOL:EXT:')) return;
+    if (!data.startsWith('HAPPYSCHOOL:ALUMNO:') && !data.startsWith('HAPPYSCHOOL:EXT:') && !data.startsWith('HAPPYSCHOOL:TEMP:')) return;
 
     if (data.startsWith('HAPPYSCHOOL:EXT:')) {
       const horaMinutos = new Date().getHours() * 60 + new Date().getMinutes();
@@ -323,6 +323,15 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
         </View>
       </View>
 
+      {/* Banner QR temporal */}
+      {alumno.es_temporal && (
+        <View style={styles.temporalBanner}>
+          <Text style={styles.temporalTitle}>🔐 PASE TEMPORAL — Verificar identidad</Text>
+          <Text style={styles.temporalAutorizado}>Autorizado por: {alumno.padre_nombre}</Text>
+          <Text style={styles.temporalNombre}>Persona autorizada: {alumno.nombre_autorizado}</Text>
+        </View>
+      )}
+
       {/* Banner cumpleaños */}
       {esCumpleanos(alumno.fecha_nacimiento) && (
         <View style={styles.cumpleBanner}>
@@ -379,6 +388,15 @@ function ResultadoEntrada({ alumno, resultado, modo, onSiguiente }) {
           ? (puede ? '#F0FFF4' : '#FFF5F5')
           : '#F3E8FF'
     }]}>
+      {/* Banner QR temporal */}
+      {alumno.es_temporal && (
+        <View style={[styles.temporalBanner, { width: '100%' }]}>
+          <Text style={styles.temporalTitle}>🔐 PASE TEMPORAL</Text>
+          <Text style={styles.temporalAutorizado}>Autorizado por: {alumno.padre_nombre}</Text>
+          <Text style={styles.temporalNombre}>Persona: {alumno.nombre_autorizado}</Text>
+        </View>
+      )}
+
       {/* Banner niño de extensión */}
       {alumno.es_extension && (
         <View style={[styles.extensionBanner, { backgroundColor: '#FED7AA' }]}>
@@ -560,6 +578,13 @@ const styles = StyleSheet.create({
   alumnoFotoGrande: { width: 80, height: 80, borderRadius: RADIUS.xl },
   alumnoNombreGrande: { fontSize: 18, fontWeight: '900', color: '#2D3748' },
   alumnoGrupo: { fontSize: 14, fontWeight: '600', color: '#805AD5', marginTop: 2 },
+  temporalBanner: {
+    backgroundColor: '#FEF3C7', borderWidth: 2, borderColor: '#F59E0B',
+    borderRadius: RADIUS.lg, padding: 14, marginBottom: 12,
+  },
+  temporalTitle: { fontWeight: '900', color: '#92400E', fontSize: 14, marginBottom: 4 },
+  temporalAutorizado: { fontWeight: '700', color: '#78350F', fontSize: 13 },
+  temporalNombre: { fontWeight: '900', color: '#92400E', fontSize: 15, marginTop: 4 },
   cumpleBanner: {
     backgroundColor: '#FEFCBF', borderWidth: 2, borderColor: '#F6E05E',
     borderRadius: RADIUS.lg, padding: 12, marginBottom: 12, alignItems: 'center',

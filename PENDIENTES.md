@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+49 (Firebase Push Notifications → Expo Push Service ✅)
+**Última actualización:** 2026-05-07 — Sesión XX+50 (QR Temporal — Pase invitado para padre ✅)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -56,14 +56,13 @@
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
-### 🚪 QR Temporal — Círculos de Confianza
-- [ ] Pase invitado 2 horas, padre envía por WhatsApp o Correo a tercero
+### 🚪 QR Temporal — Círculos de Confianza — PENDIENTE VALIDACIÓN MOBILE
+- [x] Web: generación, visualización, cancelación y compartir QR temporal ✅ VALIDADO
+- [ ] Validar en Expo Go / device (padre): que aparece sección "🔐 Pase temporal" en pantalla QR mobile
+- [ ] Validar que el padre puede generar pase temporal desde mobile
+- [ ] Validar que la Miss escanea QR temporal y ve banner amarillo "PASE TEMPORAL — Verificar identidad" con nombre del autorizado
+- [ ] Validar que el pase expirado/cancelado muestra error correcto al escanear
 
-### 📷 Galería y Chat
-- [ ] Álbumes fotos: por evento/mes con compresión
-- [ ] Privacidad: fotos individuales vs. grupales
-- [ ] Chat Grupo Miss + Papás: por grupo
-- [ ] Chat Familiar: Papás-Directora-Miss
 
 ### 🔔 WhatsApp Automático completo
 - [ ] Implementar las 19 plantillas restantes en sus módulos (ya están en DB)
@@ -73,3 +72,4 @@
 - [ ] Modo Offline Miss: caché local + sincronización
 - [ ] Backup automático diario
 - [ ] Pruebas UX + Performance: optimización completa
+- [ ] Álbumes fotos: por evento/mes con compresión (módulo extra, no prioritario)

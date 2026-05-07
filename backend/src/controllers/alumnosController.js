@@ -389,10 +389,94 @@ const regenerarQR = async (req, res, next) => {
 const buscarPorQR = async (req, res, next) => {
   try {
     const qrData = decodeURIComponent(req.params.qrData);
-
-    // El QR tiene el formato: HAPPYSCHOOL:ALUMNO:<uuid> o HAPPYSCHOOL:ALUMNO:<uuid>:<timestamp>
     const partes = qrData.split(':');
-    if (partes[0] !== 'HAPPYSCHOOL' || partes[1] !== 'ALUMNO' || !partes[2]) {
+
+    if (partes[0] !== 'HAPPYSCHOOL' || !partes[1]) {
+      return res.status(400).json({ error: 'QR inválido' });
+    }
+
+    // ── QR TEMPORAL ──────────────────────────────────────────────────────────
+    if (partes[1] === 'TEMP') {
+      const token = partes[2];
+      if (!token) return res.status(400).json({ error: 'QR temporal inválido' });
+
+      const tempRes = await query(
+        `SELECT qt.*, a.id AS alumno_id, a.nombre_completo, a.foto_url,
+                a.alergias, a.condiciones_especiales, a.usa_panial, a.estado,
+                g.id AS grupo_id, g.nombre AS grupo_nombre, g.nivel, g.color_hex,
+                u.id AS padre_usuario_id,
+                p.nombre_completo AS padre_nombre
+         FROM qr_temporales qt
+         JOIN alumnos a ON a.id = qt.alumno_id
+         LEFT JOIN grupos g ON g.id = a.grupo_id
+         JOIN usuarios u ON u.id = qt.padre_id
+         JOIN padres p ON p.usuario_id = u.id
+         WHERE qt.token = $1`,
+        [token]
+      );
+
+      if (tempRes.rows.length === 0)
+        return res.status(404).json({ error: 'QR temporal no encontrado' });
+
+      const qt = tempRes.rows[0];
+
+      // Validaciones de vigencia
+      if (qt.cancelado)
+        return res.status(410).json({ error: 'Este QR temporal fue cancelado por el padre', es_temporal: true });
+
+      const hoy = new Date().toISOString().slice(0, 10);
+      const vigencia = qt.fecha_vigencia instanceof Date
+        ? qt.fecha_vigencia.toISOString().slice(0, 10)
+        : String(qt.fecha_vigencia).slice(0, 10);
+
+      if (vigencia !== hoy)
+        return res.status(410).json({ error: 'Este QR temporal ya venció (solo válido el día de emisión)', es_temporal: true });
+
+      // Construir respuesta igual al QR permanente + campos extra de temporal
+      const alumnoId = qt.alumno_id;
+      const entradaRes = await query(
+        'SELECT id, hora_entrada, es_retardo, puede_entrar, numero_retardo_mes FROM registro_entrada WHERE alumno_id = $1 AND fecha = CURRENT_DATE',
+        [alumnoId]
+      );
+      const entrada = entradaRes.rows[0] || null;
+
+      const extRes = await query(
+        'SELECT tiene_extension, hora_salida_extension FROM config_horario_alumno WHERE alumno_id = $1',
+        [alumnoId]
+      );
+      const ext = extRes.rows[0] || {};
+
+      return res.json({
+        id: alumnoId,
+        nombre_completo: qt.nombre_completo,
+        foto_url: qt.foto_url,
+        alergias: qt.alergias,
+        condiciones_especiales: qt.condiciones_especiales,
+        usa_panial: qt.usa_panial,
+        estado: qt.estado,
+        grupo_id: qt.grupo_id,
+        grupo_nombre: qt.grupo_nombre,
+        nivel: qt.nivel,
+        color_hex: qt.color_hex,
+        tiene_extension: ext.tiene_extension || false,
+        hora_salida_extension: ext.hora_salida_extension || null,
+        entrada_id: entrada?.id || null,
+        hora_entrada: entrada?.hora_entrada || null,
+        es_retardo: entrada?.es_retardo || false,
+        puede_entrar: entrada?.puede_entrar ?? true,
+        numero_retardo_mes: entrada?.numero_retardo_mes || null,
+        ya_registro_entrada: !!entrada,
+        hermanos_sin_salir: 0,
+        // Campos exclusivos QR temporal
+        es_temporal: true,
+        nombre_autorizado: qt.nombre_autorizado,
+        padre_nombre: qt.padre_nombre,
+        qr_temporal_id: qt.id,
+      });
+    }
+
+    // ── QR PERMANENTE (original) ──────────────────────────────────────────────
+    if (partes[1] !== 'ALUMNO' || !partes[2]) {
       return res.status(400).json({ error: 'QR inválido' });
     }
     const alumnoId = partes[2];

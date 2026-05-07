@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Settings, Save, Bell, Clock, BookOpen, Pencil, EyeOff, Plus } from 'lucide-react';
+import { Settings, Save, Bell, Clock, BookOpen, Pencil, EyeOff, Plus, MessageCircle } from 'lucide-react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
 import CatalogoEditor from '@/components/directora/CatalogoEditor';
 import ModalCategoria from '@/components/directora/ModalCategoria';
+import PlantillasWhatsApp from '@/components/directora/PlantillasWhatsApp';
 
 const CAMPOS = [
   {
@@ -67,9 +68,10 @@ const COLOR_MAP = {
 };
 
 const TABS = [
-  { id: 'horarios',       label: 'Horarios y reglas', icon: Clock     },
-  { id: 'notificaciones', label: 'Notificaciones',    icon: Bell      },
-  { id: 'catalogos',      label: 'Catálogos',         icon: BookOpen  },
+  { id: 'horarios',       label: 'Horarios y reglas', icon: Clock          },
+  { id: 'notificaciones', label: 'Notificaciones',    icon: Bell           },
+  { id: 'catalogos',      label: 'Catálogos',         icon: BookOpen       },
+  { id: 'plantillas',     label: 'Plantillas WA',     icon: MessageCircle  },
 ];
 
 const CATALOGOS_CONFIG = [
@@ -185,7 +187,7 @@ export default function Configuracion() {
   }
 
   return (
-    <div className={`space-y-6 animate-fade-in ${tab !== 'catalogos' ? 'max-w-2xl mx-auto' : ''}`}>
+    <div className={`space-y-6 animate-fade-in ${tab !== 'catalogos' && tab !== 'plantillas' ? 'max-w-2xl mx-auto' : ''}`}>
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-hs-purple/20 flex items-center justify-center">
@@ -414,6 +416,16 @@ export default function Configuracion() {
             <CatalogoTabInline key={tipo} tipo={tipo} titulo={titulo} />
           ))}
           <CategoriasEventoCard />
+        </div>
+      )}
+
+      {/* Tab: Plantillas WhatsApp */}
+      {tab === 'plantillas' && (
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-4 bg-green-50 border border-green-200 rounded-2xl px-4 py-3 text-sm text-green-800 font-semibold">
+            📱 Edita el texto de los mensajes automáticos de WhatsApp. Las <code className="bg-green-100 px-1 rounded text-xs font-mono">{'{{variables}}'}</code> se reemplazan automáticamente al enviar.
+          </div>
+          <PlantillasWhatsApp />
         </div>
       )}
     </div>

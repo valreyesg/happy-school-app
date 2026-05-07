@@ -24,6 +24,7 @@ const insumosRoutes = require('./insumos');
 const ninosExtensionRoutes = require('./ninos_extension');
 const visitantesRoutes = require('./visitantes');
 const padresRoutes = require('./padres');
+const plantillasRoutes = require('./plantillas');
 
 router.use('/auth', authRoutes);
 router.use('/alumnos', alumnosRoutes);
@@ -48,5 +49,6 @@ router.use('/insumos', insumosRoutes);
 router.use('/ninos-extension', ninosExtensionRoutes);
 router.use('/visitantes', visitantesRoutes);
 router.use('/padres', padresRoutes);
+router.use('/plantillas', plantillasRoutes);
 
 module.exports = router;

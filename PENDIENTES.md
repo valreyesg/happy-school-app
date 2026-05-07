@@ -32,7 +32,7 @@
 ## 🎯 FASE C — 2–4 sesiones
 
 ### 📱 Panel Plantillas WhatsApp editable (directora)
-- [ ] UI para editar las 19 plantillas desde el portal directora
+- [x] ✅ UI para editar las 20 plantillas desde el portal directora (Sesión XX+47)
 
 ---
 

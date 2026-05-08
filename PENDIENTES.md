@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)
+**Última actualización:** 2026-05-07 — Sesión XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

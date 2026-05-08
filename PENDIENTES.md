@@ -57,12 +57,6 @@
 
 - [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
 
-### 🎓 Evaluaciones y Boletas
-- [ ] Indicadores configurables por nivel (catálogos dinámicos)
-- [ ] Captura calificaciones/observaciones (Miss)
-- [ ] Validación Directora antes de publicar
-- [ ] Boletas PDF automáticas
-
 ---
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
@@ -76,9 +70,15 @@
 - [ ] Pruebas completas con credenciales Twilio reales
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 
+### 🎓 Evaluaciones y Boletas
+- [ ] Indicadores configurables por nivel (catálogos dinámicos)
+- [ ] Captura calificaciones/observaciones (Miss)
+- [ ] Validación Directora antes de publicar
+- [ ] Boletas PDF automáticas
+- [ ] Reporte Desarrollo: PDF mensual por alumno
+
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización
 - [ ] Backup automático diario
 - [ ] Pruebas UX + Performance: optimización completa
 - [ ] Álbumes fotos: por evento/mes con compresión (módulo extra, no prioritario)
-- [ ] Reporte Desarrollo: PDF mensual por alumno (no prioritario)

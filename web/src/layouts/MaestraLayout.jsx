@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { LayoutDashboard, DoorOpen, DoorClosed, CheckSquare, BookOpen, Image, Clipboard } from 'lucide-react';
+import { LayoutDashboard, DoorOpen, DoorClosed, CheckSquare, BookOpen, Clipboard } from 'lucide-react';
 import AppShell from './AppShell';
 
 const NAV_ITEMS = [
@@ -9,7 +9,6 @@ const NAV_ITEMS = [
   { to: '/maestra/asistencia',       icon: CheckSquare,     label: 'Asistencia'      },
   { to: '/maestra/bitacora',         icon: BookOpen,        label: 'Bitácora'        },
   { to: '/maestra/tareas',           icon: Clipboard,       label: 'Tareas'          },
-  { to: '/maestra/galeria',          icon: Image,           label: 'Galería'         },
 ];
 
 function roleLabel(usuario) {

@@ -136,7 +136,6 @@ export default function MaestraDashboard() {
             { icon: 'book', label: 'Bitácora', route: '/(maestra)/bitacora', color: '#805AD5' },
             { icon: 'clipboard', label: 'Tareas', route: '/(maestra)/tareas', color: '#3B82F6' },
             { icon: 'qr-code', label: 'Escanear QR', route: '/(maestra)/qr-scanner', color: '#E53E3E' },
-            { icon: 'images', label: 'Galería', route: '/(maestra)/galeria', color: '#D69E2E' },
           ].map(({ icon, label, route, color }) => (
             <TouchableOpacity
               key={route}

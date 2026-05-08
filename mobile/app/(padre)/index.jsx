@@ -237,7 +237,9 @@ export default function PadreDashboard() {
               const etiqueta = fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
               return (
                 <TouchableOpacity key={ev.id} style={styles.eventoCard} onPress={() => setEventoSeleccionado(ev)} activeOpacity={0.8}>
-                  <Ionicons name="calendar-outline" size={22} color="#3182CE" />
+                  {ev.categoria_icono
+                    ? <Text style={{ fontSize: 22 }}>{ev.categoria_icono}</Text>
+                    : <Ionicons name="calendar-outline" size={22} color="#3182CE" />}
                   <View style={{ flex: 1 }}>
                     <Text style={styles.eventoTitulo} numberOfLines={1}>{ev.titulo}</Text>
                     <Text style={styles.eventoFecha}>{etiqueta}</Text>
@@ -361,10 +363,19 @@ function HijoTareasPendientes({ hijoId, hijoNombre }) {
   const [expandidas, setExpandidas] = useState({});
   const [fotoModal, setFotoModal] = useState(null);
 
-  const { data: tareasPendientes = [] } = useQuery({
+  const { data: tareasPendientes = [], isError } = useQuery({
     queryKey: ['tareas-pendientes-lista', hijoId],
-    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijoId}`).then(r => r.data).catch(() => []),
+    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijoId}`).then(r => r.data),
+    retry: 1,
   });
+
+  if (isError) return (
+    <View style={[styles.tareasPendientesBox, { borderTopWidth: 1, borderTopColor: '#DBEAFE' }]}>
+      <Text style={{ fontSize: 12, color: '#A0AEC0', fontWeight: '600', textAlign: 'center', paddingVertical: 4 }}>
+        No se pudieron cargar las tareas
+      </Text>
+    </View>
+  );
 
   if (tareasPendientes.length === 0) return null;
 

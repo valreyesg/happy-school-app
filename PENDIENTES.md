@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+61 (Dashboard Maestra Mobile: campanita + turno puerta + cumpleaños + síntomas + comida)
+**Última actualización:** 2026-05-08 — Sesión XX+62 (Portal Padre Mobile: ícono evento dinámico + fix tareas pendientes isError)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,10 +17,6 @@
 ---
 
 ## 📱 MOBILE — Portal Maestra — Correcciones pendientes
-
-### 🟡 MENORES — Portal Padre Mobile
-- [ ] **Eventos próximos** — El dashboard padre muestra eventos pero revisar si el diseño y datos coinciden con web (próximos 3 días, badge de categoría, modal con detalle)
-- [ ] **Tarea pendiente en dashboard** — No muestra tarea pendiente del alumno. Verificar llamada a `/tareas/lista-pendientes?alumno_id=`
 
 ### 🔍 Pendiente validar (manual)
 - [ ] QR normal scan desde app de la Miss

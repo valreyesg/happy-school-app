@@ -381,10 +381,17 @@ function TareaRecienteCard({ hijo }) {
   const [fotoModal, setFotoModal] = useState(null);
   const [expandidas, setExpandidas] = useState({});
 
-  const { data: tareasPendientes = [] } = useQuery({
+  const { data: tareasPendientes = [], isError } = useQuery({
     queryKey: ['tareas-pendientes-lista', hijo.id],
-    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijo.id}`).then(r => r.data).catch(() => []),
+    queryFn: () => api.get(`/tareas/lista-pendientes?alumno_id=${hijo.id}`).then(r => r.data),
+    retry: 1,
   });
+
+  if (isError) return (
+    <div className="card-hs px-4 py-2 text-xs font-semibold text-gray-400 text-center border border-gray-100">
+      No se pudieron cargar las tareas
+    </div>
+  );
 
   if (tareasPendientes.length === 0) return null;
 

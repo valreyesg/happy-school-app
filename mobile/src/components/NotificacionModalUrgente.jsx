@@ -33,21 +33,24 @@ export default function NotificacionModalUrgente({ notificacion, onEntendido }) 
     >
       <View style={styles.overlay}>
         <View style={[styles.card, { borderTopColor: cfg.color }]}>
-          {/* Icono */}
-          <View style={[styles.iconCircle, { backgroundColor: cfg.bgLight }]}>
-            <Text style={styles.iconText}>{cfg.icono}</Text>
+          {/* Contenido con padding */}
+          <View style={styles.content}>
+            {/* Icono */}
+            <View style={[styles.iconCircle, { backgroundColor: cfg.bgLight }]}>
+              <Text style={styles.iconText}>{cfg.icono}</Text>
+            </View>
+
+            {/* Badge tipo */}
+            <View style={[styles.badge, { backgroundColor: cfg.color }]}>
+              <Text style={styles.badgeText}>{cfg.label}</Text>
+            </View>
+
+            {/* Título y cuerpo */}
+            <Text style={styles.title}>{notificacion.titulo}</Text>
+            <Text style={styles.body}>{notificacion.cuerpo}</Text>
           </View>
 
-          {/* Badge tipo */}
-          <View style={[styles.badge, { backgroundColor: cfg.color }]}>
-            <Text style={styles.badgeText}>{cfg.label}</Text>
-          </View>
-
-          {/* Título y cuerpo */}
-          <Text style={styles.title}>{notificacion.titulo}</Text>
-          <Text style={styles.body}>{notificacion.cuerpo}</Text>
-
-          {/* Botón */}
+          {/* Botón — fuera del padding, ocupa todo el ancho */}
           <TouchableOpacity
             style={[styles.btn, { backgroundColor: cfg.color }]}
             onPress={onEntendido}
@@ -75,15 +78,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 24,
     borderTopWidth: 6,
-    paddingHorizontal: 28,
-    paddingTop: 28,
-    paddingBottom: 0,
-    alignItems: 'center',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.18,
     shadowRadius: 16,
     elevation: 10,
+  },
+  content: {
+    paddingHorizontal: 28,
+    paddingTop: 28,
+    paddingBottom: 24,
+    alignItems: 'center',
   },
   iconCircle: {
     width: 80,
@@ -120,16 +126,11 @@ const styles = StyleSheet.create({
     color: '#4A5568',
     textAlign: 'center',
     lineHeight: 20,
-    marginBottom: 28,
   },
   btn: {
     width: '100%',
     paddingVertical: 16,
     alignItems: 'center',
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    marginHorizontal: -28,
-    alignSelf: 'stretch',
   },
   btnText: {
     color: '#fff',

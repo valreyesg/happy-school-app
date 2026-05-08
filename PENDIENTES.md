@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+50 (QR Temporal — Pase invitado para padre ✅)
+**Última actualización:** 2026-05-07 — Sesión XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido ✅)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -19,12 +19,13 @@
 
 ### 📝 Feedback Valeria — Portal Padre Mobile — Pendientes restantes
 
-#### 🟡 Notificaciones push en tiempo real — mobile — PENDIENTE VALIDACIÓN VALERIA
-- [ ] Validar en Expo Go / device: que al enviar aviso extraordinario desde web, aparece modal urgente en mobile automáticamente (sin tocar la app)
-- [ ] Validar que el badge de campanita sube en ≤15 s al llegar notificación nueva
-- [ ] Validar que al presionar "Entendido" la notificación se marca como leída y el badge baja
-- [ ] Validar que si llegan 2 urgentes seguidas, se muestran en cola (una tras otra, no simultáneas)
-- [ ] Validar que la misma notificación NO aparece dos veces en la misma sesión
+#### ✅ Notificaciones push en tiempo real — mobile — VALIDADO 2026-05-07
+- [x] Badge de campanita sube en ≤15 s al llegar notificación nueva
+- [x] Al presionar "Entendido" la notificación se marca como leída y el badge baja
+- [x] 2 urgentes seguidas se muestran en cola (una tras otra, no simultáneas)
+- [x] La misma notificación NO aparece dos veces en la misma sesión
+- [x] Botón "Entendido" ocupa todo el ancho del modal (fix overflow:hidden)
+- [ ] Validar modal urgente en background (requiere build nativo, no Expo Go)
 
 #### 🟡 Features faltantes (paridad con web)
 

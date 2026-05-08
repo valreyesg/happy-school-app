@@ -4,11 +4,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
+import { MESES } from '@/utils/fecha';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 function fmt(n) {
   return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);

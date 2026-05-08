@@ -6,6 +6,7 @@ import api from '@/services/api';
 import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';
+import { MESES_CORTOS as MESES, ultimoDiaHabil } from '@/utils/fecha';
 
 // ─── Catálogos (fallback) ─────────────────────────────────────────────────────
 const TIPOS_DOC_FALLBACK = [
@@ -664,11 +665,6 @@ function FilaBit({ label, valor }) {
 
 function BitacoraDirectora({ alumnoId, usaPanial }) {
   const hoy = new Date().toLocaleDateString('en-CA');
-  const ultimoDiaHabil = () => {
-    const d = new Date();
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  };
   const [fecha, setFecha] = useState(ultimoDiaHabil);
 
   const irDia = (delta) => {
@@ -954,7 +950,6 @@ function BitacoraDirectora({ alumnoId, usaPanial }) {
 }
 
 // ─── Tab Extensión ────────────────────────────────────────────────────────────
-const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
 function TabExtension({ alumnoId }) {
   const qc = useQueryClient();

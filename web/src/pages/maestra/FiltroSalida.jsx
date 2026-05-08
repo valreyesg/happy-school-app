@@ -6,6 +6,7 @@ import api from '@/services/api';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
+import { ultimoDiaHabil, esSalidaAnticipada, esSalidaTardia } from '@/utils/fecha';
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -14,24 +15,6 @@ function horaTexto(ts) {
   return new Date(ts).toLocaleTimeString('es-MX', {
     hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City',
   });
-}
-
-function esSalidaAnticipada(horaSalidaNormal) {
-  if (!horaSalidaNormal) return false;
-  const ahora = new Date();
-  const [h, m] = horaSalidaNormal.split(':').map(Number);
-  const limite = new Date();
-  limite.setHours(h, m, 0, 0);
-  return ahora < limite;
-}
-
-function esSalidaTardia(alumno, horaInicioCobro) {
-  if (!horaInicioCobro || alumno.tiene_extension) return false;
-  const ahora = new Date();
-  const [h, m] = horaInicioCobro.split(':').map(Number);
-  const limite = new Date();
-  limite.setHours(h, m, 0, 0);
-  return ahora >= limite;
 }
 
 // ── Modal salida ───────────────────────────────────────────────────────────────
@@ -513,13 +496,6 @@ function QRScannerModal({ onScan, onClose }) {
 
 export default function FiltroSalida() {
   const hoy = new Date().toLocaleDateString('en-CA');
-
-  const ultimoDiaHabil = () => {
-    const d = new Date();
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  };
-
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const soloLectura = fecha < hoy;
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);

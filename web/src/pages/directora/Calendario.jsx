@@ -3,11 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Download } from 'lucide-react';
 import api from '@/services/api';
 import Modal from '@/components/ui/Modal';
+import { MESES } from '@/utils/fecha';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const DIAS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 function mesStr(year, month) {
   return `${year}-${String(month + 1).padStart(2, '0')}`;

@@ -5,6 +5,7 @@ import { useAppConfigStore } from '@/store/appConfigStore';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import Modal from '@/components/ui/Modal';
 import { SEMAFORO, ESTADO_PAGO } from '@/utils/pagos';
+import { MESES } from '@/utils/fecha';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -16,9 +17,6 @@ const PALETA_NIVELES = [
   { bg: 'bg-blue-100',   text: 'text-hs-blue-dark',   ring: 'ring-hs-blue/30' },
   { bg: 'bg-hs-purple/20', text: 'text-hs-purple-dark', ring: 'ring-purple-300' },
 ];
-
-const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
-               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 
 function fmt(n) {

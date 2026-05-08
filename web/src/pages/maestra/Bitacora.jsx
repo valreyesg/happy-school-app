@@ -7,6 +7,7 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';
+import { ultimoDiaHabil } from '@/utils/fecha';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -1532,11 +1533,6 @@ function FormBitacora({ alumno, fecha, soloLectura, actividades, setActividades,
 export default function MaestraBitacora() {
   const hoy = new Date().toLocaleDateString('en-CA');
   const [searchParams] = useSearchParams();
-  const ultimoDiaHabil = () => {
-    const d = new Date();
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  };
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [alumnoIdAutoselect, setAlumnoIdAutoselect] = useState(searchParams.get('alumnoId'));

@@ -5,6 +5,7 @@ import { Users, Clock, UserX, BookOpen, LogOut, AlertTriangle, AlertCircle } fro
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import { esCumpleanos } from '@/utils/asistencia';
+import { saludoHora } from '@/utils/fecha';
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
 
@@ -159,13 +160,6 @@ export default function MaestraDashboard() {
   const horaInicioFiltro = configHorario?.horarios?.hora_inicio_filtro || '07:00';
   const filtroAbierto = horaActual >= horaInicioFiltro && horaActual <= horaFinFiltro;
   const filtroCerrado = horaActual > horaFinFiltro;
-
-  const saludoHora = () => {
-    const h = new Date().getHours();
-    if (h < 12) return 'Buenos días';
-    if (h < 19) return 'Buenas tardes';
-    return 'Buenas noches';
-  };
 
   return (
     <div className="space-y-6 animate-fade-in">

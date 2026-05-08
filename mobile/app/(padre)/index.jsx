@@ -14,6 +14,7 @@ import NotificationBell from '@/components/NotificationBell';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Button from '@/components/Button';
 import { Ionicons } from '@expo/vector-icons';
+import { saludoHora } from '@/utils/fecha';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -30,13 +31,6 @@ const CONDUCTA_STYLE = {
   bien:             { emoji: '👍', label: 'Bien',      badge: { backgroundColor: '#EBF8FF' }, text: { color: '#2B6CB0' } },
   necesita_mejorar: { emoji: '⚠️', label: 'Mejorar',  badge: { backgroundColor: '#FFFAF0' }, text: { color: '#C05621' } },
 };
-
-function saludoHora() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Buenos días';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
 
 const TRATAMIENTO_PARENTESCO = {
   madre: 'Mamá', papa: 'Papá', padre: 'Papá',

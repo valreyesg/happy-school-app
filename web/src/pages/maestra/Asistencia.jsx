@@ -8,17 +8,8 @@ import Modal from '@/components/ui/Modal';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import toast from 'react-hot-toast';
 import { ESTADO_CONFIG, esCumpleanos } from '@/utils/asistencia';
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function BadgeEstado({ estado }) {
-  const cfg = ESTADO_CONFIG[estado] || ESTADO_CONFIG.ausente;
-  return (
-    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black ${cfg.bg} ${cfg.text}`}>
-      {cfg.emoji} {cfg.label}
-    </span>
-  );
-}
+import { MESES_LABEL, ultimoDiaHabil } from '@/utils/fecha';
+import BadgeEstado from '@/components/ui/BadgeEstado';
 
 // ── Modal checklist de entrada ────────────────────────────────────────────────
 
@@ -288,13 +279,6 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
 
 export default function MaestraAsistencia() {
   const hoy = new Date().toLocaleDateString('en-CA');
-
-  const ultimoDiaHabil = () => {
-    const d = new Date();
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  };
-
   const [fecha, setFecha] = useState(ultimoDiaHabil);
   const soloLectura = fecha < hoy;
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);

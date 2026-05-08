@@ -4,9 +4,9 @@ import { ChevronLeft, ChevronRight, CalendarPlus, Download } from 'lucide-react'
 import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Modal from '@/components/ui/Modal';
+import { MESES as MESES_LABEL } from '@/utils/fecha';
 
 const DIAS_SEMANA = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-const MESES_LABEL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 function buildCalendarDays(year, month) {
   const firstDay = new Date(year, month, 1).getDay();

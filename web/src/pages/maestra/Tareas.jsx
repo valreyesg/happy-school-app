@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
+import { MESES_CORTOS, proximoDiaHabil } from '@/utils/fecha';
 
 function getISOWeek(dateStr) {
   const d = new Date(dateStr + 'T12:00:00');
@@ -24,14 +25,13 @@ function getSemanaKey(dateStr) {
 }
 
 function getLunesToDomingo(dateStr) {
-  const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
   const d = new Date(dateStr + 'T12:00:00');
   const diaSemana = (d.getDay() + 6) % 7;
   const lunes = new Date(d);
   lunes.setDate(d.getDate() - diaSemana);
   const domingo = new Date(lunes);
   domingo.setDate(lunes.getDate() + 6);
-  const fmt = (f) => `${f.getDate()} ${MESES[f.getMonth()]}`;
+  const fmt = (f) => `${f.getDate()} ${MESES_CORTOS[f.getMonth()]}`;
   return `${fmt(lunes)} – ${fmt(domingo)}`;
 }
 
@@ -50,15 +50,6 @@ function agruparPorSemana(tareas, orden = 'asc') {
     orden === 'asc' ? a.semanaKey.localeCompare(b.semanaKey) : b.semanaKey.localeCompare(a.semanaKey)
   );
   return grupos;
-}
-
-function proximoDiaHabil(fecha = new Date()) {
-  const d = new Date(fecha);
-  d.setDate(d.getDate() + 1);
-  while (d.getDay() === 0 || d.getDay() === 6) {
-    d.setDate(d.getDate() + 1);
-  }
-  return d.toLocaleDateString('en-CA');
 }
 
 function ModalEditarTarea({ tarea, onClose, onSuccess }) {
@@ -534,6 +525,28 @@ function NavegadorSemana({ grupos, indice, setIndice, colorClass, emptyMsg, onSu
   );
 }
 
+function descargarReporte(formato, grupoId) {
+  const hoyDate = new Date();
+  const mes = hoyDate.getMonth() + 1;
+  const anio = hoyDate.getFullYear();
+  const params = new URLSearchParams({ mes, anio, formato, grupo_id: grupoId });
+  const ext = formato === 'excel' ? 'xlsx' : 'pdf';
+  const nombreMes = MESES_CORTOS[mes - 1];
+  toast.promise(
+    api.get(`/reportes/tareas?${params}`, { responseType: 'blob' }).then(({ data }) => {
+      const url = window.URL.createObjectURL(new Blob([data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `tareas-${nombreMes}-${anio}.${ext}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    }),
+    { loading: 'Generando...', success: 'Reporte descargado', error: 'Error al generar' }
+  );
+}
+
 export default function MaestraTareas() {
   const { usuario } = useAuthStore();
   const [showModal, setShowModal] = useState(false);
@@ -598,52 +611,14 @@ export default function MaestraTareas() {
           {grupo?.id && (
             <div className="flex gap-1">
               <button
-                onClick={() => {
-                  const hoyDate = new Date();
-                  const mes = hoyDate.getMonth() + 1;
-                  const anio = hoyDate.getFullYear();
-                  const params = new URLSearchParams({ mes, anio, formato: 'excel', grupo_id: grupo.id });
-                  const MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-                  toast.promise(
-                    api.get(`/reportes/tareas?${params}`, { responseType: 'blob' }).then(({ data }) => {
-                      const url = window.URL.createObjectURL(new Blob([data]));
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.setAttribute('download', `tareas-${MESES[mes]}-${anio}.xlsx`);
-                      document.body.appendChild(link);
-                      link.click();
-                      link.remove();
-                      window.URL.revokeObjectURL(url);
-                    }),
-                    { loading: 'Generando...', success: 'Reporte descargado', error: 'Error al generar' }
-                  );
-                }}
+                onClick={() => descargarReporte('excel', grupo.id)}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold bg-green-50 text-green-700 hover:bg-green-100 transition-colors"
                 title="Descargar reporte Excel del mes actual"
               >
                 <FileSpreadsheet size={14} /> Excel
               </button>
               <button
-                onClick={() => {
-                  const hoyDate = new Date();
-                  const mes = hoyDate.getMonth() + 1;
-                  const anio = hoyDate.getFullYear();
-                  const params = new URLSearchParams({ mes, anio, formato: 'pdf', grupo_id: grupo.id });
-                  const MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-                  toast.promise(
-                    api.get(`/reportes/tareas?${params}`, { responseType: 'blob' }).then(({ data }) => {
-                      const url = window.URL.createObjectURL(new Blob([data]));
-                      const link = document.createElement('a');
-                      link.href = url;
-                      link.setAttribute('download', `tareas-${MESES[mes]}-${anio}.pdf`);
-                      document.body.appendChild(link);
-                      link.click();
-                      link.remove();
-                      window.URL.revokeObjectURL(url);
-                    }),
-                    { loading: 'Generando...', success: 'Reporte descargado', error: 'Error al generar' }
-                  );
-                }}
+                onClick={() => descargarReporte('pdf', grupo.id)}
                 className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-bold bg-red-50 text-red-700 hover:bg-red-100 transition-colors"
                 title="Descargar reporte PDF del mes actual"
               >

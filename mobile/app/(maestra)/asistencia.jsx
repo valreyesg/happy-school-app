@@ -10,6 +10,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import Button from '@/components/Button';
 import { ESTADO_CONFIG } from '@/constants/asistencia';
+import SelectorFecha from '@/components/SelectorFecha';
+import { ultimoDiaHabil } from '@/utils/fecha';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -151,55 +153,6 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
 
 // ─── Selector de fecha ────────────────────────────────────────────────────────
 
-function SelectorFecha({ fecha, onChange }) {
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const date = new Date(fecha + 'T12:00:00');
-  const esHoy = fecha === hoy;
-
-  const irAnterior = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() - 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    onChange(d.toLocaleDateString('en-CA'));
-  };
-
-  const irSiguiente = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-    const sig = d.toLocaleDateString('en-CA');
-    if (sig <= hoy) onChange(sig);
-  };
-
-  const bloqueadoSig = (() => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString('en-CA') > hoy;
-  })();
-
-  return (
-    <View style={s.fechaRow}>
-      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
-        <Text style={s.fechaBtnTxt}>‹</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <Text style={s.fechaTxt}>
-          {date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
-        </Text>
-        {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
-      </View>
-      <TouchableOpacity
-        style={[s.fechaBtn, bloqueadoSig && { opacity: 0.3 }]}
-        onPress={irSiguiente}
-        disabled={bloqueadoSig}
-      >
-        <Text style={s.fechaBtnTxt}>›</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 export default function AsistenciaScreen() {
   const queryClient = useQueryClient();
@@ -208,12 +161,6 @@ export default function AsistenciaScreen() {
   const [filtro, setFiltro] = useState('todos'); // todos | pendientes | presentes
   const [refreshing, setRefreshing] = useState(false);
 
-  const hoyRaw = new Date();
-  const ultimoDiaHabil = (() => {
-    const d = new Date(hoyRaw);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  })();
   const [fecha, setFecha] = useState(ultimoDiaHabil);
 
   const { data, isLoading, refetch } = useQuery({

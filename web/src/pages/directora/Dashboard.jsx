@@ -10,6 +10,7 @@ import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import { ESTADO_STYLE, esCumpleanos } from '@/utils/asistencia';
+import { saludoHora } from '@/utils/fecha';
 
 function agruparPorGrupo(lista, asistenciaPorGrupo) {
   const colorMap = Object.fromEntries(
@@ -498,12 +499,6 @@ export default function DirectoraDashboard() {
   const CORTE_EXTENSION = 15 * 60 + 6; // 15:06
   const modoExtension = minutosActuales >= CORTE_EXTENSION;
 
-  const saludoHora = () => {
-    const h = new Date().getHours();
-    if (h < 12) return 'Buenos días';
-    if (h < 19) return 'Buenas tardes';
-    return 'Buenas noches';
-  };
   const terminoDirectora = usuario?.genero === 'm' ? 'Director' : 'Directora';
 
   return (

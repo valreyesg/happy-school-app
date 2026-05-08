@@ -8,6 +8,7 @@ import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
+import { saludoHora } from '@/utils/fecha';
 
 function proximos3Dias() {
   const hoy = new Date();
@@ -240,13 +241,6 @@ function HijoCard({ hijo }) {
     </Link>
   );
 }
-
-const saludoHora = () => {
-  const h = new Date().getHours();
-  if (h < 12) return 'Buenos días';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-};
 
 const TRATAMIENTO_PARENTESCO = {
   madre:    'Mamá',

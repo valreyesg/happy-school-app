@@ -6,6 +6,7 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import toast from 'react-hot-toast';
 import Modal from '@/components/ui/Modal';
 import { ESTADO_STYLE } from '@/utils/asistencia';
+import { MESES_LABEL } from '@/utils/fecha';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -128,7 +129,6 @@ function descargarReporte(tipo, formato, mes, anio, grupoId) {
   if (grupoId) params.append('grupo_id', grupoId);
 
   const ext = formato === 'excel' ? 'xlsx' : 'pdf';
-  const MESES_LABEL = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const filename = `${tipo}-${MESES_LABEL[mes]}-${anio}.${ext}`;
 
   toast.promise(

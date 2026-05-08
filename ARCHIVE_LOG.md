@@ -1,7 +1,53 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-08 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)** → **XX+47 (Panel Plantillas WhatsApp editable — Directora)** → **XX+48 (Notificaciones push en tiempo real — mobile)** → **XX+49 (Push Notifications via Expo Push Service)** → **XX+50 (QR Temporal — Pase invitado para padre)** → **XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido)** → **XX+52 (Validación QR Temporal Mobile + Fix flujo salida scanner)** → **XX+53 (Bugs WhatsApp corregidos — firma, bypass Twilio, plantillas faltantes en BD)** → **XX+54 (Mobile: colores rol, navegación fechas, fixes UI)** → **XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)** → **XX+55 (WhatsApp feature flag + Twilio Sandbox)** → **XX+56 (WhatsApp Sandbox end-to-end validado)** → **XX+57 (Plantillas WhatsApp sin disparador — 10 funciones + 3 disparadores conectados)** → **XX+58 (WA solo uno a uno: 14 plantillas activas, broadcast eliminadas, botón 📲 recordatorio_pago en adeudos)** → **XX+59 (Bitácora Maestra Mobile — Paridad web: alimentación 4 tiempos + medicamentos completos + incidentes + actividades)** → **XX+60 (Bitácora Maestra Mobile — Paridad 🟠 IMPORTANTES: menú precarga + fotos medicamentos + fotos actividades)** → **XX+61 (Dashboard Maestra Mobile — UX/Diseño: campanita, turno puerta, cumpleaños, síntomas, comida)** → **XX+62 (Portal Padre Mobile — Menores: ícono evento dinámico + fix tareas pendientes isError)** → **XX+63 (UX + Performance: audit completo, limpieza código, centralización utils — Parte 1)**
+**Última actualización:** 2026-05-08 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)** → **XX+47 (Panel Plantillas WhatsApp editable — Directora)** → **XX+48 (Notificaciones push en tiempo real — mobile)** → **XX+49 (Push Notifications via Expo Push Service)** → **XX+50 (QR Temporal — Pase invitado para padre)** → **XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido)** → **XX+52 (Validación QR Temporal Mobile + Fix flujo salida scanner)** → **XX+53 (Bugs WhatsApp corregidos — firma, bypass Twilio, plantillas faltantes en BD)** → **XX+54 (Mobile: colores rol, navegación fechas, fixes UI)** → **XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)** → **XX+55 (WhatsApp feature flag + Twilio Sandbox)** → **XX+56 (WhatsApp Sandbox end-to-end validado)** → **XX+57 (Plantillas WhatsApp sin disparador — 10 funciones + 3 disparadores conectados)** → **XX+58 (WA solo uno a uno: 14 plantillas activas, broadcast eliminadas, botón 📲 recordatorio_pago en adeudos)** → **XX+59 (Bitácora Maestra Mobile — Paridad web: alimentación 4 tiempos + medicamentos completos + incidentes + actividades)** → **XX+60 (Bitácora Maestra Mobile — Paridad 🟠 IMPORTANTES: menú precarga + fotos medicamentos + fotos actividades)** → **XX+61 (Dashboard Maestra Mobile — UX/Diseño: campanita, turno puerta, cumpleaños, síntomas, comida)** → **XX+62 (Portal Padre Mobile — Menores: ícono evento dinámico + fix tareas pendientes isError)** → **XX+63 (UX + Performance: audit completo, limpieza código, centralización utils — Parte 1)** → **XX+64 (UX + Performance: centralización utils/componentes — Ítems 8-16)**
+
+---
+
+## ✅ SESIÓN XX+64 (2026-05-08) — UX + Performance: Centralización utils/componentes — Ítems 8-16
+
+**Fecha:** 2026-05-08 | **Estado:** ✅ Completado — pendientes de validación en browser/app por Valeria
+
+### Resumen
+
+Eliminación de código duplicado en toda la app (web + mobile): 9 ítems resueltos. Se crearon 4 archivos centralizados y se actualizaron ~20 archivos para importar en vez de redefinir.
+
+### Archivos nuevos creados
+
+| Archivo | Contenido |
+|---------|-----------|
+| `web/src/utils/fecha.js` | `MESES`, `MESES_CORTOS`, `MESES_LABEL`, `ultimoDiaHabil()`, `proximoDiaHabil()`, `esSalidaAnticipada()`, `esSalidaTardia()`, `saludoHora()`, `TRATAMIENTO_PARENTESCO`, `saludoPadre()` |
+| `web/src/components/ui/BadgeEstado.jsx` | Componente badge de estado de asistencia (reemplaza copias en Asistencia + FiltroEntrada) |
+| `mobile/src/utils/fecha.js` | `saludoHora()`, `ultimoDiaHabil()` para mobile |
+| `mobile/src/components/SelectorFecha.jsx` | Selector de fecha con flechas con prop `accentColor` (reemplaza 3 copias en mobile) |
+
+### Lo que se hizo
+
+| Ítem | Cambio | Archivos afectados |
+|------|--------|--------------------|
+| 8 | `MESES` → import desde `fecha.js` | Dashboard admin, Notificaciones admin, Calendario directora, Pagos directora, AlumnoPerfil directora, Asistencia directora, Calendario padre, Pagos padre, Tareas maestra |
+| 9 | `ultimoDiaHabil()` → import | FiltroEntrada, FiltroSalida, Asistencia maestra, Bitácora maestra, AlumnoPerfil directora |
+| 10 | `esSalidaAnticipada()` + `esSalidaTardia()` → import | FiltroSalida (eliminadas 2 funciones locales) |
+| 11 | `BadgeEstado` → componente compartido | Asistencia maestra, FiltroEntrada maestra |
+| 13 | `saludoHora()` → import | Dashboard padre web, Dashboard directora web, Dashboard maestra web, index maestra mobile, index padre mobile |
+| 14 | Descarga Excel/PDF → `descargarReporte(formato)` | Tareas maestra (2 bloques idénticos de ~20 líneas → 1 función de 18 líneas) |
+| 15 | `pickFotoReceta` + `tomarFotoReceta` → `pickMedia(fuente)` | bitacora padre mobile |
+| 16 | `SelectorFecha` → componente compartido | asistencia maestra mobile, bitácora maestra mobile, bitácora padre mobile |
+
+### Notas técnicas
+
+- `esSalidaTardia()` en `fecha.js` preserva la lógica original de FiltroSalida (retorna true si el alumno **NO** tiene extensión y ya pasó la hora límite — no al revés)
+- `SelectorFecha` mobile acepta prop `accentColor` (morado `#805AD5` por defecto para maestra; rojo `#E53E3E` para padre)
+- Ítem 12 (`Seccion`/`FilaInfo`/`PildoraBool`) quedó pendiente — estilos muy acoplados a cada pantalla, requiere mayor análisis
+
+### Tu lista de validación
+
+- [ ] **Ítems 8-10** — Fechas en Tareas, Pagos, FiltroEntrada/Salida funcionan igual que antes
+- [ ] **Ítem 11** — Badges de estado en Asistencia y FiltroEntrada se ven igual
+- [ ] **Ítems 13-14** — Descarga Excel/PDF en Tareas funciona; saludos en dashboards normales
+- [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
+- [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
 
 ---
 

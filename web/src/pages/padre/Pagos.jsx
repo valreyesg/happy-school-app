@@ -4,8 +4,7 @@ import api from '@/services/api';
 import { SEMAFORO, ESTADO_PAGO } from '@/utils/pagos';
 import Modal from '@/components/ui/Modal';
 import { Upload, Clock, CheckCircle, XCircle } from 'lucide-react';
-
-const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+import { MESES_CORTOS as MESES } from '@/utils/fecha';
 
 function fmt$(n) {
   return Number(n).toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });

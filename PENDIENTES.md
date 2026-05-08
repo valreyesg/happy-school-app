@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+63 (UX + Performance: audit completo, limpieza código, centralización utils — Parte 1)
+**Última actualización:** 2026-05-08 — Sesión XX+64 (UX + Performance: centralización utils/componentes — Ítems 8-16 completados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -8,21 +8,13 @@
 ## 🧹 UX + PERFORMANCE — Parte 2 (siguiente sesión)
 
 > Objetivo: máx. 2 clics por acción, sin código basura, paridad web↔mobile, sin duplicaciones.
-> Audit completo realizado en Sesión XX+63: 73 problemas identificados, 8 resueltos. Restan 21.
+> Audit completo realizado en Sesión XX+63: 73 problemas identificados, 8 resueltos. Ítems 8-16 resueltos en Sesión XX+64. Restan 13.
 
 ### 🔲 Código duplicado → centralizar en utils/componentes
 
 | # | Qué | Duplicado en | Destino |
 |---|-----|-------------|---------|
-| 8 | `MESES` (array de meses) | Calendario, Pagos, Tareas, ComidaSemanal, Bitácora web | `web/src/utils/fecha.js` |
-| 9 | `ultimoDiaHabil()` / `proximoDiaHabil()` | FiltroEntrada, FiltroSalida, Asistencia web | `web/src/utils/fecha.js` |
-| 10 | `esSalidaAnticipada()` + `esSalidaTardia()` | FiltroEntrada, FiltroSalida web | `web/src/utils/fecha.js` |
-| 11 | `BadgeEstado` componente | Asistencia, FiltroEntrada, FiltroSalida web | `web/src/components/ui/BadgeEstado.jsx` |
 | 12 | `Seccion`, `FilaInfo`, `PildoraBool` UI helpers | Bitácora maestra web + mobile (3+ copias) | Componentes compartidos web + mobile |
-| 13 | `TRATAMIENTO_PARENTESCO` + `saludoHora()` | Dashboard padre web + mobile | `web/src/utils/fecha.js` + `mobile/src/utils/` |
-| 14 | Descarga reportes (Excel/PDF casi idénticas) | Tareas maestra web | Factorizar `descargarReporte(formato)` |
-| 15 | `pickFotoReceta` + `tomarFotoReceta` similares | Bitácora padre mobile | Factorizar `pickMedia(fuente)` |
-| 16 | `SelectorFecha` componente | Bitácora padre, Asistencia maestra, Bitácora maestra mobile | `mobile/src/components/SelectorFecha.jsx` |
 
 ### 🔲 Variables/código muerto → eliminar
 
@@ -62,11 +54,15 @@
 - [ ] **Dashboard padre web** — Navegar páginas y regresar: no hace spinner si pasaron menos de 5 min
 - [ ] **Dashboard maestra mobile** — Abre la app, carga normal sin errores
 
-### 📋 VALERIA — Validar junto con cada ítem (próxima sesión)
-- [ ] **Ítem 8-10** — Fechas en Tareas, Pagos, FiltroEntrada/Salida funcionan igual
-- [ ] **Ítem 11** — Badges de estado en Asistencia, FiltroEntrada, FiltroSalida se ven igual
-- [ ] **Ítem 12** — Bitácora maestra web + mobile: secciones se ven igual
+### 📋 VALERIA — Validar ítems 8-16 (recién completados en Sesión XX+64)
+- [ ] **Ítems 8-10** — Fechas en Tareas, Pagos, FiltroEntrada/Salida funcionan igual que antes
+- [ ] **Ítem 11** — Badges de estado en Asistencia, FiltroEntrada se ven igual
+- [ ] **Ítems 13-14** — Descarga Excel/PDF en Tareas funciona; saludos en dashboards normales
+- [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
 - [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
+
+### 📋 VALERIA — Validar junto con cada ítem (próxima sesión)
+- [ ] **Ítem 12** — Bitácora maestra web + mobile: secciones se ven igual
 - [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo una vez
 - [ ] **Ítem 24** — Tareas maestra web: crear y editar tarea funcionan correctamente
 - [ ] **Ítem 25** — Dashboard maestra mobile con grupo real: scroll suave en lista alumnos

@@ -11,6 +11,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
+import SelectorFecha from '@/components/SelectorFecha';
+import { ultimoDiaHabil } from '@/utils/fecha';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -62,67 +64,10 @@ function BoolBtn({ label, value, onChange }) {
   );
 }
 
-// ─── Selector de fecha con flechas ───────────────────────────────────────────
-
-function SelectorFechaMaestra({ fecha, onChange }) {
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const date = new Date(fecha + 'T12:00:00');
-  const esHoy = fecha === hoy;
-
-  const irAnterior = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() - 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    onChange(d.toLocaleDateString('en-CA'));
-  };
-
-  const irSiguiente = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-    const sig = d.toLocaleDateString('en-CA');
-    if (sig <= hoy) onChange(sig);
-  };
-
-  const bloqueadoSig = (() => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString('en-CA') > hoy;
-  })();
-
-  const fmt = date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
-
-  return (
-    <View style={s.fechaRow}>
-      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
-        <Text style={s.fechaBtnTxt}>‹</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <Text style={s.fechaTxt}>{fmt}</Text>
-        {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
-      </View>
-      <TouchableOpacity
-        style={[s.fechaBtn, bloqueadoSig && { opacity: 0.3 }]}
-        onPress={irSiguiente}
-        disabled={bloqueadoSig}
-      >
-        <Text style={s.fechaBtnTxt}>›</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 // ─── Selector de alumno ──────────────────────────────────────────────────────
 
 function SelectorAlumno() {
   const router = useRouter();
-  const hoyRaw = new Date();
-  const ultimoDiaHabil = (() => {
-    const d = new Date(hoyRaw);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
-    return d.toLocaleDateString('en-CA');
-  })();
   const [fecha, setFecha] = useState(ultimoDiaHabil);
 
   const { data, isLoading } = useQuery({
@@ -151,7 +96,7 @@ function SelectorAlumno() {
         <Text style={s.headerTitulo}>Bitácora</Text>
         <Text style={s.headerSub}>Selecciona fecha y alumno</Text>
       </View>
-      <SelectorFechaMaestra fecha={fecha} onChange={setFecha} />
+      <SelectorFecha fecha={fecha} onChange={setFecha} />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {alumnos.map(alumno => (
           <TouchableOpacity

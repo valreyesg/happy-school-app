@@ -12,13 +12,7 @@ import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 import NotificationBell from '@/components/NotificationBell';
-
-function saludoHora() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Buenos días';
-  if (h < 19) return 'Buenas tardes';
-  return 'Buenas noches';
-}
+import { saludoHora } from '@/utils/fecha';
 
 function esCumpleanos(fecha_nacimiento) {
   if (!fecha_nacimiento) return false;

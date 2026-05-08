@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
+import SelectorFecha from '@/components/SelectorFecha';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -95,67 +96,6 @@ function SelectorCiclo({ alumnoId, cicloId, onChangeCiclo }) {
   );
 }
 
-// ─── Selector de fecha ────────────────────────────────────────────────────────
-
-function SelectorFecha({ fecha, onChange }) {
-  const date = new Date(fecha + 'T12:00:00');
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const esHoy = fecha === hoy;
-
-  const fmt = (d) => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
-
-  const irAnterior = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() - 1);
-    // Skipear sábado (6) y domingo (0)
-    while (d.getDay() === 0 || d.getDay() === 6) {
-      d.setDate(d.getDate() - 1);
-    }
-    onChange(d.toLocaleDateString('en-CA'));
-  };
-
-  const irSiguiente = () => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    // Skipear sábado (6) y domingo (0)
-    while (d.getDay() === 0 || d.getDay() === 6) {
-      d.setDate(d.getDate() + 1);
-    }
-    const siguienteFecha = d.toLocaleDateString('en-CA');
-    if (siguienteFecha <= hoy) {
-      onChange(siguienteFecha);
-    }
-  };
-
-  const siguienteFechaValida = (() => {
-    let d = new Date(fecha + 'T12:00:00');
-    d.setDate(d.getDate() + 1);
-    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString('en-CA');
-  })();
-
-  const bloqueadoSiguiente = siguienteFechaValida > hoy;
-
-  return (
-    <View style={s.fechaRow}>
-      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
-        <Text style={s.fechaBtnTxt}>‹</Text>
-      </TouchableOpacity>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <Text style={s.fechaTxt}>{fmt(date)}</Text>
-        {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
-      </View>
-      <TouchableOpacity
-        style={[s.fechaBtn, bloqueadoSiguiente && s.fechaBtnDis]}
-        onPress={irSiguiente}
-        disabled={bloqueadoSiguiente}
-      >
-        <Text style={[s.fechaBtnTxt, bloqueadoSiguiente && { color: '#CBD5E0' }]}>›</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 
 export default function BitacoraPadreScreen() {
@@ -200,37 +140,21 @@ export default function BitacoraPadreScreen() {
     onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se puede eliminar'),
   });
 
-  const pickFotoReceta = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const pickMedia = async (fuente) => {
+    const esCamara = fuente === 'camara';
+    const permisoFn = esCamara
+      ? ImagePicker.requestCameraPermissionsAsync
+      : ImagePicker.requestMediaLibraryPermissionsAsync;
+    const { status } = await permisoFn();
     if (status !== 'granted') {
-      Alert.alert('Permisos', 'Se necesitan permisos para acceder a la galería');
+      Alert.alert('Permisos', esCamara
+        ? 'Se necesitan permisos para usar la cámara'
+        : 'Se necesitan permisos para acceder a la galería');
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.7,
-      base64: true,
-    });
-    if (!result.canceled && result.assets?.[0]) {
-      const asset = result.assets[0];
-      setFotoReceta({
-        uri: asset.uri,
-        base64: `data:image/jpeg;base64,${asset.base64}`,
-        fileName: asset.fileName || 'receta.jpg',
-      });
-    }
-  };
-
-  const tomarFotoReceta = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permisos', 'Se necesitan permisos para usar la cámara');
-      return;
-    }
-    const result = await ImagePicker.launchCameraAsync({
-      quality: 0.7,
-      base64: true,
-    });
+    const result = esCamara
+      ? await ImagePicker.launchCameraAsync({ quality: 0.7, base64: true })
+      : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7, base64: true });
     if (!result.canceled && result.assets?.[0]) {
       const asset = result.assets[0];
       setFotoReceta({
@@ -353,7 +277,7 @@ export default function BitacoraPadreScreen() {
       <SelectorCiclo alumnoId={alumnoId} cicloId={cicloId} onChangeCiclo={setCicloId} />
 
       {/* Selector de fecha */}
-      <SelectorFecha fecha={fecha} onChange={setFecha} />
+      <SelectorFecha fecha={fecha} onChange={setFecha} accentColor="#E53E3E" />
 
       {isLoading ? (
         <View style={s.center}>
@@ -476,10 +400,10 @@ export default function BitacoraPadreScreen() {
                   ))}
                   <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={pickFotoReceta}>
+                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('galeria')}>
                       <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={tomarFotoReceta}>
+                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('camara')}>
                       <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
                     </TouchableOpacity>
                   </View>
@@ -896,10 +820,10 @@ export default function BitacoraPadreScreen() {
                           {/* Foto receta */}
                           <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
                           <View style={{ flexDirection: 'row', gap: 8 }}>
-                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={pickFotoReceta}>
+                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('galeria')}>
                               <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={tomarFotoReceta}>
+                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('camara')}>
                               <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
                             </TouchableOpacity>
                           </View>

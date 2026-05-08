@@ -50,15 +50,6 @@
 
 ---
 
-## 🏦 FASE D — 5–8 sesiones
-
-### 💰 Portal Administrador — Finanzas y Pagos
-> Portal separado (o tab en directora) para gestión completa de pagos. — Ver historial completo en ARCHIVE_LOG (Sesiones XX+36, XX+37, XX+38)
-
-- [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
-
----
-
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
 ### 🚪 QR Temporal — Círculos de Confianza — CASI COMPLETO
@@ -67,6 +58,7 @@
 
 
 ### 🔔 WhatsApp Automático completo
+- [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
 - [ ] Pruebas completas con credenciales Twilio reales
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 

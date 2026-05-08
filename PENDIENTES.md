@@ -22,9 +22,6 @@
 #### 🟡 Notificaciones push — pendiente build nativo
 - [ ] Validar modal urgente en background (requiere build nativo, no Expo Go)
 
-#### 🟡 Features faltantes (paridad con web)
-- [ ] QR temporal compartido por WhatsApp sin imagen del QR — solo envía texto, falta adjuntar imagen generada (`Share.share()` → agregar attachment con URI de la imagen)
-
 ---
 
 ## 📱 MOBILE — Portal Maestra — Correcciones pendientes
@@ -59,6 +56,7 @@
 
 ### 🔔 WhatsApp Automático completo
 - [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
+- [ ] QR temporal compartido por WhatsApp sin imagen — solo envía texto, falta adjuntar imagen generada (`Share.share()` → agregar attachment con URI de la imagen)
 - [ ] Pruebas completas con credenciales Twilio reales
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 

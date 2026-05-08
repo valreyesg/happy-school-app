@@ -353,23 +353,30 @@ router.post('/salida', async (req, res, next) => {
       console.error('Error al guardar salida_sanitaria (ignorado):', err.message);
     }
 
-    // Generar registro en pagos si es salida tardía
+    // Generar registro en pagos si es salida tardía — SAVEPOINT para no abortar la transacción si falla
     let pagoSalidaTardia = null;
     if (esSalidaTardia && cobroExtension > 0) {
-      const conceptoRes = await client.query(`
-        SELECT id FROM conceptos_pago
-        WHERE nombre ILIKE 'Salida tard%' AND activo = true LIMIT 1
-      `);
-      if (conceptoRes.rows[0]) {
-        const mesActual = ahora.getMonth() + 1;
-        const anioActual = ahora.getFullYear();
-        const pagoRes = await client.query(`
-          INSERT INTO pagos
-            (alumno_id, concepto_id, monto_base, monto_total, estado, origen, mes_correspondiente, anio_correspondiente, registrado_por)
-          VALUES ($1, $2, $3, $3, 'pendiente', 'salida_tardia', $5, $6, $4)
-          RETURNING id, monto_total, estado
-        `, [alumno_id, conceptoRes.rows[0].id, cobroExtension, req.user.id, mesActual, anioActual]);
-        pagoSalidaTardia = pagoRes.rows[0];
+      await client.query('SAVEPOINT sp_pago_tardio');
+      try {
+        const conceptoRes = await client.query(`
+          SELECT id FROM conceptos_pago
+          WHERE nombre ILIKE 'Salida tard%' AND activo = true LIMIT 1
+        `);
+        if (conceptoRes.rows[0]) {
+          const mesActual = ahora.getMonth() + 1;
+          const anioActual = ahora.getFullYear();
+          const pagoRes = await client.query(`
+            INSERT INTO pagos
+              (alumno_id, concepto_id, monto_base, monto_total, estado, origen, mes_correspondiente, anio_correspondiente, registrado_por)
+            VALUES ($1, $2, $3, $3, 'pendiente', 'salida_tardia', $5, $6, $4)
+            RETURNING id, monto_total, estado
+          `, [alumno_id, conceptoRes.rows[0].id, cobroExtension, req.user.id, mesActual, anioActual]);
+          pagoSalidaTardia = pagoRes.rows[0];
+        }
+        await client.query('RELEASE SAVEPOINT sp_pago_tardio');
+      } catch (err) {
+        await client.query('ROLLBACK TO SAVEPOINT sp_pago_tardio');
+        console.error('Error al generar pago salida tardía (ignorado):', err.message);
       }
     }
 

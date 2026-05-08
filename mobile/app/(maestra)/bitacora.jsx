@@ -126,8 +126,8 @@ function SelectorAlumno() {
   const [fecha, setFecha] = useState(ultimoDiaHabil);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['mi-grupo'],
-    queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+    queryKey: ['mi-grupo-bitacora', fecha],
+    queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
   });
 
   if (isLoading) {

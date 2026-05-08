@@ -7,8 +7,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import api from '../../src/services/api';
-import { buildGoogleCalendarUrl } from '../../src/utils/googleCalendar';
+import api from '@/services/api';
+import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import { Ionicons } from '@expo/vector-icons';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────

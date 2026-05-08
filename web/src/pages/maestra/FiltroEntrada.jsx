@@ -7,7 +7,7 @@ import { useCatalogo } from '@/hooks/useCatalogo';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import toast from 'react-hot-toast';
-import { ESTADO_ASISTENCIA } from '@/utils/asistencia';
+import { ESTADO_ASISTENCIA, esCumpleanos } from '@/utils/asistencia';
 
 function usePrecioDia() {
   const { data } = useQuery({
@@ -16,16 +16,6 @@ function usePrecioDia() {
     staleTime: 30 * 60 * 1000,
   });
   return data?.precio_comida_dia ?? 50;
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function esCumpleanos(fecha_nacimiento) {
-  if (!fecha_nacimiento) return false;
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const [, mesHoy, diaHoy] = hoy.split('-');
-  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
-  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
 }
 
 function BadgeEstado({ estado }) {

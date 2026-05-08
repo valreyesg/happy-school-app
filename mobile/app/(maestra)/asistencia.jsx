@@ -7,7 +7,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../../src/services/api';
+import api from '@/services/api';
 import Button from '@/components/Button';
 import { ESTADO_CONFIG } from '@/constants/asistencia';
 

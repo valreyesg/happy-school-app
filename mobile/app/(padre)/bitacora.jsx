@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../../src/services/api';
-import { useCatalogo } from '../../src/hooks/useCatalogo';
+import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────

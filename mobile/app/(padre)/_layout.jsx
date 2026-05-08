@@ -56,7 +56,6 @@ export default function PadreTabLayout() {
         options={{ tabBarIcon: ({ focused }) => <TabIcon icon="calendar" label="Calendario" focused={focused} /> }} />
 
       {/* Screens ocultas del tab bar — accesibles por navegación directa */}
-      <Tabs.Screen name="chat"     options={{ href: null }} />
       <Tabs.Screen name="galeria"  options={{ href: null }} />
       <Tabs.Screen name="qr"       options={{ href: null }} />
     </Tabs>

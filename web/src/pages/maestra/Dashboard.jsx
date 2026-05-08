@@ -4,16 +4,9 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Users, Clock, UserX, BookOpen, LogOut, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
+import { esCumpleanos } from '@/utils/asistencia';
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
-
-function esCumpleanos(fecha_nacimiento) {
-  if (!fecha_nacimiento) return false;
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const [, mesHoy, diaHoy] = hoy.split('-');
-  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
-  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
-}
 
 const BADGE_CONFIG = {
   presente:   { bg: 'bg-green-100',  text: 'text-green-700',  icon: '✅', label: 'Presente' },
@@ -72,12 +65,14 @@ export default function MaestraDashboard() {
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo'],
     queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+    staleTime: 30000,
     refetchInterval: 30000,
   });
 
   const { data: turnoHoy } = useQuery({
     queryKey: ['turno-hoy'],
     queryFn: () => api.get('/turnos-puerta/hoy').then(r => r.data),
+    staleTime: 60000,
     refetchInterval: 60000,
   });
 
@@ -90,6 +85,7 @@ export default function MaestraDashboard() {
   const { data: estadisticasHoy } = useQuery({
     queryKey: ['estadisticas-grupo-hoy'],
     queryFn: () => api.get('/grupos/mi-grupo/estadisticas/hoy').then(r => r.data),
+    staleTime: 30000,
     refetchInterval: 30000,
   });
 
@@ -97,6 +93,7 @@ export default function MaestraDashboard() {
     queryKey: ['tareas-hoy', grupo?.id],
     queryFn: () => api.get(`/tareas/hoy-pendientes?grupo_id=${grupo.id}`).then(r => r.data),
     enabled: !!grupo?.id,
+    staleTime: 30000,
     refetchInterval: 30000,
   });
 
@@ -104,6 +101,7 @@ export default function MaestraDashboard() {
     queryKey: ['alumnos-alerta-tareas', grupo?.id],
     queryFn: () => api.get(`/tareas/alumnos-alerta?grupo_id=${grupo.id}`).then(r => r.data),
     enabled: !!grupo?.id,
+    staleTime: 60000,
     refetchInterval: 60000,
   });
 

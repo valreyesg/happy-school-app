@@ -8,8 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '../../src/services/api';
-import { useCatalogo } from '../../src/hooks/useCatalogo';
+import api from '@/services/api';
+import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────

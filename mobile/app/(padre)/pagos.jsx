@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
-import api from '../../src/services/api';
-import { useAuthStore } from '../../src/store/authStore';
+import api from '@/services/api';
+import { useAuthStore } from '@/store/authStore';
 import Button from '@/components/Button';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

@@ -55,14 +55,14 @@ const ComidaSemanal = () => {
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
 
-  const getSemanActual = () => {
+  const getSemanaActual = () => {
     const hoy = new Date();
     const lunes = new Date(hoy);
     lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
     return lunes.toLocaleDateString('en-CA');
   };
 
-  const semanaActual = getSemanActual();
+  const semanaActual = getSemanaActual();
 
   const cargarDatos = async () => {
     try {

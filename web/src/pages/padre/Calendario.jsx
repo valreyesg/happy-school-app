@@ -149,8 +149,7 @@ export default function PadreCalendario() {
     eventosPorDia[d].push(ev);
   });
 
-  const hoyStr = `${hoy.getFullYear()}-${hoy.getMonth()}-${hoy.getDate()}`;
-  const esHoy = (d) => d && `${year}-${month}-${d}` === hoyStr;
+  const esHoy = (d) => d && year === hoy.getFullYear() && month === hoy.getMonth() && d === hoy.getDate();
 
   // Lista de eventos del mes ordenada
   const eventosOrdenados = [...eventos].sort((a, b) => new Date(a.fecha_inicio) - new Date(b.fecha_inicio));

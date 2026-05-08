@@ -179,6 +179,7 @@ export default function PadreDashboard() {
   const { data: hijosData, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
+    staleTime: 5 * 60 * 1000,
   });
   const hijos = hijosData?.hijos || [];
 
@@ -186,6 +187,7 @@ export default function PadreDashboard() {
   const { data: eventosProximos = [] } = useQuery({
     queryKey: ['eventos-proximos', desde],
     queryFn: () => api.get(`/calendario?desde=${desde}&hasta=${hasta}`).then(r => r.data),
+    staleTime: 5 * 60 * 1000,
   });
 
   return (

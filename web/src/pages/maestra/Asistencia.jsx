@@ -7,7 +7,7 @@ import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
 import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import toast from 'react-hot-toast';
-import { ESTADO_CONFIG } from '@/utils/asistencia';
+import { ESTADO_CONFIG, esCumpleanos } from '@/utils/asistencia';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -35,14 +35,6 @@ const CHECKS_DEFAULT = {
   trae_termo: false,
   agua_suficiente: false,
 };
-
-function esCumpleanos(fecha_nacimiento) {
-  if (!fecha_nacimiento) return false;
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const [, mesHoy, diaHoy] = hoy.split('-');
-  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
-  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
-}
 
 function ModalEntrada({ alumno, onClose, onSuccess }) {
   const [form, setForm] = useState(CHECKS_DEFAULT);

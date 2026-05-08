@@ -52,13 +52,15 @@ export default function MaestraDashboard() {
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo'],
     queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
-    refetchInterval: 30000,
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
   });
 
   const { data: turnoHoy } = useQuery({
     queryKey: ['turno-hoy'],
     queryFn: () => api.get('/turnos-puerta/hoy').then(r => r.data),
-    refetchInterval: 60000,
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
   });
 
   const { data: tareasHoy } = useQuery({

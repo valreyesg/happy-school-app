@@ -9,15 +9,7 @@ import { SkeletonStat } from '@/components/ui/SkeletonCard';
 import BannerComidaHoy from '@/components/directora/BannerComidaHoy';
 import AvatarAlumno from '@/components/ui/AvatarAlumno';
 import Modal from '@/components/ui/Modal';
-import { ESTADO_STYLE } from '@/utils/asistencia';
-
-function esCumpleanos(fecha_nacimiento) {
-  if (!fecha_nacimiento) return false;
-  const hoy = new Date().toLocaleDateString('en-CA');
-  const [, mesHoy, diaHoy] = hoy.split('-');
-  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
-  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
-}
+import { ESTADO_STYLE, esCumpleanos } from '@/utils/asistencia';
 
 function agruparPorGrupo(lista, asistenciaPorGrupo) {
   const colorMap = Object.fromEntries(

@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+60 (Bitácora Mobile: menú precarga + fotos medicamentos + fotos actividades)
+**Última actualización:** 2026-05-08 — Sesión XX+61 (Dashboard Maestra Mobile: campanita + turno puerta + cumpleaños + síntomas + comida)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -17,12 +17,6 @@
 ---
 
 ## 📱 MOBILE — Portal Maestra — Correcciones pendientes
-
-### 🟡 MENORES — UX/Diseño Maestra
-- [ ] **Turno de puerta no aparece** — Web llama `/turnos-puerta/hoy` en el dashboard. Mobile no hace esa llamada. Agregar banner igual que web.
-- [ ] **Confirmaciones de comida ausentes** — Web tiene sección completa en dashboard con alumnos confirmados por día. Mobile no la tiene. Endpoint: `/comida/confirmaciones`
-- [ ] **Campanita de notificaciones ausente** — `NotificationBell.jsx` existe en `src/components/` pero no está integrada en el header del layout de maestra. Agregar al header igual que en web.
-- [ ] **Acciones rápidas poco informativas** — Dashboard maestra: faltan banners contextuales (cumpleaños, rechazados por salud). Paridad con web.
 
 ### 🟡 MENORES — Portal Padre Mobile
 - [ ] **Eventos próximos** — El dashboard padre muestra eventos pero revisar si el diseño y datos coinciden con web (próximos 3 días, badge de categoría, modal con detalle)

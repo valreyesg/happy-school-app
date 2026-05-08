@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Image, ActivityIndicator, FlatList, Alert,
+  StyleSheet, Image, ActivityIndicator, Alert,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -11,12 +11,32 @@ import api from '@/services/api';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
+import NotificationBell from '@/components/NotificationBell';
 
 function saludoHora() {
   const h = new Date().getHours();
   if (h < 12) return 'Buenos días';
   if (h < 19) return 'Buenas tardes';
   return 'Buenas noches';
+}
+
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
+function getLunesActual() {
+  const hoy = new Date();
+  const dia = hoy.getDay();
+  const diff = hoy.getDate() - dia + (dia === 0 ? -6 : 1);
+  const lunes = new Date(hoy.setDate(diff));
+  const year = lunes.getFullYear();
+  const month = String(lunes.getMonth() + 1).padStart(2, '0');
+  const date = String(lunes.getDate()).padStart(2, '0');
+  return `${year}-${month}-${date}`;
 }
 
 export default function MaestraDashboard() {
@@ -32,6 +52,13 @@ export default function MaestraDashboard() {
   const { data: grupo, isLoading } = useQuery({
     queryKey: ['mi-grupo'],
     queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+    refetchInterval: 30000,
+  });
+
+  const { data: turnoHoy } = useQuery({
+    queryKey: ['turno-hoy'],
+    queryFn: () => api.get('/turnos-puerta/hoy').then(r => r.data),
+    refetchInterval: 60000,
   });
 
   const { data: tareasHoy } = useQuery({
@@ -46,6 +73,25 @@ export default function MaestraDashboard() {
     enabled: !!grupo?.id,
   });
 
+  const { data: confirmacionesComida } = useQuery({
+    queryKey: ['confirmaciones-comida', grupo?.id],
+    queryFn: () => api.get('/comida/confirmaciones', {
+      params: { semana: getLunesActual(), grupo_id: grupo.id },
+    }).then(r => r.data),
+    enabled: !!grupo?.id,
+    refetchInterval: 60000,
+    staleTime: 30000,
+  });
+
+  const alumnos = grupo?.alumnos || [];
+
+  // Detectar cumpleaños y rechazados desde los datos del grupo
+  const cumpleanosHoy = alumnos.filter(a => esCumpleanos(a.fecha_nacimiento));
+  const rechazados = alumnos.filter(a =>
+    a.puede_entrar === false &&
+    (a.sin_fiebre === false || a.temperatura > 37.5 || a.sin_sintomas === false)
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -57,7 +103,9 @@ export default function MaestraDashboard() {
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            {/* Campanita de notificaciones */}
+            <NotificationBell />
             <TouchableOpacity
               onPress={() => Alert.alert('Cerrar sesión', '¿Segura que quieres salir?', [
                 { text: 'Cancelar', style: 'cancel' },
@@ -84,6 +132,54 @@ export default function MaestraDashboard() {
             </View>
             <Ionicons name="chevron-forward" size={22} color="#E9D5FF" />
           </TouchableOpacity>
+        )}
+
+        {/* Banner turno de puerta */}
+        {turnoHoy?.tiene_turno && (
+          <TouchableOpacity
+            style={styles.turnoBanner}
+            onPress={() => router.push('/(maestra)/qr-scanner')}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 24 }}>🚪</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.turnoTitle}>¡Hoy tienes turno de puerta!</Text>
+              <Text style={styles.turnoSub}>Toca para abrir el filtro de entrada →</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#6B21A8" />
+          </TouchableOpacity>
+        )}
+
+        {/* Banner cumpleaños */}
+        {cumpleanosHoy.length > 0 && (
+          <View style={styles.cumpleBanner}>
+            <Text style={{ fontSize: 24 }}>🎂</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cumpleTitle}>
+                ¡Hoy es el cumpleaños de {cumpleanosHoy.map(a => a.nombre_completo.split(' ')[0]).join(' y ')}!
+              </Text>
+              <Text style={styles.cumpleSub}>
+                No olvides felicitarl{cumpleanosHoy.length > 1 ? 'os' : 'o/a'} 🎈
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* Banner rechazados por síntomas */}
+        {rechazados.length > 0 && (
+          <View style={styles.rechazadosBanner}>
+            <Text style={{ fontSize: 22 }}>🚨</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.rechazadosTitle}>
+                {rechazados.length} alumno{rechazados.length > 1 ? 's' : ''} rechazado{rechazados.length > 1 ? 's' : ''} por síntomas hoy
+              </Text>
+              {rechazados.map(a => (
+                <Text key={a.id} style={styles.rechazadosItem}>
+                  · {a.nombre_completo.split(' ').slice(0, 2).join(' ')}{a.motivo_no_entrada ? ` — ${a.motivo_no_entrada}` : ''}
+                </Text>
+              ))}
+            </View>
+          </View>
         )}
 
         {/* Banner Tareas por recibir hoy */}
@@ -115,16 +211,12 @@ export default function MaestraDashboard() {
                 {alumnosEnAlerta.length} alumno{alumnosEnAlerta.length > 1 ? 's' : ''} en seguimiento
               </Text>
               <Text style={styles.alertaSub}>3+ tareas sin entregar</Text>
+              {alumnosEnAlerta.map(a => (
+                <Text key={a.id} style={styles.alertaItem}>
+                  · {a.nombre_completo} ({a.tareas_sin_entregar} tareas)
+                </Text>
+              ))}
             </View>
-          </View>
-        )}
-        {alumnosEnAlerta && alumnosEnAlerta.length > 0 && (
-          <View style={{ paddingHorizontal: 16, marginBottom: 12 }}>
-            {alumnosEnAlerta.map(a => (
-              <Text key={a.id} style={styles.alertaItem}>
-                · {a.nombre_completo} ({a.tareas_sin_entregar} tareas)
-              </Text>
-            ))}
           </View>
         )}
 
@@ -149,6 +241,50 @@ export default function MaestraDashboard() {
           ))}
         </View>
 
+        {/* Confirmaciones de comida */}
+        {confirmacionesComida && (() => {
+          const diaHoy = new Date().getDay();
+          const esFinDeSemana = diaHoy === 0 || diaHoy === 6;
+          const confirmadas = (confirmacionesComida.confirmaciones || []).filter(c => c.pago_verificado);
+          const comenHoy = confirmadas.filter(c =>
+            c.modalidad === 'semana_completa' ||
+            (c.dias_seleccionados && c.dias_seleccionados.includes(diaHoy))
+          );
+          const diasNombres = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+          return (
+            <View style={styles.comidaCard}>
+              <Text style={styles.comidaHeader}>🍱 Confirmaciones de comida</Text>
+              {!esFinDeSemana && (
+                <View style={styles.comidaHoyBadge}>
+                  <Text style={styles.comidaHoyText}>
+                    🍽️ {comenHoy.length} {comenHoy.length === 1 ? 'niño come' : 'niños comen'} hoy
+                  </Text>
+                </View>
+              )}
+              {confirmadas.length > 0 ? (
+                confirmadas.map(c => {
+                  const alumno = alumnos.find(a => a.id === c.alumno_id);
+                  const modalidadLabel = c.modalidad === 'semana_completa'
+                    ? 'Semana completa'
+                    : (c.dias_seleccionados || []).length > 0
+                    ? (c.dias_seleccionados || []).map(d => diasNombres[d]).join(', ')
+                    : 'Días específicos';
+                  return (
+                    <View key={c.id} style={styles.comidaItem}>
+                      <Text style={styles.comidaItemText}>
+                        ✓ {alumno?.nombre_completo || '—'} — {modalidadLabel}
+                      </Text>
+                    </View>
+                  );
+                })
+              ) : (
+                <Text style={styles.comidaVacia}>Sin confirmaciones de servicio aún</Text>
+              )}
+            </View>
+          );
+        })()}
+
         {/* Lista de alumnos del grupo */}
         <Text style={styles.sectionTitle}>
           Mi grupo — {grupo?.nombre || '...'}
@@ -158,7 +294,7 @@ export default function MaestraDashboard() {
           <ActivityIndicator color="#805AD5" size="large" style={{ marginTop: 20 }} />
         ) : (
           <View style={styles.alumnosList}>
-            {(grupo?.alumnos || []).map(alumno => (
+            {alumnos.map(alumno => (
               <TouchableOpacity
                 key={alumno.id}
                 style={styles.alumnoCard}
@@ -175,7 +311,10 @@ export default function MaestraDashboard() {
                 )}
 
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.alumnoNombre}>{alumno.nombre_completo}</Text>
+                  <Text style={styles.alumnoNombre}>
+                    {alumno.nombre_completo}
+                    {esCumpleanos(alumno.fecha_nacimiento) ? ' 🎂' : ''}
+                  </Text>
                   {alumno.estado_animo && (
                     <Text style={styles.alumnoAnimo}>
                       {EMOJIS_ANIMO[alumno.estado_animo]} {alumno.estado_animo}
@@ -219,10 +358,8 @@ const styles = StyleSheet.create({
   },
   greeting: { fontSize: 24, fontWeight: '900', color: '#2D3748' },
   fecha: { fontSize: 14, fontWeight: '600', color: '#718096', marginTop: 2, textTransform: 'capitalize' },
-  avatarMaestra: {
-    width: 48, height: 48, borderRadius: RADIUS.lg, backgroundColor: '#E9D5FF',
-    alignItems: 'center', justifyContent: 'center',
-  },
+
+  // QR Entrada
   qrBanner: {
     marginHorizontal: 16, marginTop: 12,
     backgroundColor: '#805AD5', borderRadius: RADIUS.xl, padding: 16,
@@ -230,30 +367,66 @@ const styles = StyleSheet.create({
     shadowColor: '#805AD5', shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4, shadowRadius: 8, elevation: 6,
   },
-  qrBannerEmoji: { fontSize: 32 },
   qrBannerTitle: { color: '#fff', fontWeight: '900', fontSize: 16 },
   qrBannerSub: { color: '#E9D5FF', fontWeight: '600', fontSize: 12, marginTop: 2 },
+
+  // Turno de puerta
+  turnoBanner: {
+    marginHorizontal: 16, marginTop: 12,
+    backgroundColor: '#F3E8FF', borderRadius: RADIUS.xl, padding: 16,
+    borderWidth: 2, borderColor: '#C084FC',
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  turnoTitle: { color: '#6B21A8', fontWeight: '900', fontSize: 14 },
+  turnoSub: { color: '#7C3AED', fontWeight: '600', fontSize: 12, marginTop: 2 },
+
+  // Cumpleaños
+  cumpleBanner: {
+    marginHorizontal: 16, marginTop: 12,
+    backgroundColor: '#FEFCE8', borderRadius: RADIUS.xl, padding: 16,
+    borderWidth: 2, borderColor: '#FDE047',
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+  },
+  cumpleTitle: { color: '#713F12', fontWeight: '900', fontSize: 14 },
+  cumpleSub: { color: '#854D0E', fontWeight: '600', fontSize: 12, marginTop: 2 },
+
+  // Rechazados por síntomas
+  rechazadosBanner: {
+    marginHorizontal: 16, marginTop: 12,
+    backgroundColor: '#FEF2F2', borderRadius: RADIUS.xl, padding: 16,
+    borderWidth: 2, borderColor: '#F87171',
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
+  },
+  rechazadosTitle: { color: '#991B1B', fontWeight: '900', fontSize: 14, marginBottom: 4 },
+  rechazadosItem: { color: '#7F1D1D', fontWeight: '600', fontSize: 12, marginTop: 2 },
+
+  // Tareas y alertas
   tareasHoyBanner: {
     marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#DBEAFE', borderRadius: RADIUS.xl, padding: 16, borderLeftWidth: 4, borderLeftColor: '#3B82F6',
+    backgroundColor: '#DBEAFE', borderRadius: RADIUS.xl, padding: 16,
+    borderLeftWidth: 4, borderLeftColor: '#3B82F6',
     flexDirection: 'row', alignItems: 'center', gap: 12,
   },
   alertaBanner: {
     marginHorizontal: 16, marginTop: 12,
-    backgroundColor: '#FEE2E2', borderRadius: RADIUS.xl, padding: 16, borderLeftWidth: 4, borderLeftColor: '#EF4444',
-    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: '#FEE2E2', borderRadius: RADIUS.xl, padding: 16,
+    borderLeftWidth: 4, borderLeftColor: '#EF4444',
+    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
   },
-  bannerEmoji: { fontSize: 28 },
   bannerTitle: { color: '#1E40AF', fontWeight: '900', fontSize: 14 },
   bannerSub: { color: '#1E3A8A', fontWeight: '600', fontSize: 12, marginTop: 2 },
   bannerCount: { fontSize: 24, fontWeight: '900', color: '#3B82F6' },
   alertaTitle: { color: '#DC2626', fontWeight: '900', fontSize: 14 },
   alertaSub: { color: '#991B1B', fontWeight: '600', fontSize: 12, marginTop: 2 },
-  alertaItem: { fontSize: 12, color: '#7F1D1D', fontWeight: '600', marginBottom: 4 },
+  alertaItem: { fontSize: 12, color: '#7F1D1D', fontWeight: '600', marginTop: 4 },
+
+  // Sección título
   sectionTitle: {
     fontSize: 18, fontWeight: '900', color: '#2D3748',
     marginHorizontal: 16, marginTop: 20, marginBottom: 12,
   },
+
+  // Acciones rápidas
   accionesGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
     paddingHorizontal: 16,
@@ -263,6 +436,27 @@ const styles = StyleSheet.create({
     padding: 20, alignItems: 'center', gap: 8,
   },
   accionLabel: { fontWeight: '800', fontSize: 14 },
+
+  // Comida
+  comidaCard: {
+    marginHorizontal: 16, marginTop: 20,
+    backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: 16,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 2,
+  },
+  comidaHeader: { fontWeight: '900', fontSize: 15, color: '#2D3748', marginBottom: 10 },
+  comidaHoyBadge: {
+    backgroundColor: '#BBF7D0', borderRadius: RADIUS.lg, paddingVertical: 8,
+    alignItems: 'center', marginBottom: 10,
+  },
+  comidaHoyText: { color: '#166534', fontWeight: '900', fontSize: 14 },
+  comidaItem: {
+    backgroundColor: '#DCFCE7', borderRadius: RADIUS.md, padding: 10, marginBottom: 6,
+  },
+  comidaItemText: { color: '#166534', fontWeight: '700', fontSize: 13 },
+  comidaVacia: { color: '#9CA3AF', fontWeight: '600', fontSize: 13, textAlign: 'center', paddingVertical: 8 },
+
+  // Lista alumnos
   alumnosList: { paddingHorizontal: 16, gap: 8, paddingBottom: 24 },
   alumnoCard: {
     backgroundColor: COLORS.white, borderRadius: RADIUS.xl, padding: 12,

@@ -1,4 +1,4 @@
-# PENDIENTES — Happy School App
+﻿# PENDIENTES — Happy School App
 
 **Última actualización:** 2026-05-08 — Sesión XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
@@ -6,11 +6,6 @@
 ---
 
 ## 🔧 FASE B — Pendientes restantes
-
-### 🧪 Validación Módulo SALUD Y MEDICACIÓN — casos edge
-- [ ] Job cron a las 10:00 AM sábado (fuera de lun-vie) → validar NO ejecuta
-- [ ] Job cron a las 15:58 (dentro de rango lun-vie) → validar ejecuta correctamente
-- [ ] Cambio de fecha (medianoche) → datos de ayer no aparecen (aislamiento por día)
 
 ### 📱 Deploy y Producción
 - [ ] Backend en Railway o Render (plan gratis disponible)
@@ -48,7 +43,6 @@
 ### 🚪 QR Temporal — Círculos de Confianza — CASI COMPLETO
 - [ ] Validar pase vencido en Expo Go
 - [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
-
 
 ### 🔔 WhatsApp Automático completo
 - [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)

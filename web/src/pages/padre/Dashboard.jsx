@@ -636,7 +636,7 @@ function QRTemporalCard({ hijo }) {
               className="w-56 h-56 mx-auto rounded-2xl border-4 border-amber-300 object-contain"
             />
             <p className="text-xs text-gray-500">La maestra verá el nombre de quien autorizaste al escanear</p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => handleDescargar(qrTempModal.qr_url, qrTempModal.nombre_autorizado)}
                 className="px-3 py-2 rounded-xl bg-hs-purple/10 text-hs-purple font-bold text-xs hover:bg-hs-purple/20 transition-colors"
@@ -651,12 +651,6 @@ function QRTemporalCard({ hijo }) {
                   📱 WhatsApp
                 </button>
               )}
-              <button
-                onClick={() => handleCompartirEmail(qrTempModal.nombre_autorizado, hijo.nombre_completo)}
-                className="px-3 py-2 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs hover:bg-blue-200 transition-colors"
-              >
-                ✉️ Email
-              </button>
             </div>
           </div>
         )}

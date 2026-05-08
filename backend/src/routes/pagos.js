@@ -10,7 +10,11 @@ const whatsappService = require('../services/whatsappService');
 
 const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-router.use(authenticate);
+// authenticate en todas las rutas excepto recibo-publico (link WhatsApp para padres)
+router.use((req, res, next) => {
+  if (req.method === 'GET' && /^\/[^/]+\/recibo-publico$/.test(req.path)) return next();
+  return authenticate(req, res, next);
+});
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -1148,9 +1152,12 @@ router.patch('/:id/confirmar', authorize('directora', 'administrativo'), async (
 });
 
 // ─── RECIBO PDF POR PAGO ──────────────────────────────────────────────────────
-// GET /pagos/:id/recibo  → descarga PDF del recibo
+// GET /pagos/:id/recibo-publico → sin JWT (bypass arriba), UUID es el secreto
+router.get('/:id/recibo-publico', reciboHandler);
+// GET /pagos/:id/recibo  → requiere auth (directora/administrativo)
+router.get('/:id/recibo', authorize('directora', 'administrativo'), reciboHandler);
 
-router.get('/:id/recibo', authorize('directora', 'administrativo'), async (req, res, next) => {
+async function reciboHandler(req, res, next) {
   try {
     const result = await query(`
       SELECT p.*,
@@ -1309,7 +1316,7 @@ router.get('/:id/recibo', authorize('directora', 'administrativo'), async (req, 
     res.setHeader('Content-Disposition', `attachment; filename="recibo-${folio}.pdf"`);
     res.end(Buffer.from(pdfBytes));
   } catch (err) { next(err); }
-});
+}
 
 // ─── ENVIAR RECIBO POR WHATSAPP ────────────────────────────────────────────────
 // POST /pagos/:id/enviar   body: { canal: 'whatsapp' }
@@ -1347,7 +1354,7 @@ router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req,
       'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
     const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
-    const linkRecibo = `${baseUrl}/api/pagos/${p.id}/recibo`;
+    const linkRecibo = `${baseUrl}/api/pagos/${p.id}/recibo-publico`;
     const folio = `#${String(p.id).replace(/-/g, '').slice(-8).toUpperCase()}`;
 
     const mensajeDirecto = `🧾 *Recibo de Pago — Happy School*\n\n` +
@@ -1374,3 +1381,4 @@ router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req,
 });
 
 module.exports = router;
+module.exports.reciboHandler = reciboHandler;

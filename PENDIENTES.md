@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+55 (WhatsApp feature flag + Twilio Sandbox)
+**Última actualización:** 2026-05-08 — Sesión XX+56 (WhatsApp Sandbox end-to-end validado)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -45,8 +45,9 @@
 - [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 
 ### 🔔 WhatsApp Automático completo
-- [ ] **Prueba sandbox pendiente** — Twilio Sandbox configurado (`WHATSAPP_ENABLED=true`, credenciales reales en .env). El número del propietario de la cuenta no puede recibir mensajes del sandbox. Necesita número de WhatsApp ajeno a la cuenta Twilio para probar recibo. Código sandbox: `join although-previous` al `+1 415 523 8886`
-- [ ] QR temporal compartido por WhatsApp sin imagen — solo envía texto, falta adjuntar imagen generada (`Share.share()` → agregar attachment con URI de la imagen)
+- [x] **Prueba sandbox completada** — Sandbox funciona end-to-end. Fix aplicado: números MX se normalizan a `+521XXXXXXXXXX` (WhatsApp registra móviles con el `1` intermedio). Recibo de pago llegó correctamente desde el portal (2026-05-08).
+- [x] **Link recibo accesible para padres** — Ruta pública `/api/pagos/:id/recibo-publico` creada (sin JWT). El UUID del pago actúa como secreto. Link en mensaje WhatsApp apunta a esta ruta. Validado: PDF descargable desde celular sin login (2026-05-08).
+- [x] **QR temporal compartido por WhatsApp** — Flujo manual validado (2026-05-08): botón descarga QR automáticamente + abre WhatsApp Web con mensaje pre-redactado. Padre adjunta imagen y envía a quien quiera. Flujo automático Twilio (imagen adjunta sin intervención) queda como mejora futura opcional.
 - [ ] Pruebas completas con credenciales Twilio reales (producción)
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 

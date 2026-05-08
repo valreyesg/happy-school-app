@@ -45,11 +45,23 @@ const enviarMensaje = async ({ telefono, clave, variables, alumnoId, mensajeDire
     mensaje = rellenarPlantilla(plantilla, variables || {});
   }
 
-  // Normalizar: si ya trae +52 o 52 al inicio, no duplicar
+  // Normalizar número mexicano para WhatsApp
+  // WhatsApp registra móviles MX como +521XXXXXXXXXX (con el 1 intermedio)
   const soloDigitos = telefono.replace(/\D/g, '');
-  const telefonoWA = soloDigitos.startsWith('52')
-    ? `whatsapp:+${soloDigitos}`
-    : `whatsapp:+52${soloDigitos}`;
+  let telefonoWA;
+  if (soloDigitos.startsWith('521') && soloDigitos.length === 13) {
+    // Ya tiene +521 + 10 dígitos → correcto
+    telefonoWA = `whatsapp:+${soloDigitos}`;
+  } else if (soloDigitos.startsWith('52') && soloDigitos.length === 12) {
+    // Tiene +52 + 10 dígitos → agregar el 1 intermedio
+    telefonoWA = `whatsapp:+521${soloDigitos.slice(2)}`;
+  } else if (soloDigitos.length === 10) {
+    // Solo 10 dígitos locales → agregar +521
+    telefonoWA = `whatsapp:+521${soloDigitos}`;
+  } else {
+    // Formato desconocido → usar tal cual
+    telefonoWA = `whatsapp:+${soloDigitos}`;
+  }
 
   const client = getClient();
   if (!client) {

@@ -50,10 +50,6 @@
 
 ---
 
-## 🎯 FASE C — completada ✅
-
----
-
 ## 🏦 FASE D — 5–8 sesiones
 
 ### 💰 Portal Administrador — Finanzas y Pagos

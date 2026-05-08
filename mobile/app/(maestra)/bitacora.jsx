@@ -226,11 +226,38 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
   const [incDesc, setIncDesc] = useState('');
   const [incAcciones, setIncAcciones] = useState('');
 
+  // ── Lunes de la semana actual (para menú y confirmación) ──
+  const semanaLunes = (() => {
+    const d = new Date(fecha + 'T12:00:00');
+    const dia = d.getDay(); // 0=dom,1=lun,...,6=sab
+    const diff = dia === 0 ? -6 : 1 - dia;
+    d.setDate(d.getDate() + diff);
+    return d.toLocaleDateString('en-CA');
+  })();
+
   // ── Cargar datos existentes ──
   const { isLoading, data: bitacoraExistente } = useQuery({
     queryKey: ['bitacora', alumnoId, fecha],
     queryFn: () => api.get(`/bitacora/${alumnoId}?fecha=${fecha}`).then(r => r.data),
   });
+
+  // ── Menú de la semana ──
+  const { data: menuSemana } = useQuery({
+    queryKey: ['menu-semana', semanaLunes],
+    queryFn: () => api.get(`/comida/menu?semana=${semanaLunes}`).then(r => r.data).catch(() => null),
+    enabled: !!semanaLunes,
+    staleTime: 300000,
+  });
+
+  // ── Confirmación de comida del alumno esta semana ──
+  const { data: confirmacionComida } = useQuery({
+    queryKey: ['confirmacion-comida', alumnoId, semanaLunes],
+    queryFn: () => api.get(`/comida/confirmacion/${alumnoId}?semana=${semanaLunes}`).then(r => r.data).catch(() => null),
+    enabled: !!alumnoId && !!semanaLunes,
+    staleTime: 300000,
+  });
+
+  const [menuPrecargado, setMenuPrecargado] = useState(false);
 
   const { data: historialExt = [] } = useQuery({
     queryKey: ['historial-servicios', alumnoId],
@@ -294,6 +321,30 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
           };
         }
       });
+
+      // Precargar menú si: alumno tiene comida confirmada, hay menú publicado y el campo está vacío
+      const tieneComidaConfirmada = confirmacionComida?.confirmado === true;
+      const menuDiasPorTiempo = menuSemana?.dias_menu;
+      if (tieneComidaConfirmada && menuDiasPorTiempo) {
+        const DIAS_KEY = ['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+        const diaSemana = DIAS_KEY[new Date(fecha + 'T12:00:00').getDay()];
+        const menuDia = menuDiasPorTiempo[diaSemana];
+        if (menuDia) {
+          ['desayuno','colacion','comida'].forEach(tiempo => {
+            const niveles = menuDia?.[tiempo]?.niveles || [];
+            const aplica = niveles.includes('todos') || niveles.includes((nivelCodigo || '').toLowerCase());
+            if (!nuevasComidas[tiempo].que_comio && aplica && menuDia[tiempo]?.platillo) {
+              nuevasComidas[tiempo].que_comio = menuDia[tiempo].platillo;
+            }
+          });
+          setMenuPrecargado(true);
+        } else {
+          setMenuPrecargado(false);
+        }
+      } else {
+        setMenuPrecargado(false);
+      }
+
       setComidas(nuevasComidas);
     }
     if (data.esfinteres) {
@@ -313,7 +364,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
       });
       setActividadesParticipacion(participacion);
     }
-  }, [bitacoraExistente]);
+  }, [bitacoraExistente, menuSemana, confirmacionComida]);
 
   // ── Pañal: registros del día ──
   const { data: bitacoraData } = useQuery({
@@ -438,6 +489,74 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
     incidenteMutation.mutate({ alumno_id: alumnoId, descripcion: incDesc, acciones_tomadas: incAcciones });
   };
 
+  // ── Fotos por actividad ──
+  const [uploadingActId, setUploadingActId] = useState(null);
+
+  const subirFotoActividad = (actividadGrupoId) => {
+    Alert.alert('Agregar foto', 'Selecciona origen', [
+      {
+        text: 'Cámara', onPress: async () => {
+          const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+          if (!result.canceled && result.assets[0]) {
+            await _uploadFotoActividad(actividadGrupoId, result.assets[0]);
+          }
+        }
+      },
+      {
+        text: 'Galería', onPress: async () => {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7, allowsMultipleSelection: true,
+          });
+          if (!result.canceled && result.assets?.length > 0) {
+            for (const asset of result.assets) {
+              await _uploadFotoActividad(actividadGrupoId, asset);
+            }
+          }
+        }
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
+  const _uploadFotoActividad = async (actividadGrupoId, asset) => {
+    setUploadingActId(actividadGrupoId);
+    try {
+      const fd = new FormData();
+      fd.append('alumno_id', alumnoId);
+      fd.append('grupo_id', grupoId);
+      fd.append('fecha', fecha);
+      fd.append('fotos', {
+        uri: asset.uri,
+        name: asset.fileName || `foto_act_${Date.now()}.jpg`,
+        type: 'image/jpeg',
+      });
+      await api.post(`/bitacora/actividades/${actividadGrupoId}/fotos-alumno`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+    } catch {
+      Alert.alert('Error', 'No se pudo subir la foto.');
+    } finally {
+      setUploadingActId(null);
+    }
+  };
+
+  const eliminarFotoActividad = (fotoId) => {
+    Alert.alert('Eliminar foto', '¿Segura que quieres eliminar esta foto?', [
+      {
+        text: 'Eliminar', style: 'destructive', onPress: async () => {
+          try {
+            await api.delete(`/bitacora/actividades/fotos/${fotoId}`);
+            queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+          } catch {
+            Alert.alert('Error', 'No se pudo eliminar la foto.');
+          }
+        }
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
   // ── Participación actividades mutation ──
   const participacionMutation = useMutation({
     mutationFn: (body) => api.post('/bitacora/actividades-alumno', body),
@@ -466,6 +585,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
   const [recNombre, setRecNombre] = useState('');
   const [recDosis, setRecDosis] = useState('');
   const [recHora, setRecHora] = useState('');
+  const [recFotoReceta, setRecFotoReceta] = useState(null); // { uri, base64 }
+  const [recFotoEnvase, setRecFotoEnvase] = useState(null); // { uri, base64 } — guardado local, backend futuro
 
   const [mostrarFormVomito, setMostrarFormVomito] = useState(false);
   const [vomitoIntensidad, setVomitoIntensidad] = useState('');
@@ -515,6 +636,8 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
       setRecNombre('');
       setRecDosis('');
       setRecHora('');
+      setRecFotoReceta(null);
+      setRecFotoEnvase(null);
       Alert.alert('¡Listo!', 'Recepción de medicamento registrada.');
     },
     onError: () => Alert.alert('Error', 'No se pudo registrar la recepción.'),
@@ -550,6 +673,30 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
     medMutation.mutate({ alumno_id: alumnoId, nombre: medNombre, dosis: medDosis });
   };
 
+  const pickFotoRecepcion = async (setter) => {
+    Alert.alert('Agregar foto', 'Selecciona origen', [
+      {
+        text: 'Cámara', onPress: async () => {
+          const result = await ImagePicker.launchCameraAsync({ quality: 0.7, base64: true });
+          if (!result.canceled && result.assets[0]) {
+            setter({ uri: result.assets[0].uri, base64: result.assets[0].base64 });
+          }
+        }
+      },
+      {
+        text: 'Galería', onPress: async () => {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7, base64: true,
+          });
+          if (!result.canceled && result.assets[0]) {
+            setter({ uri: result.assets[0].uri, base64: result.assets[0].base64 });
+          }
+        }
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
   const guardarRecepcion = () => {
     if (!recNombre || !recDosis) {
       Alert.alert('Falta información', 'Escribe nombre y dosis.');
@@ -561,6 +708,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
       dosis: recDosis,
     };
     if (recHora) body.hora_programada = recHora;
+    if (recFotoReceta?.base64) body.foto_receta_base64 = `data:image/jpeg;base64,${recFotoReceta.base64}`;
     recepcionMutation.mutate(body);
   };
 
@@ -733,6 +881,11 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
           {tiempoActivo === 'comida_extra' && (
             <Text style={s.extensionSubText}>Alumno con extensión de horario activa</Text>
           )}
+          {menuPrecargado && comidas[tiempoActivo]?.que_comio ? (
+            <View style={{ backgroundColor: '#EDE9FE', borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 4, alignSelf: 'flex-start' }}>
+              <Text style={{ fontSize: 10, fontWeight: '700', color: '#6D28D9' }}>📋 Precargado del menú semanal</Text>
+            </View>
+          ) : null}
           <TextInput
             style={s.input}
             placeholder="¿Qué comió?"
@@ -812,6 +965,41 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
                     onPress={() => setActividadesParticipacion(prev => { const c = { ...prev }; delete c[act.id]; return c; })}
                   >
                     <Text style={s.boolBtnTxt}>—</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Fotos del alumno en esta actividad */}
+                <View style={{ marginTop: 8, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#E9D8FD' }}>
+                  <Text style={{ fontSize: 10, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase', marginBottom: 6 }}>📷 Fotos del alumno</Text>
+                  {act.fotos_alumno?.length > 0 && (
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        {act.fotos_alumno.map(foto => (
+                          <View key={foto.id} style={{ position: 'relative' }}>
+                            <Image
+                              source={{ uri: foto.foto_url }}
+                              style={{ width: 72, height: 72, borderRadius: 8, borderWidth: 2, borderColor: '#D6BCFA' }}
+                              resizeMode="cover"
+                            />
+                            <TouchableOpacity
+                              onPress={() => eliminarFotoActividad(foto.id)}
+                              style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: 10, backgroundColor: '#E53E3E', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                              <Text style={{ color: '#fff', fontSize: 11, fontWeight: '900', lineHeight: 14 }}>✕</Text>
+                            </TouchableOpacity>
+                          </View>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  )}
+                  <TouchableOpacity
+                    onPress={() => subirFotoActividad(act.id)}
+                    disabled={uploadingActId === act.id}
+                    style={{ paddingVertical: 7, paddingHorizontal: 12, backgroundColor: '#FAF5FF', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#D6BCFA', alignSelf: 'flex-start', opacity: uploadingActId === act.id ? 0.5 : 1 }}
+                  >
+                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#805AD5' }}>
+                      {uploadingActId === act.id ? 'Subiendo…' : '📷 Agregar foto'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -1042,6 +1230,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
 
           {mostrarRecepcion && (
             <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FED7AA' }}>
+              <Text style={{ fontSize: 11, fontWeight: '900', color: '#B45309', textTransform: 'uppercase', marginBottom: 8 }}>Nueva recepción (traída por papá)</Text>
               <TextInput
                 style={s.input}
                 placeholder="Nombre del medicamento *"
@@ -1049,27 +1238,58 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
                 onChangeText={setRecNombre}
               />
               <TextInput
-                style={s.input}
+                style={[s.input, { marginTop: 6 }]}
                 placeholder="Dosis (ej. 5ml, 1 tableta) *"
                 value={recDosis}
                 onChangeText={setRecDosis}
               />
               <TextInput
-                style={s.input}
-                placeholder="Hora (opcional)"
+                style={[s.input, { marginTop: 6 }]}
+                placeholder="Hora programada (opcional)"
                 value={recHora}
                 onChangeText={setRecHora}
               />
+              {/* Fotos de receta y envase */}
+              <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+                <TouchableOpacity
+                  onPress={() => pickFotoRecepcion(setRecFotoReceta)}
+                  style={{ flex: 1, paddingVertical: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: '#FCD34D', borderRadius: RADIUS.md, alignItems: 'center' }}
+                >
+                  {recFotoReceta ? (
+                    <View style={{ alignItems: 'center', gap: 2 }}>
+                      <Image source={{ uri: recFotoReceta.uri }} style={{ width: 40, height: 40, borderRadius: 6 }} resizeMode="cover" />
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: '#059669' }}>✅ Receta</Text>
+                    </View>
+                  ) : (
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#B45309' }}>📷 Foto receta{'\n'}(opcional)</Text>
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => pickFotoRecepcion(setRecFotoEnvase)}
+                  style={{ flex: 1, paddingVertical: 10, borderWidth: 2, borderStyle: 'dashed', borderColor: '#FCD34D', borderRadius: RADIUS.md, alignItems: 'center' }}
+                >
+                  {recFotoEnvase ? (
+                    <View style={{ alignItems: 'center', gap: 2 }}>
+                      <Image source={{ uri: recFotoEnvase.uri }} style={{ width: 40, height: 40, borderRadius: 6 }} resizeMode="cover" />
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: '#059669' }}>✅ Envase</Text>
+                    </View>
+                  ) : (
+                    <Text style={{ fontSize: 11, fontWeight: '700', color: '#B45309' }}>📷 Foto envase{'\n'}(opcional)</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
                 <TouchableOpacity
                   onPress={guardarRecepcion}
                   disabled={recepcionMutation.isPending}
                   style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: RADIUS.md, alignItems: 'center' }}
                 >
-                  <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar</Text>
+                  <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>
+                    {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar recepción'}
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={() => setMostrarRecepcion(false)}
+                  onPress={() => { setMostrarRecepcion(false); setRecFotoReceta(null); setRecFotoEnvase(null); }}
                   disabled={recepcionMutation.isPending}
                   style={{ paddingHorizontal: 16, paddingVertical: 12, borderRadius: RADIUS.md, backgroundColor: '#E5E7EB', alignItems: 'center' }}
                 >

@@ -43,7 +43,7 @@ function saludoPadre(parentesco, nombre) {
 }
 
 function ModalEvento({ ev, onClose }) {
-  if (!ev) return null;
+  if (!ev || !ev.fecha_inicio) return null;
   const fechaInicio = new Date(ev.fecha_inicio.substring(0, 10) + 'T12:00:00');
   const fechaFin = ev.fecha_fin ? new Date(ev.fecha_fin.substring(0, 10) + 'T12:00:00') : null;
   const fmtFecha = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -228,7 +228,7 @@ export default function PadreDashboard() {
               <Ionicons name="calendar" size={20} color="#2D3748" />
               <Text style={{ fontSize: 18, fontWeight: '900', color: '#2D3748' }}>Próximos eventos</Text>
             </View>
-            {eventosProximos.map(ev => {
+            {eventosProximos.filter(ev => ev.fecha_inicio).map(ev => {
               const fecha = new Date(ev.fecha_inicio.substring(0, 10) + 'T12:00:00');
               const etiqueta = fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
               return (

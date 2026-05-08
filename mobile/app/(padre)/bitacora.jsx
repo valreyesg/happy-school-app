@@ -12,6 +12,7 @@ import api from '@/services/api';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 import SelectorFecha from '@/components/SelectorFecha';
+import { Seccion, FilaInfo, PildoraBool } from '@/components/BitacoraHelpers';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -22,40 +23,6 @@ const TIEMPOS_COMIDA = [
 ];
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
-
-function Seccion({ titulo, emoji, icon, iconColor = '#2D3748', children }) {
-  return (
-    <View style={s.seccion}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        {icon ? <Ionicons name={icon} size={18} color={iconColor} /> : null}
-        {emoji && !icon ? <Text style={{ fontSize: 18 }}>{emoji}</Text> : null}
-        <Text style={s.seccionTitulo}>{titulo}</Text>
-      </View>
-      {children}
-    </View>
-  );
-}
-
-function FilaInfo({ label, valor, negrita }) {
-  if (valor === undefined || valor === null || valor === '') return null;
-  return (
-    <View style={s.fila}>
-      <Text style={s.filaLabel}>{label}</Text>
-      <Text style={[s.filaValor, negrita && { fontWeight: '800', color: '#2D3748' }]}>{valor}</Text>
-    </View>
-  );
-}
-
-function PildoraBool({ label, valor }) {
-  if (valor === null || valor === undefined) return null;
-  return (
-    <View style={[s.pildora, { backgroundColor: valor ? '#C6F6D5' : '#EDF2F7' }]}>
-      <Text style={[s.pildoraTxt, { color: valor ? '#276749' : '#718096' }]}>
-        {valor ? '✓' : '✗'} {label}
-      </Text>
-    </View>
-  );
-}
 
 // ─── Selector de ciclo ────────────────────────────────────────────────────────
 
@@ -882,7 +849,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Conducta — solo si hay bitácora ─ */}
           {bit?.comportamiento && (
-            <Seccion titulo="Conducta" icon="star" iconColor="#D69E2E">
+            <Seccion titulo="Conducta" icon="star" iconColor="#D69E2E" style={s.seccion} tituloStyle={s.seccionTitulo}>
               <View style={[s.compBadge, { backgroundColor: COMPORTAMIENTO[bit.comportamiento]?.color + '20' }]}>
                 <Text style={{ fontSize: 20 }}>{COMPORTAMIENTO[bit.comportamiento]?.emoji}</Text>
                 <Text style={[s.compLabel, { color: COMPORTAMIENTO[bit.comportamiento]?.color }]}>
@@ -895,7 +862,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Notas generales ─ */}
           {bit?.notas && (
-            <Seccion titulo="Mensaje de la Miss" icon="chatbubble-outline" iconColor="#805AD5">
+            <Seccion titulo="Mensaje de la Miss" icon="chatbubble-outline" iconColor="#805AD5" style={s.seccion} tituloStyle={s.seccionTitulo}>
               <View style={s.notasBox}>
                 <Text style={s.notasTxt}>{bit.notas}</Text>
               </View>
@@ -904,7 +871,7 @@ export default function BitacoraPadreScreen() {
 
           {/* ─ Foto del día ─ */}
           {bit?.foto_url && (
-            <Seccion titulo="Foto del día" icon="camera-outline" iconColor="#3182CE">
+            <Seccion titulo="Foto del día" icon="camera-outline" iconColor="#3182CE" style={s.seccion} tituloStyle={s.seccionTitulo}>
               <Image source={{ uri: bit.foto_url }} style={s.fotoDia} resizeMode="cover" />
             </Seccion>
           )}

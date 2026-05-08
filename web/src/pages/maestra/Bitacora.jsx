@@ -8,19 +8,9 @@ import toast from 'react-hot-toast';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import { toMap } from '@/utils/catalogos';
 import { ultimoDiaHabil } from '@/utils/fecha';
+import { Seccion } from '@/components/ui/BitacoraHelpers';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
-
-// ── Helpers de UI ─────────────────────────────────────────────────────────────
-
-function Seccion({ titulo, children }) {
-  return (
-    <div className="card-hs space-y-4">
-      <h3 className="text-xs font-black text-hs-purple uppercase tracking-wider">{titulo}</h3>
-      {children}
-    </div>
-  );
-}
 
 function Contador({ label, value, onChange }) {
   return (

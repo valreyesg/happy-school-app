@@ -13,17 +13,7 @@ import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 import SelectorFecha from '@/components/SelectorFecha';
 import { ultimoDiaHabil } from '@/utils/fecha';
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function Seccion({ titulo, children }) {
-  return (
-    <View style={s.seccion}>
-      <Text style={s.seccionTitulo}>{titulo}</Text>
-      {children}
-    </View>
-  );
-}
+import { Seccion } from '@/components/BitacoraHelpers';
 
 function Contador({ label, value, onChange }) {
   return (
@@ -1448,9 +1438,6 @@ const s = StyleSheet.create({
   badgeTxt: { fontSize: 11, fontWeight: '700', color: '#2D3748' },
   emptyTxt: { textAlign: 'center', color: '#A0AEC0', marginTop: 48, fontSize: 14 },
 
-  // Sección
-  seccion: { marginTop: 20, marginHorizontal: 16, backgroundColor: '#F7FAFC', borderRadius: RADIUS.md, padding: 16, borderWidth: 1, borderColor: '#E2E8F0' },
-  seccionTitulo: { fontSize: 14, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 },
   extensionSubText: { fontSize: 12, fontWeight: '600', color: '#7C3AED', marginBottom: 12, fontStyle: 'italic' },
 
   // Ánimo

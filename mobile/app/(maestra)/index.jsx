@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity,
-  StyleSheet, Image, ActivityIndicator, Alert,
+  StyleSheet, Image, ActivityIndicator, Alert, FlatList,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -289,10 +289,13 @@ export default function MaestraDashboard() {
         {isLoading ? (
           <ActivityIndicator color="#805AD5" size="large" style={{ marginTop: 20 }} />
         ) : (
-          <View style={styles.alumnosList}>
-            {alumnos.map(alumno => (
+          <FlatList
+            data={alumnos}
+            keyExtractor={alumno => alumno.id}
+            scrollEnabled={false}
+            contentContainerStyle={styles.alumnosList}
+            renderItem={({ item: alumno }) => (
               <TouchableOpacity
-                key={alumno.id}
                 style={styles.alumnoCard}
                 onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}`)}
                 activeOpacity={0.8}
@@ -338,8 +341,8 @@ export default function MaestraDashboard() {
                   </Text>
                 </View>
               </TouchableOpacity>
-            ))}
-          </View>
+            )}
+          />
         )}
       </ScrollView>
     </SafeAreaView>

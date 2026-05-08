@@ -1,44 +1,14 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+64 (UX + Performance: centralización utils/componentes — Ítems 8-16 completados)
+**Última actualización:** 2026-05-08 — Sesión XX+65 (UX + Performance: limpieza código muerto + fixes defensivos + consolidación lógica duplicada — Ítems 12, 17-25 completados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 🧹 UX + PERFORMANCE — Parte 2 (siguiente sesión)
+## 🧹 UX + PERFORMANCE — Parte 3 (siguiente sesión)
 
 > Objetivo: máx. 2 clics por acción, sin código basura, paridad web↔mobile, sin duplicaciones.
-> Audit completo realizado en Sesión XX+63: 73 problemas identificados, 8 resueltos. Ítems 8-16 resueltos en Sesión XX+64. Restan 13.
-
-### 🔲 Código duplicado → centralizar en utils/componentes
-
-| # | Qué | Duplicado en | Destino |
-|---|-----|-------------|---------|
-| 12 | `Seccion`, `FilaInfo`, `PildoraBool` UI helpers | Bitácora maestra web + mobile (3+ copias) | Componentes compartidos web + mobile |
-
-### 🔲 Variables/código muerto → eliminar
-
-| # | Qué | Archivo | Línea aprox. |
-|---|-----|---------|--------------|
-| 17 | `EMOJIS_COMIDA` declarado, nunca usado | `web/src/pages/padre/Dashboard.jsx` | ~23 |
-| 18 | `qrRef` declarado, nunca usado | `web/src/pages/maestra/FiltroSalida.jsx` | ~473 |
-| 19 | `ultimoAlumnoIdRef` nunca usado | `web/src/pages/maestra/FiltroEntrada.jsx` | ~486 |
-
-### 🔲 Crashes potenciales → fix defensivo
-
-| # | Qué | Archivo | Fix |
-|---|-----|---------|-----|
-| 20 | `ev.fecha_inicio` sin validación antes de `new Date()` | `mobile/app/(padre)/index.jsx` | `if (!ev.fecha_inicio) return null` |
-| 21 | ImagePicker no valida si usuario cancela | `mobile/app/(padre)/bitacora.jsx` | `if (result.canceled) return` |
-| 22 | `alumnoId` asumido como `hijos[0]?.id` sin guard | `web/src/pages/padre/ComidaSemanal.jsx` | Guard si no hay hijos |
-
-### 🔲 Lógica duplicada → consolidar
-
-| # | Qué | Archivo |
-|---|-----|---------|
-| 23 | Medicamentos duplicados (misma sección × 2, ~450 líneas) | `web/src/pages/padre/Bitacora.jsx` |
-| 24 | `ModalNuevaTarea` + `ModalEditarTarea` 90% idénticas | `web/src/pages/maestra/Tareas.jsx` |
-| 25 | Lista alumnos con `map()` sin virtualización (lento 30+ alumnos) | `mobile/app/(maestra)/index.jsx` |
+> Audit completo realizado en Sesión XX+63: 73 problemas identificados. Ítems 8-16 resueltos en XX+64. Ítems 12, 17-25 resueltos en XX+65. Restan 4 (UX).
 
 ### 🔲 UX: reducir clics a máx. 2
 
@@ -61,11 +31,15 @@
 - [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
 - [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
 
-### 📋 VALERIA — Validar junto con cada ítem (próxima sesión)
-- [ ] **Ítem 12** — Bitácora maestra web + mobile: secciones se ven igual
-- [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo una vez
-- [ ] **Ítem 24** — Tareas maestra web: crear y editar tarea funcionan correctamente
-- [ ] **Ítem 25** — Dashboard maestra mobile con grupo real: scroll suave en lista alumnos
+### 📋 VALERIA — Validar ítems 12, 17-25 (recién completados en Sesión XX+65)
+- [ ] **Ítem 12** — Bitácora maestra web + mobile: secciones se ven igual que antes
+- [ ] **Ítem 17-19** — Dashboard padre web, FiltroSalida, FiltroEntrada: funcionan igual (no se rompió nada al limpiar vars muertas)
+- [ ] **Ítem 20** — Dashboard padre mobile: eventos con `fecha_inicio` null no crashean la app
+- [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez (no duplicada)
+- [ ] **Ítem 24** — Tareas maestra web: crear tarea y editar tarea funcionan correctamente
+- [ ] **Ítem 25** — Dashboard maestra mobile con grupo real: lista alumnos hace scroll suave sin lentitud
+
+### 📋 VALERIA — Validar junto con ítems UX (próxima sesión)
 - [ ] **Ítem 26** — FiltroSalida web: registrar salida en 1 sola vista (no 2 pasos)
 - [ ] **Ítem 27** — Bitácora padre web: navegar una semana con 2 clics (no 5)
 - [ ] **Ítem 28** — Bitácora padre mobile: declarar medicamento con 1 botón de foto

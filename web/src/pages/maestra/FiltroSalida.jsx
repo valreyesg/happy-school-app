@@ -453,7 +453,6 @@ function TarjetaAlumno({ alumno, onTap, onAlertar, alertando, horaSalidaNormal }
 // ── QR Scanner ────────────────────────────────────────────────────────────
 
 function QRScannerModal({ onScan, onClose }) {
-  const qrRef = useRef(null);
   const scannerRef = useRef(null);
   const scannedRef = useRef(false);
 
@@ -484,7 +483,7 @@ function QRScannerModal({ onScan, onClose }) {
 
   return (
     <Modal open={true} onClose={onClose} title="📱 Escanear QR del alumno" size="sm">
-      <div id="qr-filtro-salida" ref={qrRef} className="w-full" />
+      <div id="qr-filtro-salida" className="w-full" />
       <p className="text-center text-xs text-gray-400 font-semibold py-3">
         Apunta la cámara al código QR de la credencial del alumno
       </p>

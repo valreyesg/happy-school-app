@@ -21,7 +21,6 @@ function proximos3Dias() {
 }
 
 const EMOJIS_ANIMO = { feliz: '😊', triste: '😢', cansado: '😴', irritable: '😤', activo: '⚡' };
-const EMOJIS_COMIDA = { todo: '😋', casi_todo: '😊', poco: '😐', no_comio: '❌' };
 const COMPORTAMIENTO = {
   muy_bien:         { emoji: '⭐', label: 'Excelente', bg: 'bg-green-100',  text: 'text-green-700'  },
   bien:             { emoji: '👍', label: 'Bien',      bg: 'bg-blue-100',   text: 'text-hs-blue-dark'   },

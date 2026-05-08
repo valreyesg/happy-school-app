@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
 import SignaturePad from '@/components/ui/SignaturePad';
+import { Seccion, FilaInfo, PildoraBool } from '@/components/ui/BitacoraHelpers';
 
 const ANIMO = {
   feliz:     { emoji: '😊', label: 'Feliz'     },
@@ -28,33 +29,139 @@ const COMPORTAMIENTO = {
   necesita_mejorar:{ emoji: '⚠️', label: 'A mejorar', color: 'bg-red-50    text-red-700    border-red-200'    },
 };
 
-function Seccion({ titulo, emoji, children }) {
-  return (
-    <div className="card-hs p-5 space-y-3">
-      <h3 className="text-xs font-black text-red-500 uppercase tracking-wide">{emoji} {titulo}</h3>
-      {children}
-    </div>
-  );
-}
 
-function FilaInfo({ label, valor }) {
-  if (valor === null || valor === undefined || valor === '') return null;
+// Sección de declaración de medicamentos (usada en 2 contextos: sin bitácora aún y tab Salud).
+function SeccionMedicamentos({
+  recepciones, mostrarFormMed, setMostrarFormMed,
+  formMed, setFormMed, horasMed, setHorasMed,
+  fotoReceta, setFotoReceta, fotoRecetaRef,
+  handleRegistrarMed, recepcionMutation, borrarMedMutation,
+}) {
   return (
-    <div className="flex justify-between items-start py-1.5 border-b border-gray-50 last:border-0">
-      <span className="text-sm text-gray-500 font-semibold">{label}</span>
-      <span className="text-sm text-gray-800 font-bold text-right max-w-[60%]">{valor}</span>
-    </div>
-  );
-}
+    <div className="bg-hs-purple/10 border border-hs-purple/20 rounded-2xl p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-black text-hs-purple-dark">💊 Medicamentos para hoy</p>
+        <button
+          onClick={() => setMostrarFormMed(v => !v)}
+          className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-3 py-1.5 rounded-xl hover:bg-hs-purple/10 transition-colors"
+        >
+          {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
+        </button>
+      </div>
 
-function PildoraBool({ label, valor }) {
-  if (valor === null || valor === undefined) return null;
-  return (
-    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${
-      valor ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-400 border-gray-200'
-    }`}>
-      {valor ? '✓' : '✗'} {label}
-    </span>
+      {recepciones.length > 0 && (
+        <div className="space-y-2">
+          {recepciones.map((r, i) => (
+            <div key={i} className="bg-white rounded-xl px-3 py-2 border border-purple-100 space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-purple-800">{r.nombre}</p>
+                  <p className="text-xs text-purple-500 font-semibold">{r.dosis}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                    r.tomas?.every(t => t.administrado) ? 'bg-green-100 text-green-700' :
+                    r.recibido ? 'bg-blue-100 text-hs-blue-dark' :
+                    'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
+                  </span>
+                  {!r.recibido && !r.administrado && (
+                    <button
+                      onClick={() => borrarMedMutation.mutate(r.id)}
+                      disabled={borrarMedMutation.isPending}
+                      className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      🗑
+                    </button>
+                  )}
+                </div>
+              </div>
+              {r.tomas?.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {r.tomas.map((t, j) => (
+                    <span key={j} className="text-xs px-2 py-0.5 rounded bg-hs-purple/10 text-hs-purple font-semibold">
+                      {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {recepciones.length === 0 && !mostrarFormMed && (
+        <p className="text-xs text-purple-400 font-semibold">
+          Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.
+        </p>
+      )}
+
+      {mostrarFormMed && (
+        <div className="space-y-3 pt-1 border-t border-purple-100">
+          <input
+            placeholder="Medicamento *  (ej. Ibuprofeno)"
+            value={formMed.nombre}
+            onChange={e => setFormMed(p => ({ ...p, nombre: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+          />
+          <input
+            placeholder="Dosis *  (ej. 5ml cada 8h)"
+            value={formMed.dosis}
+            onChange={e => setFormMed(p => ({ ...p, dosis: e.target.value }))}
+            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+          />
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-black text-gray-400 uppercase">Horas programadas</p>
+              <button
+                onClick={() => setHorasMed(h => [...h, ''])}
+                className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-2 py-1 rounded-lg hover:bg-hs-purple/10"
+              >
+                ＋ Agregar hora
+              </button>
+            </div>
+            <div className="space-y-2">
+              {horasMed.map((h, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="time"
+                    value={h}
+                    onChange={e => setHorasMed(prev => prev.map((x, i) => i === idx ? e.target.value : x))}
+                    className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
+                  />
+                  {horasMed.length > 1 && (
+                    <button
+                      onClick={() => setHorasMed(prev => prev.filter((_, i) => i !== idx))}
+                      className="text-sm text-gray-400 hover:text-red-500"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
+            <button
+              onClick={() => fotoRecetaRef.current?.click()}
+              className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-hs-purple/10 text-hs-purple-dark' : 'border-gray-300 text-gray-500 hover:border-hs-purple/30'}`}
+            >
+              {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
+            </button>
+            <input ref={fotoRecetaRef} type="file" accept="image/*,.pdf" hidden onChange={e => setFotoReceta(e.target.files?.[0] || null)} />
+          </div>
+          <button
+            onClick={handleRegistrarMed}
+            disabled={recepcionMutation.isPending}
+            className="w-full py-2.5 rounded-xl bg-hs-purple text-white text-sm font-black hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
+          >
+            {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -447,130 +554,17 @@ export default function PadreBitacora() {
             <div className="space-y-4">
               {/* Declarar medicamento aunque no haya bitácora aún (solo hoy) */}
               {esHoyFecha && (
-                <div className="bg-hs-purple/10 border border-hs-purple/20 rounded-2xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-black text-hs-purple-dark">💊 Medicamentos para hoy</p>
-                    <button
-                      onClick={() => setMostrarFormMed(v => !v)}
-                      className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-3 py-1.5 rounded-xl hover:bg-hs-purple/10 transition-colors"
-                    >
-                      {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
-                    </button>
-                  </div>
-
-                  {recepciones.length > 0 && (
-                    <div className="space-y-2">
-                      {recepciones.map((r, i) => (
-                        <div key={i} className="bg-white rounded-xl px-3 py-2 border border-purple-100 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm font-bold text-purple-800">{r.nombre}</p>
-                              <p className="text-xs text-purple-500 font-semibold">{r.dosis}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                r.tomas?.every(t => t.administrado) ? 'bg-green-100 text-green-700' :
-                                r.recibido ? 'bg-blue-100 text-hs-blue-dark' :
-                                'bg-yellow-100 text-yellow-700'
-                              }`}>
-                                {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
-                              </span>
-                              {!r.recibido && !r.administrado && (
-                                <button
-                                  onClick={() => borrarMedMutation.mutate(r.id)}
-                                  disabled={borrarMedMutation.isPending}
-                                  className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                >
-                                  🗑
-                                </button>
-                              )}
-                            </div>
-                          </div>
-                          {r.tomas?.length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {r.tomas.map((t, j) => (
-                                <span key={j} className="text-xs px-2 py-0.5 rounded bg-hs-purple/10 text-hs-purple font-semibold">
-                                  {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {recepciones.length === 0 && !mostrarFormMed && (
-                    <p className="text-xs text-purple-400 font-semibold">
-                      Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.
-                    </p>
-                  )}
-
-                  {mostrarFormMed && (
-                    <div className="space-y-3 pt-1 border-t border-purple-100">
-                      <input
-                        placeholder="Medicamento *  (ej. Ibuprofeno)"
-                        value={formMed.nombre}
-                        onChange={e => setFormMed(p => ({ ...p, nombre: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                      />
-                      <input
-                        placeholder="Dosis *  (ej. 5ml cada 8h)"
-                        value={formMed.dosis}
-                        onChange={e => setFormMed(p => ({ ...p, dosis: e.target.value }))}
-                        className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                      />
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <p className="text-xs font-black text-gray-400 uppercase">Horas programadas</p>
-                          <button
-                            onClick={() => setHorasMed(h => [...h, ''])}
-                            className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-2 py-1 rounded-lg hover:bg-hs-purple/10"
-                          >
-                            ＋ Agregar hora
-                          </button>
-                        </div>
-                        <div className="space-y-2">
-                          {horasMed.map((h, idx) => (
-                            <div key={idx} className="flex items-center gap-2">
-                              <input
-                                type="time"
-                                value={h}
-                                onChange={e => setHorasMed(prev => prev.map((x, i) => i === idx ? e.target.value : x))}
-                                className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                              />
-                              {horasMed.length > 1 && (
-                                <button
-                                  onClick={() => setHorasMed(prev => prev.filter((_, i) => i !== idx))}
-                                  className="text-sm text-gray-400 hover:text-red-500"
-                                >
-                                  ✕
-                                </button>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
-                        <button
-                          onClick={() => fotoRecetaRef.current?.click()}
-                          className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-hs-purple/10 text-hs-purple-dark' : 'border-gray-300 text-gray-500 hover:border-hs-purple/30'}`}
-                        >
-                          {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
-                        </button>
-                        <input ref={fotoRecetaRef} type="file" accept="image/*,.pdf" hidden onChange={e => setFotoReceta(e.target.files?.[0] || null)} />
-                      </div>
-                      <button
-                        onClick={handleRegistrarMed}
-                        disabled={recepcionMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-hs-purple text-white text-sm font-black hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
-                      >
-                        {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <SeccionMedicamentos
+                  recepciones={recepciones}
+                  mostrarFormMed={mostrarFormMed} setMostrarFormMed={setMostrarFormMed}
+                  formMed={formMed} setFormMed={setFormMed}
+                  horasMed={horasMed} setHorasMed={setHorasMed}
+                  fotoReceta={fotoReceta} setFotoReceta={setFotoReceta}
+                  fotoRecetaRef={fotoRecetaRef}
+                  handleRegistrarMed={handleRegistrarMed}
+                  recepcionMutation={recepcionMutation}
+                  borrarMedMutation={borrarMedMutation}
+                />
               )}
 
               <div className="card-hs p-10 text-center">
@@ -808,136 +802,17 @@ export default function PadreBitacora() {
 
                       {/* ── Declarar medicamento (solo hoy) ── */}
                       {esHoyFecha && (
-                        <div className="bg-hs-purple/10 border border-hs-purple/20 rounded-2xl p-4 space-y-3">
-                          <div className="flex items-center justify-between">
-                            <p className="text-sm font-black text-hs-purple-dark">💊 Medicamentos para hoy</p>
-                            <button
-                              onClick={() => setMostrarFormMed(v => !v)}
-                              className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-3 py-1.5 rounded-xl hover:bg-hs-purple/10 transition-colors"
-                            >
-                              {mostrarFormMed ? 'Cancelar' : '+ Declarar'}
-                            </button>
-                          </div>
-
-                          {recepciones.length > 0 && (
-                            <div className="space-y-2">
-                              {recepciones.map((r, i) => (
-                                <div key={i} className="bg-white rounded-xl px-3 py-2 border border-purple-100 space-y-2">
-                                  <div className="flex items-center justify-between">
-                                    <div>
-                                      <p className="text-sm font-bold text-purple-800">{r.nombre}</p>
-                                      <p className="text-xs text-purple-500 font-semibold">{r.dosis}</p>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                        r.tomas?.every(t => t.administrado) ? 'bg-green-100 text-green-700' :
-                                        r.recibido ? 'bg-blue-100 text-hs-blue-dark' :
-                                        'bg-yellow-100 text-yellow-700'
-                                      }`}>
-                                        {r.tomas?.every(t => t.administrado) ? '✅ Dado' : r.recibido ? '📬 Recibido' : '⏳ Pendiente'}
-                                      </span>
-                                      {!r.recibido && !r.administrado && (
-                                        <button
-                                          onClick={() => borrarMedMutation.mutate(r.id)}
-                                          disabled={borrarMedMutation.isPending}
-                                          className="text-xs px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                        >
-                                          🗑
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                  {r.tomas?.length > 0 && (
-                                    <div className="flex flex-wrap gap-1">
-                                      {r.tomas.map((t, j) => (
-                                        <span key={j} className="text-xs px-2 py-0.5 rounded bg-hs-purple/10 text-hs-purple font-semibold">
-                                          {t.hora_programada.substring(0, 5)} {t.administrado ? '✅' : '⏳'}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {recepciones.length === 0 && !mostrarFormMed && (
-                            <p className="text-xs text-purple-400 font-semibold">
-                              Ninguno declarado. Usa "+ Declarar" si llevas medicamento hoy.
-                            </p>
-                          )}
-
-                          {mostrarFormMed && (
-                            <div className="space-y-3 pt-1 border-t border-purple-100">
-                              <input
-                                placeholder="Medicamento *  (ej. Ibuprofeno)"
-                                value={formMed.nombre}
-                                onChange={e => setFormMed(p => ({ ...p, nombre: e.target.value }))}
-                                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                              />
-                              <input
-                                placeholder="Dosis *  (ej. 5ml cada 8h)"
-                                value={formMed.dosis}
-                                onChange={e => setFormMed(p => ({ ...p, dosis: e.target.value }))}
-                                className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                              />
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <p className="text-xs font-black text-gray-400 uppercase">Horas programadas</p>
-                                  <button
-                                    onClick={() => setHorasMed(h => [...h, ''])}
-                                    className="text-xs font-bold text-hs-purple bg-white border border-hs-purple/20 px-2 py-1 rounded-lg hover:bg-hs-purple/10"
-                                  >
-                                    ＋ Agregar hora
-                                  </button>
-                                </div>
-                                <div className="space-y-2">
-                                  {horasMed.map((h, idx) => (
-                                    <div key={idx} className="flex items-center gap-2">
-                                      <input
-                                        type="time"
-                                        value={h}
-                                        onChange={e => setHorasMed(prev => prev.map((x, i) => i === idx ? e.target.value : x))}
-                                        className="flex-1 px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-purple-400"
-                                      />
-                                      {horasMed.length > 1 && (
-                                        <button
-                                          onClick={() => setHorasMed(prev => prev.filter((_, i) => i !== idx))}
-                                          className="text-sm text-gray-400 hover:text-red-500"
-                                        >
-                                          ✕
-                                        </button>
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              <div>
-                                <p className="text-xs font-black text-gray-400 uppercase mb-1">Foto receta (obligatoria)</p>
-                                <button
-                                  onClick={() => fotoRecetaRef.current?.click()}
-                                  className={`w-full px-3 py-2 border-2 border-dashed rounded-xl text-xs font-bold transition-colors ${fotoReceta ? 'border-purple-400 bg-hs-purple/10 text-hs-purple-dark' : 'border-gray-300 text-gray-500 hover:border-hs-purple/30'}`}
-                                >
-                                  {fotoReceta ? `✅ ${fotoReceta.name}` : '📷 Toca para adjuntar foto o PDF'}
-                                </button>
-                                <input
-                                  ref={fotoRecetaRef}
-                                  type="file"
-                                  accept="image/*,.pdf"
-                                  hidden
-                                  onChange={e => setFotoReceta(e.target.files?.[0] || null)}
-                                />
-                              </div>
-                              <button
-                                onClick={handleRegistrarMed}
-                                disabled={recepcionMutation.isPending}
-                                className="w-full py-2.5 rounded-xl bg-hs-purple text-white text-sm font-black hover:bg-hs-purple-dark disabled:opacity-50 transition-colors"
-                              >
-                                {recepcionMutation.isPending ? 'Guardando...' : '💾 Guardar'}
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                        <SeccionMedicamentos
+                          recepciones={recepciones}
+                          mostrarFormMed={mostrarFormMed} setMostrarFormMed={setMostrarFormMed}
+                          formMed={formMed} setFormMed={setFormMed}
+                          horasMed={horasMed} setHorasMed={setHorasMed}
+                          fotoReceta={fotoReceta} setFotoReceta={setFotoReceta}
+                          fotoRecetaRef={fotoRecetaRef}
+                          handleRegistrarMed={handleRegistrarMed}
+                          recepcionMutation={recepcionMutation}
+                          borrarMedMutation={borrarMedMutation}
+                        />
                       )}
 
                       {bit?.tuvo_fiebre && (
@@ -1063,7 +938,7 @@ export default function PadreBitacora() {
 
               {/* Conducta — siempre visible debajo de tabs */}
               {bit?.comportamiento && (
-                <Seccion titulo="Conducta" emoji="🌟">
+                <Seccion titulo="Conducta" emoji="🌟" colorTitulo="text-red-500" padding="p-5">
                   <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-bold ${COMPORTAMIENTO[bit.comportamiento]?.color}`}>
                     <span className="text-xl">{COMPORTAMIENTO[bit.comportamiento]?.emoji}</span>
                     {COMPORTAMIENTO[bit.comportamiento]?.label}
@@ -1074,7 +949,7 @@ export default function PadreBitacora() {
 
               {/* Notas de la maestra — siempre visibles */}
               {bit?.notas && (
-                <Seccion titulo="Mensaje de la maestra" emoji="💬">
+                <Seccion titulo="Mensaje de la maestra" emoji="💬" colorTitulo="text-red-500" padding="p-5">
                   <p className="text-sm text-gray-600 italic bg-yellow-50 rounded-xl p-3 leading-relaxed">
                     {bit.notas}
                   </p>
@@ -1083,7 +958,7 @@ export default function PadreBitacora() {
 
               {/* Foto del día */}
               {bit?.foto_url && (
-                <Seccion titulo="Foto del día" emoji="📷">
+                <Seccion titulo="Foto del día" emoji="📷" colorTitulo="text-red-500" padding="p-5">
                   <a href={bit.foto_url} target="_blank" rel="noreferrer">
                     <img src={bit.foto_url} alt="Foto del día"
                       className="w-full max-w-sm rounded-xl border-2 border-gray-200 hover:opacity-90 transition-opacity" />

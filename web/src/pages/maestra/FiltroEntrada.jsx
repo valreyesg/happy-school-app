@@ -333,7 +333,6 @@ function TarjetaAlumno({ alumno, onTap }) {
 // ── QR Scanner ────────────────────────────────────────────────────────────────
 
 function QRScannerModal({ onScan, onClose }) {
-  const qrRef = useRef(null);
   const scannerRef = useRef(null);
   const scannedRef = useRef(false);
 
@@ -364,7 +363,7 @@ function QRScannerModal({ onScan, onClose }) {
 
   return (
     <Modal open={true} onClose={onClose} title="📱 Escanear QR del alumno" size="sm">
-      <div id="qr-filtro-entrada" ref={qrRef} className="w-full" />
+      <div id="qr-filtro-entrada" className="w-full" />
       <p className="text-center text-xs text-gray-400 font-semibold py-3">
         Apunta la cámara al código QR de la credencial del alumno
       </p>
@@ -469,8 +468,6 @@ export default function FiltroEntrada() {
   // Estado para cadena de hermanos
   const [hermanosPendientes, setHermanosPendientes] = useState(null); // lista de hermanos sin entrada
   const [colaHermanos, setColaHermanos] = useState([]); // cola de hermanos a registrar en secuencia
-  const ultimoAlumnoIdRef = useRef(null);
-
   const irDia = (delta) => {
     const d = new Date(fecha + 'T12:00:00');
     do { d.setDate(d.getDate() + delta); } while (d.getDay() === 0 || d.getDay() === 6);
@@ -695,7 +692,6 @@ export default function FiltroEntrada() {
               const res = await api.get(`/alumnos/${alumnoId}/hermanos`);
               const sinEntrada = (res.data.hermanos || []).filter(h => !h.entrada_hoy);
               if (sinEntrada.length > 0) {
-                ultimoAlumnoIdRef.current = alumnoId;
                 setHermanosPendientes(sinEntrada);
               }
             } catch {

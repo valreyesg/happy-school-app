@@ -52,14 +52,17 @@ function agruparPorSemana(tareas, orden = 'asc') {
   return grupos;
 }
 
-function ModalEditarTarea({ tarea, onClose, onSuccess }) {
+// Modal unificado para crear y editar tareas.
+// mode='create': requiere grupoId. mode='edit': requiere tarea.
+function ModalTarea({ mode, tarea, grupoId, onClose, onSuccess }) {
+  const esEdicion = mode === 'edit';
   const [form, setForm] = useState({
-    titulo: tarea.titulo,
-    descripcion: tarea.descripcion || '',
-    fecha_limite: tarea.fecha_limite.substring(0, 10),
-    foto: null
+    titulo: esEdicion ? tarea.titulo : '',
+    descripcion: esEdicion ? (tarea.descripcion || '') : '',
+    fecha_limite: esEdicion ? tarea.fecha_limite.substring(0, 10) : proximoDiaHabil(),
+    foto: null,
   });
-  const [preview, setPreview] = useState(tarea.foto_url || null);
+  const [preview, setPreview] = useState(esEdicion ? (tarea.foto_url || null) : null);
   const fileRef = useRef(null);
 
   const mutation = useMutation({
@@ -68,15 +71,16 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
       fd.append('titulo', form.titulo);
       fd.append('descripcion', form.descripcion);
       fd.append('fecha_limite', form.fecha_limite);
+      if (!esEdicion) fd.append('grupo_id', grupoId);
       if (form.foto) fd.append('foto', form.foto);
-      return api.put(`/tareas/${tarea.id}`, fd);
+      return esEdicion ? api.put(`/tareas/${tarea.id}`, fd) : api.post('/tareas', fd);
     },
     onSuccess: () => {
-      toast.success('Tarea actualizada');
+      toast.success(esEdicion ? 'Tarea actualizada' : 'Tarea creada');
       onSuccess();
       onClose();
     },
-    onError: (err) => toast.error(err.response?.data?.error || 'Error al actualizar')
+    onError: (err) => toast.error(err.response?.data?.error || (esEdicion ? 'Error al actualizar' : 'Error al crear tarea')),
   });
 
   const handleFoto = (e) => {
@@ -93,65 +97,65 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
     <Modal
       open={true}
       onClose={onClose}
-      title="✏️ Editar Tarea"
+      title={esEdicion ? '✏️ Editar Tarea' : '📋 Nueva Tarea'}
       size="md"
       closeOnBackdrop={false}
     >
       <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Título *</label>
-            <input
-              type="text"
-              value={form.titulo}
-              onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-              placeholder="Ej: Tarea de matemática"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Título *</label>
+          <input
+            type="text"
+            value={form.titulo}
+            onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
+            placeholder="Ej: Tarea de matemática"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
-            <textarea
-              value={form.descripcion}
-              onChange={(e) => setForm(p => ({ ...p, descripcion: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30 resize-none"
-              placeholder="Detalles de la tarea"
-              rows={3}
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
+          <textarea
+            value={form.descripcion}
+            onChange={(e) => setForm(p => ({ ...p, descripcion: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30 resize-none"
+            placeholder="Detalles de la tarea"
+            rows={3}
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Fecha entrega</label>
-            <input
-              type="date"
-              value={form.fecha_limite}
-              onChange={(e) => setForm(p => ({ ...p, fecha_limite: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-1">Fecha entrega</label>
+          <input
+            type="date"
+            value={form.fecha_limite}
+            onChange={(e) => setForm(p => ({ ...p, fecha_limite: e.target.value }))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
+          />
+        </div>
 
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Foto (opcional)</label>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-hs-blue/50 transition"
-            >
-              <Upload size={24} className="mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600">Seleccionar foto</p>
-            </button>
-            <input ref={fileRef} type="file" accept="image/*,application/pdf" hidden onChange={handleFoto} />
-            {preview && (
-              <div className="mt-2 relative">
-                <img src={preview} alt="preview" className="w-full h-40 object-cover rounded-lg" />
-                <button
-                  onClick={() => { setPreview(null); setForm(p => ({ ...p, foto: null })); }}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
+        <div>
+          <label className="block text-sm font-bold text-gray-700 mb-2">Foto (opcional)</label>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-hs-blue/50 transition"
+          >
+            <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-600">Seleccionar foto</p>
+          </button>
+          <input ref={fileRef} type="file" accept="image/*,application/pdf" hidden onChange={handleFoto} />
+          {preview && (
+            <div className="mt-2 relative">
+              <img src={preview} alt="preview" className="w-full h-40 object-cover rounded-lg" />
+              <button
+                onClick={() => { setPreview(null); setForm(p => ({ ...p, foto: null })); }}
+                className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -164,134 +168,11 @@ function ModalEditarTarea({ tarea, onClose, onSuccess }) {
         </button>
         <button
           onClick={() => mutation.mutate()}
-          disabled={!form.titulo || mutation.isPending}
+          disabled={!form.titulo || (!esEdicion && !grupoId) || mutation.isPending}
           className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
         >
-          {mutation.isPending ? 'Guardando...' : 'Guardar'}
+          {mutation.isPending ? (esEdicion ? 'Guardando...' : 'Creando...') : (esEdicion ? 'Guardar' : 'Crear')}
         </button>
-      </div>
-    </Modal>
-  );
-}
-
-function ModalNuevaTarea({ grupoId, onClose, onSuccess }) {
-  const [form, setForm] = useState({
-    titulo: '',
-    descripcion: '',
-    fecha_limite: proximoDiaHabil(),
-    foto: null
-  });
-  const [preview, setPreview] = useState(null);
-  const fileRef = useRef(null);
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const fd = new FormData();
-      fd.append('titulo', form.titulo);
-      fd.append('descripcion', form.descripcion);
-      fd.append('fecha_limite', form.fecha_limite);
-      fd.append('grupo_id', grupoId);
-      if (form.foto) fd.append('foto', form.foto);
-      return api.post('/tareas', fd);
-    },
-    onSuccess: () => {
-      toast.success('Tarea creada');
-      onSuccess();
-      onClose();
-    },
-    onError: (err) => toast.error(err.response?.data?.error || 'Error al crear tarea')
-  });
-
-  const handleFoto = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setForm(p => ({ ...p, foto: file }));
-      const reader = new FileReader();
-      reader.onload = (evt) => setPreview(evt.target?.result);
-      reader.readAsDataURL(file);
-    }
-  };
-
-  return (
-    <Modal
-      open={true}
-      onClose={onClose}
-      title="📋 Nueva Tarea"
-      size="md"
-      closeOnBackdrop={false}
-    >
-      <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Título *</label>
-            <input
-              type="text"
-              value={form.titulo}
-              onChange={(e) => setForm(p => ({ ...p, titulo: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-              placeholder="Ej: Tarea de matemática"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Descripción</label>
-            <textarea
-              value={form.descripcion}
-              onChange={(e) => setForm(p => ({ ...p, descripcion: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30 resize-none"
-              placeholder="Detalles de la tarea"
-              rows={3}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Fecha entrega</label>
-            <input
-              type="date"
-              value={form.fecha_limite}
-              onChange={(e) => setForm(p => ({ ...p, fecha_limite: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-hs-blue/30"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Foto (opcional)</label>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-hs-blue/50 transition"
-            >
-              <Upload size={24} className="mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600">Seleccionar foto</p>
-            </button>
-            <input ref={fileRef} type="file" accept="image/*,application/pdf" hidden onChange={handleFoto} />
-            {preview && (
-              <div className="mt-2 relative">
-                <img src={preview} alt="preview" className="w-full h-40 object-cover rounded-lg" />
-                <button
-                  onClick={() => { setPreview(null); setForm(p => ({ ...p, foto: null })); }}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-2 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={() => mutation.mutate()}
-            disabled={!form.titulo || !grupoId || mutation.isPending}
-            className="flex-1 px-4 py-2 bg-hs-blue text-white rounded-lg font-bold hover:bg-hs-blue-dark disabled:opacity-50"
-          >
-            {mutation.isPending ? 'Creando...' : 'Crear'}
-          </button>
       </div>
     </Modal>
   );
@@ -438,7 +319,8 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
         </div>
 
         {showEditModal && (
-          <ModalEditarTarea
+          <ModalTarea
+            mode="edit"
             tarea={tarea}
             onClose={() => setShowEditModal(false)}
             onSuccess={() => onEdit?.()}
@@ -716,7 +598,8 @@ export default function MaestraTareas() {
       )}
 
       {showModal && grupo?.id && (
-        <ModalNuevaTarea
+        <ModalTarea
+          mode="create"
           grupoId={grupo.id}
           onClose={() => setShowModal(false)}
           onSuccess={handleSuccess}

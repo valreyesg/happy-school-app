@@ -415,8 +415,13 @@ function ModalHermanosCadena({ hermanos, tipo, onRegistrar, onOmitir }) {
 
 // ── Tarjeta alumno ─────────────────────────────────────────────────────────────
 
-function TarjetaAlumno({ alumno, onTap }) {
+function TarjetaAlumno({ alumno, onTap, onAlertar, alertando, horaSalidaNormal }) {
   const yaSalio = !!alumno.salida_id;
+  // El botón de alerta solo aparece cuando ya pasó la hora de salida del alumno
+  const horaLimiteAlumno = alumno.tiene_extension && alumno.hora_salida_extension
+    ? alumno.hora_salida_extension
+    : horaSalidaNormal;
+  const yaDebioSalir = !esSalidaAnticipada(horaLimiteAlumno);
   return (
     <div
       onClick={() => !yaSalio && onTap(alumno)}
@@ -442,9 +447,21 @@ function TarjetaAlumno({ alumno, onTap }) {
           ✅ {horaTexto(alumno.hora_salida)}
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-hs-orange/20 text-hs-orange-dark">
-          🏫 En escuela
-        </span>
+        <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-xl text-xs font-black bg-hs-orange/20 text-hs-orange-dark">
+            🏫 En escuela
+          </span>
+          {onAlertar && yaDebioSalir && (
+            <button
+              onClick={() => onAlertar(alumno.id)}
+              disabled={alertando}
+              title="Enviar alerta WhatsApp al padre"
+              className="p-1.5 rounded-xl bg-green-100 text-green-700 hover:bg-green-200 transition-all disabled:opacity-50"
+            >
+              {alertando ? '⏳' : '📲'}
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
@@ -508,6 +525,19 @@ export default function FiltroSalida() {
   const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
   const [showQR, setShowQR] = useState(false);
+  const [alertandoId, setAlertandoId] = useState(null);
+
+  const handleAlertar = async (alumnoId) => {
+    setAlertandoId(alumnoId);
+    try {
+      await api.post('/asistencia/alerta-sin-recoger', { alumno_id: alumnoId });
+      toast.success('Alerta enviada al padre por WhatsApp 📲');
+    } catch {
+      toast.error('No se pudo enviar la alerta');
+    } finally {
+      setAlertandoId(null);
+    }
+  };
 
   // Estado para cadena de hermanos
   const [hermanosPendientes, setHermanosPendientes] = useState(null);
@@ -671,7 +701,14 @@ export default function FiltroSalida() {
                 </span>
               </div>
               <div className="space-y-2">
-                {pendientes.map(a => <TarjetaAlumno key={a.id} alumno={a} onTap={soloLectura ? () => {} : setAlumnoSeleccionado} />)}
+                {pendientes.map(a => (
+                  <TarjetaAlumno key={a.id} alumno={a}
+                    onTap={soloLectura ? () => {} : setAlumnoSeleccionado}
+                    onAlertar={soloLectura ? null : handleAlertar}
+                    alertando={alertandoId === a.id}
+                    horaSalidaNormal={horaSalidaNormal}
+                  />
+                ))}
                 {salidos.map(a => <TarjetaAlumno key={a.id} alumno={a} onTap={() => {}} />)}
               </div>
             </section>

@@ -147,10 +147,146 @@ const notificarIncidente = async (padre, alumno) => {
   });
 };
 
+// ── Plantillas sin disparador automático ──────────────────────────────────────
+
+const notificarRecordatorioPago = async (padre, alumno, dia, monto) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'recordatorio_pago',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+      dia,
+      monto: parseFloat(monto).toFixed(2),
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarRecargo = async (padre, alumno, montoRecargo, diasAtraso, total) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'recargo',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+      monto_recargo: parseFloat(montoRecargo).toFixed(2),
+      dias_atraso: diasAtraso,
+      total: parseFloat(total).toFixed(2),
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarEventoNuevo = async (padre, alumno, titulo, fecha, descripcion) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'evento_nuevo',
+    variables: { titulo, fecha, descripcion: descripcion || '' },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarBoletaLista = async (padre, alumno, periodo) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'boleta_lista',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+      periodo,
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarSinRecoger = async (padre, alumno, horaSalida) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'sin_recoger',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+      hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+      hora_salida: horaSalida,
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarDocumentosPendientes = async (padre, alumno, documentosFaltantes) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'documentos_pendientes',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+      documentos_faltantes: documentosFaltantes,
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarEncuestaNueva = async (padre, alumno, titulo) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'encuesta_nueva',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      titulo,
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+// aviso_nuevo no tiene alumno específico; alumnoId es opcional
+const notificarAvisoNuevo = async (telefono, titulo, alumnoId) => {
+  return enviarMensaje({
+    telefono,
+    clave: 'aviso_nuevo',
+    variables: { titulo },
+    alumnoId: alumnoId || null,
+  });
+};
+
+const notificarSuspension = async (padre, alumno) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'suspension',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      nombre_alumno: alumno.nombre_completo,
+    },
+    alumnoId: alumno.id,
+  });
+};
+
+const notificarPagoComidaLunes = async (padre, alumno, monto) => {
+  return enviarMensaje({
+    telefono: padre.telefono_whatsapp || padre.telefono,
+    clave: 'pago_comida_lunes',
+    variables: {
+      nombre_padre: padre.nombre_completo.split(' ')[0],
+      monto: parseFloat(monto).toFixed(2),
+    },
+    alumnoId: alumno.id,
+  });
+};
+
 module.exports = {
   enviarMensaje,
   notificarRetardo,
   notificarReciboPago,
   notificarBitacoraLista,
   notificarIncidente,
+  notificarRecordatorioPago,
+  notificarRecargo,
+  notificarEventoNuevo,
+  notificarBoletaLista,
+  notificarSinRecoger,
+  notificarDocumentosPendientes,
+  notificarEncuestaNueva,
+  notificarAvisoNuevo,
+  notificarSuspension,
+  notificarPagoComidaLunes,
 };

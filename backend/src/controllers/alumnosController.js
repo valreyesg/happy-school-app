@@ -1,6 +1,7 @@
 const { query } = require('../config/database');
 const { generarQR } = require('../services/qrService');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
+const { notificarSuspension } = require('../services/whatsappService');
 
 const listar = async (req, res, next) => {
   try {
@@ -681,6 +682,28 @@ const registrarHistorialServicio = async (req, res, next) => {
               AND (anio_correspondiente > $3 OR (anio_correspondiente = $3 AND mes_correspondiente >= $4))
           `, [alumno_id, conceptoRes.rows[0].id, anio_inicio, mes_inicio]);
         }
+      }
+    }
+
+    // WhatsApp de suspensión: baja de cualquier servicio → notificar al padre principal
+    if (accion === 'baja') {
+      const padresRes = await query(
+        `SELECT p.id, p.nombre_completo, p.telefono_whatsapp, p.telefono,
+                a.nombre_completo AS alumno_nombre
+         FROM alumno_padre ap
+         JOIN padres p ON ap.padre_id = p.id
+         JOIN alumnos a ON a.id = ap.alumno_id
+         WHERE ap.alumno_id = $1
+         ORDER BY ap.es_tutor_principal DESC
+         LIMIT 1`,
+        [alumno_id]
+      );
+      if (padresRes.rows.length > 0) {
+        const padre = padresRes.rows[0];
+        const alumnoWA = { id: alumno_id, nombre_completo: padre.alumno_nombre };
+        notificarSuspension(padre, alumnoWA).catch(e =>
+          console.error(`WhatsApp suspension alumno ${alumno_id}:`, e.message)
+        );
       }
     }
 

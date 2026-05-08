@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
-const { enviarMensaje, notificarRetardo } = require('../services/whatsappService');
+const { enviarMensaje, notificarRetardo, notificarSinRecoger } = require('../services/whatsappService');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
 const { enviarPush } = require('../services/pushService');
 
@@ -656,6 +656,50 @@ router.get('/grupo/:grupo_id/mensual', async (req, res, next) => {
 });
 
 // Filtro de salida — alumnos presentes hoy sin salida registrada
+// POST /asistencia/alerta-sin-recoger — Maestra envía alerta WhatsApp al padre de alumno no recogido
+router.post('/alerta-sin-recoger', authorize('directora', 'administrativo', 'maestra_titular', 'maestra_auxiliar', 'maestra_puerta'), async (req, res, next) => {
+  try {
+    const { alumno_id } = req.body;
+    if (!alumno_id) return res.status(400).json({ error: 'alumno_id es requerido' });
+
+    // Obtener alumno y padre principal
+    const alumnoRes = await query(
+      `SELECT a.id, a.nombre_completo FROM alumnos a WHERE a.id = $1 AND a.deleted_at IS NULL`,
+      [alumno_id]
+    );
+    if (alumnoRes.rows.length === 0) return res.status(404).json({ error: 'Alumno no encontrado' });
+    const alumno = alumnoRes.rows[0];
+
+    // Hora de salida configurada
+    const cfgRes = await query(
+      `SELECT valor FROM configuracion_general WHERE clave = 'hora_salida_normal'`
+    );
+    const horaSalida = cfgRes.rows[0]?.valor || '15:00';
+
+    // Padres con teléfono del alumno
+    const padresRes = await query(
+      `SELECT p.id, p.nombre_completo, p.telefono_whatsapp, p.telefono
+       FROM alumno_padre ap
+       JOIN padres p ON ap.padre_id = p.id
+       WHERE ap.alumno_id = $1
+       ORDER BY ap.es_tutor_principal DESC`,
+      [alumno_id]
+    );
+
+    if (padresRes.rows.length === 0) return res.status(404).json({ error: 'No hay padres registrados para este alumno' });
+
+    const resultados = [];
+    for (const padre of padresRes.rows) {
+      const telefono = padre.telefono_whatsapp || padre.telefono;
+      if (!telefono) continue;
+      const r = await notificarSinRecoger(padre, alumno, horaSalida);
+      resultados.push({ padre: padre.nombre_completo, telefono, resultado: r });
+    }
+
+    res.json({ ok: true, alumno: alumno.nombre_completo, alertas: resultados });
+  } catch (err) { next(err); }
+});
+
 router.get('/filtro-salida', async (req, res, next) => {
   try {
     const fechaParam = req.query.fecha || null;

@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+56 (WhatsApp Sandbox end-to-end validado)
+**Última actualización:** 2026-05-09 — Sesión XX+57 (Plantillas WhatsApp sin disparador — funciones + 3 disparadores conectados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -12,6 +12,7 @@
 - [ ] Web en Vercel o Netlify
 - [ ] Mobile: generar APK / build nativo (requerido para notificaciones push en background y descarga de QR)
 - [ ] Validar modal urgente push en background (requiere build nativo, no funciona en Expo Go)
+- [ ] Pruebas completas con credenciales Twilio reales (producción) — sandbox validado, pendiente validar con cuenta real
 
 ---
 
@@ -45,11 +46,13 @@
 - [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 
 ### 🔔 WhatsApp Automático completo
-- [x] **Prueba sandbox completada** — Sandbox funciona end-to-end. Fix aplicado: números MX se normalizan a `+521XXXXXXXXXX` (WhatsApp registra móviles con el `1` intermedio). Recibo de pago llegó correctamente desde el portal (2026-05-08).
-- [x] **Link recibo accesible para padres** — Ruta pública `/api/pagos/:id/recibo-publico` creada (sin JWT). El UUID del pago actúa como secreto. Link en mensaje WhatsApp apunta a esta ruta. Validado: PDF descargable desde celular sin login (2026-05-08).
-- [x] **QR temporal compartido por WhatsApp** — Flujo manual validado (2026-05-08): botón descarga QR automáticamente + abre WhatsApp Web con mensaje pre-redactado. Padre adjunta imagen y envía a quien quiera. Flujo automático Twilio (imagen adjunta sin intervención) queda como mejora futura opcional.
-- [ ] Pruebas completas con credenciales Twilio reales (producción)
-- [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
+- [x] **Prueba sandbox completada** — Sandbox funciona end-to-end. Fix aplicado: números MX se normalizan a `+521XXXXXXXXXX`. Recibo de pago llegó correctamente (2026-05-08).
+- [x] **Link recibo accesible para padres** — Ruta pública `/api/pagos/:id/recibo-publico` sin JWT. Validado (2026-05-08).
+- [x] **QR temporal compartido por WhatsApp** — Flujo manual validado (2026-05-08).
+- [x] **10 funciones `notificar*` implementadas** — `recordatorio_pago`, `recargo`, `evento_nuevo`, `boleta_lista`, `sin_recoger`, `documentos_pendientes`, `encuesta_nueva`, `aviso_nuevo`, `suspension`, `pago_comida_lunes` en `whatsappService.js`. Probadas 10/10 vía API Twilio (2026-05-09).
+- [x] **Disparadores conectados** — `sin_recoger` (botón 📲 en FiltroSalida, aparece solo después de hora de salida), `aviso_nuevo` (POST aviso extraordinario), `suspension` (baja de historial de servicios).
+- [ ] **Validar mañana con Twilio** — Límite diario del sandbox (50 msg) alcanzado en pruebas. Pendiente validar en browser: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007).
+- [ ] Conectar disparadores restantes: `evento_nuevo` (al crear evento en calendario), `encuesta_nueva` (al publicar encuesta), `documentos_pendientes` (desde expediente alumno), `recordatorio_pago` / `recargo` (job mensual), `boleta_lista` (módulo boletas), `pago_comida_lunes` (job lunes)
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

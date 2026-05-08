@@ -3,6 +3,7 @@ const router = express.Router();
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
 const { enviarPush } = require('../services/pushService');
+const { notificarAvisoNuevo } = require('../services/whatsappService');
 
 router.use(authenticate);
 
@@ -90,7 +91,8 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
     let padresResult;
     if (!grupo_ids || grupo_ids.length === 0) {
       padresResult = await query(`
-        SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre
+        SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono
         FROM alumnos a
         JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
@@ -99,7 +101,8 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
       `);
     } else {
       padresResult = await query(`
-        SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre
+        SELECT DISTINCT u.id AS usuario_id, p.nombre_completo AS padre_nombre,
+               COALESCE(p.telefono_whatsapp, p.telefono) AS telefono
         FROM alumnos a
         JOIN alumno_padre ap ON ap.alumno_id = a.id
         JOIN padres p ON ap.padre_id = p.id
@@ -125,6 +128,15 @@ router.post('/aviso-extraordinario', authorize('directora'), async (req, res, ne
     // Enviar push a todos los padres
     const ids = padresResult.rows.map(r => r.usuario_id);
     enviarPush(ids, titulo, cuerpo, { tipo: 'aviso_extraordinario', aviso_id: String(aviso_id) });
+
+    // Enviar WhatsApp a padres con teléfono registrado (fire-and-forget)
+    for (const padre of padresResult.rows) {
+      if (padre.telefono) {
+        notificarAvisoNuevo(padre.telefono, titulo).catch(e =>
+          console.error(`WhatsApp aviso_nuevo a ${padre.telefono}:`, e.message)
+        );
+      }
+    }
 
     res.json({ ok: true, enviadas: padresResult.rows.length, aviso_id });
   } catch (err) { next(err); }

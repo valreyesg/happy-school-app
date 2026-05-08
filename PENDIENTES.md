@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+54 (Mobile: colores rol, navegación fechas, fixes UI)
+**Última actualización:** 2026-05-08 — Sesión XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -27,31 +27,33 @@
 
 ---
 
-## 📱 MOBILE — Portal Maestra — Correcciones pendientes (Sesión XX+54)
+## 📱 MOBILE — Portal Maestra — Correcciones pendientes (Sesión XX+54 cont.)
 
-> Observaciones identificadas, corregidas parcialmente. Las siguientes quedan para próximas sesiones.
+> Sesión XX+54 + continuación 2026-05-08. Los críticos y varios menores fueron resueltos.
 
-### 🔴 CRÍTICOS — Funcionalidad bloqueada
-- [ ] **Crash asistencia:** `cannot read property 'color' of undefined` — `ESTADO_CONFIG` retorna undefined para algún estado desconocido, falta guard clause en [asistencia.jsx](mobile/app/(maestra)/asistencia.jsx)
-- [ ] **Error salida QR:** "transacción abortada, las órdenes serán ignoradas hasta el fin de bloque de transacción" — error PostgreSQL en endpoint `/asistencia/salida`, posible trigger o transacción mal manejada en backend
+### ✅ Resueltos en sesión XX+54 + continuación
+- ✅ Crash asistencia: `ESTADO_CONFIG.pendiente` faltaba → agregado
+- ✅ Error transacción PostgreSQL salida QR → SAVEPOINT en bloques sanitario y pago tardío
+- ✅ Retardo/estado no se mostraba en asistencia → `estadoAlumno()` usaba campo inexistente `asistencia_hoy`, corregido a `estado_asistencia`
+- ✅ Baño/Pañal condicional por `usa_panial` → implementado
+- ✅ Ánimo sin descripción → etiqueta de texto bajo cada emoji
+- ✅ Salida sanitaria en formulario de captura → eliminada (solo se muestra al salir)
+- ✅ Alumnos sin asistencia en bitácora → filtro por `presente`/`retardo` + query con `?fecha=`
+- ✅ Nombre Miss truncado → `numberOfLines={2}` + `adjustsFontSizeToFit`
+- ✅ DatePicker en nueva tarea → `DateTimePicker` nativo instalado
+- ✅ Galería eliminada de tab bar, dashboard mobile y menú web
 
 ### 🟠 IMPORTANTES — Paridad con web (Bitácora maestra)
 - [ ] **Alimentación no segmentada por tiempos** — Web tiene 4 tiempos: Desayuno, Colación, Comida, Comida Extra. Mobile tiene un solo campo genérico. Implementar tabs/secciones por tiempo en [bitacora.jsx](mobile/app/(maestra)/bitacora.jsx)
 - [ ] **Medicamentos incompletos** — Web tiene 3 sub-secciones: Recepción (recibir del padre), Administración (dar al niño), Registrar recepción. Mobile solo tiene "Nueva recepción". Agregar flujo de Administración.
 - [ ] **Incidentes/Accidentes ausentes** — Sección completamente faltante en mobile. Web tiene: descripción, acciones tomadas, fotos. Agregar sección en bitácora maestra.
 - [ ] **Actividades del día ausentes** — Web tiene sección grupal con fotos + descripción de actividad del día y participación por alumno. Mobile no la tiene.
-- [ ] **Baño/Pañal sin condición** — La sección de baño debe mostrarse solo si el alumno NO usa pañal; "Cambio de pañal" solo si SÍ usa pañal. Verificar que el flag `usa_panial` se aplica correctamente.
-- [ ] **Iconos de ánimo sin descripción** — Solo se muestran emojis, no tienen etiqueta de texto debajo.
-- [ ] **Salida sanitaria visible en captura** — Solo debe mostrarse en modo lectura (al salir), no en formulario de captura.
 
-### 🟡 MENORES — UX/Diseño
-- [ ] **Nombre de la Miss truncado en dashboard** — Falta `numberOfLines` correcto o `flexShrink` en el contenedor del header
+### 🟡 MENORES — UX/Diseño Maestra
 - [ ] **Turno de puerta no aparece** — Web llama `/turnos-puerta/hoy` en el dashboard. Mobile no hace esa llamada. Agregar banner igual que web.
 - [ ] **Confirmaciones de comida ausentes** — Web tiene sección completa en dashboard con alumnos confirmados por día. Mobile no la tiene. Endpoint: `/comida/confirmaciones`
 - [ ] **Campanita de notificaciones ausente** — `NotificationBell.jsx` existe en `src/components/` pero no está integrada en el header del layout de maestra. Agregar al header igual que en web.
-- [ ] **Badge "Del" en tareas por recibir** — En dashboard, el badge rojo que muestra la tarea trunca el texto. Revisar `numberOfLines` o ancho del contenedor.
-- [ ] **DatePicker en nueva tarea** — El campo fecha entrega no abre calendario. Implementar `DateTimePicker` de `@react-native-community/datetimepicker`.
-- [ ] **Acciones rápidas poco informativas** — Dashboard maestra: los botones existen pero faltan banners contextuales (cumpleaños, rechazados por salud, alumnos en alerta). Paridad con web.
+- [ ] **Acciones rápidas poco informativas** — Dashboard maestra: faltan banners contextuales (cumpleaños, rechazados por salud). Paridad con web.
 
 ### 🟡 MENORES — Portal Padre Mobile
 - [ ] **Eventos próximos** — El dashboard padre muestra eventos pero revisar si el diseño y datos coinciden con web (próximos 3 días, badge de categoría, modal con detalle)

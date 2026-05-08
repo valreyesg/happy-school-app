@@ -27,21 +27,7 @@
 
 ---
 
-## 📱 MOBILE — Portal Maestra — Correcciones pendientes (Sesión XX+54 cont.)
-
-> Sesión XX+54 + continuación 2026-05-08. Los críticos y varios menores fueron resueltos.
-
-### ✅ Resueltos en sesión XX+54 + continuación
-- ✅ Crash asistencia: `ESTADO_CONFIG.pendiente` faltaba → agregado
-- ✅ Error transacción PostgreSQL salida QR → SAVEPOINT en bloques sanitario y pago tardío
-- ✅ Retardo/estado no se mostraba en asistencia → `estadoAlumno()` usaba campo inexistente `asistencia_hoy`, corregido a `estado_asistencia`
-- ✅ Baño/Pañal condicional por `usa_panial` → implementado
-- ✅ Ánimo sin descripción → etiqueta de texto bajo cada emoji
-- ✅ Salida sanitaria en formulario de captura → eliminada (solo se muestra al salir)
-- ✅ Alumnos sin asistencia en bitácora → filtro por `presente`/`retardo` + query con `?fecha=`
-- ✅ Nombre Miss truncado → `numberOfLines={2}` + `adjustsFontSizeToFit`
-- ✅ DatePicker en nueva tarea → `DateTimePicker` nativo instalado
-- ✅ Galería eliminada de tab bar, dashboard mobile y menú web
+## 📱 MOBILE — Portal Maestra — Correcciones pendientes
 
 ### 🟠 IMPORTANTES — Paridad con web (Bitácora maestra)
 - [ ] **Alimentación no segmentada por tiempos** — Web tiene 4 tiempos: Desayuno, Colación, Comida, Comida Extra. Mobile tiene un solo campo genérico. Implementar tabs/secciones por tiempo en [bitacora.jsx](mobile/app/(maestra)/bitacora.jsx)
@@ -58,6 +44,9 @@
 ### 🟡 MENORES — Portal Padre Mobile
 - [ ] **Eventos próximos** — El dashboard padre muestra eventos pero revisar si el diseño y datos coinciden con web (próximos 3 días, badge de categoría, modal con detalle)
 - [ ] **Tarea pendiente en dashboard** — No muestra tarea pendiente del alumno. Verificar llamada a `/tareas/lista-pendientes?alumno_id=`
+
+### 🔍 Pendiente validar (manual)
+- [ ] QR normal scan desde app de la Miss
 
 ---
 
@@ -85,14 +74,11 @@
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
 ### 🚪 QR Temporal — Círculos de Confianza — CASI COMPLETO
-- [ ] Validar pase vencido en Expo Go (validar mañana 2026-05-08)
+- [ ] Validar pase vencido en Expo Go
 - [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 
 
 ### 🔔 WhatsApp Automático completo
-- [x] Bugs de firma corregidos (tareas.js, comidaController.js, pagos.js) — Sesión XX+53
-- [x] Plantillas faltantes en BD agregadas (alerta_salud, solicitud_toallitas, solicitud_paniales) — Sesión XX+53
-- [x] pagos.js migrado de Twilio directo a whatsappService (respeta kill switch + log) — Sesión XX+53
 - [ ] Pruebas completas con credenciales Twilio reales
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 

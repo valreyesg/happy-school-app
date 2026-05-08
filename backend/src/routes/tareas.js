@@ -444,8 +444,10 @@ router.delete('/:id', authorize('maestra_titular', 'maestra_especial'), async (r
         enviarPush(padre.id, `Tarea cancelada: ${tarea.titulo}`, `La tarea "${tarea.titulo}" fue eliminada por la maestra.`, { tipo: 'tarea_cancelada' });
 
         if (padre.telefono) {
-          const msg = `🚫 La tarea *${tarea.titulo}* de ${padre.alumno_nombre} fue cancelada por la maestra.`;
-          await enviarMensaje(padre.telefono, msg).catch(() => {});
+          await enviarMensaje({
+            telefono: padre.telefono,
+            mensajeDirecto: `🚫 La tarea *${tarea.titulo}* de ${padre.alumno_nombre} fue cancelada por la maestra.`,
+          }).catch(() => {});
         }
       }
     }
@@ -529,8 +531,10 @@ router.put('/:id/publicar', authorize('maestra_titular', 'maestra_especial'), as
 
         // Enviar WhatsApp notificacion
         if (padre.telefono) {
-          const msg = `📚 ${padre.alumno_nombre}, tienes una nueva tarea: *${tarea.titulo}* (Entrega: ${tarea.fecha_limite})`;
-          await enviarMensaje(padre.telefono, msg).catch(() => {});
+          await enviarMensaje({
+            telefono: padre.telefono,
+            mensajeDirecto: `📚 ${padre.alumno_nombre} tiene una nueva tarea: *${tarea.titulo}* (Entrega: ${tarea.fecha_limite})`,
+          }).catch(() => {});
         }
       }
     }

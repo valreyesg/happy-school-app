@@ -6,12 +6,7 @@ const ExcelJS = require('exceljs');
 const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const multer = require('multer');
 const { uploadToCloudinary } = require('../services/cloudinaryService');
-let twilio = null;
-try {
-  if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_ACCOUNT_SID.startsWith('AC')) {
-    twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-  }
-} catch (e) { /* Twilio no configurado */ }
+const whatsappService = require('../services/whatsappService');
 
 const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -1318,7 +1313,6 @@ router.get('/:id/recibo', authorize('directora', 'administrativo'), async (req, 
 
 // ─── ENVIAR RECIBO POR WHATSAPP ────────────────────────────────────────────────
 // POST /pagos/:id/enviar   body: { canal: 'whatsapp' }
-// Requiere: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM, APP_BASE_URL
 
 router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req, res, next) => {
   try {
@@ -1345,20 +1339,17 @@ router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req,
 
     if (!p.tutor_telefono) return res.status(400).json({ error: 'El alumno no tiene tutor con teléfono registrado' });
 
+    if (canal !== 'whatsapp') return res.status(400).json({ error: 'Canal no soportado. Usa: whatsapp' });
+
     const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
     const MESES_ES = ['', 'Enero','Febrero','Marzo','Abril','Mayo','Junio',
       'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
     const baseUrl = process.env.APP_BASE_URL || `http://localhost:${process.env.PORT || 3000}`;
     const linkRecibo = `${baseUrl}/api/pagos/${p.id}/recibo`;
-
-    // Número limpio (10 dígitos MX)
-    const tel = p.tutor_telefono.replace(/\D/g, '');
-    const toWA = `whatsapp:+52${tel.length === 10 ? tel : tel.slice(-10)}`;
-    const from = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
-
     const folio = `#${String(p.id).replace(/-/g, '').slice(-8).toUpperCase()}`;
-    const mensaje = `🧾 *Recibo de Pago — Happy School*\n\n` +
+
+    const mensajeDirecto = `🧾 *Recibo de Pago — Happy School*\n\n` +
       `Hola ${p.tutor_nombre || 'Estimado padre/madre'},\n` +
       `Adjuntamos el recibo de pago de *${p.alumno_nombre}*.\n\n` +
       `📋 *Concepto:* ${p.concepto_nombre}\n` +
@@ -1368,13 +1359,16 @@ router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req,
       `Descarga tu recibo: ${linkRecibo}\n\n` +
       `_Happy School — Donde los niños son felices_ 🌟`;
 
-    if (canal === 'whatsapp') {
-      if (!twilio) return res.status(503).json({ error: 'WhatsApp no configurado (TWILIO_ACCOUNT_SID no definido)' });
-      await twilio.messages.create({ body: mensaje, from, to: toWA });
-      res.json({ ok: true, canal: 'whatsapp', destinatario: p.tutor_nombre, telefono: p.tutor_telefono });
-    } else {
-      return res.status(400).json({ error: 'Canal no soportado. Usa: whatsapp' });
-    }
+    const resultado = await whatsappService.enviarMensaje({
+      telefono: p.tutor_telefono,
+      mensajeDirecto,
+      alumnoId: p.alumno_id,
+    });
+
+    if (resultado.omitido) return res.status(503).json({ error: 'WhatsApp no está activo o no configurado' });
+    if (resultado.error) return res.status(500).json({ error: resultado.error });
+
+    res.json({ ok: true, canal: 'whatsapp', destinatario: p.tutor_nombre, telefono: p.tutor_telefono });
   } catch (err) { next(err); }
 });
 

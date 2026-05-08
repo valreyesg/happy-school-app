@@ -356,10 +356,11 @@ exports.procesarComidaNoPagada = async () => {
 
       // Enviar WhatsApp
       if (registro.telefono_whatsapp) {
-        await whatsappService.enviarMensaje(
-          registro.telefono_whatsapp,
-          `⚠️ Servicio de comida cancelado\n\nNo se recibió pago para la semana del ${semana_inicio}.\nPor favor contacta con la escuela.`
-        );
+        await whatsappService.enviarMensaje({
+          telefono: registro.telefono_whatsapp,
+          mensajeDirecto: `⚠️ Servicio de comida cancelado\n\nNo se recibió pago para la semana del ${semana_inicio}.\nPor favor contacta con la escuela.`,
+          alumnoId: registro.alumno_id,
+        }).catch(() => {});
       }
     }
 

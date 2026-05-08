@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Limpieza post-cierre XX+51 (eliminados [x] ya archivados)
+**Última actualización:** 2026-05-07 — Sesión XX+53 (bugs WhatsApp corregidos)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -58,8 +58,11 @@
 
 
 ### 🔔 WhatsApp Automático completo
-- [ ] Implementar las 19 plantillas restantes en sus módulos (ya están en DB)
+- [x] Bugs de firma corregidos (tareas.js, comidaController.js, pagos.js) — Sesión XX+53
+- [x] Plantillas faltantes en BD agregadas (alerta_salud, solicitud_toallitas, solicitud_paniales) — Sesión XX+53
+- [x] pagos.js migrado de Twilio directo a whatsappService (respeta kill switch + log) — Sesión XX+53
 - [ ] Pruebas completas con credenciales Twilio reales
+- [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

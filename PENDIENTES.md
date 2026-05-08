@@ -70,15 +70,9 @@
 - [ ] Pruebas completas con credenciales Twilio reales
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 
-### 🎓 Evaluaciones y Boletas
-- [ ] Indicadores configurables por nivel (catálogos dinámicos)
-- [ ] Captura calificaciones/observaciones (Miss)
-- [ ] Validación Directora antes de publicar
-- [ ] Boletas PDF automáticas
-- [ ] Reporte Desarrollo: PDF mensual por alumno
-
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización
 - [ ] Backup automático diario
 - [ ] Pruebas UX + Performance: optimización completa
 - [ ] Álbumes fotos: por evento/mes con compresión (módulo extra, no prioritario)
+- [ ] Evaluaciones y Boletas: indicadores configurables por nivel, captura calificaciones (Miss), validación Directora, boletas PDF automáticas, reporte desarrollo PDF mensual

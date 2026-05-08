@@ -62,8 +62,6 @@
 - [ ] Captura calificaciones/observaciones (Miss)
 - [ ] Validación Directora antes de publicar
 - [ ] Boletas PDF automáticas
-- [ ] Reporte Desarrollo: PDF mensual por alumno
-
 
 ---
 
@@ -83,3 +81,4 @@
 - [ ] Backup automático diario
 - [ ] Pruebas UX + Performance: optimización completa
 - [ ] Álbumes fotos: por evento/mes con compresión (módulo extra, no prioritario)
+- [ ] Reporte Desarrollo: PDF mensual por alumno (no prioritario)

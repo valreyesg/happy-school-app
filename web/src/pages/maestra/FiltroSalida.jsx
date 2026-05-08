@@ -43,13 +43,10 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
     return opciones[0]?.id || 'otro';
   })();
 
-  // Estado Paso 1 — Quién recoge
-  const [paso, setPaso] = useState(1);
+  // Estado unificado — 1 sola vista con scroll (sin pasos)
   const [seleccion, setSeleccion] = useState(defaultSeleccion);
   const [nombreOtro, setNombreOtro] = useState(quienRecogeDefault?.nombre_quien_recoge || '');
   const [motivoAnticipada, setMotivoAnticipada] = useState('');
-
-  // Estado Paso 2 — Checklist sanitario
   const [panialLimpio, setPanialLimpio] = useState(false);
   const [pertenenciasOk, setPertenenciasOk] = useState(false);
   const [estadoFisicoOk, setEstadoFisicoOk] = useState(false);
@@ -89,25 +86,18 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
     },
   });
 
-  const handleIrPaso2 = () => {
+  const handleSubmit = () => {
     const opcion = opciones.find(o => o.id === seleccion);
 
-    // Validación Paso 1
     if (opcion?.tipo === 'otro' && !nombreOtro.trim()) {
       toast.error('Escribe el nombre de quien recoge');
       return;
     }
-
     if (anticipada && !motivoAnticipada.trim()) {
       toast.error('Escribe el motivo de la salida anticipada');
       return;
     }
 
-    setPaso(2);
-  };
-
-  const handleSubmit = () => {
-    const opcion = opciones.find(o => o.id === seleccion);
     const payload = { alumno_id: alumno.id };
 
     if (opcion?.tipo === 'padre') {
@@ -118,13 +108,11 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
       payload.nombre_quien_recoge = nombreOtro.trim();
     }
 
-    // Campos de salida anticipada
     if (anticipada) {
       payload.es_anticipada = true;
       payload.motivo_salida = motivoAnticipada.trim();
     }
 
-    // Campos sanitarios
     payload.panial_limpio = panialLimpio;
     payload.pertenencias_ok = pertenenciasOk;
     payload.estado_fisico_ok = estadoFisicoOk;
@@ -138,6 +126,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
 
   return (
     <Modal open={true} onClose={onClose} title={null} size="md" closeOnBackdrop={true}>
+      {/* Header alumno */}
       <div className="flex items-center gap-3 pb-3 border-b border-gray-100">
         <AvatarAlumno alumno={alumno} size="md" />
         <div className="flex-1">
@@ -154,122 +143,105 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
         </button>
       </div>
 
-      {/* Indicador de progreso */}
-      <div className="flex items-center gap-2 py-3 bg-gray-50 -mx-5 px-5 border-b border-gray-100">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
-          ${paso === 1 ? 'bg-hs-purple text-white' : 'bg-green-500 text-white'}`}>
-          1
-        </div>
-        <div className="flex-1 h-1 bg-gray-200 rounded overflow-hidden">
-          <div className={`h-1 bg-hs-purple transition-all ${paso === 2 ? 'w-full' : 'w-0'}`} />
-        </div>
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black
-          ${paso === 2 ? 'bg-hs-purple text-white' : 'bg-gray-200 text-gray-500'}`}>
-          2
-        </div>
-      </div>
+      {/* Vista única con scroll — sin pasos */}
+      <div className="space-y-4 mt-4 overflow-y-auto max-h-[70vh] pr-1">
 
-      {paso === 1 ? (
-        // ─── PASO 1: Quién recoge ─────────────────────────────────────────
-        <div className="space-y-4 mt-4">
-            {/* Badge extensión */}
-            {alumno.tiene_extension && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-hs-blue/10 border border-hs-blue/30 rounded-xl">
-                <span className="text-sm">⏳</span>
-                <p className="text-xs font-bold text-hs-blue-dark">
-                  Extensión de horario · Salida hasta {alumno.hora_salida_extension || '18:00'}
-                </p>
-              </div>
-            )}
-
-            {/* Badge salida tardía */}
-            {tardia && (
-              <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-400 rounded-2xl">
-                <AlertTriangle size={22} className="text-red-600 shrink-0" />
-                <div>
-                  <p className="font-black text-red-700 text-sm">SALIDA TARDÍA</p>
-                  <p className="text-xs text-red-600 font-semibold">
-                    Se generará un recargo por salida fuera de horario.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Alerta salida anticipada */}
-            {anticipada && (
-              <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
-                <AlertTriangle size={22} className="text-amber-600 shrink-0" />
-                <div>
-                  <p className="font-black text-amber-700 text-sm">⚠️ SALIDA ANTICIPADA</p>
-                  <p className="text-xs text-amber-600 font-semibold">
-                    El horario de salida es a las {horaLimite}. ¿Confirmar salida anticipada?
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Motivo salida anticipada */}
-            {anticipada && (
-              <div>
-                <p className="text-xs font-black text-amber-700 uppercase mb-2">Motivo de salida anticipada *</p>
-                <textarea
-                  rows={2}
-                  placeholder="Describe el motivo de la salida anticipada..."
-                  value={motivoAnticipada}
-                  onChange={e => setMotivoAnticipada(e.target.value)}
-                  className="w-full border-2 border-amber-300 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-amber-500 resize-none"
-                />
-              </div>
-            )}
-
-            {/* Hora actual */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 font-semibold">
-              <Clock size={15} />
-              <span>
-                Hora de salida: {new Date().toLocaleTimeString('es-MX', {
-                  hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City',
-                })}
-              </span>
-            </div>
-
-            {/* Selector quien recoge */}
-            <div>
-              <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">¿Quién recoge?</p>
-              <div className="space-y-2">
-                {opciones.map(op => (
-                  <button key={op.id} type="button"
-                    onClick={() => setSeleccion(op.id)}
-                    className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 text-sm font-bold text-left transition-all
-                      ${seleccion === op.id
-                        ? 'border-hs-purple bg-hs-purple/10 text-hs-purple'
-                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
-                    <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center
-                      ${seleccion === op.id ? 'border-hs-purple bg-hs-purple' : 'border-gray-300'}`}>
-                      {seleccion === op.id && <span className="w-2 h-2 rounded-full bg-white" />}
-                    </span>
-                    {op.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Input nombre si "otro" */}
-            {seleccion === 'otro' && (
-              <input
-                type="text"
-                placeholder="Nombre completo de quien recoge"
-                value={nombreOtro}
-                onChange={e => setNombreOtro(e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-hs-purple transition-colors"
-              />
-            )}
+        {/* Badge extensión */}
+        {alumno.tiene_extension && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-hs-blue/10 border border-hs-blue/30 rounded-xl">
+            <span className="text-sm">⏳</span>
+            <p className="text-xs font-bold text-hs-blue-dark">
+              Extensión de horario · Salida hasta {alumno.hora_salida_extension || '18:00'}
+            </p>
           </div>
-      ) : (
-        // ─── PASO 2: Checklist sanitario ─────────────────────────────────────
-        <div className="space-y-4 mt-4">
-          <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Checklist de salida</p>
+        )}
 
-            {/* Pañal — solo si alumno.usa_panial */}
+        {/* Badge salida tardía */}
+        {tardia && (
+          <div className="flex items-center gap-3 p-4 bg-red-50 border-2 border-red-400 rounded-2xl">
+            <AlertTriangle size={22} className="text-red-600 shrink-0" />
+            <div>
+              <p className="font-black text-red-700 text-sm">SALIDA TARDÍA</p>
+              <p className="text-xs text-red-600 font-semibold">
+                Se generará un recargo por salida fuera de horario.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Alerta salida anticipada */}
+        {anticipada && (
+          <div className="flex items-center gap-3 p-4 bg-amber-50 border-2 border-amber-400 rounded-2xl">
+            <AlertTriangle size={22} className="text-amber-600 shrink-0" />
+            <div>
+              <p className="font-black text-amber-700 text-sm">⚠️ SALIDA ANTICIPADA</p>
+              <p className="text-xs text-amber-600 font-semibold">
+                El horario de salida es a las {horaLimite}. ¿Confirmar salida anticipada?
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Motivo salida anticipada */}
+        {anticipada && (
+          <div>
+            <p className="text-xs font-black text-amber-700 uppercase mb-2">Motivo de salida anticipada *</p>
+            <textarea
+              rows={2}
+              placeholder="Describe el motivo de la salida anticipada..."
+              value={motivoAnticipada}
+              onChange={e => setMotivoAnticipada(e.target.value)}
+              className="w-full border-2 border-amber-300 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-amber-500 resize-none"
+            />
+          </div>
+        )}
+
+        {/* Hora actual */}
+        <div className="flex items-center gap-2 text-sm text-gray-500 font-semibold">
+          <Clock size={15} />
+          <span>
+            Hora de salida: {new Date().toLocaleTimeString('es-MX', {
+              hour: '2-digit', minute: '2-digit', timeZone: 'America/Mexico_City',
+            })}
+          </span>
+        </div>
+
+        {/* ── SECCIÓN 1: Quién recoge ─────────────────────── */}
+        <div>
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">¿Quién recoge?</p>
+          <div className="space-y-2">
+            {opciones.map(op => (
+              <button key={op.id} type="button"
+                onClick={() => setSeleccion(op.id)}
+                className={`flex items-center gap-3 w-full p-3 rounded-2xl border-2 text-sm font-bold text-left transition-all
+                  ${seleccion === op.id
+                    ? 'border-hs-purple bg-hs-purple/10 text-hs-purple'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center
+                  ${seleccion === op.id ? 'border-hs-purple bg-hs-purple' : 'border-gray-300'}`}>
+                  {seleccion === op.id && <span className="w-2 h-2 rounded-full bg-white" />}
+                </span>
+                {op.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Input nombre si "otro" */}
+        {seleccion === 'otro' && (
+          <input
+            type="text"
+            placeholder="Nombre completo de quien recoge"
+            value={nombreOtro}
+            onChange={e => setNombreOtro(e.target.value)}
+            className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-sm font-semibold focus:outline-none focus:border-hs-purple transition-colors"
+          />
+        )}
+
+        {/* ── SECCIÓN 2: Checklist sanitario ─────────────── */}
+        <div className="border-t border-gray-100 pt-4">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">Checklist de salida</p>
+          <div className="space-y-3">
             {alumno.usa_panial && (
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={panialLimpio}
@@ -304,21 +276,16 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
                 className="w-5 h-5 rounded border-2 border-gray-300 accent-hs-purple" />
               <span>✅ Entrega conforme</span>
             </label>
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* Botones */}
-      <div className="flex gap-3 mt-5">
-        {paso === 2 && (
-          <button onClick={() => setPaso(1)}
-            className="px-4 py-4 rounded-2xl font-black text-gray-600 border-2 border-gray-200 hover:bg-gray-50">
-            ← Atrás
-          </button>
-        )}
-        <button onClick={paso === 1 ? handleIrPaso2 : handleSubmit} disabled={mutation.isPending}
-          className={`${paso === 2 ? 'flex-1' : 'w-full'} py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
-            ${anticipada && paso === 1 ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-hs-purple-dark'}`}>
-          {mutation.isPending ? 'Registrando...' : paso === 1 ? '→ Siguiente' : '🚪 Confirmar Salida'}
+      {/* Botón único de confirmación */}
+      <div className="mt-5">
+        <button onClick={handleSubmit} disabled={mutation.isPending}
+          className={`w-full py-4 rounded-2xl font-black text-white text-lg transition-all disabled:opacity-50
+            ${anticipada ? 'bg-amber-500 hover:bg-amber-600' : 'bg-hs-purple hover:bg-hs-purple-dark'}`}>
+          {mutation.isPending ? 'Registrando...' : '🚪 Confirmar Salida'}
         </button>
       </div>
     </Modal>

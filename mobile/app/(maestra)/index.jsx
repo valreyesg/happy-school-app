@@ -218,12 +218,26 @@ export default function MaestraDashboard() {
 
         {/* Acciones rápidas */}
         <Text style={styles.sectionTitle}>Acciones rápidas</Text>
+
+        {/* Botón QR — acceso principal único y siempre visible */}
+        <TouchableOpacity
+          style={styles.qrAccionPrincipal}
+          onPress={() => router.push('/(maestra)/qr-scanner')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="qr-code" size={28} color="#fff" />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.qrAccionTitle}>Escanear QR de alumno</Text>
+            <Text style={styles.qrAccionSub}>Registrar entrada o salida</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#E9D5FF" />
+        </TouchableOpacity>
+
         <View style={styles.accionesGrid}>
           {[
             { icon: 'checkmark-circle', label: 'Asistencia', route: '/(maestra)/asistencia', color: '#38A169' },
             { icon: 'book', label: 'Bitácora', route: '/(maestra)/bitacora', color: '#805AD5' },
             { icon: 'clipboard', label: 'Tareas', route: '/(maestra)/tareas', color: '#3B82F6' },
-            { icon: 'qr-code', label: 'Escanear QR', route: '/(maestra)/qr-scanner', color: '#E53E3E' },
           ].map(({ icon, label, route, color }) => (
             <TouchableOpacity
               key={route}
@@ -425,13 +439,24 @@ const styles = StyleSheet.create({
     marginHorizontal: 16, marginTop: 20, marginBottom: 12,
   },
 
+  // QR acción principal
+  qrAccionPrincipal: {
+    marginHorizontal: 16, marginBottom: 12,
+    backgroundColor: '#E53E3E', borderRadius: RADIUS.xl, padding: 16,
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    shadowColor: '#E53E3E', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8, elevation: 6,
+  },
+  qrAccionTitle: { color: '#fff', fontWeight: '900', fontSize: 15 },
+  qrAccionSub: { color: '#FED7D7', fontWeight: '600', fontSize: 12, marginTop: 2 },
+
   // Acciones rápidas
   accionesGrid: {
     flexDirection: 'row', flexWrap: 'wrap', gap: 12,
     paddingHorizontal: 16,
   },
   accionBtn: {
-    width: '46%', borderRadius: RADIUS.xl, borderWidth: 2,
+    width: '30%', flex: 1, borderRadius: RADIUS.xl, borderWidth: 2,
     padding: 20, alignItems: 'center', gap: 8,
   },
   accionLabel: { fontWeight: '800', fontSize: 14 },

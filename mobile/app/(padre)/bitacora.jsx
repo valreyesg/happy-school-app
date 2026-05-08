@@ -366,14 +366,23 @@ export default function BitacoraPadreScreen() {
                     </View>
                   ))}
                   <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
-                  <View style={{ flexDirection: 'row', gap: 8 }}>
-                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('galeria')}>
-                      <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('camara')}>
-                      <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
-                    </TouchableOpacity>
-                  </View>
+                  <TouchableOpacity
+                    style={[s.medFotoBtn, { width: '100%' }, fotoReceta && s.medFotoBtnDone]}
+                    onPress={() => {
+                      Alert.alert(
+                        'Foto de receta',
+                        'Selecciona la fuente',
+                        [
+                          { text: '🖼 Galería', onPress: () => pickMedia('galeria') },
+                          { text: '📷 Cámara', onPress: () => pickMedia('camara') },
+                          { text: 'Cancelar', style: 'cancel' },
+                        ],
+                        { cancelable: true }
+                      );
+                    }}
+                  >
+                    <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar foto' : '📷 Adjuntar foto de receta'}</Text>
+                  </TouchableOpacity>
                   {fotoReceta && (
                     <Text style={s.medFotoName}>{fotoReceta.fileName}</Text>
                   )}
@@ -786,14 +795,23 @@ export default function BitacoraPadreScreen() {
 
                           {/* Foto receta */}
                           <Text style={s.medHorasLabel}>Foto receta (obligatoria)</Text>
-                          <View style={{ flexDirection: 'row', gap: 8 }}>
-                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('galeria')}>
-                              <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar' : '🖼 Galería'}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[s.medFotoBtn, fotoReceta && s.medFotoBtnDone]} onPress={() => pickMedia('camara')}>
-                              <Text style={s.medFotoBtnTxt}>📷 Cámara</Text>
-                            </TouchableOpacity>
-                          </View>
+                          <TouchableOpacity
+                            style={[s.medFotoBtn, { width: '100%' }, fotoReceta && s.medFotoBtnDone]}
+                            onPress={() => {
+                              Alert.alert(
+                                'Foto de receta',
+                                'Selecciona la fuente',
+                                [
+                                  { text: '🖼 Galería', onPress: () => pickMedia('galeria') },
+                                  { text: '📷 Cámara', onPress: () => pickMedia('camara') },
+                                  { text: 'Cancelar', style: 'cancel' },
+                                ],
+                                { cancelable: true }
+                              );
+                            }}
+                          >
+                            <Text style={s.medFotoBtnTxt}>{fotoReceta ? '✅ Cambiar foto' : '📷 Adjuntar foto de receta'}</Text>
+                          </TouchableOpacity>
                           {fotoReceta && (
                             <Text style={s.medFotoName}>{fotoReceta.fileName}</Text>
                           )}

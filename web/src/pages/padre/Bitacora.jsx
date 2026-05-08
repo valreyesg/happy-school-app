@@ -196,47 +196,81 @@ function SelectorFecha({ fecha, onChange }) {
   const hoy = new Date().toLocaleDateString('en-CA');
   const esHoy = fecha === hoy;
 
-  const irAnterior = () => {
-    let anterior = new Date(date);
-    anterior.setDate(anterior.getDate() - 1);
-    while (anterior.getDay() === 0 || anterior.getDay() === 6) {
-      anterior.setDate(anterior.getDate() - 1);
+  const moverDias = (delta) => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + delta);
+    while (d.getDay() === 0 || d.getDay() === 6) {
+      d.setDate(d.getDate() + (delta > 0 ? 1 : -1));
     }
-    onChange(anterior.toLocaleDateString('en-CA'));
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) onChange(nueva);
   };
 
-  const irSiguiente = () => {
-    let siguiente = new Date(date);
-    siguiente.setDate(siguiente.getDate() + 1);
-    while (siguiente.getDay() === 0 || siguiente.getDay() === 6) {
-      siguiente.setDate(siguiente.getDate() + 1);
+  // Saltar 5 días hábiles (≈ 1 semana)
+  const irSemanaAnterior = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    let diasHabiles = 0;
+    while (diasHabiles < 5) {
+      d.setDate(d.getDate() - 1);
+      if (d.getDay() !== 0 && d.getDay() !== 6) diasHabiles++;
     }
-    if (siguiente.toLocaleDateString('en-CA') <= hoy) {
-      onChange(siguiente.toLocaleDateString('en-CA'));
+    onChange(d.toLocaleDateString('en-CA'));
+  };
+
+  const irSemanaSiguiente = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    let diasHabiles = 0;
+    while (diasHabiles < 5) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() !== 0 && d.getDay() !== 6) diasHabiles++;
     }
+    const nueva = d.toLocaleDateString('en-CA');
+    if (nueva <= hoy) onChange(nueva);
   };
 
   const fmt = d => d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
-    <div className="flex items-center gap-2 bg-white rounded-2xl border border-red-100 p-2 mb-4">
-      <button
-        onClick={irAnterior}
-        className="p-2 rounded-xl hover:bg-red-50 transition-colors"
-      >
-        <ChevronLeft size={20} className="text-red-500" />
-      </button>
-      <div className="flex-1 text-center">
-        <p className="text-sm font-bold text-gray-700 capitalize">{fmt(date)}</p>
-        {esHoy && <p className="text-xs font-black text-red-500">Hoy</p>}
+    <div className="bg-white rounded-2xl border border-red-100 p-2 mb-4 space-y-1">
+      {/* Fila principal: día a día */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => moverDias(-1)}
+          className="p-2 rounded-xl hover:bg-red-50 transition-colors"
+          title="Día anterior"
+        >
+          <ChevronLeft size={20} className="text-red-500" />
+        </button>
+        <div className="flex-1 text-center">
+          <p className="text-sm font-bold text-gray-700 capitalize">{fmt(date)}</p>
+          {esHoy && <p className="text-xs font-black text-red-500">Hoy</p>}
+        </div>
+        <button
+          onClick={() => moverDias(1)}
+          disabled={esHoy}
+          className={`p-2 rounded-xl transition-colors ${esHoy ? 'opacity-30 cursor-not-allowed' : 'hover:bg-red-50'}`}
+          title="Día siguiente"
+        >
+          <ChevronRight size={20} className="text-red-500" />
+        </button>
       </div>
-      <button
-        onClick={irSiguiente}
-        disabled={esHoy}
-        className={`p-2 rounded-xl transition-colors ${esHoy ? 'opacity-30 cursor-not-allowed' : 'hover:bg-red-50'}`}
-      >
-        <ChevronRight size={20} className="text-red-500" />
-      </button>
+      {/* Fila secundaria: salto semanal */}
+      <div className="flex gap-2 px-1">
+        <button
+          onClick={irSemanaAnterior}
+          className="flex-1 py-1 rounded-xl text-xs font-bold text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
+        >
+          ← Semana anterior
+        </button>
+        <button
+          onClick={irSemanaSiguiente}
+          disabled={esHoy}
+          className={`flex-1 py-1 rounded-xl text-xs font-bold transition-colors
+            ${esHoy ? 'opacity-30 cursor-not-allowed text-gray-400 bg-gray-50' : 'text-red-500 bg-red-50 hover:bg-red-100'}`}
+        >
+          Semana siguiente →
+        </button>
+      </div>
     </div>
   );
 }

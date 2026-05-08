@@ -424,9 +424,10 @@ const buscarPorQR = async (req, res, next) => {
       if (qt.cancelado)
         return res.status(410).json({ error: 'Este QR temporal fue cancelado por el padre', es_temporal: true });
 
-      const hoy = new Date().toISOString().slice(0, 10);
+      // Fecha en zona horaria México (no UTC) para comparar correctamente
+      const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' });
       const vigencia = qt.fecha_vigencia instanceof Date
-        ? qt.fecha_vigencia.toISOString().slice(0, 10)
+        ? qt.fecha_vigencia.toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' })
         : String(qt.fecha_vigencia).slice(0, 10);
 
       if (vigencia !== hoy)

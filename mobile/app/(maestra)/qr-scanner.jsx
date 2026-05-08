@@ -66,6 +66,26 @@ export default function QRScannerScreen() {
     },
   });
 
+  const registrarSalidaMutation = useMutation({
+    mutationFn: (data) => api.post('/asistencia/salida', data).then(r => r.data),
+    onSuccess: (data) => {
+      Vibration.vibrate(200);
+      setAlumnoDetectado(prev => ({ ...prev, resultado: data }));
+    },
+    onError: (err) => {
+      Alert.alert('Error', err.response?.data?.error || 'Error al registrar salida');
+      resetScanner();
+    },
+  });
+
+  const confirmarSalida = () => {
+    if (!alumnoDetectado) return;
+    registrarSalidaMutation.mutate({
+      alumno_id: alumnoDetectado.id,
+      recogido_por_tipo: 'padre',
+    });
+  };
+
   const buscarAlumnoMutation = useMutation({
     mutationFn: (qrData) => api.get(`/alumnos/por-qr/${encodeURIComponent(qrData)}`).then(r => r.data),
     onSuccess: (alumno) => {
@@ -76,10 +96,11 @@ export default function QRScannerScreen() {
         setScanned(true);
       }
     },
-    onError: () => {
-      Alert.alert('QR no reconocido', 'Este código no corresponde a ningún alumno', [
-        { text: 'OK', onPress: resetScanner },
-      ]);
+    onError: (err) => {
+      const msg = err?.response?.data?.error || 'Este código no corresponde a ningún alumno';
+      const esTemporal = err?.response?.data?.es_temporal;
+      const titulo = esTemporal ? 'Pase temporal inválido' : 'QR no reconocido';
+      Alert.alert(titulo, msg, [{ text: 'OK', onPress: resetScanner }]);
     },
   });
 
@@ -227,13 +248,23 @@ export default function QRScannerScreen() {
         </View>
       )}
 
-      {/* Panel del alumno detectado */}
+      {/* Panel del alumno detectado — ENTRADA */}
       {alumnoDetectado && !alumnoDetectado.resultado && modo === 'entrada' && (
         <ChecklistEntrada
           alumno={alumnoDetectado}
           onConfirmar={confirmarEntrada}
           onCancelar={resetScanner}
           loading={registrarEntradaMutation.isPending}
+        />
+      )}
+
+      {/* Panel del alumno detectado — SALIDA */}
+      {alumnoDetectado && !alumnoDetectado.resultado && modo === 'salida' && (
+        <ConfirmacionSalida
+          alumno={alumnoDetectado}
+          onConfirmar={confirmarSalida}
+          onCancelar={resetScanner}
+          loading={registrarSalidaMutation.isPending}
         />
       )}
 
@@ -367,6 +398,57 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
         >
           <Text style={styles.confirmarText}>
             {loading ? 'Registrando...' : '✅ Registrar entrada'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+// Panel de confirmación de salida
+function ConfirmacionSalida({ alumno, onConfirmar, onCancelar, loading }) {
+  return (
+    <View style={styles.checklistContainer}>
+      <View style={styles.alumnoDetectadoHeader}>
+        {alumno.foto_url ? (
+          <Image source={{ uri: alumno.foto_url }} style={styles.alumnoFotoGrande} />
+        ) : (
+          <View style={[styles.alumnoFotoGrande, { backgroundColor: '#E9D5FF', alignItems: 'center', justifyContent: 'center' }]}>
+            <Text style={{ fontSize: 48 }}>👧🏻</Text>
+          </View>
+        )}
+        <View>
+          <Text style={styles.alumnoNombreGrande}>{alumno.nombre_completo}</Text>
+          <Text style={styles.alumnoGrupo}>{alumno.grupo_nombre}</Text>
+        </View>
+      </View>
+
+      {/* Banner QR temporal */}
+      {alumno.es_temporal && (
+        <View style={styles.temporalBanner}>
+          <Text style={styles.temporalTitle}>🔐 PASE TEMPORAL — Verificar identidad</Text>
+          <Text style={styles.temporalAutorizado}>Autorizado por: {alumno.padre_nombre}</Text>
+          <Text style={styles.temporalNombre}>Persona autorizada: {alumno.nombre_autorizado}</Text>
+        </View>
+      )}
+
+      <View style={{ alignItems: 'center', marginVertical: 24 }}>
+        <Text style={{ fontSize: 56 }}>🚪</Text>
+        <Text style={{ fontSize: 18, fontWeight: '900', color: '#2D3748', marginTop: 8 }}>
+          Registrar salida
+        </Text>
+        <Text style={{ fontSize: 14, color: '#718096', marginTop: 4 }}>
+          ¿Confirmas la salida de {alumno.nombre_completo.split(' ')[0]}?
+        </Text>
+      </View>
+
+      <View style={styles.checklistActions}>
+        <TouchableOpacity style={styles.cancelarBtn} onPress={onCancelar}>
+          <Text style={styles.cancelarText}>Cancelar</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.confirmarBtn} onPress={onConfirmar} disabled={loading}>
+          <Text style={styles.confirmarText}>
+            {loading ? 'Registrando...' : '✅ Confirmar salida'}
           </Text>
         </TouchableOpacity>
       </View>

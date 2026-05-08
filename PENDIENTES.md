@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido ✅)
+**Última actualización:** 2026-05-07 — Limpieza post-cierre XX+51 (eliminados [x] ya archivados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -19,12 +19,7 @@
 
 ### 📝 Feedback Valeria — Portal Padre Mobile — Pendientes restantes
 
-#### ✅ Notificaciones push en tiempo real — mobile — VALIDADO 2026-05-07
-- [x] Badge de campanita sube en ≤15 s al llegar notificación nueva
-- [x] Al presionar "Entendido" la notificación se marca como leída y el badge baja
-- [x] 2 urgentes seguidas se muestran en cola (una tras otra, no simultáneas)
-- [x] La misma notificación NO aparece dos veces en la misma sesión
-- [x] Botón "Entendido" ocupa todo el ancho del modal (fix overflow:hidden)
+#### 🟡 Notificaciones push — pendiente build nativo
 - [ ] Validar modal urgente en background (requiere build nativo, no Expo Go)
 
 #### 🟡 Features faltantes (paridad con web)
@@ -57,12 +52,9 @@
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
-### 🚪 QR Temporal — Círculos de Confianza — PENDIENTE VALIDACIÓN MOBILE
-- [x] Web: generación, visualización, cancelación y compartir QR temporal ✅ VALIDADO
-- [ ] Validar en Expo Go / device (padre): que aparece sección "🔐 Pase temporal" en pantalla QR mobile
-- [ ] Validar que el padre puede generar pase temporal desde mobile
-- [ ] Validar que la Miss escanea QR temporal y ve banner amarillo "PASE TEMPORAL — Verificar identidad" con nombre del autorizado
-- [ ] Validar que el pase expirado/cancelado muestra error correcto al escanear
+### 🚪 QR Temporal — Círculos de Confianza — CASI COMPLETO
+- [ ] Validar pase vencido en Expo Go (validar mañana 2026-05-08)
+- [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 
 
 ### 🔔 WhatsApp Automático completo

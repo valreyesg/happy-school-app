@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator, RefreshControl, TouchableOpacity, TextInput, Modal, Alert, Linking } from 'react-native';
+import { File, Paths } from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
 import { RADIUS } from '@/constants/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -164,6 +166,38 @@ function QRTemporalSection({ hijoId, hijoNombre }) {
     ]);
   };
 
+  const handleDescargar = async () => {
+    if (!qrActivo) return;
+    try {
+      // Pedir permiso de galería
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso requerido', 'Necesitamos acceso a tu galería para guardar el QR.');
+        return;
+      }
+
+      // Escribir archivo en cache
+      const nombre = qrActivo.nombre_autorizado.replace(/\s+/g, '-');
+      const file = new File(Paths.cache, `QR-Temporal-${nombre}.png`);
+
+      if (qrActivo.qr_url.startsWith('data:image/png;base64,')) {
+        // Desarrollo: data URL → extraer base64 y escribir
+        const base64 = qrActivo.qr_url.replace('data:image/png;base64,', '');
+        file.write(base64, { encoding: 'base64' });
+      } else {
+        // Producción: URL HTTP (Cloudinary)
+        await File.downloadFileAsync(qrActivo.qr_url, file, { idempotent: true });
+      }
+
+      // Guardar en galería
+      await MediaLibrary.saveToLibraryAsync(file.uri);
+      Alert.alert('¡Guardado!', 'El QR temporal fue guardado en tu galería.');
+    } catch (e) {
+      console.error('handleDescargar error:', e);
+      Alert.alert('Error', e?.message || 'No se pudo guardar el QR');
+    }
+  };
+
   const handleCompartirWhatsApp = async () => {
     if (!qrActivo) return;
     const texto = encodeURIComponent(`Pase temporal para recoger/dejar a ${hijoNombre} en Happy School hoy.\nAutorizado: ${qrActivo.nombre_autorizado}\n\nPor favor muestra el QR al llegar al kínder.`);
@@ -253,6 +287,9 @@ function QRTemporalSection({ hijoId, hijoNombre }) {
                 </View>
                 <Image source={{ uri: qrActivo.qr_url }} style={styles.temporalQrImage} resizeMode="contain" />
                 <Text style={styles.temporalQrNote}>La maestra verá el nombre al escanear</Text>
+                <TouchableOpacity style={styles.descargarBtn} onPress={handleDescargar}>
+                  <Text style={styles.descargarBtnText}>⬇️ Descargar / Compartir</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.whatsappBtn} onPress={handleCompartirWhatsApp}>
                   <Text style={styles.whatsappBtnText}>📱 Compartir por WhatsApp</Text>
                 </TouchableOpacity>
@@ -479,6 +516,11 @@ const styles = StyleSheet.create({
   temporalQrVigencia: { fontSize: 12, fontWeight: '600', color: '#D97706', marginTop: 2 },
   temporalQrImage: { width: 220, height: 220, alignSelf: 'center', marginVertical: 8 },
   temporalQrNote: { fontSize: 12, fontWeight: '600', color: '#6B7280', textAlign: 'center' },
+  descargarBtn: {
+    backgroundColor: '#2D3748', borderRadius: RADIUS.lg, padding: 14,
+    alignItems: 'center', width: '100%', marginBottom: 8,
+  },
+  descargarBtnText: { color: '#fff', fontWeight: '900', fontSize: 14 },
   whatsappBtn: {
     backgroundColor: '#22C55E', borderRadius: RADIUS.lg, padding: 14,
     alignItems: 'center', width: '100%',

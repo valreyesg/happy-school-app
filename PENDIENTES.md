@@ -12,15 +12,11 @@
 - [ ] Job cron a las 15:58 (dentro de rango lun-vie) → validar ejecuta correctamente
 - [ ] Cambio de fecha (medianoche) → datos de ayer no aparecen (aislamiento por día)
 
-### 📱 Deploy real (producción)
+### 📱 Deploy y Producción
 - [ ] Backend en Railway o Render (plan gratis disponible)
 - [ ] Web en Vercel o Netlify
-- [ ] Mobile en Expo Go o generar APK
-
-### 📝 Feedback Valeria — Portal Padre Mobile — Pendientes restantes
-
-#### 🟡 Notificaciones push — pendiente build nativo
-- [ ] Validar modal urgente en background (requiere build nativo, no Expo Go)
+- [ ] Mobile: generar APK / build nativo (requerido para notificaciones push en background y descarga de QR)
+- [ ] Validar modal urgente push en background (requiere build nativo, no funciona en Expo Go)
 
 ---
 

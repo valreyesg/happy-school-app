@@ -3,7 +3,7 @@ import { COLORS } from '@/constants/theme';
 import { View, Text, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const ACTIVE_COLOR = '#805AD5';
+const ACTIVE_COLOR = '#38A169';
 const INACTIVE_COLOR = '#A0AEC0';
 
 const TabIcon = ({ icon, label, focused }) => (
@@ -35,7 +35,7 @@ export default function MaestraTabLayout() {
         tabBarStyle: {
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: '#E9D5FF',
+          borderTopColor: '#C6F6D5',
           height: Platform.OS === 'android' ? 62 : 72,
           paddingBottom: Platform.OS === 'android' ? 8 : 16,
           paddingTop: 6,
@@ -75,10 +75,7 @@ export default function MaestraTabLayout() {
       />
       <Tabs.Screen
         name="galeria"
-        options={{
-          title: 'Galería',
-          tabBarIcon: ({ focused }) => <TabIcon icon="images" label="Galería" focused={focused} />,
-        }}
+        options={{ href: null }}
       />
       <Tabs.Screen
         name="qr-scanner"

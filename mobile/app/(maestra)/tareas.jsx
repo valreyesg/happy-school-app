@@ -110,9 +110,8 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess, visible }) {
   const handleFoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      allowsEditing: false,
+      quality: 0.8,
     });
     if (!result.canceled) {
       const asset = result.assets[0];
@@ -259,9 +258,8 @@ function ModalEditarTarea({ tarea, onClose, onSuccess, visible }) {
   const handleFoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      allowsEditing: false,
+      quality: 0.8,
     });
     if (!result.canceled) {
       const asset = result.assets[0];
@@ -498,8 +496,8 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
               onPress={() => publicarMutation.mutate()}
               disabled={publicarMutation.isPending}
             >
-              <Text style={{ fontWeight: '800', color: '#fff', fontSize: 12 }}>
-                {publicarMutation.isPending ? '...' : 'Pub'}
+              <Text style={{ fontWeight: '800', color: '#fff', fontSize: 11 }}>
+                {publicarMutation.isPending ? '…' : 'Publicar'}
               </Text>
             </TouchableOpacity>
           </>
@@ -509,8 +507,8 @@ function TareaCard({ tarea, onPublicar, onDelete, onEdit }) {
           onPress={() => deleteMutation.mutate()}
           disabled={deleteMutation.isPending}
         >
-          <Text style={{ fontWeight: '800', color: '#fff', fontSize: 12 }}>
-            {deleteMutation.isPending ? '...' : 'Del'}
+          <Text style={{ fontWeight: '800', color: '#fff', fontSize: 11 }}>
+            {deleteMutation.isPending ? '…' : 'Eliminar'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -832,7 +830,7 @@ const styles = StyleSheet.create({
   tareaDesc: { fontSize: 13, color: '#718096', marginTop: 6 },
   tareaFecha: { fontSize: 12, color: '#A0AEC0', marginTop: 6 },
   smallBtn: {
-    borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, minWidth: 50,
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, minWidth: 72, alignItems: 'center',
   },
   badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
   modal: { flex: 1, backgroundColor: '#F7F8FC' },

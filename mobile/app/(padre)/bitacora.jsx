@@ -339,7 +339,7 @@ export default function BitacoraPadreScreen() {
   const esHoyFecha = fecha === hoy;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF8F8' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
       {/* Header */}
       <View style={s.header}>
         <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
@@ -1003,14 +1003,14 @@ const s = StyleSheet.create({
   emptyTitulo: { fontSize: 18, fontWeight: '900', color: '#2D3748', textAlign: 'center', marginBottom: 8 },
   emptyTxt: { fontSize: 14, color: '#A0AEC0', fontWeight: '600', textAlign: 'center', lineHeight: 22 },
 
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },
+  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: COLORS.white },
   backBtn: { marginBottom: 4 },
   backTxt: { color: '#E53E3E', fontSize: 14, fontWeight: '700' },
   headerTitulo: { fontSize: 22, fontWeight: '900', color: '#2D3748' },
   headerSub: { fontSize: 13, color: '#718096', marginTop: 1, fontWeight: '600' },
 
   // Ciclo
-  cicloRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },
+  cicloRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: COLORS.white },
   cicloLabel: { fontSize: 12, fontWeight: '800', color: '#4A5568', paddingHorizontal: 16 },
   cicloChip: { backgroundColor: '#FFF5F5', paddingHorizontal: 12, paddingVertical: 6, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: '#FED7D7' },
   cicloChipActivo: { backgroundColor: '#E53E3E', borderColor: '#E53E3E' },
@@ -1018,7 +1018,7 @@ const s = StyleSheet.create({
   cicloChipTxtActivo: { color: '#fff' },
 
   // Fecha
-  fechaRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: '#FFF8F8' },
+  fechaRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#FED7D7', backgroundColor: COLORS.white },
   fechaBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   fechaBtnDis: { opacity: 0.3 },
   fechaBtnTxt: { fontSize: 28, color: '#E53E3E', fontWeight: '900', lineHeight: 32 },
@@ -1026,7 +1026,7 @@ const s = StyleSheet.create({
   hoyBadge: { fontSize: 10, fontWeight: '900', color: '#E53E3E', marginTop: 2 },
 
   // Ánimo héroe
-  animoHero: { alignItems: 'center', paddingVertical: 24, backgroundColor: '#FFF8F8', borderBottomWidth: 1, borderBottomColor: '#FED7D7' },
+  animoHero: { alignItems: 'center', paddingVertical: 24, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: '#FED7D7' },
   animoEmoji: { fontSize: 64 },
   animoLabel: { fontSize: 22, fontWeight: '900', color: '#2D3748', marginTop: 8 },
   animoSub: { fontSize: 12, color: '#A0AEC0', fontWeight: '600', marginTop: 4 },

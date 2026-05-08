@@ -149,6 +149,57 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
   );
 }
 
+// ─── Selector de fecha ────────────────────────────────────────────────────────
+
+function SelectorFecha({ fecha, onChange }) {
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const date = new Date(fecha + 'T12:00:00');
+  const esHoy = fecha === hoy;
+
+  const irAnterior = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() - 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    onChange(d.toLocaleDateString('en-CA'));
+  };
+
+  const irSiguiente = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    const sig = d.toLocaleDateString('en-CA');
+    if (sig <= hoy) onChange(sig);
+  };
+
+  const bloqueadoSig = (() => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString('en-CA') > hoy;
+  })();
+
+  return (
+    <View style={s.fechaRow}>
+      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
+        <Text style={s.fechaBtnTxt}>‹</Text>
+      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <Text style={s.fechaTxt}>
+          {date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+        </Text>
+        {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
+      </View>
+      <TouchableOpacity
+        style={[s.fechaBtn, bloqueadoSig && { opacity: 0.3 }]}
+        onPress={irSiguiente}
+        disabled={bloqueadoSig}
+      >
+        <Text style={s.fechaBtnTxt}>›</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // ─── Pantalla principal ───────────────────────────────────────────────────────
 export default function AsistenciaScreen() {
   const queryClient = useQueryClient();
@@ -157,9 +208,17 @@ export default function AsistenciaScreen() {
   const [filtro, setFiltro] = useState('todos'); // todos | pendientes | presentes
   const [refreshing, setRefreshing] = useState(false);
 
+  const hoyRaw = new Date();
+  const ultimoDiaHabil = (() => {
+    const d = new Date(hoyRaw);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  })();
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
+
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['mi-grupo-asistencia'],
-    queryFn: () => api.get('/grupos/mi-grupo').then(r => r.data),
+    queryKey: ['mi-grupo-asistencia', fecha],
+    queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
     refetchInterval: 30_000, // actualiza cada 30s automáticamente
   });
 
@@ -203,7 +262,7 @@ export default function AsistenciaScreen() {
       <View style={s.header}>
         <View>
           <Text style={s.headerTitulo}>Asistencia</Text>
-          {grupo && <Text style={s.headerSub}>{grupo.nombre} · {new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>}
+          {grupo && <Text style={s.headerSub}>{grupo.nombre}</Text>}
         </View>
         {modoEntrada() && (
           <View style={s.modoBadge}>
@@ -211,6 +270,9 @@ export default function AsistenciaScreen() {
           </View>
         )}
       </View>
+
+      {/* Selector de fecha */}
+      <SelectorFecha fecha={fecha} onChange={(f) => { setFecha(f); setFiltro('todos'); setBusqueda(''); }} />
 
       {/* Semáforo resumen */}
       {!isLoading && alumnos.length > 0 && (
@@ -304,6 +366,13 @@ const s = StyleSheet.create({
   headerSub: { fontSize: 13, color: '#718096', marginTop: 2, fontWeight: '600' },
   modoBadge: { backgroundColor: '#38A169', paddingHorizontal: 12, paddingVertical: 5, borderRadius: RADIUS.xl, marginTop: 2 },
   modoBadgeTxt: { color: '#fff', fontSize: 12, fontWeight: '900' },
+
+  // Selector de fecha
+  fechaRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: COLORS.white },
+  fechaBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  fechaBtnTxt: { fontSize: 28, color: '#805AD5', fontWeight: '900', lineHeight: 32 },
+  fechaTxt: { fontSize: 13, fontWeight: '700', color: '#4A5568', textAlign: 'center', textTransform: 'capitalize' },
+  hoyBadge: { fontSize: 10, fontWeight: '900', color: '#805AD5', marginTop: 2 },
 
   resumen: { flexDirection: 'row', paddingVertical: 12, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: '#FAFAFA' },
   resumenItem: { flex: 1, alignItems: 'center' },

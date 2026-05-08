@@ -62,10 +62,68 @@ function BoolBtn({ label, value, onChange }) {
   );
 }
 
+// ─── Selector de fecha con flechas ───────────────────────────────────────────
+
+function SelectorFechaMaestra({ fecha, onChange }) {
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const date = new Date(fecha + 'T12:00:00');
+  const esHoy = fecha === hoy;
+
+  const irAnterior = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() - 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    onChange(d.toLocaleDateString('en-CA'));
+  };
+
+  const irSiguiente = () => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    const sig = d.toLocaleDateString('en-CA');
+    if (sig <= hoy) onChange(sig);
+  };
+
+  const bloqueadoSig = (() => {
+    let d = new Date(fecha + 'T12:00:00');
+    d.setDate(d.getDate() + 1);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    return d.toLocaleDateString('en-CA') > hoy;
+  })();
+
+  const fmt = date.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+
+  return (
+    <View style={s.fechaRow}>
+      <TouchableOpacity style={s.fechaBtn} onPress={irAnterior}>
+        <Text style={s.fechaBtnTxt}>‹</Text>
+      </TouchableOpacity>
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <Text style={s.fechaTxt}>{fmt}</Text>
+        {esHoy && <Text style={s.hoyBadge}>Hoy</Text>}
+      </View>
+      <TouchableOpacity
+        style={[s.fechaBtn, bloqueadoSig && { opacity: 0.3 }]}
+        onPress={irSiguiente}
+        disabled={bloqueadoSig}
+      >
+        <Text style={s.fechaBtnTxt}>›</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 // ─── Selector de alumno ──────────────────────────────────────────────────────
 
 function SelectorAlumno() {
   const router = useRouter();
+  const hoyRaw = new Date();
+  const ultimoDiaHabil = (() => {
+    const d = new Date(hoyRaw);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  })();
+  const [fecha, setFecha] = useState(ultimoDiaHabil);
 
   const { data, isLoading } = useQuery({
     queryKey: ['mi-grupo'],
@@ -86,15 +144,16 @@ function SelectorAlumno() {
   return (
     <View style={{ flex: 1 }}>
       <View style={s.header}>
-        <Text style={s.headerTitulo}>Bitácora del día</Text>
-        <Text style={s.headerSub}>Selecciona un alumno</Text>
+        <Text style={s.headerTitulo}>Bitácora</Text>
+        <Text style={s.headerSub}>Selecciona fecha y alumno</Text>
       </View>
+      <SelectorFechaMaestra fecha={fecha} onChange={setFecha} />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         {alumnos.map(alumno => (
           <TouchableOpacity
             key={alumno.id}
             style={s.alumnoCard}
-            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&nivelCodigo=${encodeURIComponent(alumno.nivel_codigo || '')}`)}
+            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&nivelCodigo=${encodeURIComponent(alumno.nivel_codigo || '')}&fecha=${fecha}`)}
           >
             <View style={[s.avatarCircle, { backgroundColor: '#805AD5' }]}>
               <Text style={s.avatarTxt}>{alumno.nombre_completo.charAt(0)}</Text>
@@ -120,10 +179,9 @@ function SelectorAlumno() {
 
 // ─── Formulario de bitácora ──────────────────────────────────────────────────
 
-function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
+function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const fecha = new Date().toLocaleDateString('en-CA');
 
   const mostrarEsfinteres = !usaPanial && ['maternal', 'prekinder', 'kinder1'].includes(nivelCodigo);
 
@@ -433,11 +491,11 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
       keyboardVerticalOffset={80}
     >
       <View style={s.header}>
-        <TouchableOpacity onPress={() => router.back()} style={s.backBtn}>
-          <Text style={s.backTxt}>← Regresar</Text>
+        <TouchableOpacity onPress={() => router.replace('/(maestra)/bitacora')} style={s.backBtn}>
+          <Text style={s.backTxt}>← Inicio</Text>
         </TouchableOpacity>
         <Text style={s.headerTitulo}>{nombre}</Text>
-        <Text style={s.headerSub}>{new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
+        <Text style={s.headerSub}>{new Date(fecha + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
@@ -972,7 +1030,13 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo }) {
 
 export default function BitacoraScreen() {
   const params = useLocalSearchParams();
-  const { alumnoId, nombre, usaPanial, nivelCodigo } = params;
+  const { alumnoId, nombre, usaPanial, nivelCodigo, fecha } = params;
+
+  const fechaDefault = (() => {
+    const d = new Date();
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1);
+    return d.toLocaleDateString('en-CA');
+  })();
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.white }}>
@@ -982,6 +1046,7 @@ export default function BitacoraScreen() {
           nombre={decodeURIComponent(nombre || '')}
           usaPanial={usaPanial === 'true'}
           nivelCodigo={decodeURIComponent(nivelCodigo || '')}
+          fecha={fecha || fechaDefault}
         />
       ) : (
         <SelectorAlumno />
@@ -1001,6 +1066,13 @@ const s = StyleSheet.create({
   headerSub: { fontSize: 13, color: '#718096', marginTop: 2 },
   backBtn: { marginBottom: 4 },
   backTxt: { color: '#805AD5', fontSize: 14, fontWeight: '700' },
+
+  // Selector de fecha
+  fechaRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#E2E8F0', backgroundColor: COLORS.white },
+  fechaBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  fechaBtnTxt: { fontSize: 28, color: '#805AD5', fontWeight: '900', lineHeight: 32 },
+  fechaTxt: { fontSize: 13, fontWeight: '700', color: '#4A5568', textAlign: 'center', textTransform: 'capitalize' },
+  hoyBadge: { fontSize: 10, fontWeight: '900', color: '#805AD5', marginTop: 2 },
 
   // Selector alumno
   alumnoCard: { flexDirection: 'row', alignItems: 'center', padding: 16, marginHorizontal: 16, marginTop: 12, backgroundColor: '#F7FAFC', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#E2E8F0' },

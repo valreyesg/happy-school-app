@@ -157,7 +157,7 @@ function SelectorAlumno() {
           <TouchableOpacity
             key={alumno.id}
             style={s.alumnoCard}
-            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&nivelCodigo=${encodeURIComponent(alumno.nivel_codigo || '')}&fecha=${fecha}`)}
+            onPress={() => router.push(`/(maestra)/bitacora?alumnoId=${alumno.id}&nombre=${encodeURIComponent(alumno.nombre_completo)}&usaPanial=${alumno.usa_panial}&nivelCodigo=${encodeURIComponent(alumno.nivel_codigo || '')}&fecha=${fecha}&grupoId=${data?.id || ''}`)}
           >
             <View style={[s.avatarCircle, { backgroundColor: '#805AD5' }]}>
               <Text style={s.avatarTxt}>{alumno.nombre_completo.charAt(0)}</Text>
@@ -186,7 +186,7 @@ function SelectorAlumno() {
 
 // ─── Formulario de bitácora ──────────────────────────────────────────────────
 
-function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha }) {
+function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, grupoId }) {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -196,9 +196,14 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
   const [animo, setAnimo] = useState(null);
   const [pipiCount, setPipiCount] = useState(0);
   const [popoCount, setPopoCount] = useState(0);
-  const [queComio, setQueComio] = useState('');
-  const [cuantoComio, setCuantoComio] = useState(null);
-  const [observacionesComida, setObservacionesComida] = useState('');
+  // Comidas por 4 tiempos
+  const [comidas, setComidas] = useState({
+    desayuno:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+    colacion:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+    comida:      { que_comio: '', cuanto_comio: null, observaciones: '' },
+    comida_extra: { que_comio: '', cuanto_comio: null, observaciones: '' },
+  });
+  const [tiempoActivo, setTiempoActivo] = useState('desayuno');
   const [tareaRealizada, setTareaRealizada] = useState(null);
   const [comportamiento, setComportamiento] = useState(null);
   const [comportamientoNotas, setComportamientoNotas] = useState('');
@@ -216,6 +221,10 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
   const [notasProgreso, setNotasProgreso] = useState('');
   const [fotoDia, setFotoDia] = useState(null); // { uri, fileName }
   const [fotoDiaUrl, setFotoDiaUrl] = useState(null); // existing URL
+  // Incidentes
+  const [mostrarFormIncidente, setMostrarFormIncidente] = useState(false);
+  const [incDesc, setIncDesc] = useState('');
+  const [incAcciones, setIncAcciones] = useState('');
 
   // ── Cargar datos existentes ──
   const { isLoading, data: bitacoraExistente } = useQuery({
@@ -229,6 +238,13 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
     enabled: !!alumnoId,
     staleTime: 60000,
   });
+
+  // Actividades del grupo: vienen incluidas en bitacoraExistente.actividades (igual que web)
+  // grupoId queda disponible para futuras necesidades pero no se usa para esta query
+  const actividadesGrupo = bitacoraExistente?.actividades || [];
+
+  // Participación del alumno en actividades (cargada desde bitacora existente)
+  const [actividadesParticipacion, setActividadesParticipacion] = useState({});
 
   const tuvExtensionEnFecha = (() => {
     if (!fecha) return false;
@@ -262,10 +278,23 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
       setPipiCount(data.banio.pipi_count || 0);
       setPopoCount(data.banio.popo_count || 0);
     }
-    if (data.comida) {
-      setQueComio(data.comida.que_comio || '');
-      setCuantoComio(data.comida.cuanto_comio || null);
-      setObservacionesComida(data.comida.observaciones || '');
+    if (data.comida && Array.isArray(data.comida)) {
+      const nuevasComidas = {
+        desayuno:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+        colacion:    { que_comio: '', cuanto_comio: null, observaciones: '' },
+        comida:      { que_comio: '', cuanto_comio: null, observaciones: '' },
+        comida_extra: { que_comio: '', cuanto_comio: null, observaciones: '' },
+      };
+      data.comida.forEach(c => {
+        if (c.tiempo && nuevasComidas[c.tiempo] !== undefined) {
+          nuevasComidas[c.tiempo] = {
+            que_comio: c.que_comio || '',
+            cuanto_comio: c.cuanto_comio || null,
+            observaciones: c.observaciones || '',
+          };
+        }
+      });
+      setComidas(nuevasComidas);
     }
     if (data.esfinteres) {
       setFueSolo(data.esfinteres.fue_solo ?? null);
@@ -274,6 +303,15 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
       setDescripcionAccidente(data.esfinteres.descripcion_accidente || '');
       setNecesitaAyuda(data.esfinteres.necesito_ayuda ?? null);
       setNotasProgreso(data.esfinteres.notas_progreso || '');
+    }
+    if (data.actividades && Array.isArray(data.actividades)) {
+      const participacion = {};
+      data.actividades.forEach(act => {
+        if (act.participo !== null && act.participo !== undefined) {
+          participacion[act.id] = act.participo;
+        }
+      });
+      setActividadesParticipacion(participacion);
     }
   }, [bitacoraExistente]);
 
@@ -358,12 +396,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
       notas,
       pipi_count: pipiCount,
       popo_count: popoCount,
-      comidas: (queComio || cuantoComio || observacionesComida) ? [{
-        tiempo: 'comida',
-        que_comio: queComio,
-        cuanto_comio: cuantoComio,
-        observaciones: observacionesComida,
-      }] : [],
+      comidas: Object.entries(comidas).map(([tiempo, d]) => ({ tiempo, ...d })),
       fue_solo: mostrarEsfinteres ? fueSolo : undefined,
       pidio_ir: mostrarEsfinteres ? pidioIr : undefined,
       tuvo_accidente: mostrarEsfinteres ? tuvoAccidente : undefined,
@@ -384,6 +417,51 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
   };
 
   // ── Recepción de medicamento ──
+  // ── Incidente mutation ──
+  const incidenteMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/incidente', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      setMostrarFormIncidente(false);
+      setIncDesc('');
+      setIncAcciones('');
+      Alert.alert('¡Listo!', 'Incidente registrado.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo registrar el incidente.'),
+  });
+
+  const registrarIncidente = () => {
+    if (!incDesc.trim()) {
+      Alert.alert('', 'Describe el incidente.');
+      return;
+    }
+    incidenteMutation.mutate({ alumno_id: alumnoId, descripcion: incDesc, acciones_tomadas: incAcciones });
+  };
+
+  // ── Participación actividades mutation ──
+  const participacionMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/actividades-alumno', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      Alert.alert('✅', 'Participación guardada.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo guardar la participación.'),
+  });
+
+  const guardarParticipacion = () => {
+    const actividadesConParticipacion = Object.entries(actividadesParticipacion)
+      .map(([id, participo]) => ({ actividad_grupo_id: parseInt(id), participo }));
+    if (actividadesConParticipacion.length === 0) {
+      Alert.alert('', 'Selecciona al menos una actividad.');
+      return;
+    }
+    participacionMutation.mutate({
+      alumno_id: alumnoId,
+      bitacora_id: bitacoraExistente?.bitacora?.id ?? null,
+      actividades: actividadesConParticipacion,
+    });
+  };
+
   const [mostrarRecepcion, setMostrarRecepcion] = useState(false);
   const [recNombre, setRecNombre] = useState('');
   const [recDosis, setRecDosis] = useState('');
@@ -443,13 +521,34 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
   });
 
   const administrarRecepcionMutation = useMutation({
-    mutationFn: (recepcionId) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`),
+    mutationFn: ({ recepcionId, tomaId }) => api.patch(`/bitacora/medicamento/recepcion/${recepcionId}/administrar`, { toma_id: tomaId }),
     onSuccess: () => {
       queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
       Alert.alert('✅', 'Medicamento administrado.');
     },
     onError: () => Alert.alert('Error', 'No se pudo administrar el medicamento.'),
   });
+
+  // Administración directa (sin recepción previa, igual que web)
+  const [medNombre, setMedNombre] = useState('');
+  const [medDosis, setMedDosis] = useState('');
+  const medMutation = useMutation({
+    mutationFn: (body) => api.post('/bitacora/medicamento', body),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bitacora', alumnoId, fecha]);
+      setMedNombre('');
+      setMedDosis('');
+      Alert.alert('💊', 'Medicamento registrado.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo registrar el medicamento.'),
+  });
+  const registrarMed = () => {
+    if (!medNombre || !medDosis) {
+      Alert.alert('Falta información', 'Escribe nombre y dosis.');
+      return;
+    }
+    medMutation.mutate({ alumno_id: alumnoId, nombre: medNombre, dosis: medDosis });
+  };
 
   const guardarRecepcion = () => {
     if (!recNombre || !recDosis) {
@@ -610,13 +709,35 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
           </Seccion>
         )}
 
-        {/* Alimentación */}
+        {/* Alimentación — 4 tiempos */}
         <Seccion titulo="Alimentación">
+          {/* Tabs de tiempo */}
+          <View style={s.tiempoTabs}>
+            {[
+              { key: 'desayuno', label: 'Desayuno' },
+              { key: 'colacion', label: 'Colación' },
+              { key: 'comida', label: 'Comida' },
+              ...(tuvExtensionEnFecha ? [{ key: 'comida_extra', label: 'Extra' }] : []),
+            ].map(t => (
+              <TouchableOpacity
+                key={t.key}
+                style={[s.tiempoTab, tiempoActivo === t.key && s.tiempoTabOn]}
+                onPress={() => setTiempoActivo(t.key)}
+              >
+                <Text style={[s.tiempoTabTxt, tiempoActivo === t.key && s.tiempoTabTxtOn]}>
+                  {t.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {tiempoActivo === 'comida_extra' && (
+            <Text style={s.extensionSubText}>Alumno con extensión de horario activa</Text>
+          )}
           <TextInput
             style={s.input}
             placeholder="¿Qué comió?"
-            value={queComio}
-            onChangeText={setQueComio}
+            value={comidas[tiempoActivo]?.que_comio || ''}
+            onChangeText={v => setComidas(prev => ({ ...prev, [tiempoActivo]: { ...prev[tiempoActivo], que_comio: v } }))}
             multiline
           />
           <Text style={s.subLabel}>¿Cuánto comió?</Text>
@@ -624,56 +745,22 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
             {CUANTO.map(c => (
               <TouchableOpacity
                 key={c.key}
-                style={[s.cuantoBtn, cuantoComio === c.key && s.cuantoBtnOn]}
-                onPress={() => setCuantoComio(c.key)}
+                style={[s.cuantoBtn, comidas[tiempoActivo]?.cuanto_comio === c.key && s.cuantoBtnOn]}
+                onPress={() => setComidas(prev => ({ ...prev, [tiempoActivo]: { ...prev[tiempoActivo], cuanto_comio: prev[tiempoActivo]?.cuanto_comio === c.key ? null : c.key } }))}
               >
                 <Text style={s.cuantoEmoji}>{c.emoji}</Text>
-                <Text style={[s.cuantoLabel, cuantoComio === c.key && s.cuantoLabelOn]}>{c.label}</Text>
+                <Text style={[s.cuantoLabel, comidas[tiempoActivo]?.cuanto_comio === c.key && s.cuantoLabelOn]}>{c.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
           <TextInput
             style={s.input}
-            placeholder="Observaciones de comida (opcional)…"
-            value={observacionesComida}
-            onChangeText={setObservacionesComida}
+            placeholder="Observaciones (opcional)…"
+            value={comidas[tiempoActivo]?.observaciones || ''}
+            onChangeText={v => setComidas(prev => ({ ...prev, [tiempoActivo]: { ...prev[tiempoActivo], observaciones: v } }))}
             multiline
           />
         </Seccion>
-
-        {/* Comida Extra (si hay extensión) */}
-        {tuvExtensionEnFecha && (
-          <Seccion titulo="🍜 Comida Extra">
-            <Text style={s.extensionSubText}>El alumno tiene extensión de horario activa</Text>
-            <TextInput
-              style={s.input}
-              placeholder="¿Qué comió en comida extra?"
-              value={queComio}
-              onChangeText={setQueComio}
-              multiline
-            />
-            <Text style={s.subLabel}>¿Cuánto comió?</Text>
-            <View style={s.cuantoRow}>
-              {CUANTO.map(c => (
-                <TouchableOpacity
-                  key={c.key}
-                  style={[s.cuantoBtn, cuantoComio === c.key && s.cuantoBtnOn]}
-                  onPress={() => setCuantoComio(c.key)}
-                >
-                  <Text style={s.cuantoEmoji}>{c.emoji}</Text>
-                  <Text style={[s.cuantoLabel, cuantoComio === c.key && s.cuantoLabelOn]}>{c.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TextInput
-              style={s.input}
-              placeholder="Observaciones de comida extra (opcional)…"
-              value={observacionesComida}
-              onChangeText={setObservacionesComida}
-              multiline
-            />
-          </Seccion>
-        )}
 
         {/* Tarea */}
         <Seccion titulo="Tarea">
@@ -692,6 +779,56 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
             </TouchableOpacity>
           </View>
         </Seccion>
+
+        {/* Actividades del día */}
+        {actividadesGrupo.length > 0 && (
+          <Seccion titulo="Actividades del día">
+            <Text style={{ fontSize: 11, color: '#718096', fontWeight: '600', marginBottom: 10 }}>
+              ¿Participó en cada actividad?
+            </Text>
+            {actividadesGrupo.map(act => (
+              <View key={act.id} style={{ marginBottom: 10, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 6 }}>
+                  {act.foto_url ? (
+                    <Image source={{ uri: act.foto_url }} style={{ width: 40, height: 40, borderRadius: 6 }} resizeMode="cover" />
+                  ) : null}
+                  <Text style={{ flex: 1, fontSize: 13, fontWeight: '700', color: '#4A5568' }}>{act.descripcion}</Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    style={[s.boolBtn, actividadesParticipacion[act.id] === true && s.boolBtnSiOn, { flex: 1, alignItems: 'center' }]}
+                    onPress={() => setActividadesParticipacion(prev => ({ ...prev, [act.id]: true }))}
+                  >
+                    <Text style={[s.boolBtnTxt, actividadesParticipacion[act.id] === true && s.boolBtnTxtOn]}>✓ Sí</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.boolBtn, actividadesParticipacion[act.id] === false && s.boolBtnNoOn, { flex: 1, alignItems: 'center' }]}
+                    onPress={() => setActividadesParticipacion(prev => ({ ...prev, [act.id]: false }))}
+                  >
+                    <Text style={[s.boolBtnTxt, actividadesParticipacion[act.id] === false && s.boolBtnTxtOn]}>✗ No</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[s.boolBtn, { paddingHorizontal: 12, alignItems: 'center' }]}
+                    onPress={() => setActividadesParticipacion(prev => { const c = { ...prev }; delete c[act.id]; return c; })}
+                  >
+                    <Text style={s.boolBtnTxt}>—</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+            {Object.keys(actividadesParticipacion).length > 0 && (
+              <TouchableOpacity
+                onPress={guardarParticipacion}
+                disabled={participacionMutation.isPending}
+                style={{ paddingVertical: 10, backgroundColor: '#805AD5', borderRadius: RADIUS.md, alignItems: 'center', marginTop: 4 }}
+              >
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '900' }}>
+                  {participacionMutation.isPending ? 'Guardando...' : '💾 Guardar participación'}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </Seccion>
+        )}
 
         {/* Comportamiento */}
         <Seccion titulo="Comportamiento">
@@ -841,7 +978,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
                       {rec.tomas?.length > 0 ? rec.tomas.map(t => t.hora_programada.substring(0, 5)).join(', ') : 'Sin hora'}
                     </Text>
                     <TouchableOpacity
-                      onPress={() => administrarRecepcionMutation.mutate(rec.id)}
+                      onPress={() => administrarRecepcionMutation.mutate({ recepcionId: rec.id, tomaId: rec.tomas?.find(t => !t.administrado)?.id ?? null })}
                       disabled={administrarRecepcionMutation.isPending}
                       style={{ backgroundColor: '#F59E0B', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}
                     >
@@ -867,13 +1004,39 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
             </View>
           )}
 
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+          {/* Administración directa (sin recepción previa) */}
+          <View style={{ borderTopWidth: 1, borderTopColor: '#BFDBFE', paddingTop: 12, marginTop: 4 }}>
+            <Text style={{ fontSize: 11, fontWeight: '900', color: '#1E40AF', textTransform: 'uppercase', marginBottom: 8 }}>Administrar ahora</Text>
+            <TextInput
+              style={s.input}
+              placeholder="Nombre del medicamento *"
+              value={medNombre}
+              onChangeText={setMedNombre}
+            />
+            <TextInput
+              style={[s.input, { marginTop: 6 }]}
+              placeholder="Dosis (ej. 5ml, 1 tableta) *"
+              value={medDosis}
+              onChangeText={setMedDosis}
+            />
+            <TouchableOpacity
+              onPress={registrarMed}
+              disabled={medMutation.isPending}
+              style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#3B82F6', borderRadius: RADIUS.md, alignItems: 'center' }}
+            >
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>
+                {medMutation.isPending ? 'Registrando...' : '💊 Administrar'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
             <TouchableOpacity
               onPress={abrirFormRecepcion}
               disabled={recepcionMutation.isPending}
               style={{ flex: 1, backgroundColor: '#F59E0B', paddingVertical: 12, borderRadius: RADIUS.md, alignItems: 'center' }}
             >
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>+ Nueva recepción</Text>
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>📋 Registrar recepción</Text>
             </TouchableOpacity>
           </View>
 
@@ -913,6 +1076,67 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
                   <Text style={{ color: '#374151', fontSize: 14, fontWeight: '700' }}>✕</Text>
                 </TouchableOpacity>
               </View>
+            </View>
+          )}
+        </Seccion>
+
+        {/* Incidentes / Accidentes */}
+        <Seccion titulo="Incidentes / Accidentes">
+          {/* Lista de incidentes del día */}
+          {bitacoraExistente?.incidentes?.length > 0 && (
+            <View style={{ marginBottom: 12 }}>
+              {bitacoraExistente.incidentes.map((inc, i) => (
+                <View key={i} style={{ backgroundColor: '#FEF2F2', borderRadius: 8, padding: 12, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: '#EF4444' }}>
+                  <Text style={{ fontSize: 13, fontWeight: '900', color: '#7F1D1D' }}>{inc.descripcion}</Text>
+                  {inc.acciones_tomadas ? (
+                    <Text style={{ fontSize: 12, color: '#B91C1C', marginTop: 4 }}>Acciones: {inc.acciones_tomadas}</Text>
+                  ) : null}
+                  <Text style={{ fontSize: 11, color: '#EF4444', marginTop: 4 }}>
+                    {new Date(inc.fecha).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                    {inc.reportado_por_nombre ? ` · ${inc.reportado_por_nombre}` : ''}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Botón para abrir/cerrar form */}
+          <TouchableOpacity
+            onPress={() => setMostrarFormIncidente(!mostrarFormIncidente)}
+            style={{ paddingVertical: 10, paddingHorizontal: 16, backgroundColor: mostrarFormIncidente ? '#FEE2E2' : '#FFF1F2', borderRadius: RADIUS.md, alignItems: 'center', borderWidth: 1, borderColor: '#FECACA' }}
+          >
+            <Text style={{ color: '#DC2626', fontSize: 14, fontWeight: '700' }}>
+              ⚠️ {mostrarFormIncidente ? 'Cancelar' : '+ Registrar incidente'}
+            </Text>
+          </TouchableOpacity>
+
+          {mostrarFormIncidente && (
+            <View style={{ marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#FECACA' }}>
+              <TextInput
+                style={s.input}
+                placeholder="Describe el incidente / accidente *"
+                value={incDesc}
+                onChangeText={setIncDesc}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              <TextInput
+                style={[s.input, { marginTop: 8 }]}
+                placeholder="Acciones tomadas (opcional)"
+                value={incAcciones}
+                onChangeText={setIncAcciones}
+                multiline
+                numberOfLines={2}
+                textAlignVertical="top"
+              />
+              <TouchableOpacity
+                onPress={registrarIncidente}
+                disabled={incidenteMutation.isPending}
+                style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#EF4444', borderRadius: RADIUS.md, alignItems: 'center' }}
+              >
+                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar incidente</Text>
+              </TouchableOpacity>
             </View>
           )}
         </Seccion>
@@ -1003,7 +1227,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
 
 export default function BitacoraScreen() {
   const params = useLocalSearchParams();
-  const { alumnoId, nombre, usaPanial, nivelCodigo, fecha } = params;
+  const { alumnoId, nombre, usaPanial, nivelCodigo, fecha, grupoId } = params;
 
   const fechaDefault = (() => {
     const d = new Date();
@@ -1020,6 +1244,7 @@ export default function BitacoraScreen() {
           usaPanial={usaPanial === 'true'}
           nivelCodigo={decodeURIComponent(nivelCodigo || '')}
           fecha={fecha || fechaDefault}
+          grupoId={grupoId || ''}
         />
       ) : (
         <SelectorAlumno />
@@ -1097,6 +1322,13 @@ const s = StyleSheet.create({
   panialBtns: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   panialBtn: { paddingHorizontal: 16, paddingVertical: 8, backgroundColor: '#805AD5', borderRadius: RADIUS.xl },
   panialBtnTxt: { color: '#fff', fontSize: 13, fontWeight: '700' },
+
+  // Tabs de tiempo (alimentación)
+  tiempoTabs: { flexDirection: 'row', gap: 6, marginBottom: 12 },
+  tiempoTab: { flex: 1, paddingVertical: 8, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7', alignItems: 'center' },
+  tiempoTabOn: { backgroundColor: '#805AD5' },
+  tiempoTabTxt: { fontSize: 11, fontWeight: '700', color: '#718096' },
+  tiempoTabTxtOn: { color: '#fff' },
 
   // Alimentación
   subLabel: { fontSize: 13, color: '#718096', fontWeight: '600', marginBottom: 8, marginTop: 4 },

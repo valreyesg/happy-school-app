@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-09 — Sesión XX+58 (limpieza PENDIENTES)
+**Última actualización:** 2026-05-08 — Sesión XX+59 (Paridad Bitácora Maestra Mobile)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -18,11 +18,11 @@
 
 ## 📱 MOBILE — Portal Maestra — Correcciones pendientes
 
-### 🟠 IMPORTANTES — Paridad con web (Bitácora maestra)
-- [ ] **Alimentación no segmentada por tiempos** — Web tiene 4 tiempos: Desayuno, Colación, Comida, Comida Extra. Mobile tiene un solo campo genérico. Implementar tabs/secciones por tiempo en [bitacora.jsx](mobile/app/(maestra)/bitacora.jsx)
-- [ ] **Medicamentos incompletos** — Web tiene 3 sub-secciones: Recepción (recibir del padre), Administración (dar al niño), Registrar recepción. Mobile solo tiene "Nueva recepción". Agregar flujo de Administración.
-- [ ] **Incidentes/Accidentes ausentes** — Sección completamente faltante en mobile. Web tiene: descripción, acciones tomadas, fotos. Agregar sección en bitácora maestra.
-- [ ] **Actividades del día ausentes** — Web tiene sección grupal con fotos + descripción de actividad del día y participación por alumno. Mobile no la tiene.
+### 🟠 IMPORTANTES — Paridad con web (Bitácora maestra) — Diferencias detectadas en revisión Sesión XX+59
+
+- [ ] **Alimentación: precarga del menú semanal ausente** — Web precarga automáticamente el menú del día en los campos "¿Qué comió?" si el alumno tiene comida confirmada esa semana. Mobile no hace esa llamada. Endpoint: `GET /comida/menu?semana=` + `GET /comida/confirmacion/:alumnoId?semana=`. UX mobile: mostrar texto gris en el placeholder si hay menú disponible, igual que web (editable).
+- [ ] **Medicamentos: fotos de receta y envase ausentes en recepción** — Web permite adjuntar foto de receta y foto del envase al registrar recepción (multipart). Mobile solo envía texto. Agregar dos botones de cámara/galería en el form de recepción en [bitacora.jsx](mobile/app/(maestra)/bitacora.jsx), enviar como `foto_receta` y `foto_envase`.
+- [ ] **Actividades: fotos del alumno por actividad ausentes** — Web tiene sección "📷 Fotos del alumno" por cada actividad con subida de fotos y eliminación. Mobile no lo tiene. Agregar botón de cámara/galería por actividad → `POST /bitacora/actividades/:actividadGrupoId/fotos-alumno` (multipart `fotos[]`). UX mobile: galería horizontal de miniaturas bajo cada actividad, igual que web.
 
 ### 🟡 MENORES — UX/Diseño Maestra
 - [ ] **Turno de puerta no aparece** — Web llama `/turnos-puerta/hoy` en el dashboard. Mobile no hace esa llamada. Agregar banner igual que web.

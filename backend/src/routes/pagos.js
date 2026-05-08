@@ -1324,7 +1324,8 @@ router.post('/:id/enviar', authorize('directora', 'administrativo'), async (req,
              cp.nombre AS concepto_nombre,
              al.nombre_completo AS alumno_nombre,
              g.nombre AS grupo_nombre,
-             t.nombre_completo AS tutor_nombre, t.telefono AS tutor_telefono
+             t.nombre_completo AS tutor_nombre,
+             COALESCE(t.telefono_whatsapp, t.telefono) AS tutor_telefono
       FROM pagos p
       JOIN conceptos_pago cp ON p.concepto_id = cp.id
       JOIN alumnos al ON p.alumno_id = al.id

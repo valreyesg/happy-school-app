@@ -133,6 +133,13 @@ function QRTemporalSection({ hijoId, hijoNombre }) {
   const [qrModalVisible, setQrModalVisible] = useState(false);
   const [nombreAutorizado, setNombreAutorizado] = useState('');
 
+  const { data: waConfig } = useQuery({
+    queryKey: ['whatsapp-config'],
+    queryFn: () => api.get('/config/whatsapp').then(r => r.data),
+    staleTime: 5 * 60 * 1000, // 5 min — no cambia frecuentemente
+  });
+  const whatsappEnabled = waConfig?.enabled === true;
+
   const { data: qrActivo, isLoading } = useQuery({
     queryKey: ['qr-temporal-mobile', hijoId],
     queryFn: () => api.get(`/alumnos/${hijoId}/qr-temporal`).then(r => r.data.qr_temporal),
@@ -290,9 +297,11 @@ function QRTemporalSection({ hijoId, hijoNombre }) {
                 <TouchableOpacity style={styles.descargarBtn} onPress={handleDescargar}>
                   <Text style={styles.descargarBtnText}>⬇️ Descargar / Compartir</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.whatsappBtn} onPress={handleCompartirWhatsApp}>
-                  <Text style={styles.whatsappBtnText}>📱 Compartir por WhatsApp</Text>
-                </TouchableOpacity>
+                {whatsappEnabled && (
+                  <TouchableOpacity style={styles.whatsappBtn} onPress={handleCompartirWhatsApp}>
+                    <Text style={styles.whatsappBtnText}>📱 Compartir por WhatsApp</Text>
+                  </TouchableOpacity>
+                )}
               </>
             )}
             <TouchableOpacity style={styles.modalCerrarBtn} onPress={() => setQrModalVisible(false)}>

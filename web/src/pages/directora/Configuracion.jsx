@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAppConfigStore } from '@/store/appConfigStore';
 import { Settings, Save, Bell, Clock, BookOpen, Pencil, EyeOff, Plus, MessageCircle } from 'lucide-react';
 import api from '@/services/api';
 import toast from 'react-hot-toast';
@@ -93,6 +94,7 @@ const CATALOGOS_CONFIG = [
 export default function Configuracion() {
   const qc = useQueryClient();
   const [tab, setTab] = useState('horarios');
+  const { whatsappEnabled } = useAppConfigStore();
   const [valores, setValores] = useState(null);
   const [guardado, setGuardado] = useState(false);
   const [notifActivos, setNotifActivos] = useState(null);
@@ -201,7 +203,7 @@ export default function Configuracion() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b-2 border-gray-100">
-        {TABS.map(({ id, label, icon: Icon }) => (
+        {TABS.filter(t => t.id !== 'plantillas' || whatsappEnabled).map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => setTab(id)}

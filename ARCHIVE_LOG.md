@@ -1,7 +1,38 @@
 ﻿# ARCHIVE_LOG â€” Happy School App
 ## Historial de Funcionalidades Completadas
 
-**Última actualización:** 2026-05-08 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)** → **XX+47 (Panel Plantillas WhatsApp editable — Directora)** → **XX+48 (Notificaciones push en tiempo real — mobile)** → **XX+49 (Push Notifications via Expo Push Service)** → **XX+50 (QR Temporal — Pase invitado para padre)** → **XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido)** → **XX+52 (Validación QR Temporal Mobile + Fix flujo salida scanner)** → **XX+53 (Bugs WhatsApp corregidos — firma, bypass Twilio, plantillas faltantes en BD)** → **XX+54 (Mobile: colores rol, navegación fechas, fixes UI)** → **XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)**
+**Última actualización:** 2026-05-08 | Sesiones documentadas: 7 → 82 → XX → 83 → 84 → 85 → 86 → XX (insumos) → XX (Mejoras Salud) → XX+1 (Salida Anticipada) → XX+2 (Mobile Bloques 3+5B) → XX+3 (Pendientes Validación Salud) → XX+4 (Validación Sesión 81 + Fixes Tutores) → XX+5 (Validaciones Edge + Limpieza PENDIENTES) → XX+6 (Catálogos Administrables FASES 1-3 + inicio FASE 4) → XX+7 (Catálogos FASE 4 COMPLETADA) → XX+8 (Catálogos FASE 5 + Validación Pañal→Insumos) → XX+11 (Integración Catálogos + Docs Tutores + Notificaciones + Categorías Eventos) → XX+17 (FASE 5.2 Batch D.1-3 + FASE 5.3 Decisión NativeWind) → XX+18 (Validación FASES 3.5, 5.1, 5.2 Batch A + Consistencia Input File) → XX+19 (FASE 5.2 Batch C Validación + Fix Tareas FormData) → XX+20 (FASE 5.2 Batch D.1-3 Validación Personal + 3 Bug Fixes) → XX+21 (FASE 5.2 Batch B Validación Usuarios.jsx) → XX+22 (FASE 5.2 Batch D.4+ Grupos + Bug Fixes) → **XX+23 (Asignar Maestras Titulares en Grupos)** → **XX+24 (ModalAlumno Alergias + ModalQR)** → **XX+25 (Bug Comida — Días Desplazados)** → **XX+26 (Auditoría UX/UI — Consistency web + mobile)** → **XX+27 (FASE 7 Catálogos Dinámicos — Tareas 6-10)** → **XX+30 (Fase A + QR Padre)** → **XX+31 (Fase B parcial: Cloudinary + Mobile celular + SDK 54)** → **XX+32 (Fase C: Precios por nivel + Cargos automáticos + Recargo %)** → **XX+33 (Fase C: Registro en cadena de hermanos — Entrada + Salida)** → **XX+34 (Fase C: Reportes básicos Asistencia + Tareas)** → **XX+35 (Auditoría Hardcoded FASE 8+ — 7 fixes web + mobile)** → **XX+36 (FASE D: Portal Admin D1-D2 — Dashboard + Alertas de Pago)** → **XX+37 (FASE D: D3-D4-D6 — Historial cobros + Segmentación + Excel)** → **XX+38 (FASE D: D5+D7 — Recibo PDF + Comprobante Comida)** → **XX+39 (Portal Padre Mobile — Feedback Valeria: 11 bugs + semáforo pagos + notificaciones)** → **XX+40 (Bitácora Mobile — Paridad web: 6 bugs + tabs Entrada/Tareas + higiene)** → **XX+41 (Portal Padre Mobile — Medicamentos + Comida nav + Cambio contraseña)** → **XX+42 (UX/Diseño: Homogeneidad iconos Web↔Mobile)** → **XX+43 (Flujo de Pagos: Padre sube comprobante, Directora valida)** → **XX+44 (Cloudinary: Configuración + Validación uploads)** → **XX+45 (Cloudinary: Foto bitácora del día + Fotos alumno por actividad)** → **XX+46 (Cloudinary: Validación browser completa — todos los flujos ✅)** → **XX+47 (Panel Plantillas WhatsApp editable — Directora)** → **XX+48 (Notificaciones push en tiempo real — mobile)** → **XX+49 (Push Notifications via Expo Push Service)** → **XX+50 (QR Temporal — Pase invitado para padre)** → **XX+51 (Validación Notificaciones Push Mobile + Fix modal Entendido)** → **XX+52 (Validación QR Temporal Mobile + Fix flujo salida scanner)** → **XX+53 (Bugs WhatsApp corregidos — firma, bypass Twilio, plantillas faltantes en BD)** → **XX+54 (Mobile: colores rol, navegación fechas, fixes UI)** → **XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)** → **XX+55 (WhatsApp feature flag + Twilio Sandbox)**
+
+---
+
+## ✅ SESIÓN XX+55 (2026-05-08) — WhatsApp feature flag + Twilio Sandbox
+
+**Fecha:** 2026-05-08 | **Estado:** ✅ Completado (prueba sandbox pendiente número ajeno)
+
+### Resumen
+
+Implementación completa de feature flag WhatsApp (`WHATSAPP_ENABLED`) para permitir activar/desactivar Twilio sin tocar código. Configuración de cuenta Twilio Sandbox real. Bug fix en query de pagos que usaba `telefono` en lugar de `telefono_whatsapp`.
+
+### Lo que se hizo
+
+| Cambio | Archivo(s) |
+|--------|-----------|
+| Endpoint `GET /api/config/whatsapp` → `{ enabled: bool }` | `backend/src/routes/config.js` |
+| Store Zustand `appConfigStore` con `whatsappEnabled` + `cargarConfig()` | `web/src/store/appConfigStore.js` |
+| `PrivateRoute` carga config al autenticarse | `web/src/App.jsx` |
+| Botón "Enviar por WhatsApp" oculto si disabled | `web/src/pages/directora/Pagos.jsx` |
+| Botón "📱 WhatsApp" QR temporal oculto si disabled | `web/src/pages/padre/Dashboard.jsx` |
+| Tab "Plantillas WA" oculto si disabled | `web/src/pages/directora/Configuracion.jsx` |
+| Botón WhatsApp en QR padre oculto si disabled (useQuery) | `mobile/app/(padre)/qr.jsx` |
+| Credenciales Twilio Sandbox reales en .env | `backend/.env` |
+| Fix: query usaba `t.telefono` → `COALESCE(t.telefono_whatsapp, t.telefono)` | `backend/src/routes/pagos.js` |
+| Fix: normalización número `+52` no duplicado | `backend/src/services/whatsappService.js` |
+
+### Estado Twilio Sandbox
+- Cuenta: `ACea7649c9a3b00470ad948db94532e4ef`
+- Sandbox activo, código: `join although-previous` → `+14155238886`
+- Limitación: el número propietario de la cuenta no puede ser destinatario del sandbox
+- Pendiente: probar con número ajeno a la cuenta Twilio
 
 ---
 

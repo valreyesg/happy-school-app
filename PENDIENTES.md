@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-07 — Sesión XX+54 cont. (Mobile: bugs asistencia, bitácora, tareas, backend QR)
+**Última actualización:** 2026-05-08 — Sesión XX+55 (WhatsApp feature flag + Twilio Sandbox)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -45,9 +45,9 @@
 - [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 
 ### 🔔 WhatsApp Automático completo
-- [ ] Envío recibo por WhatsApp al padre — pendiente credenciales Twilio reales (`TWILIO_ACCOUNT_SID=ACxxx`)
+- [ ] **Prueba sandbox pendiente** — Twilio Sandbox configurado (`WHATSAPP_ENABLED=true`, credenciales reales en .env). El número del propietario de la cuenta no puede recibir mensajes del sandbox. Necesita número de WhatsApp ajeno a la cuenta Twilio para probar recibo. Código sandbox: `join although-previous` al `+1 415 523 8886`
 - [ ] QR temporal compartido por WhatsApp sin imagen — solo envía texto, falta adjuntar imagen generada (`Share.share()` → agregar attachment con URI de la imagen)
-- [ ] Pruebas completas con credenciales Twilio reales
+- [ ] Pruebas completas con credenciales Twilio reales (producción)
 - [ ] Implementar plantillas sin disparador: recordatorio_pago, recargo, evento_nuevo, boleta_lista, sin_recoger, documentos_pendientes, encuesta_nueva, aviso_nuevo, suspension, pago_comida_lunes
 
 ### 🚀 Optimización Final

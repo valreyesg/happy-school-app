@@ -169,6 +169,24 @@ router.put('/negocio', authorize('directora'), async (req, res) => {
   }
 });
 
+// GET /api/config/whatsapp — estado del feature flag WhatsApp (todos los roles)
+// Combina env var WHATSAPP_ENABLED + clave BD whatsapp_activo
+router.get('/whatsapp', async (req, res) => {
+  if (process.env.WHATSAPP_ENABLED !== 'true') {
+    return res.json({ enabled: false });
+  }
+  try {
+    const result = await query(
+      `SELECT valor FROM configuracion_general WHERE clave = 'whatsapp_activo'`
+    );
+    const enabled = result.rows[0]?.valor === 'true';
+    res.json({ enabled });
+  } catch (err) {
+    console.error(err);
+    res.json({ enabled: false }); // fail-safe: no error al cliente
+  }
+});
+
 // GET /api/config/negocio/historial — solo directora
 router.get('/negocio/historial', authorize('directora'), async (req, res) => {
   try {

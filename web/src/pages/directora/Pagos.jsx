@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
+import { useAppConfigStore } from '@/store/appConfigStore';
 import { useCatalogo } from '@/hooks/useCatalogo';
 import Modal from '@/components/ui/Modal';
 import { SEMAFORO, ESTADO_PAGO } from '@/utils/pagos';
@@ -545,6 +546,7 @@ function ModalEnviarRecibo({ pago, onClose }) {
   const [enviando, setEnviando] = useState(false);
   const [descargando, setDescargando] = useState(false);
   const [resultado, setResultado] = useState(null);
+  const { whatsappEnabled } = useAppConfigStore();
 
   const handleDescargar = async () => {
     setDescargando(true);
@@ -600,13 +602,15 @@ function ModalEnviarRecibo({ pago, onClose }) {
           {descargando ? '⏳ Generando PDF…' : '⬇️ Descargar PDF'}
         </button>
 
-        <button
-          onClick={handleWhatsApp}
-          disabled={enviando}
-          className="w-full py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
-        >
-          {enviando ? '⏳ Enviando…' : '💬 Enviar por WhatsApp al tutor'}
-        </button>
+        {whatsappEnabled && (
+          <button
+            onClick={handleWhatsApp}
+            disabled={enviando}
+            className="w-full py-3 rounded-xl bg-green-600 text-white font-bold text-sm hover:bg-green-700 transition-colors disabled:opacity-50"
+          >
+            {enviando ? '⏳ Enviando…' : '💬 Enviar por WhatsApp al tutor'}
+          </button>
+        )}
       </div>
     </Modal>
   );

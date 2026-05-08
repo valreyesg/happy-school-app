@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
+import { useAppConfigStore } from '@/store/appConfigStore';
 
 // Páginas
 import LoginPage from '@/pages/LoginPage';
@@ -56,9 +58,15 @@ import PadrePagos from '@/pages/padre/Pagos';
 import PadreCalendario from '@/pages/padre/Calendario';
 import PadreComidaSemanal from '@/pages/padre/ComidaSemanal';
 
-// Guard de autenticación
+// Guard de autenticación — también carga la config de la app (WhatsApp flag, etc.)
 const PrivateRoute = ({ element, rolesPermitidos }) => {
   const { usuario, token } = useAuthStore();
+  const { configCargada, cargarConfig } = useAppConfigStore();
+
+  useEffect(() => {
+    if (token && !configCargada) cargarConfig();
+  }, [token, configCargada]);
+
   if (!token || !usuario) return <Navigate to="/login" replace />;
   if (rolesPermitidos && !rolesPermitidos.includes(usuario.rolPrincipal)) {
     return <Navigate to="/" replace />;

@@ -45,7 +45,11 @@ const enviarMensaje = async ({ telefono, clave, variables, alumnoId, mensajeDire
     mensaje = rellenarPlantilla(plantilla, variables || {});
   }
 
-  const telefonoWA = `whatsapp:+52${telefono.replace(/\D/g, '')}`;
+  // Normalizar: si ya trae +52 o 52 al inicio, no duplicar
+  const soloDigitos = telefono.replace(/\D/g, '');
+  const telefonoWA = soloDigitos.startsWith('52')
+    ? `whatsapp:+${soloDigitos}`
+    : `whatsapp:+52${soloDigitos}`;
 
   const client = getClient();
   if (!client) {

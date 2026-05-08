@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { X, CalendarPlus, QrCode } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useAppConfigStore } from '@/store/appConfigStore';
 import api from '@/services/api';
 import { buildGoogleCalendarUrl } from '@/utils/googleCalendar';
 import Modal from '@/components/ui/Modal';
@@ -494,6 +495,7 @@ function QRTemporalCard({ hijo }) {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [nombreAutorizado, setNombreAutorizado] = useState('');
   const [qrTempModal, setQrTempModal] = useState(null);
+  const { whatsappEnabled } = useAppConfigStore();
 
   const { data: tempData, isLoading: loadingTemp } = useQuery({
     queryKey: ['qr-temporal', hijo.id],
@@ -641,12 +643,14 @@ function QRTemporalCard({ hijo }) {
               >
                 ⬇️ Descargar
               </button>
-              <button
-                onClick={() => handleCompartirWhatsApp(qrTempModal.qr_url, qrTempModal.nombre_autorizado, hijo.nombre_completo)}
-                className="px-3 py-2 rounded-xl bg-green-100 text-green-700 font-bold text-xs hover:bg-green-200 transition-colors"
-              >
-                📱 WhatsApp
-              </button>
+              {whatsappEnabled && (
+                <button
+                  onClick={() => handleCompartirWhatsApp(qrTempModal.qr_url, qrTempModal.nombre_autorizado, hijo.nombre_completo)}
+                  className="px-3 py-2 rounded-xl bg-green-100 text-green-700 font-bold text-xs hover:bg-green-200 transition-colors"
+                >
+                  📱 WhatsApp
+                </button>
+              )}
               <button
                 onClick={() => handleCompartirEmail(qrTempModal.nombre_autorizado, hijo.nombre_completo)}
                 className="px-3 py-2 rounded-xl bg-blue-100 text-blue-700 font-bold text-xs hover:bg-blue-200 transition-colors"

@@ -139,7 +139,11 @@ function SelectorAlumno() {
     );
   }
 
-  const alumnos = data?.alumnos || [];
+  const todosAlumnos = data?.alumnos || [];
+  // Solo mostrar alumnos que llegaron hoy (presente o retardo)
+  const alumnos = todosAlumnos.filter(a =>
+    ['presente', 'retardo'].includes(a.estado_asistencia)
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -169,8 +173,11 @@ function SelectorAlumno() {
             )}
           </TouchableOpacity>
         ))}
-        {alumnos.length === 0 && (
-          <Text style={s.emptyTxt}>No tienes alumnos asignados hoy.</Text>
+        {todosAlumnos.length === 0 && (
+          <Text style={s.emptyTxt}>No tienes alumnos asignados.</Text>
+        )}
+        {todosAlumnos.length > 0 && alumnos.length === 0 && (
+          <Text style={s.emptyTxt}>Ningún alumno tiene asistencia registrada para esta fecha.</Text>
         )}
       </ScrollView>
     </View>
@@ -510,16 +517,19 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
                 onPress={() => setAnimo(a.key)}
               >
                 <Text style={s.animoEmoji}>{a.emoji}</Text>
+                <Text style={[s.animoLabel, animo === a.key && s.animoLabelOn]} numberOfLines={1}>{a.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
         </Seccion>
 
-        {/* Baño */}
-        <Seccion titulo="Baño">
-          <Contador label="Pipí 🚿" value={pipiCount} onChange={setPipiCount} />
-          <Contador label="Popó 💩" value={popoCount} onChange={setPopoCount} />
-        </Seccion>
+        {/* Baño — solo si NO usa pañal */}
+        {!usaPanial && (
+          <Seccion titulo="Baño">
+            <Contador label="Pipí 🚿" value={pipiCount} onChange={setPipiCount} />
+            <Contador label="Popó 💩" value={popoCount} onChange={setPopoCount} />
+          </Seccion>
+        )}
 
         {/* Pañal (solo Maternal) */}
         {usaPanial && (
@@ -907,43 +917,6 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha })
           )}
         </Seccion>
 
-        {/* Salida Sanitaria */}
-        <Seccion titulo="Salida Sanitaria">
-          {salidaGuardada && (
-            <Text style={{ color: '#166534', backgroundColor: '#dcfce7', padding: 8, borderRadius: 8, marginBottom: 8, fontWeight: '600', fontSize: 12 }}>✅ Checklist guardado</Text>
-          )}
-          {[
-            { key: 'panial_limpio', label: '🧷 Pañal limpio al salir', mostrar: usaPanial },
-            { key: 'pertenencias_ok', label: '🎒 Pertenencias completas', mostrar: true },
-            { key: 'estado_fisico_ok', label: '💚 Estado físico normal', mostrar: true },
-            { key: 'entrega_conforme', label: '✅ Entrega conforme', mostrar: true },
-          ].filter(item => item.mostrar).map(({ key, label }) => (
-            <View key={key} style={s.switchRow}>
-              <Text style={s.switchLabel}>{label}</Text>
-              <Switch
-                value={salidaSanitaria[key]}
-                onValueChange={(v) => setSalidaSanitaria(prev => ({ ...prev, [key]: v }))}
-                trackColor={{ true: '#38A169' }}
-                thumbColor={salidaSanitaria[key] ? '#22C55E' : '#CBD5E0'}
-              />
-            </View>
-          ))}
-          <TextInput
-            style={s.input}
-            placeholder="Observaciones…"
-            value={salidaSanitaria.notas}
-            onChangeText={(v) => setSalidaSanitaria(prev => ({ ...prev, notas: v }))}
-            multiline
-          />
-          <TouchableOpacity
-            onPress={() => salidaMutation.mutate({ alumno_id: alumnoId, ...salidaSanitaria })}
-            disabled={salidaMutation.isPending}
-            style={{ marginTop: 8, paddingVertical: 12, backgroundColor: '#22C55E', borderRadius: RADIUS.md, alignItems: 'center' }}
-          >
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '900' }}>💾 Guardar checklist</Text>
-          </TouchableOpacity>
-        </Seccion>
-
         {/* Notas generales */}
         <Seccion titulo="Notas generales">
           <TextInput
@@ -1092,9 +1065,11 @@ const s = StyleSheet.create({
 
   // Ánimo
   animoRow: { flexDirection: 'row', justifyContent: 'space-around' },
-  animoBtn: { width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', backgroundColor: '#EDF2F7' },
-  animoBtnOn: { backgroundColor: '#B794F4', transform: [{ scale: 1.15 }] },
-  animoEmoji: { fontSize: 26 },
+  animoBtn: { width: 56, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7' },
+  animoBtnOn: { backgroundColor: '#B794F4' },
+  animoEmoji: { fontSize: 24 },
+  animoLabel: { fontSize: 9, fontWeight: '700', color: '#718096', marginTop: 4, textAlign: 'center' },
+  animoLabelOn: { color: '#44337A' },
 
   // Contador
   contadorRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginVertical: 4 },

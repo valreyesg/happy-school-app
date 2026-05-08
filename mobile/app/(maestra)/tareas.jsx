@@ -2,10 +2,11 @@ import { useState, useRef } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal,
-  TextInput, Image, ActivityIndicator, FlatList
+  TextInput, Image, ActivityIndicator, FlatList, Platform
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
 import api from '@/services/api';
@@ -75,6 +76,7 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess, visible }) {
     foto: null
   });
   const [preview, setPreview] = useState(null);
+  const [mostrarPickerCrear, setMostrarPickerCrear] = useState(false);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -165,12 +167,29 @@ function ModalNuevaTarea({ grupoId, onClose, onSuccess, visible }) {
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>Fecha entrega</Text>
-            <TextInput
-              style={styles.input}
-              value={form.fecha_limite}
-              onChangeText={(f) => setForm(p => ({ ...p, fecha_limite: f }))}
-              placeholder="YYYY-MM-DD"
-            />
+            <TouchableOpacity
+              style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+              onPress={() => setMostrarPickerCrear(true)}
+            >
+              <Text style={{ color: form.fecha_limite ? '#2D3748' : '#A0AEC0', fontSize: 15 }}>
+                {form.fecha_limite
+                  ? new Date(form.fecha_limite + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+                  : 'Seleccionar fecha'}
+              </Text>
+              <Ionicons name="calendar-outline" size={20} color="#805AD5" />
+            </TouchableOpacity>
+            {mostrarPickerCrear && (
+              <DateTimePicker
+                value={form.fecha_limite ? new Date(form.fecha_limite + 'T12:00:00') : new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                onChange={(e, d) => {
+                  setMostrarPickerCrear(Platform.OS === 'ios');
+                  if (d) setForm(p => ({ ...p, fecha_limite: d.toLocaleDateString('en-CA') }));
+                }}
+              />
+            )}
           </View>
 
           <View style={styles.formGroup}>
@@ -226,6 +245,7 @@ function ModalEditarTarea({ tarea, onClose, onSuccess, visible }) {
     foto: null
   });
   const [preview, setPreview] = useState(tarea?.foto_url || null);
+  const [mostrarPickerEditar, setMostrarPickerEditar] = useState(false);
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -313,12 +333,29 @@ function ModalEditarTarea({ tarea, onClose, onSuccess, visible }) {
 
           <View style={styles.formGroup}>
             <Text style={styles.label}>Fecha entrega</Text>
-            <TextInput
-              style={styles.input}
-              value={form.fecha_limite}
-              onChangeText={(f) => setForm(p => ({ ...p, fecha_limite: f }))}
-              placeholder="YYYY-MM-DD"
-            />
+            <TouchableOpacity
+              style={[styles.input, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+              onPress={() => setMostrarPickerEditar(true)}
+            >
+              <Text style={{ color: form.fecha_limite ? '#2D3748' : '#A0AEC0', fontSize: 15 }}>
+                {form.fecha_limite
+                  ? new Date(form.fecha_limite + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' })
+                  : 'Seleccionar fecha'}
+              </Text>
+              <Ionicons name="calendar-outline" size={20} color="#805AD5" />
+            </TouchableOpacity>
+            {mostrarPickerEditar && (
+              <DateTimePicker
+                value={form.fecha_limite ? new Date(form.fecha_limite + 'T12:00:00') : new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                minimumDate={new Date()}
+                onChange={(e, d) => {
+                  setMostrarPickerEditar(Platform.OS === 'ios');
+                  if (d) setForm(p => ({ ...p, fecha_limite: d.toLocaleDateString('en-CA') }));
+                }}
+              />
+            )}
           </View>
 
           <View style={styles.formGroup}>

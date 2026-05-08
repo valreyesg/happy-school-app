@@ -322,7 +322,8 @@ router.post('/salida', async (req, res, next) => {
 
     let salida_sanitaria = null;
 
-    // INSERT condicional a registro_salida_sanitario — SIEMPRE guardar (almenos uno de los campos viene)
+    // INSERT condicional a registro_salida_sanitario — usar SAVEPOINT para no abortar la transacción si falla
+    await client.query('SAVEPOINT sp_sanitario');
     try {
       const sanitariaResult = await client.query(`
         INSERT INTO registro_salida_sanitario
@@ -346,9 +347,10 @@ router.post('/salida', async (req, res, next) => {
         req.user.id
       ]);
       salida_sanitaria = sanitariaResult.rows[0];
+      await client.query('RELEASE SAVEPOINT sp_sanitario');
     } catch (err) {
-      console.error('Error al guardar salida_sanitaria:', err.message);
-      // No bloquear la transacción si falla el sanitario
+      await client.query('ROLLBACK TO SAVEPOINT sp_sanitario');
+      console.error('Error al guardar salida_sanitaria (ignorado):', err.message);
     }
 
     // Generar registro en pagos si es salida tardía

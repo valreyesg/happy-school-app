@@ -51,8 +51,8 @@ export default function MaestraDashboard() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.greeting} numberOfLines={1}>
+          <View style={{ flex: 1, marginRight: 12 }}>
+            <Text style={styles.greeting} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75}>
               ¡{saludoHora()}, {usuario?.genero === 'm' ? 'Teacher' : 'Miss'} {usuario?.nombre?.split(' ')[0]}! 👋
             </Text>
             <Text style={styles.fecha}>{hoy}</Text>

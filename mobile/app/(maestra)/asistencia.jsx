@@ -25,8 +25,9 @@ function modoEntrada() {
 }
 
 function estadoAlumno(a) {
-  if (!a.asistencia_hoy) return 'pendiente';
-  return a.asistencia_hoy.estado || 'pendiente';
+  // El backend devuelve campos planos: a.estado_asistencia (no subobjeto asistencia_hoy)
+  if (!a.estado_asistencia || a.estado_asistencia === 'ausente') return 'pendiente';
+  return a.estado_asistencia;
 }
 
 // ─── Modal registro manual ────────────────────────────────────────────────────
@@ -114,7 +115,6 @@ function ModalManual({ alumno, visible, onClose, onGuardar }) {
 function TarjetaAlumno({ alumno, onRegistrar }) {
   const estado = estadoAlumno(alumno);
   const cfg = ESTADO_CONFIG[estado] || ESTADO_CONFIG.pendiente;
-  const asistencia = alumno.asistencia_hoy;
 
   return (
     <TouchableOpacity
@@ -130,14 +130,14 @@ function TarjetaAlumno({ alumno, onRegistrar }) {
       {/* Info */}
       <View style={{ flex: 1 }}>
         <Text style={s.nombre}>{alumno.nombre_completo}</Text>
-        {asistencia?.hora_entrada && (
+        {alumno.hora_entrada && (
           <Text style={s.hora}>
-            Entrada: {new Date(asistencia.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-            {asistencia.retardo ? ' · Retardo' : ''}
+            Entrada: {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+            {alumno.es_retardo ? ' · Retardo' : ''}
           </Text>
         )}
-        {asistencia?.temperatura && (
-          <Text style={s.hora}>🌡 {asistencia.temperatura}°C</Text>
+        {alumno.temperatura && (
+          <Text style={s.hora}>🌡 {alumno.temperatura}°C</Text>
         )}
       </View>
 

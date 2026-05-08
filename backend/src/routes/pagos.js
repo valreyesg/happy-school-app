@@ -1318,6 +1318,59 @@ async function reciboHandler(req, res, next) {
   } catch (err) { next(err); }
 }
 
+// ─── RECORDATORIO DE PAGO POR WHATSAPP (uno a uno desde tabla de adeudos) ──────
+// POST /pagos/alumno/:alumnoId/recordatorio
+// Envía la plantilla 'recordatorio_pago' al tutor principal del alumno
+
+router.post('/alumno/:alumnoId/recordatorio', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+
+    // Obtener alumno + tutor + saldo pendiente del mes actual
+    const result = await query(`
+      SELECT al.nombre_completo AS alumno_nombre,
+             COALESCE(t.telefono_whatsapp, t.telefono) AS tutor_telefono,
+             t.nombre_completo AS tutor_nombre,
+             COALESCE(SUM(CASE WHEN p.estado IN ('pendiente','vencido') THEN p.monto_total ELSE 0 END), 0) AS saldo_pendiente,
+             EXTRACT(DAY FROM (
+               SELECT MIN(fecha_limite) FROM pagos
+               WHERE alumno_id = al.id AND estado IN ('pendiente','vencido')
+             )) AS dia_vencimiento
+      FROM alumnos al
+      LEFT JOIN alumno_padre ap ON ap.alumno_id = al.id AND ap.es_tutor_principal = true
+      LEFT JOIN padres t ON t.id = ap.padre_id
+      LEFT JOIN pagos p ON p.alumno_id = al.id AND p.estado IN ('pendiente','vencido')
+      WHERE al.id = $1
+      GROUP BY al.nombre_completo, t.telefono_whatsapp, t.telefono, t.nombre_completo
+    `, [alumnoId]);
+
+    if (!result.rows[0]) return res.status(404).json({ error: 'Alumno no encontrado' });
+    const r = result.rows[0];
+
+    if (!r.tutor_telefono) return res.status(400).json({ error: 'El alumno no tiene tutor con teléfono registrado' });
+    if (parseFloat(r.saldo_pendiente) <= 0) return res.status(400).json({ error: 'El alumno no tiene saldo pendiente' });
+
+    const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
+
+    const resultado = await whatsappService.enviarMensaje({
+      telefono: r.tutor_telefono,
+      clave: 'recordatorio_pago',
+      variables: {
+        nombre_padre: r.tutor_nombre || 'Estimado padre/madre',
+        nombre_alumno: r.alumno_nombre,
+        dia: r.dia_vencimiento ? String(Math.round(r.dia_vencimiento)) : 'próximo',
+        monto: fmt(r.saldo_pendiente),
+      },
+      alumnoId,
+    });
+
+    if (resultado.omitido) return res.status(503).json({ error: 'WhatsApp no está activo o no configurado' });
+    if (resultado.error) return res.status(500).json({ error: resultado.error });
+
+    res.json({ ok: true, destinatario: r.tutor_nombre, telefono: r.tutor_telefono, monto: r.saldo_pendiente });
+  } catch (err) { next(err); }
+});
+
 // ─── ENVIAR RECIBO POR WHATSAPP ────────────────────────────────────────────────
 // POST /pagos/:id/enviar   body: { canal: 'whatsapp' }
 

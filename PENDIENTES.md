@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-09 — Sesión XX+57 (Plantillas WhatsApp sin disparador — funciones + 3 disparadores conectados)
+**Última actualización:** 2026-05-09 — Sesión XX+58 (14 plantillas WA uno a uno, botón 📲 recordatorio_pago en tabla adeudos)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -51,8 +51,12 @@
 - [x] **QR temporal compartido por WhatsApp** — Flujo manual validado (2026-05-08).
 - [x] **10 funciones `notificar*` implementadas** — `recordatorio_pago`, `recargo`, `evento_nuevo`, `boleta_lista`, `sin_recoger`, `documentos_pendientes`, `encuesta_nueva`, `aviso_nuevo`, `suspension`, `pago_comida_lunes` en `whatsappService.js`. Probadas 10/10 vía API Twilio (2026-05-09).
 - [x] **Disparadores conectados** — `sin_recoger` (botón 📲 en FiltroSalida, aparece solo después de hora de salida), `aviso_nuevo` (POST aviso extraordinario), `suspension` (baja de historial de servicios).
-- [ ] **Validar mañana con Twilio** — Límite diario del sandbox (50 msg) alcanzado en pruebas. Pendiente validar en browser: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007).
-- [ ] Conectar disparadores restantes: `evento_nuevo` (al crear evento en calendario), `encuesta_nueva` (al publicar encuesta), `documentos_pendientes` (desde expediente alumno), `recordatorio_pago` / `recargo` (job mensual), `boleta_lista` (módulo boletas), `pago_comida_lunes` (job lunes)
+- [ ] **Validar mañana con Twilio** — Plantillas activas uno a uno. Probar en browser:
+  - `sin_recoger`: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007)
+  - `recordatorio_pago`: desde sección Pagos/Adeudos, enviar recordatorio manual a padre con adeudo pendiente
+  - ⚠️ `aviso_nuevo` y `evento_nuevo` desactivadas (broadcast). No aparecerán en UI.
+- [x] **Botón 📲 recordatorio_pago conectado** — Aparece en tabla adeudos (columna Acción) solo si `saldo_pendiente > 0`. Endpoint: `POST /pagos/alumno/:alumnoId/recordatorio`. Usa plantilla `recordatorio_pago` con nombre_padre, nombre_alumno, dia, monto.
+- [ ] Conectar disparadores restantes (fase futura): `encuesta_nueva`, `documentos_pendientes`, `boleta_lista`, `pago_comida_lunes`, `recargo` (jobs)
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

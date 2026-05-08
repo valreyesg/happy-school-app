@@ -622,6 +622,7 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   const [expandido, setExpandido] = useState(false);
   const [modalPago, setModalPago] = useState(false);
   const [modalRecibo, setModalRecibo] = useState(null); // pago seleccionado
+  const [enviandoWA, setEnviandoWA] = useState(false);
 
   const { data: estado } = useQuery({
     queryKey: ['estado-alumno', alumno.id, mes, anio],
@@ -633,6 +634,20 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   const pagosMes = estado?.pagos?.filter(
     p => p.mes_correspondiente === mes && p.anio_correspondiente === anio
   ) || [];
+
+  const handleRecordatorioWA = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm(`¿Enviar recordatorio de pago por WhatsApp a ${alumno.nombre_completo}?`)) return;
+    setEnviandoWA(true);
+    try {
+      await api.post(`/pagos/alumno/${alumno.id}/recordatorio`);
+      alert(`Recordatorio enviado al tutor de ${alumno.nombre_completo} 📲`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'No se pudo enviar el recordatorio');
+    } finally {
+      setEnviandoWA(false);
+    }
+  };
 
   return (
     <>
@@ -664,12 +679,24 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
           {alumno.saldo_pendiente > 0 ? fmt(alumno.saldo_pendiente) : <span className="text-green-600">—</span>}
         </td>
         <td className="px-4 py-3 text-right">
-          <button
-            onClick={e => { e.stopPropagation(); setModalPago(true); }}
-            className="btn-hs text-xs px-3 py-1.5"
-          >
-            + Pago
-          </button>
+          <div className="flex items-center justify-end gap-2">
+            {alumno.saldo_pendiente > 0 && (
+              <button
+                onClick={handleRecordatorioWA}
+                disabled={enviandoWA}
+                title="Enviar recordatorio de pago por WhatsApp"
+                className="text-xs px-2 py-1.5 rounded-lg border border-green-400 text-green-700 hover:bg-green-50 disabled:opacity-50 transition-colors"
+              >
+                {enviandoWA ? '…' : '📲'}
+              </button>
+            )}
+            <button
+              onClick={e => { e.stopPropagation(); setModalPago(true); }}
+              className="btn-hs text-xs px-3 py-1.5"
+            >
+              + Pago
+            </button>
+          </div>
         </td>
       </tr>
 

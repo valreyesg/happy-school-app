@@ -47,11 +47,11 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
   const [seleccion, setSeleccion] = useState(defaultSeleccion);
   const [nombreOtro, setNombreOtro] = useState(quienRecogeDefault?.nombre_quien_recoge || '');
   const [motivoAnticipada, setMotivoAnticipada] = useState('');
-  const [panialLimpio, setPanialLimpio] = useState(false);
-  const [pertenenciasOk, setPertenenciasOk] = useState(false);
-  const [estadoFisicoOk, setEstadoFisicoOk] = useState(false);
+  const [panialLimpio, setPanialLimpio] = useState(true);
+  const [pertenenciasOk, setPertenenciasOk] = useState(true);
+  const [estadoFisicoOk, setEstadoFisicoOk] = useState(true);
   const [notasSanitarias, setNotasSanitarias] = useState('');
-  const [entregaConforme, setEntregaConforme] = useState(false);
+  const [entregaConforme, setEntregaConforme] = useState(true);
 
   // Alumnos con extensión tienen horario hasta hora_salida_extension (ej 18:00), no la normal
   const horaLimite = alumno.tiene_extension && alumno.hora_salida_extension
@@ -144,7 +144,7 @@ function ModalSalida({ alumno, horaSalidaNormal, horaInicioCobro, onClose, onSuc
       </div>
 
       {/* Vista única con scroll — sin pasos */}
-      <div className="space-y-4 mt-4 overflow-y-auto max-h-[70vh] pr-1">
+      <div className="space-y-4 mt-4">
 
         {/* Badge extensión */}
         {alumno.tiene_extension && (

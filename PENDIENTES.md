@@ -1,26 +1,20 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+67 (Planificación pre-QA: 11 ítems documentación agregados)
+**Última actualización:** 2026-05-08 — Sesión XX+68 (Validación QA web + Fix FiltroSalida)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-### 📋 VALERIA — Validar ítems XX+63 al XX+66 (pendientes acumulados)
-- [ ] **Calendario web padre** — El día de hoy aparece resaltado correctamente
-- [ ] **Dashboard padre web** — Navegar páginas y regresar: no hace spinner si pasaron menos de 5 min
+### 📋 VALERIA — Validar ítems XX+63 al XX+66 (pendientes — mobile)
 - [ ] **Dashboard maestra mobile** — Abre la app, carga normal sin errores
-- [ ] **Ítems 8-10** — Fechas en Tareas, Pagos, FiltroEntrada/Salida funcionan igual que antes
-- [ ] **Ítem 11** — Badges de estado en Asistencia, FiltroEntrada se ven igual
-- [ ] **Ítems 13-14** — Descarga Excel/PDF en Tareas funciona; saludos en dashboards normales
 - [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
 - [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
-- [ ] **Ítem 12** — Bitácora maestra web + mobile: secciones se ven igual que antes
+- [ ] **Ítem 12** — Bitácora maestra mobile: secciones se ven igual que antes
 - [ ] **Ítem 17-19** — Dashboard padre web, FiltroSalida, FiltroEntrada: funcionan igual
 - [ ] **Ítem 20** — Dashboard padre mobile: eventos con `fecha_inicio` null no crashean la app
 - [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez
 - [ ] **Ítem 24** — Tareas maestra web: crear tarea y editar tarea funcionan correctamente
 - [ ] **Ítem 25** — Dashboard maestra mobile con grupo real: lista alumnos hace scroll suave
-- [ ] **Ítem 26** — FiltroSalida web: registrar salida en 1 sola vista (sin botón "Siguiente")
 - [ ] **Ítem 27** — Bitácora padre web: navegar una semana con 2 clics ("← Semana anterior")
 - [ ] **Ítem 28** — Bitácora padre mobile: 1 botón de foto → ActionSheet Galería/Cámara
 - [ ] **Ítem 29** — Dashboard maestra mobile: botón QR rojo prominente, siempre visible

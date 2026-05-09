@@ -524,6 +524,66 @@ function HijoCard({ hijo }) {
         </TouchableOpacity>
       </View>
 
+      {/* Filtro de entrada: hora, retardo, retardos del mes */}
+      {(hijo.filtro_entrada?.puede_entrar !== null && hijo.filtro_entrada?.puede_entrar !== undefined) || hijo.retardos_mes_total > 0 ? (
+        <View style={[
+          styles.entradaBox,
+          hijo.retardos_mes_total >= 3 ? { backgroundColor: '#FFF5F5', borderColor: '#FED7D7' } :
+          hijo.retardos_mes_total === 2 ? { backgroundColor: '#FFFFF0', borderColor: '#FAF089' } :
+          hijo.filtro_entrada?.es_retardo && hijo.filtro_entrada?.puede_entrar ? { backgroundColor: '#FFFAF0', borderColor: '#FEEBC8' } :
+          hijo.filtro_entrada?.puede_entrar ? { backgroundColor: '#F0FFF4', borderColor: '#C6F6D5' } :
+          { backgroundColor: '#FFF5F5', borderColor: '#FED7D7' },
+        ]}>
+          {/* Alerta acumulada de retardos */}
+          {hijo.retardos_mes_total > 0 && hijo.filtro_entrada?.es_retardo && (
+            <View style={[
+              styles.retardoAlerta,
+              hijo.retardos_mes_total >= 3
+                ? { backgroundColor: '#FED7D7', borderLeftColor: '#E53E3E' }
+                : { backgroundColor: '#FEFCBF', borderLeftColor: '#D69E2E' },
+            ]}>
+              <Text style={[styles.retardoAlertaTitulo, { color: hijo.retardos_mes_total >= 3 ? '#C53030' : '#B7791F' }]}>
+                {hijo.retardos_mes_total >= 3 ? '🚫 Límite de retardos alcanzado' :
+                 hijo.retardos_mes_total === 2 ? '⚠️ Próximo retardo bloquea entrada' :
+                 '⏰ Retardo registrado'}
+              </Text>
+              <Text style={[styles.retardoAlertaSub, { color: hijo.retardos_mes_total >= 3 ? '#C53030' : '#B7791F' }]}>
+                Retardos acumulados: {hijo.retardos_mes_total}/3 del mes
+                {hijo.retardos_mes_total >= 3 ? ' — Mañana será rechazado/a si llega tarde' : ''}
+              </Text>
+            </View>
+          )}
+
+          {/* Encabezado: estado de entrada + hora */}
+          {hijo.filtro_entrada?.puede_entrar !== null && hijo.filtro_entrada?.puede_entrar !== undefined && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 4 }}>
+              <Text style={{ fontSize: 18 }}>{hijo.filtro_entrada.puede_entrar ? '🚪 ✅' : '🚪 🚫'}</Text>
+              <Text style={[styles.entradaEstadoTxt, {
+                color: hijo.retardos_mes_total >= 3 ? '#C53030' :
+                       hijo.filtro_entrada.es_retardo ? '#B7791F' :
+                       hijo.filtro_entrada.puede_entrar ? '#276749' : '#C53030',
+              }]}>
+                {hijo.filtro_entrada.puede_entrar ? 'Entrada autorizada' : 'Entrada rechazada'}
+              </Text>
+
+              {/* Hora de entrada */}
+              {hijo.filtro_entrada.puede_entrar && hijo.filtro_entrada.hora_entrada && (
+                <Text style={styles.entradaHoraTxt}>
+                  {new Date(hijo.filtro_entrada.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+              )}
+
+              {/* Badge retardo */}
+              {hijo.filtro_entrada.es_retardo && hijo.filtro_entrada.puede_entrar && (
+                <View style={styles.retardoBadge}>
+                  <Text style={styles.retardoBadgeTxt}>⚠️ Retardo</Text>
+                </View>
+              )}
+            </View>
+          )}
+        </View>
+      ) : null}
+
       {/* Banner de adeudo */}
       {sfCfg && (
         <TouchableOpacity
@@ -820,6 +880,31 @@ const styles = StyleSheet.create({
     flex: 1, borderRadius: RADIUS.md, paddingVertical: 12, alignItems: 'center',
   },
   passBtnTxt: { fontSize: 14, fontWeight: '900' },
+
+  // Filtro entrada
+  entradaBox: {
+    marginHorizontal: 12, marginTop: 8, marginBottom: 4,
+    paddingHorizontal: 12, paddingVertical: 10,
+    borderRadius: RADIUS.md, borderWidth: 1,
+    gap: 6,
+  },
+  entradaEstadoTxt: {
+    fontSize: 11, fontWeight: '900', textTransform: 'uppercase',
+  },
+  entradaHoraTxt: {
+    fontSize: 12, fontWeight: '600', color: '#718096',
+  },
+  retardoBadge: {
+    backgroundColor: '#FEFCBF', paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: 20,
+  },
+  retardoBadgeTxt: { fontSize: 11, fontWeight: '900', color: '#B7791F' },
+  retardoAlerta: {
+    borderLeftWidth: 4, borderRadius: 8,
+    paddingHorizontal: 10, paddingVertical: 8, marginBottom: 4,
+  },
+  retardoAlertaTitulo: { fontSize: 11, fontWeight: '900', textTransform: 'uppercase', marginBottom: 2 },
+  retardoAlertaSub: { fontSize: 11, fontWeight: '600' },
 
   // Chip salida
   salidaChip: {

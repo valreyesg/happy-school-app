@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+71 (Validación QA final: Ítems 15, 16, 17-19, 20, 23, 27, 28 — todos validados)
+**Última actualización:** 2026-05-08 — Sesión XX+72 (Paridad web↔mobile dashboard padre: badge hora entrada + retardos del mes)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

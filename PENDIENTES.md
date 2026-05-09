@@ -82,7 +82,6 @@
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
-### 🚪 QR Temporal — Círculos de Confianza
 ### 🔔 WhatsApp — Validar con Twilio
 - [ ] **Validar con Twilio** — Probar en browser:
   - `sin_recoger`: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007)

@@ -537,6 +537,25 @@ const buscarPorQR = async (req, res, next) => {
 
     alumno.hermanos_sin_salir = parseInt(alumno.hermanos_sin_salir) || 0;
 
+    // Incluir padres y personas autorizadas (para FiltroSalida en mobile)
+    const padresRes = await query(
+      `SELECT p.id, p.nombre_completo AS nombre, p.parentesco AS tipo
+       FROM alumno_padre ap
+       JOIN padres p ON ap.padre_id = p.id
+       WHERE ap.alumno_id = $1 AND ap.activo = true
+       ORDER BY ap.es_tutor_principal DESC`,
+      [alumnoId]
+    );
+    const autorizadosRes = await query(
+      `SELECT id, nombre_completo AS nombre, parentesco
+       FROM personas_autorizadas
+       WHERE alumno_id = $1 AND activo = true
+       ORDER BY nombre_completo`,
+      [alumnoId]
+    );
+    alumno.padres = padresRes.rows;
+    alumno.autorizados = autorizadosRes.rows;
+
     res.json(alumno);
   } catch (err) {
     next(err);

@@ -1,23 +1,19 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+69 (Validación QA mobile: Dashboard maestra + Bitácora maestra — 5 bugs fix)
+**Última actualización:** 2026-05-08 — Sesión XX+70 (QA mobile: Fix animo crash padre, FiltroSalida QR, Tab Salida web+mobile, nombre_quien_recoge)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-### 📋 VALERIA — Validar ítems XX+63 al XX+66 (pendientes — mobile)
-- [x] **Dashboard maestra mobile** — Abre la app, carga normal sin errores ✅ XX+69
-- [x] **Ítem 12 parcial** — Bitácora maestra mobile: badge Pendiente/Guardada, comida extra, actividades del día ✅ XX+69
+### 📋 VALERIA — Validar ítems pendientes (mobile + web)
 - [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
 - [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
 - [ ] **Ítem 17-19** — Dashboard padre web, FiltroSalida, FiltroEntrada: funcionan igual
 - [ ] **Ítem 20** — Dashboard padre mobile: eventos con `fecha_inicio` null no crashean la app
 - [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez
-- [ ] **Ítem 24** — Tareas maestra web: crear tarea y editar tarea funcionan correctamente
-- [ ] **Ítem 25** — Dashboard maestra mobile con grupo real: lista alumnos hace scroll suave
 - [ ] **Ítem 27** — Bitácora padre web: navegar una semana con 2 clics ("← Semana anterior")
 - [ ] **Ítem 28** — Bitácora padre mobile: 1 botón de foto → ActionSheet Galería/Cámara
-- [ ] **Ítem 29** — Dashboard maestra mobile: botón QR rojo prominente, siempre visible
+- [ ] **QR scan maestra** — Validar flujo completo: leer QR → FiltroSalida → nombre quien recoge guardado en BD
 
 ---
 
@@ -80,23 +76,15 @@
 - [ ] Web en Vercel o Netlify
 - [ ] Mobile: generar APK / build nativo (requerido para notificaciones push en background y descarga de QR)
 - [ ] Validar modal urgente push en background (requiere build nativo, no funciona en Expo Go)
+- [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
 - [ ] Pruebas completas con credenciales Twilio reales (producción) — sandbox validado, pendiente validar con cuenta real
-
----
-
-## 📱 MOBILE — Portal Maestra — Correcciones pendientes
-
-### 🔍 Pendiente validar (manual)
-- [ ] QR normal scan desde app de la Miss
 
 ---
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
 ### 🚪 QR Temporal — Círculos de Confianza
-- [ ] Validar pase vencido en Expo Go
-- [ ] Botón "Descargar QR" en modal — implementado, requiere build nativo (expo-media-library no funciona en Expo Go)
-
+- [ ] Validar QR normal scan desde app de la Miss (flujo completo end-to-end)
 ### 🔔 WhatsApp — Validar con Twilio
 - [ ] **Validar con Twilio** — Probar en browser:
   - `sin_recoger`: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007)

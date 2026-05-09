@@ -165,11 +165,6 @@ export default function PadreDashboard() {
     cambiarPassMutation.mutate();
   };
 
-  // ── Catálogos dinámicos ──
-  const { map: ANIMO } = useCatalogo('animo');
-  const { map: CUANTO } = useCatalogo('cuanto');
-  const { map: COMPORTAMIENTO } = useCatalogo('comportamiento');
-
   const { data: hijosData, isLoading } = useQuery({
     queryKey: ['mis-hijos'],
     queryFn: () => api.get('/alumnos/mis-hijos').then(r => r.data),
@@ -487,6 +482,10 @@ const SEMAFORO_CFG = {
 };
 
 function HijoCard({ hijo }) {
+  const { map: ANIMO } = useCatalogo('animo');
+  const { map: CUANTO } = useCatalogo('cuanto');
+  const { map: COMPORTAMIENTO } = useCatalogo('comportamiento');
+
   const { data: estadoPago } = useQuery({
     queryKey: ['estado-alumno-dash', hijo.id],
     queryFn: () => api.get(`/pagos/estado/${hijo.id}`).then(r => r.data).catch(() => null),
@@ -605,6 +604,26 @@ function HijoCard({ hijo }) {
 
       {!hijo.bitacora_hoy && (
         <Text style={styles.sinBitacora}>La bitácora de hoy aún no está lista 📝</Text>
+      )}
+
+      {/* Salida del día */}
+      {hijo.filtro_salida && (
+        <View style={styles.salidaChip}>
+          <Text style={styles.salidaEmoji}>🚪</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.salidaHora}>
+              Salió a las {new Date(hijo.filtro_salida.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+            </Text>
+            {hijo.filtro_salida.nombre_quien_recoge ? (
+              <Text style={styles.salidaQuien}>Recogido por {hijo.filtro_salida.nombre_quien_recoge}</Text>
+            ) : null}
+          </View>
+          {hijo.filtro_salida.salida_anticipada && (
+            <View style={styles.salidaAnticipada}>
+              <Text style={styles.salidaAnticipadaTxt}>Anticipada</Text>
+            </View>
+          )}
+        </View>
       )}
 
       {/* Tareas pendientes */}
@@ -801,4 +820,19 @@ const styles = StyleSheet.create({
     flex: 1, borderRadius: RADIUS.md, paddingVertical: 12, alignItems: 'center',
   },
   passBtnTxt: { fontSize: 14, fontWeight: '900' },
+
+  // Chip salida
+  salidaChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: '#F0FFF4', borderTopWidth: 1, borderTopColor: '#C6F6D5',
+    paddingHorizontal: 16, paddingVertical: 10,
+  },
+  salidaEmoji: { fontSize: 20 },
+  salidaHora: { fontSize: 13, fontWeight: '900', color: '#276749' },
+  salidaQuien: { fontSize: 11, fontWeight: '600', color: '#48BB78', marginTop: 1 },
+  salidaAnticipada: {
+    backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 3,
+    borderRadius: 8, borderWidth: 1, borderColor: '#F6AD55',
+  },
+  salidaAnticipadaTxt: { fontSize: 10, fontWeight: '800', color: '#C05621' },
 });

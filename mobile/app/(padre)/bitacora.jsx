@@ -227,6 +227,7 @@ export default function BitacoraPadreScreen() {
   const medicamentos = data?.medicamentos || [];
   const recepciones = data?.recepciones_medicamento || [];
   const tareas = (data?.tareas || []).filter(t => t.fecha_limite?.substring(0, 10) === fecha);
+  const salidaMostrada = data?.salida || null;
   const esHoyFecha = fecha === hoy;
 
   return (
@@ -435,6 +436,7 @@ export default function BitacoraPadreScreen() {
                 { key: 'higiene',     icon: 'water-outline',       label: 'Higiene'     },
                 { key: 'salud',       icon: 'medical-outline',     label: 'Salud'       },
                 { key: 'incidentes',  icon: 'warning-outline',     label: 'Incidentes'  },
+                { key: 'salida',      icon: 'exit-outline',        label: 'Salida'      },
               ].map(tab => (
                 <TouchableOpacity
                   key={tab.key}
@@ -860,6 +862,47 @@ export default function BitacoraPadreScreen() {
                   ))
                 ) : (
                   <Text style={s.tabVacio}>Sin incidentes hoy ✅</Text>
+                )
+              )}
+
+              {/* Tab: Salida */}
+              {tabActivo === 'salida' && (
+                !salidaMostrada ? (
+                  <Text style={s.tabVacio}>Sin registro de salida para esta fecha</Text>
+                ) : (
+                  <View>
+                    <FilaInfo
+                      label="Hora de salida"
+                      valor={new Date(salidaMostrada.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                      negrita
+                    />
+                    {salidaMostrada.nombre_quien_recoge ? (
+                      <FilaInfo label="Recogido por" valor={salidaMostrada.nombre_quien_recoge} />
+                    ) : null}
+                    {salidaMostrada.es_anticipada && (
+                      <View style={[s.alertaRoja, { borderLeftColor: '#DD6B20', backgroundColor: '#FFFAF0', marginVertical: 6 }]}>
+                        <Text style={[s.alertaTxt, { color: '#C05621' }]}>
+                          ⚠️ Salida anticipada{salidaMostrada.motivo_salida ? `: ${salidaMostrada.motivo_salida}` : ''}
+                        </Text>
+                      </View>
+                    )}
+                    {(salidaMostrada.estado_fisico_ok !== null || salidaMostrada.pertenencias_ok !== null || salidaMostrada.panial_limpio !== null || salidaMostrada.entrega_conforme !== null) && (
+                      <View>
+                        <Text style={[s.seccionTitulo, { marginTop: 8, marginBottom: 6 }]}>Checklist de salida</Text>
+                        <View style={s.pildoraRow}>
+                          {salidaMostrada.estado_fisico_ok !== null && <PildoraBool label="Estado físico OK"       valor={salidaMostrada.estado_fisico_ok}   />}
+                          {salidaMostrada.pertenencias_ok !== null  && <PildoraBool label="Pertenencias completas" valor={salidaMostrada.pertenencias_ok}    />}
+                          {salidaMostrada.panial_limpio !== null    && <PildoraBool label="Pañal limpio"           valor={salidaMostrada.panial_limpio}      />}
+                          {salidaMostrada.entrega_conforme !== null && <PildoraBool label="Entrega conforme"       valor={salidaMostrada.entrega_conforme}   />}
+                        </View>
+                      </View>
+                    )}
+                    {salidaMostrada.notas ? (
+                      <View style={[s.alertaRoja, { borderLeftColor: '#3182CE', backgroundColor: '#EBF8FF', marginTop: 8 }]}>
+                        <Text style={[s.alertaTxt, { color: '#2B6CB0' }]}>{salidaMostrada.notas}</Text>
+                      </View>
+                    ) : null}
+                  </View>
                 )
               )}
             </View>

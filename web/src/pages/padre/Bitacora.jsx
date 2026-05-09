@@ -491,6 +491,7 @@ export default function PadreBitacora() {
   const recepciones  = data?.recepciones_medicamento || [];
   const incidentes   = data?.incidentes || [];
   const actividades = data?.actividades || [];
+  const salidaMostrada = data?.salida || null;
   const hijoActual = hijos.find(h => h.id === alumnoId);
   const entradaHoy = hijoActual?.filtro_entrada || null;
   const esHoyFecha = fecha === hoy;
@@ -626,9 +627,10 @@ export default function PadreBitacora() {
 
               {/* ── Tabs ── */}
               <div ref={tabsRef} className="card-hs overflow-hidden">
-                <div className="grid grid-cols-4 lg:grid-cols-7 border-b border-gray-100">
+                <div className="grid grid-cols-4 lg:grid-cols-8 border-b border-gray-100">
                   {[
                     { key: 'entrada',     emoji: '🚪', label: 'Entrada'     },
+                    { key: 'salida',      emoji: '👋', label: 'Salida'      },
                     { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
                     { key: 'actividades', emoji: '🎨', label: 'Actividades' },
                     { key: 'tareas',      emoji: '📚', label: 'Tareas'      },
@@ -708,6 +710,57 @@ export default function PadreBitacora() {
                                 {entradaMostrada.trajo_toallitas && <PildoraBool label="Trajo toallitas" valor={true} />}
                               </div>
                             </div>
+                          </div>
+                        )
+                  )}
+
+                  {/* Salida */}
+                  {tabActivo === 'salida' && (
+                    !salidaMostrada
+                      ? <p className="text-center text-sm text-gray-400 font-semibold py-8">Sin registro de salida para esta fecha</p>
+                      : (
+                          <div className="space-y-3">
+                            {/* Hora de salida */}
+                            <FilaInfo
+                              label="Hora de salida"
+                              valor={new Date(salidaMostrada.hora_salida).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+                            />
+
+                            {/* Quién recogió */}
+                            {salidaMostrada.nombre_quien_recoge && (
+                              <FilaInfo label="Recogido por" valor={salidaMostrada.nombre_quien_recoge} />
+                            )}
+
+                            {/* Salida anticipada */}
+                            {salidaMostrada.es_anticipada && (
+                              <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-yellow-50 border border-yellow-200">
+                                <span>⚠️</span>
+                                <span className="text-sm font-bold text-yellow-700">
+                                  Salida anticipada{salidaMostrada.motivo_salida ? `: ${salidaMostrada.motivo_salida}` : ''}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Checklist sanitario */}
+                            {(salidaMostrada.panial_limpio !== null || salidaMostrada.pertenencias_ok !== null || salidaMostrada.estado_fisico_ok !== null || salidaMostrada.entrega_conforme !== null) && (
+                              <div>
+                                <p className="text-xs font-black text-gray-500 uppercase mb-2">Checklist de salida</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {salidaMostrada.estado_fisico_ok !== null && <PildoraBool label="Estado físico OK" valor={salidaMostrada.estado_fisico_ok} />}
+                                  {salidaMostrada.pertenencias_ok !== null && <PildoraBool label="Pertenencias completas" valor={salidaMostrada.pertenencias_ok} />}
+                                  {salidaMostrada.panial_limpio !== null && <PildoraBool label="Pañal limpio" valor={salidaMostrada.panial_limpio} />}
+                                  {salidaMostrada.entrega_conforme !== null && <PildoraBool label="Entrega conforme" valor={salidaMostrada.entrega_conforme} />}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Notas sanitarias */}
+                            {salidaMostrada.notas && (
+                              <div className="bg-blue-50 border-l-4 border-blue-300 rounded-xl p-3">
+                                <p className="text-xs font-black text-blue-500 uppercase mb-1">Notas</p>
+                                <p className="text-sm font-semibold text-blue-800">{salidaMostrada.notas}</p>
+                              </div>
+                            )}
                           </div>
                         )
                   )}

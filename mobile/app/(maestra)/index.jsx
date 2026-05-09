@@ -37,7 +37,7 @@ export default function MaestraDashboard() {
   const { usuario, logout } = useAuthStore();
   const { items: itemsAnimo } = useCatalogo('animo');
   const EMOJIS_ANIMO = Object.fromEntries(
-    (itemsAnimo || []).map(i => [i.valor, i.etiqueta])
+    (itemsAnimo || []).map(i => [i.key, i.emoji])
   );
   const hoy = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
   const horaActual = new Date().getHours();

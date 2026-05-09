@@ -42,6 +42,7 @@ router.get('/mis-hijos', async (req, res, next) => {
         re.trae_bata, re.trae_termo, re.agua_suficiente, re.numero_retardo_mes,
         -- Filtro de salida
         rs.hora_salida, rs.es_anticipada AS salida_anticipada, rs.motivo_salida,
+        rs.nombre_quien_recoge, rs.recogido_por_tipo,
         -- Retardos del mes (siempre, aunque no haya entrada hoy)
         (SELECT COUNT(*) FROM registro_entrada rx
          WHERE rx.alumno_id = a.id AND rx.es_retardo = true
@@ -88,6 +89,8 @@ router.get('/mis-hijos', async (req, res, next) => {
         hora_salida: r.hora_salida,
         salida_anticipada: r.salida_anticipada,
         motivo_salida: r.motivo_salida,
+        nombre_quien_recoge: r.nombre_quien_recoge,
+        recogido_por_tipo: r.recogido_por_tipo,
       } : null;
 
       return {
@@ -124,6 +127,8 @@ router.get('/mis-hijos', async (req, res, next) => {
         hora_salida: undefined,
         salida_anticipada: undefined,
         motivo_salida: undefined,
+        nombre_quien_recoge: undefined,
+        recogido_por_tipo: undefined,
       };
     });
 

@@ -300,6 +300,17 @@ router.post('/salida', async (req, res, next) => {
       cobroExtension = costoExtHora;
     }
 
+    // Resolver nombre de quien recoge si no viene en el payload
+    let nombreFinal = nombre_quien_recoge || null;
+    if (!nombreFinal && padre_id) {
+      const pr = await client.query('SELECT nombre_completo, parentesco FROM padres WHERE id = $1', [padre_id]);
+      if (pr.rows[0]) nombreFinal = `${pr.rows[0].nombre_completo} (${pr.rows[0].parentesco})`;
+    }
+    if (!nombreFinal && persona_autorizada_id) {
+      const ar = await client.query('SELECT nombre_completo, parentesco FROM personas_autorizadas WHERE id = $1', [persona_autorizada_id]);
+      if (ar.rows[0]) nombreFinal = `${ar.rows[0].nombre_completo} (${ar.rows[0].parentesco})`;
+    }
+
     // Iniciar transacción
     await client.query('BEGIN');
 
@@ -314,7 +325,7 @@ router.post('/salida', async (req, res, next) => {
     `, [
       alumno_id, ahora,
       padre_id ? 'padre' : persona_autorizada_id ? 'persona_autorizada' : 'otro',
-      padre_id, persona_autorizada_id, nombre_quien_recoge,
+      padre_id, persona_autorizada_id, nombreFinal,
       autorizado, alerta, qr_escaneado || false, req.user.id,
       es_anticipada || false, motivo_salida || null,
       esSalidaTardia, minutosTarde, cobroExtension

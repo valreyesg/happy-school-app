@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image, ScrollView, TextInput } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -78,11 +78,11 @@ export default function QRScannerScreen() {
     },
   });
 
-  const confirmarSalida = () => {
+  const confirmarSalida = (filtroData) => {
     if (!alumnoDetectado) return;
     registrarSalidaMutation.mutate({
       alumno_id: alumnoDetectado.id,
-      recogido_por_tipo: 'padre',
+      ...filtroData,
     });
   };
 
@@ -405,10 +405,51 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
   );
 }
 
-// Panel de confirmación de salida
+// Filtro de salida completo — paridad con web
 function ConfirmacionSalida({ alumno, onConfirmar, onCancelar, loading }) {
+  const padres = alumno.padres || [];
+  const autorizados = alumno.autorizados || [];
+
+  // Opciones de quién recoge
+  const opciones = [
+    ...padres.map(p => ({ tipo: 'padre', id: p.id, label: `${p.nombre} (${p.tipo})` })),
+    ...autorizados.map(a => ({ tipo: 'autorizado', id: a.id, label: `${a.nombre} (${a.parentesco})` })),
+    { tipo: 'otro', id: 'otro', label: '👤 Otro (escribir nombre)' },
+  ];
+
+  const [seleccion, setSeleccion] = useState(opciones[0]?.id || 'otro');
+  const [nombreOtro, setNombreOtro] = useState('');
+  const [panialLimpio, setPanialLimpio] = useState(true);
+  const [pertenenciasOk, setPertenenciasOk] = useState(true);
+  const [estadoFisicoOk, setEstadoFisicoOk] = useState(true);
+  const [notasSanitarias, setNotasSanitarias] = useState('');
+  const [entregaConforme, setEntregaConforme] = useState(true);
+
+  const handleConfirmar = () => {
+    const opcion = opciones.find(o => o.id === seleccion);
+    if (opcion?.tipo === 'otro' && !nombreOtro.trim()) {
+      Alert.alert('Campo requerido', 'Escribe el nombre de quien recoge');
+      return;
+    }
+    const payload = {};
+    if (opcion?.tipo === 'padre') {
+      payload.padre_id = opcion.id;
+    } else if (opcion?.tipo === 'autorizado') {
+      payload.persona_autorizada_id = opcion.id;
+    } else {
+      payload.nombre_quien_recoge = nombreOtro.trim();
+    }
+    payload.panial_limpio = panialLimpio;
+    payload.pertenencias_ok = pertenenciasOk;
+    payload.estado_fisico_ok = estadoFisicoOk;
+    if (notasSanitarias.trim()) payload.notas_sanitarias = notasSanitarias.trim();
+    payload.entrega_conforme = entregaConforme;
+    onConfirmar(payload);
+  };
+
   return (
-    <View style={styles.checklistContainer}>
+    <ScrollView style={styles.checklistContainer} contentContainerStyle={{ paddingBottom: 24 }}>
+      {/* Header alumno */}
       <View style={styles.alumnoDetectadoHeader}>
         {alumno.foto_url ? (
           <Image source={{ uri: alumno.foto_url }} style={styles.alumnoFotoGrande} />
@@ -417,7 +458,7 @@ function ConfirmacionSalida({ alumno, onConfirmar, onCancelar, loading }) {
             <Text style={{ fontSize: 48 }}>👧🏻</Text>
           </View>
         )}
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.alumnoNombreGrande}>{alumno.nombre_completo}</Text>
           <Text style={styles.alumnoGrupo}>{alumno.grupo_nombre}</Text>
         </View>
@@ -432,27 +473,109 @@ function ConfirmacionSalida({ alumno, onConfirmar, onCancelar, loading }) {
         </View>
       )}
 
-      <View style={{ alignItems: 'center', marginVertical: 24 }}>
-        <Text style={{ fontSize: 56 }}>🚪</Text>
-        <Text style={{ fontSize: 18, fontWeight: '900', color: '#2D3748', marginTop: 8 }}>
-          Registrar salida
-        </Text>
-        <Text style={{ fontSize: 14, color: '#718096', marginTop: 4 }}>
-          ¿Confirmas la salida de {alumno.nombre_completo.split(' ')[0]}?
-        </Text>
-      </View>
+      {/* Extensión */}
+      {alumno.tiene_extension && (
+        <View style={[styles.temporalBanner, { backgroundColor: '#DBEAFE', borderColor: '#93C5FD' }]}>
+          <Text style={[styles.temporalTitle, { color: '#1E3A5F' }]}>
+            ⏳ Extensión activa — salida hasta {alumno.hora_salida_extension || '18:00'}
+          </Text>
+        </View>
+      )}
 
-      <View style={styles.checklistActions}>
+      {/* ── Quién recoge ── */}
+      <Text style={styles.seccionLabel}>¿Quién recoge?</Text>
+      {opciones.map(op => (
+        <TouchableOpacity
+          key={op.id}
+          style={[styles.opcionBtn, seleccion === op.id && styles.opcionBtnSelected]}
+          onPress={() => setSeleccion(op.id)}
+          activeOpacity={0.8}
+        >
+          <View style={[styles.radioCircle, seleccion === op.id && styles.radioCircleSelected]}>
+            {seleccion === op.id && <View style={styles.radioDot} />}
+          </View>
+          <Text style={[styles.opcionLabel, seleccion === op.id && styles.opcionLabelSelected]}>
+            {op.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+
+      {seleccion === 'otro' && (
+        <TextInput
+          style={[styles.textInput, { marginTop: 8 }]}
+          placeholder="Nombre completo de quien recoge"
+          value={nombreOtro}
+          onChangeText={setNombreOtro}
+          placeholderTextColor="#A0AEC0"
+        />
+      )}
+
+      {/* ── Checklist salida ── */}
+      <Text style={[styles.seccionLabel, { marginTop: 16 }]}>Checklist de salida</Text>
+
+      {alumno.usa_panial && (
+        <TouchableOpacity
+          style={[styles.checkItem, { backgroundColor: panialLimpio ? '#C6F6D5' : '#FED7D7' }]}
+          onPress={() => setPanialLimpio(v => !v)}
+          activeOpacity={0.8}
+        >
+          <Text style={{ fontSize: 20 }}>🧷</Text>
+          <Text style={styles.checkLabel}>Pañal limpio al salir</Text>
+          <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{panialLimpio ? '✅' : '❌'}</Text>
+        </TouchableOpacity>
+      )}
+
+      <TouchableOpacity
+        style={[styles.checkItem, { backgroundColor: pertenenciasOk ? '#C6F6D5' : '#FED7D7' }]}
+        onPress={() => setPertenenciasOk(v => !v)}
+        activeOpacity={0.8}
+      >
+        <Text style={{ fontSize: 20 }}>🎒</Text>
+        <Text style={styles.checkLabel}>Pertenencias completas</Text>
+        <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{pertenenciasOk ? '✅' : '❌'}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.checkItem, { backgroundColor: estadoFisicoOk ? '#C6F6D5' : '#FED7D7' }]}
+        onPress={() => setEstadoFisicoOk(v => !v)}
+        activeOpacity={0.8}
+      >
+        <Text style={{ fontSize: 20 }}>💚</Text>
+        <Text style={styles.checkLabel}>Estado físico normal</Text>
+        <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{estadoFisicoOk ? '✅' : '❌'}</Text>
+      </TouchableOpacity>
+
+      <TextInput
+        style={[styles.textInput, { marginTop: 8, minHeight: 60, textAlignVertical: 'top' }]}
+        placeholder="Observaciones (opcional)..."
+        value={notasSanitarias}
+        onChangeText={setNotasSanitarias}
+        multiline
+        placeholderTextColor="#A0AEC0"
+      />
+
+      <TouchableOpacity
+        style={[styles.checkItem, { backgroundColor: entregaConforme ? '#C6F6D5' : '#FED7D7', marginTop: 8 }]}
+        onPress={() => setEntregaConforme(v => !v)}
+        activeOpacity={0.8}
+      >
+        <Text style={{ fontSize: 20 }}>✅</Text>
+        <Text style={[styles.checkLabel, { fontWeight: '900' }]}>Entrega conforme</Text>
+        <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{entregaConforme ? '✅' : '❌'}</Text>
+      </TouchableOpacity>
+
+      {/* Botones */}
+      <View style={[styles.checklistActions, { marginTop: 20 }]}>
         <TouchableOpacity style={styles.cancelarBtn} onPress={onCancelar}>
           <Text style={styles.cancelarText}>Cancelar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.confirmarBtn} onPress={onConfirmar} disabled={loading}>
+        <TouchableOpacity style={[styles.confirmarBtn, { backgroundColor: '#805AD5' }]} onPress={handleConfirmar} disabled={loading}>
           <Text style={styles.confirmarText}>
-            {loading ? 'Registrando...' : '✅ Confirmar salida'}
+            {loading ? 'Registrando...' : '🚪 Confirmar salida'}
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -688,6 +811,25 @@ const styles = StyleSheet.create({
     flex: 2, padding: 16, borderRadius: RADIUS.lg, backgroundColor: '#38A169', alignItems: 'center',
   },
   confirmarText: { fontWeight: '900', color: '#fff', fontSize: 15 },
+  // FiltroSalida
+  seccionLabel: { fontSize: 11, fontWeight: '900', color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8, marginTop: 12 },
+  opcionBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    padding: 12, borderRadius: RADIUS.lg, borderWidth: 2,
+    borderColor: '#E2E8F0', backgroundColor: '#fff', marginBottom: 6,
+  },
+  opcionBtnSelected: { borderColor: '#805AD5', backgroundColor: '#FAF5FF' },
+  opcionLabel: { fontWeight: '700', fontSize: 13, color: '#4A5568', flex: 1 },
+  opcionLabelSelected: { color: '#553C9A' },
+  radioCircle: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: '#CBD5E0', alignItems: 'center', justifyContent: 'center' },
+  radioCircleSelected: { borderColor: '#805AD5' },
+  radioDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#805AD5' },
+  inputLabel: { fontSize: 12, fontWeight: '800', color: '#4A5568', marginBottom: 6 },
+  textInput: {
+    borderWidth: 2, borderColor: '#E2E8F0', borderRadius: RADIUS.lg,
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14, fontWeight: '600',
+    color: '#2D3748', backgroundColor: '#fff',
+  },
   // Resultado
   resultadoContainer: {
     flex: 1, alignItems: 'center', justifyContent: 'center',

@@ -130,7 +130,7 @@ router.get('/:alumnoId', async (req, res, next) => {
     const { alumnoId } = req.params;
     const fecha = req.query.fecha || null; // null → CURRENT_DATE (hora local PostgreSQL)
 
-    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas, vomitos, recepciones, fotosActividad] = await Promise.all([
+    const [fechaRow, bitacora, banio, comida, panial, esfinteres, medicamentos, incidentes, actividades, tareas, vomitos, recepciones, fotosActividad, salidaReg, salidaSan] = await Promise.all([
 
       query(`SELECT COALESCE($1::date, CURRENT_DATE)::text AS f`, [fecha]),
 
@@ -236,6 +236,25 @@ router.get('/:alumnoId', async (req, res, next) => {
          ORDER BY created_at`,
         [alumnoId, fecha]
       ),
+
+      // Registro de salida
+      query(
+        `SELECT rs.hora_salida, rs.nombre_quien_recoge, rs.recogido_por_tipo,
+                rs.es_anticipada, rs.motivo_salida, rs.autorizado
+         FROM registro_salida rs
+         WHERE rs.alumno_id = $1 AND rs.hora_salida::date = COALESCE($2::date, CURRENT_DATE)
+         LIMIT 1`,
+        [alumnoId, fecha]
+      ),
+
+      // Sanitario de salida
+      query(
+        `SELECT panial_limpio, pertenencias_ok, estado_fisico_ok, notas, entrega_conforme
+         FROM registro_salida_sanitario
+         WHERE alumno_id = $1 AND fecha = COALESCE($2::date, CURRENT_DATE)
+         LIMIT 1`,
+        [alumnoId, fecha]
+      ),
     ]);
 
     res.json({
@@ -252,6 +271,10 @@ router.get('/:alumnoId', async (req, res, next) => {
       tareas:       tareas.rows          || [],
       vomitos:      vomitos.rows         || [],
       recepciones_medicamento: recepciones.rows || [],
+      salida: salidaReg.rows[0] ? {
+        ...salidaReg.rows[0],
+        ...(salidaSan.rows[0] || {}),
+      } : null,
     });
   } catch (err) { next(err); }
 });

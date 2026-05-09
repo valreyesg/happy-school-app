@@ -1,18 +1,7 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+70 (QA mobile: Fix animo crash padre, FiltroSalida QR, Tab Salida web+mobile, nombre_quien_recoge)
+**Última actualización:** 2026-05-08 — Sesión XX+71 (Validación QA final: Ítems 15, 16, 17-19, 20, 23, 27, 28 — todos validados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
-
----
-
-### 📋 VALERIA — Validar ítems pendientes (mobile + web)
-- [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
-- [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
-- [ ] **Ítem 17-19** — Dashboard padre web, FiltroSalida, FiltroEntrada: funcionan igual
-- [ ] **Ítem 20** — Dashboard padre mobile: eventos con `fecha_inicio` null no crashean la app
-- [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez
-- [ ] **Ítem 27** — Bitácora padre web: navegar una semana con 2 clics ("← Semana anterior")
-- [ ] **Ítem 28** — Bitácora padre mobile: 1 botón de foto → ActionSheet Galería/Cámara
 
 ---
 

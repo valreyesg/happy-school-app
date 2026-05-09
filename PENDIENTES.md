@@ -13,7 +13,6 @@
 - [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez
 - [ ] **Ítem 27** — Bitácora padre web: navegar una semana con 2 clics ("← Semana anterior")
 - [ ] **Ítem 28** — Bitácora padre mobile: 1 botón de foto → ActionSheet Galería/Cámara
-- [ ] **QR scan maestra** — Validar flujo completo: leer QR → FiltroSalida → nombre quien recoge guardado en BD
 
 ---
 
@@ -84,7 +83,6 @@
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
 ### 🚪 QR Temporal — Círculos de Confianza
-- [ ] Validar QR normal scan desde app de la Miss (flujo completo end-to-end)
 ### 🔔 WhatsApp — Validar con Twilio
 - [ ] **Validar con Twilio** — Probar en browser:
   - `sin_recoger`: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007)

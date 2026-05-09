@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ Soporte — Happy School App v1.0.0-beta</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9fafb;
+    color: #1a1a2e;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #111827;
+    color: #e2e8f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+  #sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #1f2937;
+  }
+  #sidebar-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  #sidebar-header .role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: #4338ca;
+    color: #e0e7ff;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section {
+    padding: 10px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #4b5563;
+  }
+  #sidebar nav a {
+    display: block;
+    padding: 7px 20px 7px 28px;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover {
+    color: #e2e8f0;
+    background: #1f2937;
+    border-left-color: #6366f1;
+  }
+  #sidebar nav a.active {
+    color: #a5b4fc;
+    background: #1f2937;
+    border-left-color: #6366f1;
+    font-weight: 600;
+  }
+  #sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #1f2937;
+    font-size: 11px;
+    color: #4b5563;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  #topbar .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h1 .subtitle {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-top: 56px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e7ff;
+    scroll-margin-top: 80px;
+  }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 10px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #4338ca;
+  }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* ===== META HEADER ===== */
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0 32px;
+    padding: 16px 20px;
+    background: #eef2ff;
+    border-radius: 10px;
+    border: 1px solid #c7d2fe;
+  }
+  .doc-meta .meta-item { font-size: 13px; color: #4338ca; }
+  .doc-meta .meta-item span { font-weight: 600; }
+
+  /* ===== CALLOUT / BLOCKQUOTE ===== */
+  blockquote {
+    border-left: 4px solid #6366f1;
+    background: #eef2ff;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #3730a3;
+  }
+  blockquote strong { color: #3730a3; }
+
+  /* ===== IMAGE PLACEHOLDERS ===== */
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    padding: 32px 20px;
+    margin: 20px 0;
+    gap: 8px;
+    text-align: center;
+  }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename {
+    font-family: monospace;
+    font-size: 12px;
+    color: #b45309;
+    background: #fef3c7;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+
+  /* ===== ACCORDION (details / summary) ===== */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0 0 8px;
+  }
+  details {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  details:hover {
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.10);
+    border-color: #a5b4fc;
+  }
+  details[open] {
+    border-color: #6366f1;
+    box-shadow: 0 2px 12px rgba(99, 102, 241, 0.12);
+  }
+  summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.45;
+    list-style: none;
+    user-select: none;
+    position: relative;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: '';
+    min-width: 18px;
+    height: 18px;
+    background: #6366f1;
+    border-radius: 50%;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  summary::after {
+    content: '\203A';
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-size: 20px;
+    color: #6366f1;
+    transition: transform 0.2s;
+    line-height: 1;
+  }
+  details[open] summary::after {
+    transform: translateY(-50%) rotate(270deg);
+  }
+  .answer {
+    padding: 4px 18px 20px 48px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+  }
+  .answer p:last-child { margin-bottom: 0; }
+  .answer ol, .answer ul { margin-left: 18px; margin-bottom: 10px; }
+  .answer li { font-size: 14px; margin-bottom: 5px; }
+
+  /* ===== CONTACT CALLOUT ===== */
+  .contact-callout {
+    margin-top: 48px;
+    background: #eef2ff;
+    border: 2px solid #6366f1;
+    border-radius: 12px;
+    padding: 28px 32px;
+  }
+  .contact-callout h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #3730a3;
+    margin-top: 0;
+    margin-bottom: 12px;
+    padding-bottom: 0;
+    border-bottom: none;
+    scroll-margin-top: 80px;
+  }
+  .contact-callout p {
+    font-size: 14.5px;
+    color: #3730a3;
+    margin-bottom: 10px;
+  }
+  .contact-callout .contact-name {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #312e81;
+    background: #c7d2fe;
+    padding: 4px 14px;
+    border-radius: 6px;
+    margin: 6px 0 10px;
+  }
+  .contact-callout ul {
+    margin: 8px 0 0 18px;
+  }
+  .contact-callout li {
+    font-size: 14px;
+    color: #3730a3;
+    margin-bottom: 5px;
+  }
+
+  /* ===== PAGE FOOTER ===== */
+  .page-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta</div>
+    <div class="role-badge">Soporte · Valeria</div>
+  </div>
+  <nav>
+    <div class="nav-section">Inicio</div>
+    <a href="#intro">Introducción</a>
+
+    <div class="nav-section">Secciones</div>
+    <a href="#s1">1 — Acceso y Contraseñas</a>
+    <a href="#s2">2 — Código QR</a>
+    <a href="#s3">3 — Entrada y Salida</a>
+    <a href="#s4">4 — Personas Autorizadas</a>
+    <a href="#s5">5 — Pagos</a>
+    <a href="#s6">6 — Bitácora y Datos</a>
+    <a href="#s7">7 — App Móvil</a>
+    <a href="#s8">8 — Configuración</a>
+
+    <div class="nav-section">Soporte</div>
+    <a href="#contacto">Contacto de Soporte</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · 2026</div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Documentación / <strong>FAQ — Soporte</strong></div>
+    <div class="badge">v1.0.0-beta</div>
+  </div>
+
+  <div id="content">
+
+    <!-- TITLE -->
+    <h1 id="intro">FAQ — Preguntas Frecuentes y Casos Comunes de Soporte
+      <span class="subtitle">Happy School App v1.0.0-beta · Para uso de Valeria (soporte durante el piloto)</span>
+    </h1>
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Fecha:</span> 2026-05-08</div>
+      <div class="meta-item">🔧 <span>Tipo:</span> Soporte y resolución de incidentes</div>
+      <div class="meta-item">👤 <span>Para:</span> Valeria (administradora del sistema)</div>
+    </div>
+
+    <blockquote>
+      <strong>¿Para qué sirve este documento?</strong><br>
+      Cubre las situaciones más comunes que pueden presentarse durante el piloto, con pasos concretos para resolverlas sin necesidad de acceder a la base de datos en la mayoría de los casos.
+    </blockquote>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">faq_usuarios_lista.png</div>
+      <div class="ph-desc">Pantalla de Usuarios con lista de padres y botón Restablecer contraseña</div>
+    </div>
+
+    <hr>
+
+    <!-- ===== SECCIÓN 1 ===== -->
+    <h2 id="s1">Sección 1 — Acceso y Contraseñas</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>Un padre no puede entrar a la app (usuario o contraseña incorrectos)</summary>
+        <div class="answer">
+          <p>Verificar los siguientes puntos en orden:</p>
+          <ol>
+            <li>Confirmar que el correo es exacto: las <strong>mayúsculas importan</strong> y no debe haber espacios al inicio o al final.</li>
+            <li>Restablecer la contraseña desde el portal: <strong>Directora → Usuarios → buscar al padre → "Restablecer contraseña"</strong>.</li>
+            <li>Compartir la contraseña temporal con el padre de forma segura (WhatsApp o en persona).</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Una maestra no puede entrar</summary>
+        <div class="answer">
+          <p>El proceso es el mismo que para los padres. Adicionalmente, verificar que la cuenta esté <strong>activa</strong>:</p>
+          <ol>
+            <li>Ir a <strong>Personal → buscar a la maestra</strong>.</li>
+            <li>Revisar el campo de estado: debe decir <strong>"Activo"</strong>.</li>
+            <li>Si está inactiva, activarla desde esa misma pantalla.</li>
+            <li>Luego restablecer la contraseña si es necesario.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un padre entró pero no ve a su hijo en la app</summary>
+        <div class="answer">
+          <p>Verificar dos puntos:</p>
+          <ol>
+            <li>El padre está registrado como tutor del alumno: <strong>Alumnos → perfil del alumno → sección Padres/Tutores</strong>. Confirmar que aparece el nombre del padre.</li>
+            <li>La cuenta del padre tiene el correo correcto vinculado al registro de tutor. El correo de la cuenta debe coincidir exactamente con el correo en el registro de tutor.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>La app dice "sesión expirada" o cierra automáticamente</summary>
+        <div class="answer">
+          <p>Este comportamiento es <strong>normal y esperado</strong>. Las sesiones expiran después de cierto tiempo de inactividad como medida de seguridad.</p>
+          <p>El usuario simplemente vuelve a entrar con su correo y contraseña. <strong>No se pierde ningún dato</strong>.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 2 ===== -->
+    <h2 id="s2">Sección 2 — Problemas con el Código QR</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>El escáner no detecta el código QR del alumno</summary>
+        <div class="answer">
+          <p>Seguir estos pasos en orden hasta que funcione:</p>
+          <ol>
+            <li>Limpiar la cámara del dispositivo (huella o polvo en el lente).</li>
+            <li>Verificar que haya suficiente luz en el lugar.</li>
+            <li>Pedir al padre que aumente el brillo de su teléfono al máximo.</li>
+            <li>Mantener el teléfono estable y centrado frente al escáner.</li>
+            <li>Si sigue sin funcionar, registrar manualmente desde la lista de <strong>Asistencia</strong>.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>El QR del alumno ya no funciona</summary>
+        <div class="answer">
+          <p>El QR no debería cambiar una vez generado.</p>
+          <ol>
+            <li>Verificar en el perfil del alumno: <strong>Alumnos → nombre del alumno</strong>.</li>
+            <li>Revisar que el QR está generado y visible correctamente.</li>
+            <li>Si dice "sin QR" o el código parece corrupto o en blanco, <strong>contactar a Valeria</strong> para regenerarlo desde el sistema.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>El padre generó un pase temporal QR pero la maestra no puede escanearlo</summary>
+        <div class="answer">
+          <p>Verificar los siguientes puntos:</p>
+          <ol>
+            <li>Que el pase fue generado <strong>para hoy</strong> — los pases temporales solo son válidos el día de su creación.</li>
+            <li>Que el padre no lo haya cancelado desde su app.</li>
+            <li>Si fue creado correctamente pero el escáner no lo lee, <strong>registrar manualmente en FiltroSalida</strong> buscando al alumno por nombre.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>La maestra escanea el QR y sale el nombre equivocado</summary>
+        <div class="answer">
+          <p>Este caso no debería ocurrir. Si sucede:</p>
+          <ol>
+            <li>Anotar el nombre incorrecto que aparece y el nombre que debería aparecer.</li>
+            <li><strong>Cancelar la acción — no registrar</strong> la entrada o salida con ese error.</li>
+            <li>Buscar al alumno correcto manualmente en la lista.</li>
+            <li>Reportar a Valeria con los detalles exactos y capturas de pantalla.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 3 ===== -->
+    <h2 id="s3">Sección 3 — Registro de Entrada y Salida</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>La maestra registró mal la entrada de un alumno (marcó fiebre por error)</summary>
+        <div class="answer">
+          <p>La maestra puede corregir el registro <strong>ese mismo día</strong>:</p>
+          <ol>
+            <li>Ir a <strong>Asistencia</strong> o <strong>Filtro de Entrada</strong>.</li>
+            <li>Buscar al alumno registrado.</li>
+            <li>Hacer clic en el alumno para abrir su registro del día.</li>
+            <li>Corregir el campo incorrecto y guardar.</li>
+          </ol>
+          <p>Si el día ya terminó y no es posible editar desde la app, <strong>contactar a Valeria</strong> para corregirlo en la base de datos.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Se registró la salida de un alumno con la persona equivocada</summary>
+        <div class="answer">
+          <p>El registro de salida <strong>no se puede editar directamente</strong> desde la app una vez confirmado.</p>
+          <ol>
+            <li>Anotar la situación: nombre del alumno, nombre de la persona que fue registrada, hora aproximada.</li>
+            <li>Contactar a <strong>Valeria</strong> para corregir el registro en la base de datos.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un alumno salió pero no se registró su salida en la app</summary>
+        <div class="answer">
+          <p>Depende del momento:</p>
+          <ul>
+            <li><strong>Ese mismo día:</strong> Ir a <strong>Filtro de Salida → buscar al alumno → registrar</strong> con la hora aproximada real de salida.</li>
+            <li><strong>Un día anterior:</strong> Contactar a Valeria si el registro necesita corregirse en el historial oficial.</li>
+          </ul>
+        </div>
+      </details>
+
+      <details>
+        <summary>El sistema dice que un alumno "no puede entrar" aunque el padre dice que está al corriente</summary>
+        <div class="answer">
+          <p>Hay dos razones posibles:</p>
+          <ol>
+            <li><strong>Retardos acumulados:</strong> Si el alumno acumuló 3 o más retardos en el mes, el sistema puede restrictor el acceso. El padre debe hablar con la Directora para resolver la situación.</li>
+            <li><strong>Cuenta suspendida por adeudo:</strong> El Administrador o la Directora deben verificar el estado del pago del alumno y reactivar la cuenta si corresponde.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>La salida genera recargo pero el padre dice que no debe pagar</summary>
+        <div class="answer">
+          <p>El recargo se genera <strong>automáticamente</strong> cuando el alumno sale después de la hora límite del servicio de extensión.</p>
+          <p>Si fue un error:</p>
+          <ol>
+            <li>La Directora puede ir a <strong>Pagos → buscar el cargo generado → eliminar o ajustar</strong> el cargo.</li>
+            <li>El recargo <strong>no se cobra al padre</strong> hasta que el Administrador lo registre como pago cobrado — por lo tanto hay tiempo para corregirlo.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 4 ===== -->
+    <h2 id="s4">Sección 4 — Personas Autorizadas</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>Una persona llega a recoger al alumno pero no está registrada como autorizada</summary>
+        <div class="answer">
+          <ol>
+            <li><strong>No autorizar la salida</strong> sin confirmación del padre o tutor.</li>
+            <li>Llamar al padre para verificar si esa persona tiene autorización.</li>
+            <li>Si el padre confirma por teléfono: registrar la salida como <strong>"Otro"</strong> y escribir el nombre completo de quien recoge.</li>
+            <li>Pedirle al padre que después agregue a esa persona como autorizada permanente, o que genere un pase temporal la próxima vez con anticipación.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Cómo agregar a una persona autorizada de emergencia</summary>
+        <div class="answer">
+          <p>La Directora puede agregar personas autorizadas en cualquier momento:</p>
+          <ol>
+            <li>Ir a <strong>Alumnos → perfil del alumno → "Personas autorizadas" → "Agregar persona autorizada"</strong>.</li>
+            <li>Se requiere: <strong>foto de la persona + INE por ambos lados</strong>.</li>
+            <li>Si no tiene los documentos físicos disponibles en ese momento, el padre puede enviarlos por <strong>WhatsApp</strong> para subirlos desde la computadora.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Una persona autorizada ya no tiene autorización (ej: ya no es nana)</summary>
+        <div class="answer">
+          <p>Para revocar el acceso inmediatamente:</p>
+          <ol>
+            <li>Ir a <strong>Directora → Alumnos → perfil del alumno → "Personas autorizadas"</strong>.</li>
+            <li>Localizar a la persona a desactivar.</li>
+            <li>Seleccionar <strong>"Desactivar"</strong> su registro.</li>
+          </ol>
+          <p>El cambio es inmediato: esa persona <strong>dejará de aparecer en la lista del filtro de salida</strong> en cuanto se guarde.</p>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 5 ===== -->
+    <h2 id="s5">Sección 5 — Pagos</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>Un padre subió su comprobante pero no aparece en el sistema</summary>
+        <div class="answer">
+          <p>Verificar en el portal:</p>
+          <ol>
+            <li>Ir a <strong>Administrador → Pagos → sección "Por confirmar"</strong>.</li>
+            <li>Si no aparece ahí, el padre puede no haber completado el proceso de subida.</li>
+            <li>Pedirle que <strong>intente subir el comprobante de nuevo</strong> desde su app.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>El comprobante fue rechazado por error y el padre ya no puede subir otro</summary>
+        <div class="answer">
+          <ol>
+            <li>Buscar el pago en la lista de pagos del alumno.</li>
+            <li>Si el estado es <strong>"Rechazado"</strong>, el padre debería ver la opción de volver a subir desde su app.</li>
+            <li>Si esa opción no aparece en la app del padre, <strong>contactar a Valeria</strong> para habilitar nuevamente la carga del comprobante.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un pago fue registrado dos veces</summary>
+        <div class="answer">
+          <ol>
+            <li>Ir a <strong>Directora → Pagos → buscar al alumno</strong>.</li>
+            <li>Identificar el pago duplicado: misma fecha, mismo concepto y mismo monto.</li>
+            <li>Eliminar el registro duplicado. Conservar el original.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un padre dice que pagó pero no aparece en el sistema</summary>
+        <div class="answer">
+          <ol>
+            <li>Verificar primero si el pago fue registrado buscando en la lista de pagos del alumno.</li>
+            <li>Si no aparece y el padre tiene comprobante, pedirle que lo <strong>suba desde su app</strong>.</li>
+            <li>Si no puede subirlo por alguna razón, <strong>registrar el pago manualmente</strong> con la <strong>fecha real del pago</strong> (no la fecha de captura).</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>El sistema generó el mes pero los montos están equivocados</summary>
+        <div class="answer">
+          <p>Los montos se calculan según los conceptos de pago configurados en el sistema:</p>
+          <ol>
+            <li>Ir a <strong>Configuración → Catálogos → Conceptos de pago</strong>.</li>
+            <li>Verificar que los precios por nivel educativo son correctos.</li>
+            <li>Si hubo error: <strong>eliminar los cargos incorrectos</strong> del alumno afectado y regenerar los cargos con los precios correctos.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 6 ===== -->
+    <h2 id="s6">Sección 6 — Bitácora y Datos del Alumno</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>La bitácora de un alumno está en blanco</summary>
+        <div class="answer">
+          <p>La maestra <strong>no ha llenado</strong> la bitácora de ese día. Esto es normal y <strong>no es un error del sistema</strong>.</p>
+          <p>Si la bitácora debería tener contenido, recordarle a la maestra que la llene antes de finalizar el turno.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un padre ve la bitácora de otro alumno</summary>
+        <div class="answer">
+          <p>Este caso <strong>no debería ocurrir</strong>. Si un padre reporta verlo:</p>
+          <ol>
+            <li>Pedirle que <strong>cierre sesión y vuelva a entrar</strong>.</li>
+            <li>Verificar que su cuenta solo tiene vinculado a <strong>su propio hijo</strong>.</li>
+            <li>Si el problema persiste después de cerrar y volver a entrar, <strong>reportar a Valeria</strong> con los detalles exactos: nombre del padre, nombre del alumno que se ve, nombre del alumno incorrecto que aparece.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un padre quiere firmar un incidente pero no le aparece la opción</summary>
+        <div class="answer">
+          <p>La opción de firma solo aparece cuando se cumplen dos condiciones:</p>
+          <ol>
+            <li>Hay un <strong>incidente registrado</strong> para ese día.</li>
+            <li>El incidente <strong>no ha sido firmado todavía</strong>.</li>
+          </ol>
+          <p>Verificar que el padre está viendo el <strong>día correcto</strong> en la app. Si las condiciones se cumplen y la opción no aparece, cerrar y reabrir la app.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Los medicamentos declarados por el padre no aparecen en la app de la maestra</summary>
+        <div class="answer">
+          <p>Verificar en orden:</p>
+          <ol>
+            <li>Que el padre los declaró <strong>para hoy</strong> (no un día anterior).</li>
+            <li>Que la maestra está en la pantalla correcta: <strong>Filtro de Entrada → modal del alumno → sección Medicamentos</strong>.</li>
+            <li>Si el día es correcto y no aparece, la maestra debe <strong>cerrar y reabrir la app</strong>.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 7 ===== -->
+    <h2 id="s7">Sección 7 — Aplicación Móvil (Problemas Técnicos)</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>La app móvil no abre o se cierra sola</summary>
+        <div class="answer">
+          <ol>
+            <li>Cerrar la app completamente (no solo minimizarla) y reabrir.</li>
+            <li>Verificar conexión a internet.</li>
+            <li>Si sigue cerrándose, <strong>desinstalar y volver a instalar</strong> la app.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>La app móvil no recibe notificaciones</summary>
+        <div class="answer">
+          <p>Verificar permisos según el sistema operativo:</p>
+          <ul>
+            <li><strong>iPhone:</strong> Configuración → Happy School → Notificaciones → Permitir</li>
+            <li><strong>Android:</strong> Configuración → Apps → Happy School → Notificaciones → Activar</li>
+          </ul>
+          <p>También verificar que el modo <strong>"No molestar"</strong> del teléfono esté desactivado.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>El escáner QR de la app mobile no abre la cámara</summary>
+        <div class="answer">
+          <p>La app necesita permiso de cámara explícito:</p>
+          <ul>
+            <li><strong>iPhone:</strong> Configuración → Happy School → Cámara → Activar</li>
+            <li><strong>Android:</strong> Configuración → Apps → Happy School → Permisos → Cámara → Permitir</li>
+          </ul>
+          <p>Después de otorgar el permiso, cerrar y reabrir la app para que el cambio aplique.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>La app dice "Error de conexión"</summary>
+        <div class="answer">
+          <ol>
+            <li>Verificar que el dispositivo tiene conexión a internet (probar abriendo un navegador).</li>
+            <li>Si hay internet pero la app no carga, el <strong>servidor puede estar temporalmente fuera</strong>.</li>
+            <li>Esperar unos minutos y volver a intentar.</li>
+            <li>Si el error persiste por <strong>más de 15 minutos</strong>, contactar a Valeria.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== SECCIÓN 8 ===== -->
+    <h2 id="s8">Sección 8 — Configuración de la Escuela</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>Los horarios cambiaron y el sistema sigue con los horarios viejos</summary>
+        <div class="answer">
+          <ol>
+            <li>Ir a <strong>Directora → Configuración → Horarios y Reglas</strong>.</li>
+            <li>Modificar los horarios necesarios.</li>
+            <li>Hacer clic en <strong>"Guardar"</strong>.</li>
+          </ol>
+          <p>El cambio aplica <strong>inmediatamente</strong> sin necesidad de reiniciar nada.</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un grupo tiene la maestra equivocada asignada</summary>
+        <div class="answer">
+          <ol>
+            <li>Ir a <strong>Directora → Grupos → seleccionar el grupo</strong>.</li>
+            <li>Hacer clic en <strong>"Asignar maestra"</strong>.</li>
+            <li>Seleccionar la maestra correcta de la lista.</li>
+            <li>Guardar el cambio.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>Un alumno aparece en el grupo equivocado</summary>
+        <div class="answer">
+          <ol>
+            <li>Ir a <strong>Directora → Alumnos → seleccionar al alumno</strong>.</li>
+            <li>Hacer clic en <strong>"Editar"</strong>.</li>
+            <li>Cambiar el campo <strong>Grupo</strong> al grupo correcto.</li>
+            <li>Hacer clic en <strong>"Guardar"</strong>.</li>
+          </ol>
+        </div>
+      </details>
+
+      <details>
+        <summary>El sistema genera recargos a padres que ya pagaron</summary>
+        <div class="answer">
+          <p>Los recargos se generan automáticamente cuando se registra un pago <strong>fuera del período de gracia</strong>.</p>
+          <p>Si el padre pagó antes del plazo pero el pago se capturó con retraso:</p>
+          <ol>
+            <li>El Administrador o la Directora puede <strong>eliminar el recargo</strong> desde <strong>Pagos</strong>.</li>
+            <li>Para evitar que vuelva a ocurrir: registrar siempre los pagos con la <strong>fecha real del pago</strong>, no la fecha de captura en el sistema.</li>
+          </ol>
+        </div>
+      </details>
+
+    </div>
+
+    <!-- ===== CONTACTO ===== -->
+    <div class="contact-callout" id="contacto">
+      <h2>Contacto de Soporte</h2>
+      <p>Para problemas que requieren acceso directo a la base de datos o que no pueden resolverse desde el portal:</p>
+      <div class="contact-name">Valeria Reyes — Administradora del sistema</div>
+      <p>Al reportar un problema, incluir siempre:</p>
+      <ul>
+        <li>Qué acción se intentó realizar</li>
+        <li>Qué mensaje de error apareció (con captura de pantalla si es posible)</li>
+        <li>Nombre del alumno o padre afectado</li>
+        <li>Hora aproximada en que ocurrió</li>
+      </ul>
+    </div>
+
+    <div class="page-footer">
+      Happy School App · FAQ Soporte · v1.0.0-beta · 2026
+    </div>
+
+  </div><!-- /#content -->
+</main><!-- /#main -->
+
+<script>
+  // ===== SCROLL-HIGHLIGHT SIDEBAR NAV =====
+  (function () {
+    const links = document.querySelectorAll('#sidebar nav a');
+
+    // Map each link href to its target section element
+    const sections = Array.from(links).map(link => {
+      const id = link.getAttribute('href').replace('#', '');
+      return { link, el: document.getElementById(id) };
+    }).filter(item => item.el !== null);
+
+    function onScroll() {
+      const scrollY = window.scrollY + 100;
+      let current = sections[0];
+
+      for (const item of sections) {
+        if (item.el.getBoundingClientRect().top + window.scrollY <= scrollY) {
+          current = item;
+        }
+      }
+
+      links.forEach(l => l.classList.remove('active'));
+      if (current) current.link.classList.add('active');
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // run on load
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Administrador — Happy School App v1.0.0-beta</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9fafb;
+    color: #1e293b;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #0f172a;
+    color: #e2e8f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+  #sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #1e293b;
+  }
+  #sidebar-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  #sidebar-header .role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: #1d4ed8;
+    color: #bfdbfe;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section {
+    padding: 8px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #475569;
+  }
+  #sidebar nav a {
+    display: block;
+    padding: 8px 20px 8px 28px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover {
+    color: #e2e8f0;
+    background: #1e293b;
+    border-left-color: #3b82f6;
+  }
+  #sidebar nav a.active {
+    color: #93c5fd;
+    background: #1e293b;
+    border-left-color: #3b82f6;
+    font-weight: 600;
+  }
+  #sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #1e293b;
+    font-size: 11px;
+    color: #475569;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  #topbar .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #topbar .breadcrumb strong { color: #0f172a; }
+  #topbar .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h1 .subtitle {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dbeafe;
+    scroll-margin-top: 80px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    scroll-margin-top: 80px;
+  }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #1d4ed8;
+  }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* ===== META HEADER ===== */
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0 32px;
+    padding: 16px 20px;
+    background: #eff6ff;
+    border-radius: 10px;
+    border: 1px solid #bfdbfe;
+  }
+  .doc-meta .meta-item { font-size: 13px; color: #1d4ed8; }
+  .doc-meta .meta-item span { font-weight: 600; }
+
+  /* ===== CALLOUT / BLOCKQUOTE ===== */
+  blockquote {
+    border-left: 4px solid #3b82f6;
+    background: #eff6ff;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #1e40af;
+  }
+  blockquote strong { color: #1e40af; }
+
+  /* ===== WARNING CALLOUT ===== */
+  .callout-warning {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #92400e;
+  }
+  .callout-warning strong { color: #92400e; }
+
+  /* ===== TABLES ===== */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr { background: #0f172a; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.3px;
+  }
+  thead th:not(:first-child) { text-align: center; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #eff6ff; }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: middle;
+    text-align: left;
+  }
+  tbody td:not(:first-child) { text-align: center; }
+
+  /* ===== IMAGE PLACEHOLDERS ===== */
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    padding: 32px 20px;
+    margin: 20px 0;
+    gap: 8px;
+    text-align: center;
+  }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename { font-family: monospace; font-size: 12px; color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+
+  /* ===== ACCESS BADGE ===== */
+  .access-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0f172a;
+    color: #93c5fd;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0 16px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ===== STEPS ===== */
+  .steps ol { list-style: none; margin: 0; padding: 0; }
+  .steps ol li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .steps ol li .step-num {
+    min-width: 28px;
+    height: 28px;
+    background: #3b82f6;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .steps ol li .step-text { font-size: 14.5px; color: #374151; line-height: 1.6; }
+
+  /* ===== SHORTCUT GRID ===== */
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .shortcut-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.15s;
+  }
+  .shortcut-card:hover { border-color: #3b82f6; box-shadow: 0 2px 8px rgba(59,130,246,0.12); }
+  .shortcut-card .sc-action { font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+  .shortcut-card .sc-path { font-size: 12px; color: #6b7280; font-family: monospace; }
+
+  /* ===== FAQ ===== */
+  .faq-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .faq-q {
+    background: #f8fafc;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .faq-a {
+    padding: 12px 18px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+  }
+
+  /* ===== COMING SOON ===== */
+  .coming-soon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: #64748b;
+  }
+  .coming-soon .cs-icon { font-size: 24px; }
+
+  /* ===== PAGE FOOTER ===== */
+  .page-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta</div>
+    <div class="role-badge">Administrador</div>
+  </div>
+  <nav>
+    <div class="nav-section">Inicio</div>
+    <a href="#inicio">Cómo entrar a la app</a>
+    <a href="#que-puede-hacer">¿Qué puede hacer?</a>
+
+    <div class="nav-section">Módulos</div>
+    <a href="#dashboard">Dashboard Financiero</a>
+    <a href="#pagos">Pagos</a>
+    <a href="#notificaciones">Notificaciones</a>
+    <a href="#comida">Pagos de Comida</a>
+    <a href="#reportes">Reportes</a>
+
+    <div class="nav-section">Referencia</div>
+    <a href="#diferencias">Diferencias con Directora</a>
+    <a href="#faq">Preguntas frecuentes</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · 2026</div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Documentación / <strong>Manual Administrador</strong></div>
+    <div class="badge">v1.0.0-beta</div>
+  </div>
+
+  <div id="content">
+
+    <!-- TITLE -->
+    <h1>Manual de Usuario — Administrador
+      <span class="subtitle">Portal web · Happy School App v1.0.0-beta · Happys School</span>
+    </h1>
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Fecha:</span> 2026-05-08</div>
+      <div class="meta-item">🖥️ <span>Plataforma:</span> Portal web (computadora o tablet en navegador)</div>
+      <div class="meta-item">👤 <span>Rol:</span> Administrador</div>
+    </div>
+
+    <blockquote>
+      <strong>¿Para quién es este manual?</strong><br>
+      Para el personal con rol <strong>Administrador</strong> en la aplicación Happy School. Este rol está especializado en el manejo de pagos, cobranza, y comunicación con padres sobre adeudos.
+    </blockquote>
+
+    <hr>
+
+    <!-- ===== INICIO ===== -->
+    <h2 id="inicio">Cómo entrar a la aplicación</h2>
+
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Abrir <strong>Chrome</strong> en la computadora</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Ir a la dirección de la aplicación</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Ingresar tu correo y contraseña</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Iniciar sesión"</strong></div></li>
+    </ol></div>
+
+    <h3>Primera vez que entras</h3>
+    <p>La primera vez el sistema te pedirá cambiar tu contraseña: mínimo <strong>8 caracteres</strong>, letras y números.</p>
+
+    <hr>
+
+    <!-- ===== QUE PUEDE HACER ===== -->
+    <h2 id="que-puede-hacer">¿Qué puede hacer el Administrador?</h2>
+
+    <div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Módulo</th>
+          <th style="text-align:left">Descripción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dashboard</strong></td>
+          <td style="text-align:left">Resumen financiero del mes</td>
+        </tr>
+        <tr>
+          <td><strong>Pagos</strong></td>
+          <td style="text-align:left">Registrar pagos, ver historial, gestionar adeudos</td>
+        </tr>
+        <tr>
+          <td><strong>Notificaciones</strong></td>
+          <td style="text-align:left">Enviar alertas de pago a padres</td>
+        </tr>
+        <tr>
+          <td><strong>Pagos de comida</strong></td>
+          <td style="text-align:left">Gestionar el cobro del servicio de comida</td>
+        </tr>
+        <tr>
+          <td><strong>Reportes</strong></td>
+          <td style="text-align:left">Reportes financieros (próximamente)</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout-warning">
+      El Administrador <strong>no tiene acceso</strong> a la información académica (alumnos, grupos, asistencia, bitácoras). Solo ve la parte de pagos y cobranza.
+    </div>
+
+    <hr>
+
+    <!-- ===== DASHBOARD ===== -->
+    <h2 id="dashboard">Pantalla principal — Dashboard Financiero</h2>
+
+    <p>Al entrar, lo primero que ves es el <strong>Dashboard Financiero</strong>, con el resumen de cobranza del mes actual.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">dashboard_admin.png</div>
+      <div class="ph-desc">Dashboard financiero con tarjetas de resumen, barra de cobranza y tabla de desglose por concepto</div>
+    </div>
+
+    <h3>Tarjetas de resumen (parte superior)</h3>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Tarjeta</th>
+          <th style="text-align:left">Qué muestra</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Recaudado</strong></td>
+          <td style="text-align:left">Total cobrado en el mes y número de pagos registrados</td>
+        </tr>
+        <tr>
+          <td><strong>Por cobrar</strong></td>
+          <td style="text-align:left">Total pendiente de cobrar y número de cargos pendientes</td>
+        </tr>
+        <tr>
+          <td><strong>Vencido</strong></td>
+          <td style="text-align:left">Total en adeudo cuyo plazo ya pasó</td>
+        </tr>
+        <tr>
+          <td><strong>Recargos cobrados</strong></td>
+          <td style="text-align:left">Total de recargos por pagos tardíos</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3>Barra de cobranza</h3>
+    <p>Una barra horizontal con tres colores que muestra el estado general del mes de un vistazo:</p>
+    <ul>
+      <li>🟢 <strong>Verde:</strong> Porcentaje pagado</li>
+      <li>🟡 <strong>Amarillo:</strong> Porcentaje pendiente</li>
+      <li>🔴 <strong>Rojo:</strong> Porcentaje vencido</li>
+    </ul>
+
+    <h3>Desglose por concepto</h3>
+    <p>Tabla que muestra, para cada tipo de cobro: cuántos alumnos pagaron, cuántos están pendientes, cuántos vencidos, y el total recaudado.</p>
+
+    <h3>Cobranza por grupo</h3>
+    <p>Tarjetas por grupo con barra de progreso de pago. Permite identificar rápidamente qué grupos tienen mayor rezago.</p>
+
+    <h3>Alumnos con adeudos vencidos</h3>
+    <p>Lista de los alumnos con más tiempo de adeudo: foto, nombre, grupo, días de adeudo, monto.</p>
+
+    <h3>Navegar entre meses</h3>
+    <p>Usar los botones <strong>← →</strong> para ver el resumen de meses anteriores.</p>
+
+    <hr>
+
+    <!-- ===== PAGOS ===== -->
+    <h2 id="pagos">Módulo: Pagos</h2>
+    <div class="access-badge">▸ Menú lateral → Pagos</div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">pagos_admin.png</div>
+      <div class="ph-desc">Módulo de pagos con lista filtrable y formulario de registro de pago</div>
+    </div>
+
+    <h3>Registrar un pago</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en <strong>"Registrar pago"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Seleccionar el alumno</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Seleccionar el concepto de pago</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Ingresar el monto</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Seleccionar la fecha de pago</div></li>
+      <li><div class="step-num">6</div><div class="step-text">Seleccionar el método: <strong>Efectivo</strong> o <strong>Transferencia</strong></div></li>
+      <li><div class="step-num">7</div><div class="step-text">Si aplica recargo, el sistema lo calcula automáticamente</div></li>
+      <li><div class="step-num">8</div><div class="step-text">Hacer clic en <strong>"Guardar"</strong></div></li>
+    </ol></div>
+
+    <h3>Generar cargos del mes</h3>
+    <p>Al inicio de cada mes, es necesario generar los cargos correspondientes:</p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en <strong>"Generar mes"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Seleccionar el mes y el ciclo</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Confirmar</div></li>
+    </ol></div>
+
+    <h3>Validar comprobantes de transferencia</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Ir a la sección <strong>"Por confirmar"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Hacer clic en el pago para ver el comprobante adjunto</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Hacer clic en <strong>"Validar"</strong> o <strong>"Rechazar"</strong> (con motivo)</div></li>
+    </ol></div>
+
+    <hr>
+
+    <!-- ===== NOTIFICACIONES ===== -->
+    <h2 id="notificaciones">Módulo: Notificaciones de Pago</h2>
+    <div class="access-badge">▸ Menú lateral → Notificaciones</div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">notificaciones_pago.png</div>
+      <div class="ph-desc">Pantalla de notificaciones de pago con lista de familias y botones de alerta</div>
+    </div>
+
+    <h3>Enviar alerta individual</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Buscar al alumno en la lista</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Hacer clic en el botón <strong>"Enviar alerta"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Revisar el mensaje pre-llenado y editar si es necesario</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Enviar"</strong></div></li>
+    </ol></div>
+
+    <h3>Enviar alertas masivas</h3>
+    <p>Hacer clic en <strong>"Alertar a todos"</strong> para enviar a todos los que aún no han recibido alerta hoy. El sistema identifica automáticamente quiénes no han sido notificados.</p>
+
+    <h3>Filtrar la lista</h3>
+    <div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Filtro</th>
+          <th style="text-align:left">Qué muestra</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Todos</strong></td>
+          <td style="text-align:left">Todos los alumnos que tienen adeudo</td>
+        </tr>
+        <tr>
+          <td><strong>Sin alertar</strong></td>
+          <td style="text-align:left">Familias que no han recibido aviso hoy</td>
+        </tr>
+        <tr>
+          <td><strong>Alertados hoy</strong></td>
+          <td style="text-align:left">Familias que ya recibieron su aviso hoy</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <hr>
+
+    <!-- ===== COMIDA ===== -->
+    <h2 id="comida">Módulo: Pagos de Comida</h2>
+    <div class="access-badge">▸ Menú lateral → Comida Pagos</div>
+
+    <p>Gestión del servicio de comida semanal. Navegar entre semanas con los botones <strong>← Anterior</strong> y <strong>Siguiente →</strong>. Verificar pagos recibidos (efectivo del lunes o transferencia).</p>
+
+    <hr>
+
+    <!-- ===== REPORTES ===== -->
+    <h2 id="reportes">Módulo: Reportes</h2>
+    <div class="access-badge">▸ Menú lateral → Reportes</div>
+
+    <div class="coming-soon">
+      <div class="cs-icon">🔜</div>
+      <div>Esta funcionalidad estará disponible en una próxima actualización.</div>
+    </div>
+
+    <hr>
+
+    <!-- ===== DIFERENCIAS ===== -->
+    <h2 id="diferencias">Diferencias con el rol de Directora</h2>
+
+    <p>La siguiente tabla muestra qué puede hacer cada rol en el sistema:</p>
+
+    <div class="table-wrap"><table>
+      <thead>
+        <tr>
+          <th>Función</th>
+          <th>Administrador</th>
+          <th>Directora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Dashboard financiero</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Gestión de pagos</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Alertas de pago</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Gestión de alumnos</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Gestión de grupos</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Gestión de personal</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Asistencia y bitácoras</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Configuración del sistema</td><td>❌</td><td>✅</td></tr>
+        <tr><td>Calendario y avisos</td><td>❌</td><td>✅</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr>
+
+    <!-- ===== FAQ ===== -->
+    <h2 id="faq">Preguntas frecuentes</h2>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Puedo registrar pagos de cualquier alumno?</div>
+      <div class="faq-a">Sí, el Administrador tiene acceso a los pagos de todos los alumnos inscritos en la escuela.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Qué pasa si registro un pago con el monto equivocado?</div>
+      <div class="faq-a">Puedes editar el pago mientras no haya sido confirmado. Si ya fue confirmado, contactar a la Directora para que haga la corrección desde su acceso.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Los padres reciben confirmación cuando registro su pago?</div>
+      <div class="faq-a">Sí, el padre ve en su app que el pago pasó a estado "Pagado" una vez que queda registrado en el sistema.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">¿Puedo generar los cargos del mes sin que la Directora lo autorice?</div>
+      <div class="faq-a">Sí, el Administrador tiene permiso para generar los cargos mensuales de forma independiente.</div>
+    </div>
+
+    <div class="page-footer">
+      Happy School App — v1.0.0-beta &nbsp;|&nbsp; Happys School &nbsp;|&nbsp; 2026
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('h2[id], h3[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

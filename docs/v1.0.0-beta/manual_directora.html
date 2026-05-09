@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Directora — Happy School App v1.0.0-beta</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9fafb;
+    color: #1a1a2e;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #1a1a2e;
+    color: #e2e8f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+  #sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #2d2d4e;
+  }
+  #sidebar-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  #sidebar-header .role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: #5b21b6;
+    color: #ede9fe;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section {
+    padding: 8px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #4b5563;
+  }
+  #sidebar nav a {
+    display: block;
+    padding: 8px 20px 8px 28px;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover {
+    color: #e2e8f0;
+    background: #252545;
+    border-left-color: #7c3aed;
+  }
+  #sidebar nav a.active {
+    color: #c4b5fd;
+    background: #252545;
+    border-left-color: #7c3aed;
+    font-weight: 600;
+  }
+  #sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #2d2d4e;
+    font-size: 11px;
+    color: #4b5563;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  #topbar .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #ede9fe;
+    color: #5b21b6;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h1 .subtitle {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #ede9fe;
+    scroll-margin-top: 80px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    scroll-margin-top: 80px;
+  }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #7c3aed;
+  }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* ===== META HEADER ===== */
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0 32px;
+    padding: 16px 20px;
+    background: #f5f3ff;
+    border-radius: 10px;
+    border: 1px solid #ddd6fe;
+  }
+  .doc-meta .meta-item { font-size: 13px; color: #5b21b6; }
+  .doc-meta .meta-item span { font-weight: 600; }
+
+  /* ===== CALLOUT / BLOCKQUOTE ===== */
+  blockquote {
+    border-left: 4px solid #7c3aed;
+    background: #f5f3ff;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #4c1d95;
+  }
+  blockquote strong { color: #4c1d95; }
+
+  /* ===== TABLES ===== */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr { background: #1a1a2e; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.3px;
+  }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #f5f3ff; }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: top;
+  }
+
+  /* ===== IMAGE PLACEHOLDERS ===== */
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    padding: 32px 20px;
+    margin: 20px 0;
+    gap: 8px;
+    text-align: center;
+  }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename { font-family: monospace; font-size: 12px; color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+
+  /* ===== ACCESS BADGE ===== */
+  .access-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1a2e;
+    color: #c4b5fd;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0 16px;
+    font-family: 'Courier New', monospace;
+  }
+
+  /* ===== STEPS ===== */
+  .steps ol { list-style: none; margin: 0; padding: 0; }
+  .steps ol li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .steps ol li .step-num {
+    min-width: 28px;
+    height: 28px;
+    background: #7c3aed;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .steps ol li .step-text { font-size: 14.5px; color: #374151; line-height: 1.6; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist { list-style: none; margin: 0 0 16px; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+    color: #374151;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #7c3aed;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ===== QUICK-ACCESS CARD ===== */
+  .shortcut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .shortcut-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.15s;
+  }
+  .shortcut-card:hover { border-color: #7c3aed; box-shadow: 0 2px 8px rgba(124,58,237,0.1); }
+  .shortcut-card .sc-action { font-size: 13px; font-weight: 600; color: #1f2937; margin-bottom: 4px; }
+  .shortcut-card .sc-path { font-size: 12px; color: #6b7280; font-family: monospace; }
+
+  /* ===== PAGE FOOTER ===== */
+  .page-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #9ca3af;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta</div>
+    <div class="role-badge">Directora</div>
+  </div>
+  <nav>
+    <div class="nav-section">Inicio</div>
+    <a href="#inicio">Cómo entrar a la app</a>
+    <a href="#dashboard">Dashboard</a>
+
+    <div class="nav-section">Módulos</div>
+    <a href="#asistencia">Asistencia</a>
+    <a href="#turno-puerta">Turno Puerta</a>
+    <a href="#alumnos">Alumnos</a>
+    <a href="#grupos">Grupos</a>
+    <a href="#personal">Personal</a>
+    <a href="#usuarios">Usuarios (Padres)</a>
+    <a href="#pagos">Pagos</a>
+    <a href="#bitacora">Bitácora</a>
+    <a href="#calendario">Calendario</a>
+    <a href="#extension">Niños Extensión</a>
+    <a href="#visitantes">Visitantes</a>
+    <a href="#aviso">Aviso Extraordinario</a>
+    <a href="#ciclos">Ciclos Escolares</a>
+    <a href="#comida">Servicio de Comida</a>
+    <a href="#configuracion">Configuración</a>
+    <a href="#catalogos">Catálogos</a>
+
+    <div class="nav-section">Referencia</div>
+    <a href="#consejos">Uso diario</a>
+    <a href="#atajos">Atajos rápidos</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · 2026</div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Documentación / <strong>Manual Directora</strong></div>
+    <div class="badge">v1.0.0-beta</div>
+  </div>
+
+  <div id="content">
+    <!-- TITLE -->
+    <h1>Manual de Usuario — Directora
+      <span class="subtitle">Portal web · Happy School App v1.0.0-beta · Happys School</span>
+    </h1>
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Fecha:</span> 2026-05-08</div>
+      <div class="meta-item">🖥️ <span>Plataforma:</span> Portal web (computadora o tablet)</div>
+      <div class="meta-item">👤 <span>Rol:</span> Directora</div>
+    </div>
+
+    <blockquote>
+      <strong>¿Para quién es este manual?</strong><br>
+      Para la persona con rol <strong>Directora</strong> en la aplicación Happy School. La Directora tiene acceso completo a todos los módulos del sistema.
+    </blockquote>
+
+    <hr>
+
+    <!-- ===== INICIO ===== -->
+    <h2 id="inicio">Cómo entrar a la aplicación</h2>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">login_directora.png</div>
+      <div class="ph-desc">Pantalla de inicio de sesión — formulario con correo y contraseña</div>
+    </div>
+
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Abrir <strong>Chrome</strong> (navegador recomendado) en una computadora o tablet</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Ir a la dirección de la aplicación</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Ingresar tu correo y contraseña</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Iniciar sesión"</strong></div></li>
+    </ol></div>
+
+    <h3>Primera vez que entras</h3>
+    <p>La primera vez, el sistema te pedirá que <strong>cambies tu contraseña</strong>:</p>
+    <ul>
+      <li>La nueva contraseña debe tener mínimo 8 caracteres</li>
+      <li>Debe incluir letras y números (no solo letras, no solo números)</li>
+      <li>Ejemplo válido: <code>Happys2026</code></li>
+    </ul>
+
+    <h3>Si olvidaste tu contraseña</h3>
+    <p>Contactar a Valeria para que la restablezca desde el sistema.</p>
+
+    <hr>
+
+    <!-- ===== DASHBOARD ===== -->
+    <h2 id="dashboard">Pantalla principal — Dashboard</h2>
+    <p>Al entrar, lo primero que ves es el <strong>Dashboard</strong>, que muestra el resumen del día.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">dashboard_directora.png</div>
+      <div class="ph-desc">Dashboard completo con tarjetas de resumen, sección de asistencia por grupo, alertas y sección de salidas</div>
+    </div>
+
+    <h3>Qué información encuentras aquí</h3>
+    <p><strong>Tarjetas de resumen (parte superior):</strong></p>
+    <ul>
+      <li>Total de alumnos inscritos</li>
+      <li>Alumnos presentes hoy</li>
+      <li>Alumnos al corriente en su colegiatura</li>
+      <li>Alumnos con adeudo</li>
+    </ul>
+    <p><strong>Sección de asistencia por grupo:</strong></p>
+    <ul>
+      <li>Cuántos alumnos de cada grupo llegaron hoy</li>
+      <li>Estado del filtro de entrada (activo / cerrado)</li>
+      <li>Indicador de retardos acumulados del mes</li>
+    </ul>
+    <p><strong>Alertas importantes:</strong></p>
+    <ul>
+      <li>Alumnos con 3 o más retardos en el mes (bloqueados para entrar mañana)</li>
+      <li>Alumnos rechazados en la entrada por síntomas de enfermedad</li>
+      <li>Incidentes registrados hoy</li>
+      <li>Alumnos en extensión que aún no han sido recogidos</li>
+    </ul>
+    <p><strong>Sección de salidas:</strong></p>
+    <ul>
+      <li>Cuántos alumnos han salido de cada grupo</li>
+      <li>Salidas anticipadas (con el motivo registrado)</li>
+    </ul>
+    <p><strong>Cumpleaños:</strong> Si algún alumno cumple años hoy, aparece un banner en la parte superior.</p>
+    <p><em>El dashboard se actualiza automáticamente cada minuto.</em></p>
+
+    <hr>
+
+    <!-- ===== ASISTENCIA ===== -->
+    <h2 id="asistencia">Módulo: Asistencia</h2>
+    <div class="access-badge">▸ Menú lateral → Asistencia</div>
+    <p>Aquí puedes ver el registro detallado de asistencia de todos los grupos.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">asistencia_directora.png</div>
+      <div class="ph-desc">Módulo de asistencia con lista de alumnos, estados del día y filtros por grupo/fecha</div>
+    </div>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver la lista completa de alumnos con su estado del día: presente, ausente, retardo, o sin registro</li>
+      <li>Filtrar por grupo, por fecha, o por estado</li>
+      <li>Exportar el reporte de asistencia a Excel</li>
+    </ul>
+
+    <h3>Cómo interpretar los estados</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>✅ Presente</td><td>Entró a tiempo</td></tr>
+        <tr><td>🟡 Retardo</td><td>Llegó después de la hora límite</td></tr>
+        <tr><td>❌ Ausente</td><td>No vino hoy</td></tr>
+        <tr><td>Sin registro</td><td>Aún no se ha registrado su entrada</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr>
+
+    <!-- ===== TURNO PUERTA ===== -->
+    <h2 id="turno-puerta">Módulo: Turno Puerta</h2>
+    <div class="access-badge">▸ Menú lateral → Turno Puerta</div>
+    <p>Aquí se asigna qué personal estará en la puerta durante el filtro de entrada y salida.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">turno_puerta.png</div>
+      <div class="ph-desc">Pantalla de asignación de turno puerta con selector de fecha, turno y personal disponible</div>
+    </div>
+
+    <h3>Cómo asignar personal a la puerta</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Seleccionar la <strong>fecha</strong> (o activar "Por semana" para asignar toda la semana de una vez)</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Elegir el turno: <strong>Entrada</strong> (mañana) o <strong>Salida</strong> (tarde)</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Buscar al personal disponible en la lista</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Asignar"</strong></div></li>
+      <li><div class="step-num">5</div><div class="step-text">La persona asignada aparece en la lista del turno</div></li>
+    </ol></div>
+
+    <h3>Para asignar la semana completa</h3>
+    <p>Activar la casilla <strong>"Por semana"</strong> antes de seleccionar al personal. Esto asignará a la misma persona de lunes a viernes automáticamente.</p>
+
+    <h3>Para quitar a alguien de un turno</h3>
+    <p>Hacer clic en el botón de eliminar junto al nombre de la persona asignada.</p>
+
+    <hr>
+
+    <!-- ===== ALUMNOS ===== -->
+    <h2 id="alumnos">Módulo: Alumnos</h2>
+    <div class="access-badge">▸ Menú lateral → Alumnos</div>
+    <p>Lista completa de todos los alumnos inscritos.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">lista_alumnos.png</div>
+      <div class="ph-desc">Lista de alumnos con buscador, filtros por grupo/ciclo/estado y botón "Nuevo alumno"</div>
+    </div>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Buscar un alumno por nombre</li>
+      <li>Filtrar por grupo, ciclo, o estado (inscrito, baja, egresado)</li>
+      <li>Ver el perfil completo de cada alumno</li>
+      <li>Agregar un nuevo alumno</li>
+      <li>Editar los datos de un alumno existente</li>
+    </ul>
+
+    <h3>Perfil del alumno</h3>
+    <p>Al hacer clic en el nombre de un alumno, verás:</p>
+    <ul>
+      <li>Sus datos personales y de salud</li>
+      <li>Su código QR (para el filtro de entrada y salida)</li>
+      <li>Sus padres/tutores vinculados</li>
+      <li>Las personas autorizadas para recogerlo</li>
+      <li>Su historial de pagos</li>
+      <li>Su historial de asistencia</li>
+    </ul>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">perfil_alumno.png</div>
+      <div class="ph-desc">Perfil completo del alumno con datos, QR, tutores y personas autorizadas</div>
+    </div>
+
+    <hr>
+
+    <!-- ===== GRUPOS ===== -->
+    <h2 id="grupos">Módulo: Grupos</h2>
+    <div class="access-badge">▸ Menú lateral → Grupos</div>
+    <p>Administración de los salones de clase.</p>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver todos los grupos del ciclo activo</li>
+      <li>Crear un nuevo grupo</li>
+      <li>Editar el nombre, nivel, o maestra de un grupo</li>
+      <li>Ver la lista de alumnos de cada grupo</li>
+      <li>Asignar o cambiar la maestra titular</li>
+    </ul>
+
+    <h3>Ver los alumnos de un grupo</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en el nombre del grupo</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Verás la lista completa de alumnos con sus datos básicos</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Puedes hacer clic en cualquier alumno para ir a su perfil</div></li>
+    </ol></div>
+
+    <hr>
+
+    <!-- ===== PERSONAL ===== -->
+    <h2 id="personal">Módulo: Personal</h2>
+    <div class="access-badge">▸ Menú lateral → Personal</div>
+    <p>Administración de todo el personal de la escuela.</p>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver el listado completo del personal</li>
+      <li>Agregar una persona nueva</li>
+      <li>Editar los datos de una persona</li>
+      <li>Asignar a un grupo</li>
+      <li>Activar o desactivar el acceso de una persona</li>
+    </ul>
+
+    <h3>Roles del personal</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Rol</th><th>Qué hace en la app</th></tr></thead>
+      <tbody>
+        <tr><td>Maestra titular</td><td>Gestión completa de su grupo</td></tr>
+        <tr><td>Maestra especial</td><td>Da materias en varios grupos</td></tr>
+        <tr><td>Maestra de puerta</td><td>Solo filtro de entrada y salida</td></tr>
+        <tr><td>Administrativo</td><td>Portal de pagos y reportes</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr>
+
+    <!-- ===== USUARIOS ===== -->
+    <h2 id="usuarios">Módulo: Usuarios (Padres)</h2>
+    <div class="access-badge">▸ Menú lateral → Usuarios</div>
+    <p>Administración de las cuentas de acceso de los padres.</p>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver todos los padres registrados</li>
+      <li>Crear cuenta de acceso para un padre (genera usuario y contraseña temporal)</li>
+      <li>Activar o desactivar el acceso de un padre</li>
+      <li>Restablecer la contraseña de un padre</li>
+    </ul>
+
+    <h3>Cómo crear la cuenta de un padre</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Buscar al padre en la lista</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Hacer clic en <strong>"Crear cuenta"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">El sistema genera automáticamente un correo y contraseña temporal</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Anotar o compartir esos datos con el padre</div></li>
+    </ol></div>
+    <blockquote>El padre cambiará su contraseña la primera vez que entre.</blockquote>
+
+    <hr>
+
+    <!-- ===== PAGOS ===== -->
+    <h2 id="pagos">Módulo: Pagos</h2>
+    <div class="access-badge">▸ Menú lateral → Pagos</div>
+    <p>Centro de administración de todos los cobros de la escuela.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">pagos_directora.png</div>
+      <div class="ph-desc">Módulo de pagos mostrando la sección de adeudos con montos y botón de WhatsApp</div>
+    </div>
+
+    <h3>Secciones principales</h3>
+    <p><strong>Adeudos:</strong></p>
+    <ul>
+      <li>Lista de familias con pagos pendientes</li>
+      <li>Muestra el monto adeudado por cada alumno</li>
+      <li>Desde aquí puedes enviar un recordatorio de pago por WhatsApp (botón 📲)</li>
+    </ul>
+
+    <p><strong>Registrar pago:</strong></p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Seleccionar el alumno</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Seleccionar el concepto de pago (colegiatura, inscripción, materiales, etc.)</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Ingresar el monto</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Seleccionar la fecha y el método de pago (efectivo o transferencia)</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Guardar</div></li>
+    </ol></div>
+
+    <p><strong>Comprobantes pendientes de validación:</strong></p>
+    <ul>
+      <li>Los padres pueden subir comprobantes de pago desde la app</li>
+      <li>Aquí aparecen los comprobantes que necesitan ser validados</li>
+      <li>Hacer clic en "Validar" para confirmar el pago, o "Rechazar" si el comprobante no es correcto</li>
+    </ul>
+
+    <hr>
+
+    <!-- ===== BITÁCORA ===== -->
+    <h2 id="bitacora">Módulo: Bitácora</h2>
+    <div class="access-badge">▸ Menú lateral → Bitácora</div>
+    <p>Vista completa de las bitácoras diarias de todos los grupos.</p>
+
+    <h3>Qué puedes ver</h3>
+    <ul>
+      <li>La bitácora del día de cualquier alumno: alimentación, estado de ánimo, actividades, incidentes, medicamentos, comportamiento</li>
+      <li>Filtrar por grupo o por fecha</li>
+      <li>Ver las fotos subidas durante el día</li>
+    </ul>
+
+    <hr>
+
+    <!-- ===== CALENDARIO ===== -->
+    <h2 id="calendario">Módulo: Calendario</h2>
+    <div class="access-badge">▸ Menú lateral → Calendario</div>
+    <p>Calendario escolar con todos los eventos.</p>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver todos los eventos del mes</li>
+      <li>Agregar un nuevo evento (día festivo, festival, reunión de padres, etc.)</li>
+      <li>Editar o eliminar eventos existentes</li>
+      <li>Los eventos aparecen en el calendario de los padres y maestras</li>
+    </ul>
+    <p>Al crear un evento puedes asignarle una categoría y un color para diferenciarlo visualmente.</p>
+
+    <hr>
+
+    <!-- ===== EXTENSIÓN ===== -->
+    <h2 id="extension">Módulo: Niños Extensión</h2>
+    <div class="access-badge">▸ Menú lateral → Niños Extensión</div>
+    <p>Registro de niños que usan el servicio de extensión pero que <strong>no están inscritos en el kinder regular</strong>.</p>
+
+    <h3>Qué puedes hacer</h3>
+    <ul>
+      <li>Ver la lista de niños de extensión</li>
+      <li>Agregar un nuevo niño de extensión</li>
+      <li>Ver y descargar su código QR personal</li>
+      <li>Editar sus datos o marcarlos como inactivos</li>
+    </ul>
+
+    <hr>
+
+    <!-- ===== VISITANTES ===== -->
+    <h2 id="visitantes">Módulo: Visitantes</h2>
+    <div class="access-badge">▸ Menú lateral → Visitantes</div>
+    <p>Registro de personas que visitan la escuela durante el día.</p>
+
+    <h3>Cómo registrar una visita</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en <strong>"Registrar visitante"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Ingresar nombre del niño visitante, grupo que visita (opcional), nombre y teléfono del tutor (opcional), y notas</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Guardar</div></li>
+    </ol></div>
+
+    <p>Para registrar la <strong>salida</strong> de un visitante: desde la lista del día, hacer clic en <strong>"Salida"</strong>. Si el niño se queda en la tarde, hacer clic en <strong>"Extensión"</strong>.</p>
+
+    <hr>
+
+    <!-- ===== AVISO ===== -->
+    <h2 id="aviso">Módulo: Aviso Extraordinario</h2>
+    <div class="access-badge">▸ Menú lateral → Aviso</div>
+    <p>Para enviar notificaciones urgentes a los padres directamente en sus teléfonos.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">aviso_extraordinario.png</div>
+      <div class="ph-desc">Pantalla de redacción de aviso con campo de título, mensaje y selección de grupos destinatarios</div>
+    </div>
+
+    <h3>Cómo enviar un aviso</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Escribir el <strong>título</strong> del aviso (máximo 100 caracteres)</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Escribir el <strong>mensaje</strong> (máximo 500 caracteres)</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Seleccionar los grupos destinatarios, o hacer clic en <strong>"Todos los grupos"</strong></div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Enviar aviso"</strong></div></li>
+    </ol></div>
+
+    <h3>Seguimiento de lectura</h3>
+    <p>Después de enviar un aviso puedes ver cuántos padres lo leyeron, quiénes lo leyeron y quiénes no, y un indicador de progreso de lectura.</p>
+
+    <hr>
+
+    <!-- ===== CICLOS ===== -->
+    <h2 id="ciclos">Módulo: Ciclos Escolares</h2>
+    <div class="access-badge">▸ Menú lateral → Ciclos Escolares</div>
+
+    <h3>Crear un nuevo ciclo</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en <strong>"Nuevo ciclo"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Ingresar el nombre (ej: <code>2026-2027</code>) y las fechas</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Guardar</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Hacer clic en <strong>"Activar"</strong> para usar ese ciclo</div></li>
+    </ol></div>
+
+    <h3>Cerrar el ciclo actual (fin de año)</h3>
+    <p>Este proceso promueve a los alumnos al siguiente nivel. Es un proceso guiado de 3 pasos:</p>
+    <ul>
+      <li><strong>Paso 1 — Configurar el ciclo siguiente:</strong> Seleccionar el ciclo de destino, elegir qué grupos se copiarán y crear nuevos si es necesario.</li>
+      <li><strong>Paso 2 — Revisar promociones:</strong> El sistema calcula automáticamente a qué nivel pasa cada alumno. Se puede cambiar manualmente: <em>Reinscrito</em>, <em>Baja</em>, o <em>Egresado</em>.</li>
+      <li><strong>Paso 3 — Confirmar:</strong> Resumen final. Una vez confirmado, <strong>el proceso no se puede deshacer</strong>.</li>
+    </ul>
+
+    <hr>
+
+    <!-- ===== COMIDA ===== -->
+    <h2 id="comida">Módulo: Servicio de Comida</h2>
+    <div class="access-badge">▸ Menú lateral → Servicio Comida</div>
+
+    <h3>Pestaña: Menú</h3>
+    <p>Publicar el menú semanal para que los padres lo vean desde su app.</p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Hacer clic en <strong>"Agregar menú"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Seleccionar la semana (fecha del lunes)</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Llenar los platillos para cada día y tiempo de comida (desayuno, colación, comida)</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Indicar para qué niveles aplica</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Opcionalmente subir una imagen o PDF del menú</div></li>
+      <li><div class="step-num">6</div><div class="step-text">Guardar</div></li>
+    </ol></div>
+
+    <h3>Pestaña: Pagos</h3>
+    <p>Ver quién pagó el servicio de comida de la semana. Navegar entre semanas con los botones <strong>← Anterior</strong> y <strong>Siguiente →</strong>.</p>
+
+    <hr>
+
+    <!-- ===== CONFIGURACIÓN ===== -->
+    <h2 id="configuracion">Módulo: Configuración</h2>
+    <div class="access-badge">▸ Menú lateral → Configuración</div>
+
+    <h3>Pestaña: Horarios y Reglas</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Configuración</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Inicio del filtro</td><td>A qué hora empieza a registrarse la entrada</td></tr>
+        <tr><td>Hora límite sin retardo</td><td>Hasta cuándo se puede llegar sin retardo</td></tr>
+        <tr><td>Hora de salida normal</td><td>Fin del horario regular</td></tr>
+        <tr><td>Hora de salida extensión</td><td>Fin del horario extendido</td></tr>
+        <tr><td>Costo por hora de extensión</td><td>Precio del servicio extendido por hora</td></tr>
+        <tr><td>Máximo de retardos</td><td>Retardos acumulados que bloquean la entrada al día siguiente</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Pestaña: Notificaciones</h3>
+    <p>Activar o desactivar tipos de notificaciones que se envían automáticamente a los padres: entrada rechazada, salida anticipada, incidentes, medicamentos, alertas de salud, avisos de tareas, recordatorios de pago.</p>
+
+    <h3>Pestaña: Plantillas WhatsApp</h3>
+    <p>Si el servicio de WhatsApp está activo, aquí puedes personalizar los mensajes que se envían a los padres.</p>
+
+    <hr>
+
+    <!-- ===== CATÁLOGOS ===== -->
+    <h2 id="catalogos">Módulo: Catálogos</h2>
+    <div class="access-badge">▸ Menú lateral → Catálogos</div>
+    <p>Listas de opciones usadas en toda la aplicación.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Categoría</th><th>Para qué se usa</th></tr></thead>
+      <tbody>
+        <tr><td>Ánimo</td><td>Estado de ánimo del alumno en la bitácora</td></tr>
+        <tr><td>Comportamiento</td><td>Calificación del comportamiento del día</td></tr>
+        <tr><td>Comida</td><td>Cuánto comió y en qué tiempos</td></tr>
+        <tr><td>Salud</td><td>Condición del pañal, intensidad de vómito</td></tr>
+        <tr><td>Insumos</td><td>Tipos de materiales que necesita el alumno</td></tr>
+        <tr><td>Documentos</td><td>Tipos de documentos que se solicitan</td></tr>
+        <tr><td>Métodos de pago</td><td>Efectivo, transferencia, etc.</td></tr>
+        <tr><td>Conceptos de pago</td><td>Colegiatura, inscripción, materiales, etc.</td></tr>
+        <tr><td>Categorías de eventos</td><td>Para clasificar eventos del calendario</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cómo agregar una opción a un catálogo</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Entrar al catálogo que quieres modificar</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Escribir el nombre de la nueva opción</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Asignarle un ícono o color si aplica</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Guardar</div></li>
+    </ol></div>
+
+    <hr>
+
+    <!-- ===== CONSEJOS ===== -->
+    <h2 id="consejos">Consejos para el uso diario</h2>
+
+    <h3>Empezar el día</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Entrar al Dashboard para ver el resumen general</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Revisar si hay alertas de alumnos sin recoger del día anterior</div></li>
+      <li><div class="step-num">3</div><div class="step-text">Verificar que el filtro de entrada está activo</div></li>
+    </ol></div>
+
+    <h3>Al final del día</h3>
+    <ul>
+      <li>Revisar la sección de extensión para ver quién falta por ser recogido</li>
+      <li>Revisar si hay comprobantes de pago pendientes de validar</li>
+    </ul>
+
+    <hr>
+
+    <!-- ===== ATAJOS ===== -->
+    <h2 id="atajos">Atajos rápidos</h2>
+    <div class="shortcut-grid">
+      <div class="shortcut-card"><div class="sc-action">Ver quién llegó hoy</div><div class="sc-path">Dashboard → Asistencia</div></div>
+      <div class="shortcut-card"><div class="sc-action">Buscar un alumno</div><div class="sc-path">Alumnos → búsqueda</div></div>
+      <div class="shortcut-card"><div class="sc-action">Enviar aviso urgente</div><div class="sc-path">Aviso Extraordinario</div></div>
+      <div class="shortcut-card"><div class="sc-action">Registrar un pago</div><div class="sc-path">Pagos → "Registrar pago"</div></div>
+      <div class="shortcut-card"><div class="sc-action">Ver adeudos</div><div class="sc-path">Pagos → "Adeudos"</div></div>
+      <div class="shortcut-card"><div class="sc-action">Cambiar horario entrada</div><div class="sc-path">Configuración → Horarios</div></div>
+      <div class="shortcut-card"><div class="sc-action">Ver cumpleaños del día</div><div class="sc-path">Dashboard → banner superior</div></div>
+    </div>
+
+    <div class="page-footer">
+      Happy School App — v1.0.0-beta &nbsp;|&nbsp; Happys School &nbsp;|&nbsp; 2026
+    </div>
+  </div><!-- /content -->
+</main>
+
+<script>
+  // Highlight active nav link on scroll
+  const sections = document.querySelectorAll('h2[id], h3[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

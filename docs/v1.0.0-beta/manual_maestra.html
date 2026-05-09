@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Maestra — Happy School App v1.0.0-beta</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #1a1a2e; display: flex; min-height: 100vh; }
+  #sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #0f2027; color: #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; }
+  #sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid #1e3a4a; }
+  #sidebar-header .logo { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version { font-size: 11px; color: #6b7280; margin-top: 4px; font-family: 'Courier New', monospace; }
+  #sidebar-header .role-badge { display: inline-block; margin-top: 10px; padding: 3px 10px; background: #065f46; color: #a7f3d0; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; }
+  #sidebar nav a { display: block; padding: 8px 20px 8px 28px; color: #9ca3af; text-decoration: none; font-size: 13.5px; line-height: 1.4; transition: all 0.15s; border-left: 3px solid transparent; }
+  #sidebar nav a:hover { color: #e2e8f0; background: #1a3a4a; border-left-color: #10b981; }
+  #sidebar nav a.active { color: #6ee7b7; background: #1a3a4a; border-left-color: #10b981; font-weight: 600; }
+  #sidebar-footer { padding: 16px 20px; border-top: 1px solid #1e3a4a; font-size: 11px; color: #4b5563; }
+  #main { margin-left: 260px; flex: 1; min-height: 100vh; }
+  #topbar { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+  #topbar .breadcrumb { font-size: 13px; color: #6b7280; }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge { font-size: 11px; padding: 3px 10px; background: #d1fae5; color: #065f46; border-radius: 20px; font-weight: 600; }
+  #content { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
+  h1 { font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1.2; margin-bottom: 8px; }
+  h1 .subtitle { display: block; font-size: 16px; font-weight: 400; color: #6b7280; margin-top: 6px; }
+  h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #d1fae5; scroll-margin-top: 80px; }
+  h3 { font-size: 16px; font-weight: 600; color: #374151; margin-top: 24px; margin-bottom: 10px; scroll-margin-top: 80px; }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code { font-family: 'Courier New', monospace; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #065f46; }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+  .doc-meta { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0 32px; padding: 16px 20px; background: #ecfdf5; border-radius: 10px; border: 1px solid #a7f3d0; }
+  .doc-meta .meta-item { font-size: 13px; color: #065f46; }
+  .doc-meta .meta-item span { font-weight: 600; }
+  blockquote { border-left: 4px solid #10b981; background: #ecfdf5; padding: 14px 18px; margin: 20px 0; border-radius: 0 8px 8px 0; font-size: 14px; color: #065f46; }
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead tr { background: #0f2027; }
+  thead th { padding: 10px 14px; text-align: left; color: #e2e8f0; font-weight: 600; font-size: 12.5px; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #ecfdf5; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+  .img-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fef9c3; border: 2px dashed #f59e0b; border-radius: 10px; padding: 32px 20px; margin: 20px 0; gap: 8px; text-align: center; }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename { font-family: monospace; font-size: 12px; color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+  .access-badge { display: inline-flex; align-items: center; gap: 6px; background: #0f2027; color: #6ee7b7; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; margin: 8px 0 16px; font-family: 'Courier New', monospace; }
+  .steps ol { list-style: none; margin: 0; padding: 0; }
+  .steps ol li { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .steps ol li .step-num { min-width: 28px; height: 28px; background: #10b981; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .steps ol li .step-text { font-size: 14.5px; color: #374151; line-height: 1.6; }
+  /* Platform split */
+  .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .platform-card { border-radius: 10px; padding: 16px 18px; }
+  .platform-card.web { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .platform-card.mobile { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .platform-card .plat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 8px; }
+  .platform-card.web .plat-label { color: #1d4ed8; }
+  .platform-card.mobile .plat-label { color: #15803d; }
+  .platform-card p { font-size: 13.5px; margin-bottom: 0; }
+  .platform-card ol, .platform-card ul { font-size: 13.5px; margin-bottom: 0; }
+  /* FAQ */
+  details { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+  summary { padding: 14px 18px; font-size: 14px; font-weight: 600; cursor: pointer; background: #f9fafb; color: #1f2937; list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::before { content: '▶'; font-size: 11px; color: #10b981; transition: transform 0.2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details .faq-answer { padding: 14px 18px; font-size: 14px; color: #374151; border-top: 1px solid #e5e7eb; line-height: 1.7; }
+  .page-footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta</div>
+    <div class="role-badge">Maestra</div>
+  </div>
+  <nav>
+    <div class="nav-section">Inicio</div>
+    <a href="#inicio">Cómo entrar</a>
+    <a href="#dashboard">Dashboard</a>
+    <div class="nav-section">Módulos Web</div>
+    <a href="#filtro-entrada">Filtro de Entrada</a>
+    <a href="#filtro-salida">Filtro de Salida</a>
+    <div class="nav-section">Web y Mobile</div>
+    <a href="#asistencia">Asistencia</a>
+    <a href="#bitacora">Bitácora</a>
+    <a href="#tareas">Tareas</a>
+    <div class="nav-section">Solo Mobile</div>
+    <a href="#qr-scanner">Escáner QR</a>
+    <div class="nav-section">Más</div>
+    <a href="#galeria">Galería</a>
+    <a href="#notificaciones">Notificaciones</a>
+    <a href="#faq">Preguntas frecuentes</a>
+    <a href="#resumen-plataformas">Resumen plataformas</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · 2026</div>
+</aside>
+
+<main id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Documentación / <strong>Manual Maestra</strong></div>
+    <div class="badge">Web + Mobile</div>
+  </div>
+
+  <div id="content">
+    <h1>Manual de Usuario — Maestra
+      <span class="subtitle">Portal web + App móvil · Happy School App v1.0.0-beta · Happys School</span>
+    </h1>
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Fecha:</span> 2026-05-08</div>
+      <div class="meta-item">🖥️ <span>Web:</span> Computadora</div>
+      <div class="meta-item">📱 <span>Mobile:</span> App Happy School</div>
+      <div class="meta-item">👤 <span>Roles:</span> Titular · Especial · Puerta</div>
+    </div>
+
+    <blockquote>
+      <strong>¿Para quién es este manual?</strong><br>
+      Para el personal con rol <strong>Maestra titular</strong>, <strong>Maestra especial</strong>, o <strong>Maestra de puerta</strong> en la aplicación Happy School.
+    </blockquote>
+
+    <hr>
+
+    <!-- INICIO -->
+    <h2 id="inicio">Cómo entrar a la aplicación</h2>
+
+    <div class="platform-grid">
+      <div class="platform-card web">
+        <div class="plat-label">🖥️ Computadora (web)</div>
+        <ol>
+          <li>Abrir <strong>Chrome</strong> en la computadora</li>
+          <li>Ir a la dirección de la aplicación</li>
+          <li>Ingresar tu correo y contraseña</li>
+          <li>Hacer clic en <strong>"Iniciar sesión"</strong></li>
+        </ol>
+      </div>
+      <div class="platform-card mobile">
+        <div class="plat-label">📱 Celular (app móvil)</div>
+        <ol>
+          <li>Abrir la app <strong>Happy School</strong> en tu teléfono</li>
+          <li>Ingresar tu correo y contraseña</li>
+          <li>Tocar <strong>"Iniciar sesión"</strong></li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Primera vez que entras</h3>
+    <p>La primera vez, el sistema te pedirá que cambies tu contraseña: mínimo 8 caracteres con letras y números.</p>
+    <h3>Si olvidaste tu contraseña</h3>
+    <p>Comunicarte con la Directora para que la restablezca.</p>
+
+    <hr>
+
+    <!-- DASHBOARD -->
+    <h2 id="dashboard">Pantalla principal — Dashboard</h2>
+    <p>Al entrar, lo primero que ves es tu <strong>Dashboard</strong>, con el resumen del día de tu grupo.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">dashboard_maestra.png</div>
+      <div class="ph-desc">Dashboard de maestra con banners de alerta, lista de alumnos del grupo y estadísticas rápidas</div>
+    </div>
+
+    <h3>Qué información encuentras</h3>
+    <p><strong>Banners de alerta (si hay algo importante):</strong></p>
+    <ul>
+      <li>🚪 Si hoy tienes turno de puerta</li>
+      <li>🎂 Si algún alumno cumple años hoy</li>
+      <li>🤒 Si algún alumno fue rechazado en la entrada por síntomas</li>
+      <li>📋 Si hay tareas que vencen hoy</li>
+      <li>⚠️ Si hay alumnos con muchas tareas pendientes</li>
+    </ul>
+    <p><strong>Lista de alumnos del grupo:</strong> foto, estado de ánimo, hora de entrada, quién lo recogió, si se guardó su bitácora.</p>
+    <p><strong>Estadísticas rápidas:</strong> presentes, retardos, sin llegar.</p>
+
+    <hr>
+
+    <!-- FILTRO ENTRADA -->
+    <h2 id="filtro-entrada">Módulo: Filtro de Entrada (Web)</h2>
+    <div class="access-badge">▸ Menú lateral → Filtro de Entrada</div>
+    <p>Aquí se registra la llegada de cada alumno, con un chequeo de salud e higiene.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">filtro_entrada_web.png</div>
+      <div class="ph-desc">Pantalla de filtro de entrada con lista de alumnos y formulario de chequeo de salud/materiales</div>
+    </div>
+
+    <h3>Cuándo está activo el filtro</h3>
+    <p>El filtro está activo de <strong>7:00 AM a 8:30 AM</strong> (o los horarios configurados por la Directora). Si llega <strong>antes de las 8:30 AM</strong> → Presente. Si llega <strong>después</strong> → Retardo.</p>
+
+    <h3>Cómo registrar la llegada</h3>
+    <div class="platform-grid">
+      <div class="platform-card web">
+        <div class="plat-label">Con escáner QR</div>
+        <ol>
+          <li>Clic en el botón <strong>"Escanear QR"</strong></li>
+          <li>Apuntar la cámara al código QR del alumno</li>
+          <li>El alumno aparece automáticamente</li>
+          <li>Llenar el chequeo y confirmar</li>
+        </ol>
+      </div>
+      <div class="platform-card mobile">
+        <div class="plat-label">Sin escáner (manual)</div>
+        <ol>
+          <li>Buscar el nombre del alumno en la lista</li>
+          <li>Hacer clic sobre su nombre</li>
+          <li>Se abre el formulario de entrada</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Formulario de entrada — ¿qué hay que revisar?</h3>
+    <p><strong>Salud:</strong></p>
+    <ul>
+      <li>✅ Sin fiebre → Si tiene fiebre, registrar temperatura y el alumno no puede entrar</li>
+      <li>✅ Sin síntomas → Si tiene síntomas, escribir cuáles y el alumno no puede entrar</li>
+    </ul>
+    <p><strong>Higiene:</strong></p>
+    <ul>
+      <li>✅ Uñas cortadas &nbsp; ✅ Sin lagañas &nbsp; ✅ Pañal limpio (solo Maternal)</li>
+    </ul>
+    <p><strong>Materiales:</strong></p>
+    <ul>
+      <li>✅ Trae uniforme &nbsp; ✅ Trae bata &nbsp; ✅ Trae termo &nbsp; ✅ Agua suficiente</li>
+    </ul>
+
+    <blockquote>Cuando se registra fiebre o síntomas, el sistema marca automáticamente al alumno como <strong>"No puede entrar"</strong> y notifica a los padres.</blockquote>
+
+    <h3>Hermanos en la misma escuela</h3>
+    <p>Si el alumno tiene hermanos, después de registrar al primero el sistema pregunta si también se quiere registrar a los hermanos. Ahorra tiempo cuando llegan juntos.</p>
+
+    <hr>
+
+    <!-- FILTRO SALIDA -->
+    <h2 id="filtro-salida">Módulo: Filtro de Salida (Web)</h2>
+    <div class="access-badge">▸ Menú lateral → Filtro de Salida</div>
+    <p>Aquí se registra la salida de cada alumno y quién lo recogió.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">filtro_salida_web.png</div>
+      <div class="ph-desc">Pantalla de filtro de salida con lista de alumnos presentes y formulario de registro de salida</div>
+    </div>
+
+    <h3>Formulario de salida</h3>
+    <ul>
+      <li><strong>¿Quién recoge?</strong> Seleccionar de la lista: papás, personas autorizadas, o "Otro" con nombre</li>
+      <li>✅ Pañal limpio al salir (solo Maternal)</li>
+      <li>✅ Pertenencias completas &nbsp; ✅ Estado físico normal</li>
+      <li>Notas u observaciones (opcional) &nbsp; ✅ Entrega conforme</li>
+    </ul>
+
+    <h3>Salida anticipada</h3>
+    <p>Si un alumno sale <strong>antes del horario normal</strong>, el sistema muestra un aviso en color naranja: <strong>"SALIDA ANTICIPADA"</strong>. Queda marcada y se notifica a la Directora.</p>
+
+    <h3>Alerta de alumno sin recoger</h3>
+    <p>Si hay alumnos que siguen en la escuela después de su horario de salida, aparece un botón de WhatsApp (📲) para enviar un mensaje de alerta al padre.</p>
+
+    <hr>
+
+    <!-- ASISTENCIA -->
+    <h2 id="asistencia">Módulo: Asistencia (Web y Mobile)</h2>
+    <div class="access-badge">▸ Web: Menú lateral → Asistencia &nbsp;|&nbsp; Mobile: Pestaña "Asistencia"</div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">asistencia_maestra_mobile.png</div>
+      <div class="ph-desc">Pantalla de asistencia en mobile con lista de alumnos y estados del día</div>
+    </div>
+
+    <h3>Estados de asistencia</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>✅ Presente</td><td>Llegó a tiempo</td></tr>
+        <tr><td>⏰ Retardo</td><td>Llegó después del horario</td></tr>
+        <tr><td>🚫 No entrada</td><td>Fue rechazado (fiebre/síntomas)</td></tr>
+        <tr><td>Sin registrar</td><td>Todavía no llega</td></tr>
+      </tbody>
+    </table></div>
+    <p>Hacer clic en el nombre de un alumno para ver detalle: temperatura, síntomas, materiales, si el registro fue con QR. Se pueden navegar fechas anteriores con las flechas de navegación.</p>
+
+    <hr>
+
+    <!-- BITÁCORA -->
+    <h2 id="bitacora">Módulo: Bitácora (Web y Mobile)</h2>
+    <div class="access-badge">▸ Web: Menú lateral → Bitácora &nbsp;|&nbsp; Mobile: Pestaña "Bitácora"</div>
+    <p>La bitácora es el registro diario de cada alumno. Los padres pueden ver esta información desde su app.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">bitacora_maestra.png</div>
+      <div class="ph-desc">Formulario de bitácora con secciones de estado de ánimo, alimentación, salud, actividades y comportamiento</div>
+    </div>
+
+    <h3>Secciones de la bitácora</h3>
+    <ul>
+      <li><strong>Estado de ánimo:</strong> Cómo llegó el alumno al kinder</li>
+      <li><strong>Alimentación:</strong> Cuánto comió en desayuno, colación, comida, extra</li>
+      <li><strong>Salud:</strong> Temperatura, vómito, visitas al baño, condición del pañal (Maternal)</li>
+      <li><strong>Actividades del día:</strong> Pintura, lectura, música, patio, etc.</li>
+      <li><strong>Comportamiento:</strong> Cómo se portó</li>
+      <li><strong>Incidentes:</strong> Caídas, peleas, accidentes</li>
+      <li><strong>Medicamentos administrados:</strong> Cuál y cuándo</li>
+      <li><strong>Foto del día:</strong> Una foto del alumno (opcional)</li>
+      <li><strong>Notas adicionales</strong></li>
+    </ul>
+    <p>Después de llenar las secciones, hacer clic en <strong>"Guardar"</strong>. Los padres pueden ver la bitácora desde ese momento. Se pueden ver bitácoras de días anteriores con las flechas de navegación.</p>
+
+    <hr>
+
+    <!-- TAREAS -->
+    <h2 id="tareas">Módulo: Tareas (Web y Mobile)</h2>
+    <div class="access-badge">▸ Web: Menú lateral → Tareas &nbsp;|&nbsp; Mobile: Pestaña "Tareas"</div>
+    <p>Aquí se crean y administran las tareas que se envían a los padres.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">tareas_maestra.png</div>
+      <div class="ph-desc">Pantalla de tareas con pestañas Próximas / Vencidas / Borradores y formulario de nueva tarea</div>
+    </div>
+
+    <h3>Crear una nueva tarea</h3>
+    <div class="platform-grid">
+      <div class="platform-card web">
+        <div class="plat-label">🖥️ Web</div>
+        <ol>
+          <li>Clic en <strong>"Nueva tarea"</strong></li>
+          <li>Llenar título, descripción, fecha de entrega, y foto (opcional)</li>
+          <li>Clic en <strong>"Crear"</strong></li>
+        </ol>
+      </div>
+      <div class="platform-card mobile">
+        <div class="plat-label">📱 Mobile</div>
+        <ol>
+          <li>Tocar el botón <strong>"+"</strong> en la esquina superior</li>
+          <li>Llenar los mismos campos</li>
+          <li>Tocar <strong>"Crear"</strong></li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Estados de una tarea</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>Borrador</td><td>Guardada pero los padres aún no la ven</td></tr>
+        <tr><td>Publicada</td><td>Los padres ya pueden verla</td></tr>
+      </tbody>
+    </table></div>
+    <p>Las tareas nuevas se guardan como borrador. Para que los padres la vean, encontrar la tarea en <strong>"Borradores"</strong> y hacer clic en <strong>"Publicar"</strong>.</p>
+
+    <h3>Pestañas de tareas</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Pestaña</th><th>Qué muestra</th></tr></thead>
+      <tbody>
+        <tr><td>Próximas</td><td>Tareas publicadas cuya fecha de entrega aún no pasó</td></tr>
+        <tr><td>Vencidas</td><td>Tareas cuya fecha de entrega ya pasó</td></tr>
+        <tr><td>Borradores</td><td>Tareas guardadas pero no publicadas</td></tr>
+      </tbody>
+    </table></div>
+
+    <hr>
+
+    <!-- QR SCANNER -->
+    <h2 id="qr-scanner">Escáner QR — App Mobile</h2>
+    <div class="access-badge">▸ Mobile: Pestaña "QR" en la barra inferior</div>
+    <p>El escáner QR es la forma más rápida de registrar entradas y salidas en la puerta de la escuela.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">qr_scanner_mobile.png</div>
+      <div class="ph-desc">Pantalla del escáner QR en mobile con visor de cámara y modo activo (entrada/salida)</div>
+    </div>
+
+    <h3>¿Cómo sabe el escáner si es entrada o salida?</h3>
+    <p>Detecta el modo automáticamente según la hora:</p>
+    <ul>
+      <li>De <strong>7:00 AM a 8:30 AM</strong> → modo entrada</li>
+      <li>A partir de la <strong>hora de salida</strong> → modo salida</li>
+    </ul>
+
+    <h3>Cómo escanear</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Tocar la pestaña <strong>"QR"</strong> en la barra de navegación inferior</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Apuntar la cámara al <strong>código QR del alumno</strong> (en la mochila, credencial, o app del papá)</div></li>
+      <li><div class="step-num">3</div><div class="step-text">El teléfono vibra cuando detecta el QR</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Se abre automáticamente el formulario de entrada o salida</div></li>
+    </ol></div>
+
+    <h3>Tipos de código QR que reconoce el escáner</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Tipo</th><th>Cuándo aparece</th></tr></thead>
+      <tbody>
+        <tr><td>QR de alumno regular</td><td>Siempre</td></tr>
+        <tr><td>QR de niño de extensión</td><td>Para niños del servicio extendido</td></tr>
+        <tr><td>QR temporal (pase de visita)</td><td>Cuando un papá genera un pase temporal</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Pase QR temporal</h3>
+    <p>Si el papá generó un pase temporal, el escáner muestra un banner amarillo:</p>
+    <blockquote>🔐 <strong>PASE TEMPORAL — Verificar identidad</strong><br>Aparece el nombre de la persona autorizada y quién lo autorizó. Revisar que coincida antes de registrar la salida.</blockquote>
+
+    <h3>Hermanos detectados automáticamente</h3>
+    <p>Si el alumno escaneado tiene hermanos, después de registrar al primero, el sistema pregunta si quieres registrar también a los hermanos.</p>
+
+    <hr>
+
+    <!-- GALERÍA -->
+    <h2 id="galeria">Galería de fotos</h2>
+    <div class="access-badge">▸ Web: Menú lateral → Galería</div>
+    <p>Aquí se almacenan las fotos del salón. Las fotos subidas desde la bitácora ya quedan disponibles para los padres directamente desde la bitácora de su hijo.</p>
+
+    <hr>
+
+    <!-- NOTIFICACIONES -->
+    <h2 id="notificaciones">Notificaciones</h2>
+    <p>La app envía notificaciones automáticas cuando la Directora envía un aviso extraordinario o recordatorios de turno de puerta.</p>
+    <p>Para recibir notificaciones, asegurarte de que la app tiene <strong>permiso para enviar notificaciones</strong> en la configuración de tu teléfono. La primera vez, selecciona <strong>"Permitir"</strong>.</p>
+
+    <hr>
+
+    <!-- FAQ -->
+    <h2 id="faq">Preguntas frecuentes</h2>
+
+    <details>
+      <summary>¿Puedo registrar la asistencia sin el escáner QR?</summary>
+      <div class="faq-answer">Sí. Desde la pantalla de Asistencia o Filtro de Entrada puedes tocar el nombre del alumno manualmente para registrar su llegada.</div>
+    </details>
+    <details>
+      <summary>¿Qué pasa si escaneo un QR que no reconoce?</summary>
+      <div class="faq-answer">El sistema muestra un mensaje de error. Verificar que el QR es de la app Happy School.</div>
+    </details>
+    <details>
+      <summary>¿Puedo editar la bitácora de un día anterior?</summary>
+      <div class="faq-answer">Sí, navegar al día con las flechas de fecha y editar.</div>
+    </details>
+    <details>
+      <summary>¿Los padres ven la bitácora inmediatamente?</summary>
+      <div class="faq-answer">Sí, en cuanto guardas la bitácora los padres pueden verla desde su app.</div>
+    </details>
+    <details>
+      <summary>¿Puedo borrar una tarea ya publicada?</summary>
+      <div class="faq-answer">Sí, pero los padres dejarán de verla.</div>
+    </details>
+    <details>
+      <summary>El escáner no detecta el QR, ¿qué hago?</summary>
+      <div class="faq-answer">
+        <ul>
+          <li>Limpiar la cámara del teléfono</li>
+          <li>Asegurarse de que hay suficiente luz</li>
+          <li>Pedir al papá que aumente el brillo de su pantalla</li>
+          <li>Como alternativa, registrar manualmente</li>
+        </ul>
+      </div>
+    </details>
+
+    <hr>
+
+    <!-- RESUMEN PLATAFORMAS -->
+    <h2 id="resumen-plataformas">Resumen de acceso por plataforma</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Función</th><th style="text-align:center">Web</th><th style="text-align:center">Mobile</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard diario</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+        <tr><td>Filtro de entrada (lista)</td><td style="text-align:center">✅</td><td style="text-align:center">—</td></tr>
+        <tr><td>Filtro de salida (lista)</td><td style="text-align:center">✅</td><td style="text-align:center">—</td></tr>
+        <tr><td>Escáner QR (entrada + salida)</td><td style="text-align:center">—</td><td style="text-align:center">✅</td></tr>
+        <tr><td>Asistencia</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+        <tr><td>Bitácora</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+        <tr><td>Tareas</td><td style="text-align:center">✅</td><td style="text-align:center">✅</td></tr>
+        <tr><td>Galería</td><td style="text-align:center">✅</td><td style="text-align:center">—</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="page-footer">
+      Happy School App — v1.0.0-beta &nbsp;|&nbsp; Happys School &nbsp;|&nbsp; 2026
+    </div>
+  </div>
+</main>
+
+<script>
+  const sections = document.querySelectorAll('h2[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Técnica — Happy School App v1.0.0-beta</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1a1a2e;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #0d1117;
+    color: #e2e8f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    border-right: 1px solid #21262d;
+  }
+  #sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #21262d;
+  }
+  #sidebar-header .logo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar-header .logo span { font-size: 20px; }
+  #sidebar-header .version {
+    font-size: 11px;
+    color: #484f58;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  #sidebar-header .role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: #0e7490;
+    color: #cffafe;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== SIDEBAR NAV ===== */
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section {
+    padding: 10px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #30363d;
+  }
+  #sidebar nav a {
+    display: block;
+    padding: 7px 20px 7px 28px;
+    color: #8b949e;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover {
+    color: #e6edf3;
+    background: #161b22;
+    border-left-color: #06b6d4;
+  }
+  #sidebar nav a.active {
+    color: #67e8f9;
+    background: #161b22;
+    border-left-color: #06b6d4;
+    font-weight: 600;
+  }
+  #sidebar nav a.nav-sub {
+    padding-left: 40px;
+    font-size: 12.5px;
+  }
+  #sidebar nav .nav-doc-header {
+    display: block;
+    padding: 8px 20px 6px 20px;
+    color: #c9d1d9;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.2px;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  #sidebar nav .nav-doc-header:hover {
+    color: #e6edf3;
+    background: #161b22;
+    border-left-color: #06b6d4;
+  }
+  #sidebar nav .nav-doc-header.active {
+    color: #67e8f9;
+    background: #161b22;
+    border-left-color: #06b6d4;
+  }
+  #sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #21262d;
+    font-size: 11px;
+    color: #30363d;
+    line-height: 1.6;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 13px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  #topbar .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #topbar .breadcrumb strong { color: #111827; }
+  #topbar .top-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #ecfeff;
+    color: #0e7490;
+    border-radius: 20px;
+    font-weight: 600;
+    border: 1px solid #a5f3fc;
+  }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 40px 100px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 30px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+  h1 .subtitle {
+    display: block;
+    font-size: 15px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  h2 {
+    font-size: 21px;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 52px;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0f7fa;
+    scroll-margin-top: 72px;
+  }
+  h2 .doc-num {
+    font-size: 12px;
+    font-weight: 500;
+    color: #06b6d4;
+    font-family: 'Courier New', monospace;
+    background: #ecfeff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  h3 {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    scroll-margin-top: 72px;
+  }
+  h4 {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    scroll-margin-top: 72px;
+  }
+  p { margin-bottom: 14px; line-height: 1.75; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.65; font-size: 14.5px; color: #374151; }
+  li code { font-size: 12.5px; }
+  strong { font-weight: 600; color: #111827; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 40px 0; }
+
+  /* ===== INLINE CODE ===== */
+  code {
+    font-family: 'SFMono-Regular', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #0e7490;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* ===== CODE BLOCKS ===== */
+  pre {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 16px 0 20px;
+    line-height: 1.6;
+    position: relative;
+  }
+  pre code {
+    font-family: 'SFMono-Regular', 'Cascadia Code', 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    color: #e6edf3;
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+  }
+  pre .comment { color: #8b949e; font-style: italic; }
+  pre .keyword { color: #ff7b72; }
+  pre .string { color: #a5d6ff; }
+  pre .cmd { color: #7ee787; }
+  pre .flag { color: #ffa657; }
+  pre .var { color: #d2a8ff; }
+  pre .output { color: #8b949e; }
+
+  /* ===== CODE BLOCK LANG LABEL ===== */
+  .code-block-wrap { position: relative; margin: 16px 0 20px; }
+  .code-lang {
+    position: absolute;
+    top: 0; right: 0;
+    background: #21262d;
+    color: #8b949e;
+    font-size: 10px;
+    font-family: 'Courier New', monospace;
+    padding: 3px 10px;
+    border-radius: 0 8px 0 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .code-block-wrap pre { margin: 0; }
+
+  /* ===== TABLES ===== */
+  .table-wrap { overflow-x: auto; margin: 16px 0 20px; border-radius: 8px; border: 1px solid #e5e7eb; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead tr { background: #f9fafb; }
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f9fafb; }
+  td:first-child code {
+    font-family: 'SFMono-Regular', 'Consolas', 'Courier New', monospace;
+    font-size: 12.5px;
+    background: #f0fdf4;
+    color: #0e7490;
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid #a7f3d0;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ===== CALLOUT / BLOCKQUOTE ===== */
+  blockquote {
+    border-left: 4px solid #06b6d4;
+    background: #ecfeff;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    color: #164e63;
+    line-height: 1.65;
+  }
+  blockquote strong { color: #0e7490; }
+  blockquote code {
+    background: #cffafe;
+    color: #0e7490;
+    border-color: #a5f3fc;
+  }
+
+  /* ===== WARNING CALLOUT ===== */
+  .callout-warning {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    color: #78350f;
+    line-height: 1.65;
+  }
+  .callout-warning strong { color: #92400e; }
+  .callout-danger {
+    border-left: 4px solid #ef4444;
+    background: #fef2f2;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    color: #7f1d1d;
+    line-height: 1.65;
+  }
+  .callout-danger strong { color: #991b1b; }
+  .callout-success {
+    border-left: 4px solid #22c55e;
+    background: #f0fdf4;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0 20px;
+    font-size: 14px;
+    color: #14532d;
+    line-height: 1.65;
+  }
+
+  /* ===== DOC META ===== */
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0 36px;
+    padding: 14px 18px;
+    background: #f0fdfa;
+    border-radius: 10px;
+    border: 1px solid #a7f3d0;
+  }
+  .doc-meta .meta-item { font-size: 12.5px; color: #0e7490; }
+  .doc-meta .meta-item span { font-weight: 600; }
+
+  /* ===== SECTION DIVIDER ===== */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 64px 0 0;
+  }
+  .section-divider .doc-label {
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #06b6d4;
+    background: #ecfeff;
+    border: 1px solid #a5f3fc;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .section-divider .divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, #a5f3fc, transparent);
+  }
+
+  /* ===== IMAGE PLACEHOLDER ===== */
+  .img-placeholder {
+    border: 2px dashed #eab308;
+    background: #fefce8;
+    border-radius: 10px;
+    padding: 32px 24px;
+    margin: 20px 0 24px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .ph-icon { font-size: 32px; }
+  .ph-title { font-size: 13px; font-weight: 700; color: #713f12; }
+  .ph-filename { font-family: 'Courier New', monospace; font-size: 12px; color: #854d0e; background: #fef9c3; padding: 2px 8px; border-radius: 4px; }
+  .ph-desc { font-size: 12px; color: #92400e; max-width: 380px; line-height: 1.5; margin-top: 2px; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist {
+    list-style: none;
+    margin: 12px 0 20px;
+    padding: 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: background 0.1s;
+    font-size: 14px;
+    color: #374151;
+  }
+  .checklist li:hover { background: #f9fafb; }
+  .checklist input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: #06b6d4;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .checklist label { cursor: pointer; line-height: 1.5; }
+  .checklist input[type="checkbox"]:checked + label {
+    text-decoration: line-through;
+    color: #9ca3af;
+  }
+
+  /* ===== STEPS ===== */
+  .steps { counter-reset: step; margin: 12px 0 20px; padding: 0; list-style: none; }
+  .steps li {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: flex-start;
+    font-size: 14.5px;
+    color: #374151;
+  }
+  .steps li::before {
+    counter-increment: step;
+    content: counter(step);
+    min-width: 26px;
+    height: 26px;
+    background: #06b6d4;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+  }
+  .page-header .doc-type-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #06b6d4;
+    background: #ecfeff;
+    border: 1px solid #a5f3fc;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  /* ===== MIGRATION TABLE ===== */
+  .migration-row-range td { background: #f9fafb; color: #6b7280; font-style: italic; }
+
+  /* ===== SCENARIO CARD ===== */
+  .scenario-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 20px 0;
+    background: #fff;
+  }
+  .scenario-card .scenario-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scenario-card .scenario-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .badge-error { background: #fee2e2; color: #991b1b; }
+  .badge-warning { background: #fef3c7; color: #92400e; }
+  .badge-info { background: #ecfeff; color: #0e7490; }
+  .scenario-card p { margin-bottom: 8px; font-size: 14px; }
+  .scenario-card ol { margin-left: 18px; }
+  .scenario-card li { font-size: 14px; margin-bottom: 4px; }
+
+  /* ===== SCROLLBAR ===== */
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: #0d1117; }
+  #sidebar::-webkit-scrollbar-thumb { background: #21262d; border-radius: 2px; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; }
+    #content { padding: 32px 20px 80px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta · docs técnicos</div>
+    <span class="role-badge">Técnica · Valeria</span>
+  </div>
+
+  <nav id="sidebar-nav">
+    <div class="nav-section">Índice</div>
+    <a href="#doc01" class="nav-doc-header">08 · Variables de Entorno</a>
+    <a href="#doc01-backend" class="nav-sub">Backend (.env)</a>
+    <a href="#doc01-cloudinary" class="nav-sub">Cloudinary</a>
+    <a href="#doc01-firebase" class="nav-sub">Firebase</a>
+    <a href="#doc01-twilio" class="nav-sub">Twilio / WhatsApp</a>
+    <a href="#doc01-web" class="nav-sub">Web & Mobile</a>
+    <a href="#doc01-plataformas" class="nav-sub">Railway / Vercel</a>
+    <a href="#doc01-seguridad" class="nav-sub">Seguridad</a>
+
+    <a href="#doc02" class="nav-doc-header">09 · Migraciones</a>
+    <a href="#doc02-comandos" class="nav-sub">Comandos</a>
+    <a href="#doc02-primer-deploy" class="nav-sub">Primer deploy</a>
+    <a href="#doc02-actualizacion" class="nav-sub">Actualización</a>
+    <a href="#doc02-errores" class="nav-sub">Errores comunes</a>
+    <a href="#doc02-lista" class="nav-sub">Lista de migraciones</a>
+
+    <a href="#doc03" class="nav-doc-header">10 · Plan de Respaldo</a>
+    <a href="#doc03-manual" class="nav-sub">Backup manual</a>
+    <a href="#doc03-frecuencia" class="nav-sub">Frecuencia</a>
+    <a href="#doc03-restaurar" class="nav-sub">Restaurar</a>
+    <a href="#doc03-railway" class="nav-sub">Railway automático</a>
+
+    <a href="#doc04" class="nav-doc-header">11 · Plan de Rollback</a>
+    <a href="#doc04-e1" class="nav-sub">Escenario 1 — Backend</a>
+    <a href="#doc04-e2" class="nav-sub">Escenario 2 — Migración</a>
+    <a href="#doc04-e3" class="nav-sub">Escenario 3 — Frontend</a>
+    <a href="#doc04-e4" class="nav-sub">Escenario 4 — Datos</a>
+    <a href="#doc04-e5" class="nav-sub">Escenario 5 — Mobile</a>
+    <a href="#doc04-rollback-railway" class="nav-sub">Rollback Railway</a>
+    <a href="#doc04-rollback-vercel" class="nav-sub">Rollback Vercel</a>
+    <a href="#doc04-checklist" class="nav-sub">Checklist post-rollback</a>
+  </nav>
+
+  <div id="sidebar-footer">
+    Happy School App<br>
+    Generado: 2026-05-08<br>
+    Documentos: 08, 09, 10, 11
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<main id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="breadcrumb">
+      Happy School App &rsaquo; <strong>Guía Técnica</strong>
+    </div>
+    <span class="top-badge">Técnica · Valeria</span>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="doc-type-tag">Documentación técnica</div>
+      <h1>
+        Guía Técnica
+        <span class="subtitle">Variables de entorno, migraciones, respaldos y rollback — Happy School App v1.0.0-beta</span>
+      </h1>
+    </div>
+
+    <div class="doc-meta">
+      <div class="meta-item">Versión: <span>v1.0.0-beta</span></div>
+      <div class="meta-item">Audiencia: <span>Técnica · Valeria</span></div>
+      <div class="meta-item">Actualizado: <span>2026-05-08</span></div>
+      <div class="meta-item">Documentos: <span>08, 09, 10, 11</span></div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- DOC 01: VARIABLES DE ENTORNO -->
+    <!-- ============================================================ -->
+    <div class="section-divider">
+      <span class="doc-label">Documento 08</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 id="doc01"><span class="doc-num">08</span> Variables de Entorno</h2>
+    <p>Este documento describe cada variable de entorno necesaria para desplegar en producción. El backend se puede alojar en Railway o Render; el frontend web en Vercel o Netlify.</p>
+
+    <!-- Backend -->
+    <h3 id="doc01-backend">Backend — <code>backend/.env</code></h3>
+    <p><strong>Variables obligatorias:</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td><code>DATABASE_URL</code></td><td>URL de conexión a PostgreSQL</td><td><code>postgresql://usuario:contraseña@host:5432/happy_school</code></td></tr>
+          <tr><td><code>JWT_SECRET</code></td><td>Clave secreta para tokens de acceso (mínimo 64 caracteres)</td><td>Generar con: <code>openssl rand -hex 32</code></td></tr>
+          <tr><td><code>JWT_REFRESH_SECRET</code></td><td>Clave secreta para tokens de refresh (diferente a <code>JWT_SECRET</code>)</td><td>Generar con: <code>openssl rand -hex 32</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Variables de tiempo de tokens (opcionales):</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Default</th><th>Valor recomendado</th></tr></thead>
+        <tbody>
+          <tr><td><code>JWT_ACCESS_EXPIRES</code></td><td><code>15m</code></td><td><code>15m</code></td></tr>
+          <tr><td><code>JWT_REFRESH_EXPIRES</code></td><td><code>7d</code></td><td><code>7d</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Variables del servidor (opcionales):</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Default</th></tr></thead>
+        <tbody>
+          <tr><td><code>PORT</code></td><td>Puerto en que escucha el servidor</td><td><code>3000</code></td></tr>
+          <tr><td><code>NODE_ENV</code></td><td>Entorno de ejecución</td><td><code>development</code></td></tr>
+          <tr><td><code>TZ</code></td><td>Zona horaria del servidor</td><td><code>America/Mexico_City</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Cloudinary -->
+    <h3 id="doc01-cloudinary">Cloudinary — subida de fotos e imágenes</h3>
+    <blockquote>
+      Requeridas si <code>CLOUDINARY_ENABLED=true</code>. Sin Cloudinary, las fotos de bitácora, personas autorizadas y comprobantes no funcionan.
+    </blockquote>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>CLOUDINARY_ENABLED</code></td><td><code>true</code> para activar, <code>false</code> para desactivar</td></tr>
+          <tr><td><code>CLOUDINARY_CLOUD_NAME</code></td><td>Settings → Cloud Name</td></tr>
+          <tr><td><code>CLOUDINARY_API_KEY</code></td><td>Settings → API Keys</td></tr>
+          <tr><td><code>CLOUDINARY_API_SECRET</code></td><td>Settings → API Keys</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Firebase -->
+    <h3 id="doc01-firebase">Firebase — notificaciones push</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Dónde obtener</th></tr></thead>
+        <tbody>
+          <tr><td><code>FIREBASE_PROJECT_ID</code></td><td>ID del proyecto</td><td>Firebase Console → Configuración del proyecto</td></tr>
+          <tr><td><code>FIREBASE_PRIVATE_KEY</code></td><td>Clave privada (JSON string completo)</td><td>Firebase Console → Cuentas de servicio → Generar clave privada</td></tr>
+          <tr><td><code>FIREBASE_CLIENT_EMAIL</code></td><td>Email del service account</td><td>Mismo JSON de la clave privada</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout-warning">
+      <strong>Importante:</strong> El valor de <code>FIREBASE_PRIVATE_KEY</code> debe ir entre comillas y con los saltos de línea <code>\n</code> preservados exactamente.
+    </div>
+
+    <!-- Twilio -->
+    <h3 id="doc01-twilio">Twilio — mensajes de WhatsApp</h3>
+    <blockquote>Requeridas si <code>WHATSAPP_ENABLED=true</code>.</blockquote>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>WHATSAPP_ENABLED</code></td><td><code>true</code> para activar, <code>false</code> para desactivar</td></tr>
+          <tr><td><code>TWILIO_ACCOUNT_SID</code></td><td>Account SID de Twilio</td></tr>
+          <tr><td><code>TWILIO_AUTH_TOKEN</code></td><td>Auth Token de Twilio</td></tr>
+          <tr><td><code>TWILIO_WHATSAPP_FROM</code></td><td>Número formato: <code>whatsapp:+14155238886</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- URLs -->
+    <h3>URLs de la aplicación</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Valor en producción</th></tr></thead>
+        <tbody>
+          <tr><td><code>APP_URL</code></td><td>URL pública del backend</td><td><code>https://tu-backend.railway.app</code></td></tr>
+          <tr><td><code>WEB_URL</code></td><td>URL pública del frontend web</td><td><code>https://tu-app.vercel.app</code></td></tr>
+          <tr><td><code>MOBILE_URL</code></td><td>URL de la app mobile</td><td><code>https://tu-app.expo.dev</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Otros -->
+    <h3>Otras variables</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Descripción</th><th>Valor recomendado</th></tr></thead>
+        <tbody>
+          <tr><td><code>DEFAULT_USER_PASSWORD</code></td><td>Contraseña por defecto al restablecer</td><td>Cambiar <code>HappySchool2026!</code> a algo más seguro en producción</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Web & Mobile -->
+    <h3 id="doc01-web">Web Frontend — <code>web/.env.local</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Valor desarrollo</th><th>Valor producción</th></tr></thead>
+        <tbody>
+          <tr><td><code>VITE_API_URL</code></td><td><code>http://localhost:3000/api</code></td><td><code>https://tu-backend.railway.app/api</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>App Mobile — <code>mobile/.env</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Valor desarrollo</th><th>Valor producción</th></tr></thead>
+        <tbody>
+          <tr><td><code>EXPO_PUBLIC_API_URL</code></td><td><code>http://192.168.1.X:3000/api</code> (IP local)</td><td><code>https://tu-backend.railway.app/api</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <blockquote>En desarrollo mobile, usar la IP de la computadora en la red local (no <code>localhost</code>), porque el celular no puede acceder a <code>localhost</code> de la computadora.</blockquote>
+
+    <!-- Plataformas -->
+    <h3 id="doc01-plataformas">Cómo configurar en Railway</h3>
+    <ol class="steps">
+      <li>Entrar a <strong>railway.app</strong></li>
+      <li>Ir al proyecto → pestaña <strong>Variables</strong></li>
+      <li>Agregar cada variable una por una</li>
+      <li>Railway reinicia el servidor automáticamente al guardar</li>
+    </ol>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">railway_variables.png</div>
+      <div class="ph-desc">Panel de variables de entorno en Railway con las variables configuradas</div>
+    </div>
+
+    <h3>Cómo configurar en Vercel</h3>
+    <ol class="steps">
+      <li>Entrar a <strong>vercel.com</strong></li>
+      <li>Proyecto → Settings → <strong>Environment Variables</strong></li>
+      <li>Agregar <code>VITE_API_URL</code> con el valor de producción</li>
+      <li>Nuevo deploy después de guardar</li>
+    </ol>
+
+    <!-- Seguridad -->
+    <h3 id="doc01-seguridad">Notas de seguridad</h3>
+    <ul>
+      <li>Nunca subir archivos <code>.env</code> al repositorio de Git</li>
+      <li>Los secretos deben ser únicos entre desarrollo y producción</li>
+      <li>La <code>DATABASE_URL</code> de producción no debe compartirse por correo o WhatsApp</li>
+      <li>Rotar las claves si se sospecha que fueron expuestas</li>
+    </ul>
+
+
+    <!-- ============================================================ -->
+    <!-- DOC 02: MIGRACIONES -->
+    <!-- ============================================================ -->
+    <div class="section-divider">
+      <span class="doc-label">Documento 09</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 id="doc02"><span class="doc-num">09</span> Guía de Migraciones en Producción</h2>
+    <p>Las migraciones son archivos SQL que crean o modifican la estructura de la base de datos. Deben aplicarse en orden numérico exacto. Hay <strong>49 archivos de migración</strong> en <code>backend/migrations/</code>. La herramienta usada es <strong><code>node-pg-migrate</code></strong>.</p>
+
+    <!-- Comandos -->
+    <h3 id="doc02-comandos">Comandos disponibles (desde <code>backend/</code>)</h3>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="comment"># Aplicar todas las migraciones pendientes</span>
+<span class="cmd">npm run migrate</span>
+
+<span class="comment"># Revertir la última migración aplicada</span>
+<span class="cmd">npm run migrate:down</span>
+
+<span class="comment"># Cargar datos iniciales (seed)</span>
+<span class="cmd">npm run seed</span></code></pre>
+    </div>
+
+    <!-- Primer deploy -->
+    <h3 id="doc02-primer-deploy">Primer deploy — base de datos vacía</h3>
+
+    <h4>Paso 1 — Verificar la variable <code>DATABASE_URL</code></h4>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="cmd">cd backend</span>
+<span class="cmd">node</span> <span class="flag">-e</span> <span class="string">"const { Pool } = require('pg'); const p = new Pool({connectionString: process.env.DATABASE_URL}); p.query('SELECT NOW()').then(r =&gt; console.log('Conexión OK:', r.rows[0])).catch(e =&gt; console.error('Error:', e.message));"</span></code></pre>
+    </div>
+
+    <h4>Paso 2 — Aplicar todas las migraciones</h4>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="cmd">cd backend</span>
+<span class="cmd">npm run migrate</span></code></pre>
+    </div>
+    <p>Deberías ver algo como:</p>
+    <div class="code-block-wrap">
+      <span class="code-lang">output</span>
+      <pre><code><span class="output">&gt; node-pg-migrate up
+Connecting to database...
+Running migration: 001_schema_inicial
+Running migration: 002_unique_constraints
+...
+Running migration: 049_plantillas_whatsapp_faltantes
+Migrations applied successfully.</span></code></pre>
+    </div>
+
+    <h4>Paso 3 — Cargar datos iniciales (seed)</h4>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="cmd">cd backend</span>
+<span class="cmd">npm run seed</span></code></pre>
+    </div>
+    <div class="callout-warning">
+      El seed solo debe correrse <strong>UNA VEZ</strong> en una base de datos nueva. Correrlo de nuevo en una BD con datos podría causar duplicados.
+    </div>
+
+    <!-- Actualización -->
+    <h3 id="doc02-actualizacion">Actualización a nueva versión</h3>
+    <ol class="steps">
+      <li>Hacer backup antes (ver Plan de Respaldo)</li>
+      <li>Desplegar el nuevo código</li>
+      <li>Ejecutar <code>npm run migrate</code> — detecta automáticamente cuáles migraciones ya se aplicaron y solo ejecuta las nuevas</li>
+      <li>Reiniciar el servidor si es necesario</li>
+    </ol>
+
+    <!-- Errores -->
+    <h3 id="doc02-errores">Qué hacer si una migración falla</h3>
+    <ol class="steps">
+      <li>Leer el mensaje de error completo</li>
+      <li>Verificar el estado de migraciones:</li>
+    </ol>
+    <div class="code-block-wrap">
+      <span class="code-lang">sql</span>
+      <pre><code><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> pgmigrations <span class="keyword">ORDER BY</span> run_on <span class="keyword">DESC LIMIT</span> 10;</code></pre>
+    </div>
+    <p>Si el error es <em>"relation already exists"</em>: la migración ya fue aplicada. Marcarla manualmente:</p>
+    <div class="code-block-wrap">
+      <span class="code-lang">sql</span>
+      <pre><code><span class="keyword">INSERT INTO</span> pgmigrations (name, run_on)
+<span class="keyword">VALUES</span> (<span class="string">'nombre_de_la_migracion'</span>, <span class="keyword">NOW</span>());</code></pre>
+    </div>
+    <div class="callout-danger">
+      Cualquier error desconocido: restaurar desde backup y contactar a Valeria.
+    </div>
+
+    <!-- Lista de migraciones -->
+    <h3 id="doc02-lista">Lista de migraciones (referencia)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Archivo</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td>001</td><td><code>schema_inicial</code></td><td>Crea todas las tablas principales</td></tr>
+          <tr class="migration-row-range"><td>002–009</td><td><code>unique_constraints, ciclos, grupos…</code></td><td>Restricciones y ajustes menores</td></tr>
+          <tr><td>010–019</td><td><code>roles, actividades, comida…</code></td><td>Funcionalidades iniciales</td></tr>
+          <tr class="migration-row-range"><td>020–029</td><td><code>curp, avisos, eventos…</code></td><td>Validaciones y módulos adicionales</td></tr>
+          <tr><td>030–039</td><td><code>salud, medicamentos, visitantes…</code></td><td>Módulos de salud y extensión</td></tr>
+          <tr class="migration-row-range"><td>040–049</td><td><code>catálogos, pagos, fotos, WhatsApp</code></td><td>Catálogos, pagos, multimedia</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Verificar estado de las migraciones</h4>
+    <div class="code-block-wrap">
+      <span class="code-lang">sql</span>
+      <pre><code><span class="keyword">SELECT</span> name, run_on <span class="keyword">FROM</span> pgmigrations <span class="keyword">ORDER BY</span> run_on;</code></pre>
+    </div>
+
+
+    <!-- ============================================================ -->
+    <!-- DOC 03: PLAN DE RESPALDO -->
+    <!-- ============================================================ -->
+    <div class="section-divider">
+      <span class="doc-label">Documento 10</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 id="doc03"><span class="doc-num">10</span> Plan de Respaldo de Base de Datos</h2>
+    <p>La base de datos contiene toda la información de la escuela. Sin respaldo reciente, un fallo podría significar pérdida irreversible.</p>
+
+    <!-- Manual -->
+    <h3 id="doc03-manual">Respaldo manual (<code>pg_dump</code>)</h3>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="comment"># Exportar toda la base de datos</span>
+<span class="cmd">pg_dump</span> <span class="string">"$DATABASE_URL"</span> <span class="flag">-Fc</span> <span class="flag">-f</span> backup_$(date +%Y%m%d_%H%M%S).dump</code></pre>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parámetro</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td><code>$DATABASE_URL</code></td><td>URL de conexión PostgreSQL</td></tr>
+          <tr><td><code>-Fc</code></td><td>Formato custom de PostgreSQL</td></tr>
+          <tr><td><code>-f</code></td><td>Nombre del archivo de salida</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Alternativa en formato SQL legible:</p>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="cmd">pg_dump</span> <span class="string">"$DATABASE_URL"</span> <span class="flag">--no-owner</span> <span class="flag">--no-acl</span> &gt; backup_$(date +%Y%m%d).sql</code></pre>
+    </div>
+
+    <h4>Guardar el respaldo</h4>
+    <ol class="steps">
+      <li>Descargarlo a tu computadora</li>
+      <li>Subirlo a Google Drive o nube personal</li>
+      <li>Nombrado recomendado: <code>happy_school_YYYYMMDD.dump</code></li>
+    </ol>
+
+    <!-- Frecuencia -->
+    <h3 id="doc03-frecuencia">Frecuencia recomendada</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Período</th><th>Cuándo hacer backup</th></tr></thead>
+        <tbody>
+          <tr><td>Durante el piloto</td><td>Cada semana (mínimo)</td></tr>
+          <tr><td>Después del piloto</td><td>Antes de cada actualización</td></tr>
+          <tr><td>Producción estable</td><td>Automatizado cada 24 horas (Railway plan pagado)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Restaurar -->
+    <h3 id="doc03-restaurar">Restaurar desde un backup</h3>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="comment"># Restaurar desde archivo .dump</span>
+<span class="cmd">pg_restore</span> <span class="flag">-d</span> <span class="string">"$DATABASE_URL"</span> <span class="flag">--no-owner</span> <span class="flag">--clean</span> backup_YYYYMMDD.dump
+
+<span class="comment"># Restaurar desde archivo .sql</span>
+<span class="cmd">psql</span> <span class="string">"$DATABASE_URL"</span> &lt; backup_YYYYMMDD.sql</code></pre>
+    </div>
+    <div class="callout-danger">
+      <strong>Advertencia:</strong> La restauración sobrescribe los datos actuales. Solo usar en emergencias.
+    </div>
+
+    <h4>Verificar que el backup es válido</h4>
+    <div class="code-block-wrap">
+      <span class="code-lang">bash</span>
+      <pre><code><span class="cmd">pg_restore</span> <span class="flag">--list</span> backup_YYYYMMDD.dump | head <span class="flag">-20</span></code></pre>
+    </div>
+    <p>Si muestra una lista de tablas y objetos, el backup está bien formado.</p>
+
+    <!-- Railway automático -->
+    <h3 id="doc03-railway">Backup automático en Railway</h3>
+    <p>Railway ofrece backups automáticos en sus planes de pago:</p>
+    <p><strong>Dashboard → Base de datos → Backups</strong></p>
+    <p>Los backups se guardan por 7 días en el plan básico.</p>
+
+
+    <!-- ============================================================ -->
+    <!-- DOC 04: PLAN DE ROLLBACK -->
+    <!-- ============================================================ -->
+    <div class="section-divider">
+      <span class="doc-label">Documento 11</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <h2 id="doc04"><span class="doc-num">11</span> Plan de Rollback</h2>
+    <div class="callout-warning">
+      <strong>Regla de oro:</strong> Siempre hacer backup <em>antes</em> de cualquier deploy. Sin backup, el rollback de BD no es posible.
+    </div>
+
+    <!-- Escenario 1 -->
+    <h3 id="doc04-e1">Escenario 1 — El backend no arranca después del deploy</h3>
+    <div class="scenario-card">
+      <div class="scenario-title">
+        <span class="scenario-badge badge-error">Error 500 / sin respuesta</span>
+        API devuelve error 500 o no responde
+      </div>
+      <ol>
+        <li>Revisar logs:<br>
+          <strong>Railway:</strong> Dashboard → Deployment → View logs<br>
+          <strong>Render:</strong> Dashboard → Logs
+        </li>
+        <li>Si es variable de entorno faltante: agregarla y redeploy</li>
+        <li>Si es error de código: hacer rollback desde el dashboard
+          <ul>
+            <li><strong>Railway:</strong> Deployments → seleccionar deploy anterior → "Redeploy"</li>
+            <li><strong>Render:</strong> Manual Deploys → seleccionar versión anterior</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Escenario 2 -->
+    <h3 id="doc04-e2">Escenario 2 — Una migración de BD falló a mitad</h3>
+    <div class="scenario-card">
+      <div class="scenario-title">
+        <span class="scenario-badge badge-error">Error SQL</span>
+        Funcionalidades no funcionan, logs muestran errores SQL
+      </div>
+      <ol>
+        <li>No hacer más cambios hasta resolver</li>
+        <li>Verificar qué migraciones se aplicaron:</li>
+      </ol>
+      <div class="code-block-wrap">
+        <span class="code-lang">sql</span>
+        <pre><code><span class="keyword">SELECT</span> name, run_on <span class="keyword">FROM</span> pgmigrations <span class="keyword">ORDER BY</span> run_on <span class="keyword">DESC LIMIT</span> 5;</code></pre>
+      </div>
+      <ol start="3">
+        <li><strong>Opción A:</strong> <code>npm run migrate:down</code> (solo si es la última)</li>
+        <li><strong>Opción B:</strong> restaurar desde backup previo al deploy</li>
+        <li>Corregir el script y volver a intentar</li>
+      </ol>
+    </div>
+
+    <!-- Escenario 3 -->
+    <h3 id="doc04-e3">Escenario 3 — El frontend web no carga o muestra errores</h3>
+    <div class="scenario-card">
+      <div class="scenario-title">
+        <span class="scenario-badge badge-warning">Frontend</span>
+        La web no carga o muestra errores en producción
+      </div>
+      <ol>
+        <li>Verificar que <code>VITE_API_URL</code> en Vercel apunta al backend correcto</li>
+        <li>Rollback desde Vercel: Deployments → deploy anterior → "Promote to Production"</li>
+        <li>Si es variable de entorno: corregirlas y redeploy</li>
+      </ol>
+    </div>
+
+    <!-- Escenario 4 -->
+    <h3 id="doc04-e4">Escenario 4 — Datos corruptos o borrados accidentalmente</h3>
+    <div class="scenario-card">
+      <div class="scenario-title">
+        <span class="scenario-badge badge-error">Pérdida de datos</span>
+        Datos incorrectos o eliminados en producción
+      </div>
+      <div class="code-block-wrap">
+        <span class="code-lang">bash</span>
+        <pre><code><span class="cmd">pg_restore</span> <span class="flag">-d</span> <span class="string">"$DATABASE_URL"</span> <span class="flag">--no-owner</span> <span class="flag">--clean</span> backup_YYYYMMDD.dump</code></pre>
+      </div>
+      <p>Si el backup también tiene datos incorrectos, buscar un backup más antiguo.</p>
+    </div>
+    <div class="callout-danger">
+      La restauración borrará todos los datos agregados <em>después</em> de la fecha del backup. Evaluar antes de proceder.
+    </div>
+
+    <!-- Escenario 5 -->
+    <h3 id="doc04-e5">Escenario 5 — La app mobile deja de funcionar</h3>
+    <div class="scenario-card">
+      <div class="scenario-title">
+        <span class="scenario-badge badge-info">Mobile</span>
+        La aplicación móvil deja de responder o muestra errores
+      </div>
+      <ol>
+        <li>Verificar si el backend está funcionando (probar la URL de la API en el navegador)</li>
+        <li>Si el backend caído es la causa → resolver primero el backend (Escenario 1)</li>
+        <li>Si está en Expo Go: los usuarios recargan la app</li>
+        <li>Si está en build nativo (APK): publicar una versión de corrección</li>
+      </ol>
+    </div>
+
+    <!-- Rollback Railway -->
+    <h3 id="doc04-rollback-railway">Cómo hacer rollback de código en Railway</h3>
+    <ol class="steps">
+      <li>Entrar a <strong>railway.app</strong></li>
+      <li>Ir al proyecto → servicio del backend</li>
+      <li>Clic en <strong>"Deployments"</strong></li>
+      <li>Buscar el último deploy exitoso</li>
+      <li>Clic en <strong>"…"</strong> → <strong>"Redeploy"</strong></li>
+    </ol>
+
+    <!-- Rollback Vercel -->
+    <h3 id="doc04-rollback-vercel">Cómo hacer rollback de código en Vercel</h3>
+    <ol class="steps">
+      <li>Entrar a <strong>vercel.com</strong></li>
+      <li>Ir al proyecto del frontend</li>
+      <li>Clic en <strong>"Deployments"</strong></li>
+      <li>Buscar el último deploy exitoso</li>
+      <li>Clic en <strong>"…"</strong> → <strong>"Promote to Production"</strong></li>
+    </ol>
+
+    <!-- Checklist post-rollback -->
+    <h3 id="doc04-checklist">Lista de verificación post-rollback</h3>
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="chk1">
+        <label for="chk1">El backend responde: <code>curl https://tu-backend.railway.app/health</code></label>
+      </li>
+      <li>
+        <input type="checkbox" id="chk2">
+        <label for="chk2">El frontend web carga sin errores</label>
+      </li>
+      <li>
+        <input type="checkbox" id="chk3">
+        <label for="chk3">Se puede iniciar sesión con usuario de prueba</label>
+      </li>
+      <li>
+        <input type="checkbox" id="chk4">
+        <label for="chk4">Verificar la funcionalidad afectada</label>
+      </li>
+      <li>
+        <input type="checkbox" id="chk5">
+        <label for="chk5">Documentar qué causó el problema</label>
+      </li>
+    </ul>
+
+    <div class="callout-success">
+      <strong>Checklist completo:</strong> Una vez que todos los ítems estén marcados, el sistema está estable y se puede documentar el incidente.
+    </div>
+
+  </div><!-- /content -->
+</main><!-- /main -->
+
+<!-- ===== SCROLL HIGHLIGHT JS ===== -->
+<script>
+(function () {
+  'use strict';
+
+  var sidebarLinks = document.querySelectorAll('#sidebar-nav a[href^="#"]');
+  var sections = [];
+
+  sidebarLinks.forEach(function (link) {
+    var id = link.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) {
+      sections.push({ id: id, el: el, link: link });
+    }
+  });
+
+  function getScrollTop() {
+    return window.pageYOffset || document.documentElement.scrollTop;
+  }
+
+  function onScroll() {
+    var scrollTop = getScrollTop();
+    var topbarHeight = 72;
+    var current = null;
+
+    for (var i = 0; i < sections.length; i++) {
+      var rect = sections[i].el.getBoundingClientRect();
+      var offsetTop = rect.top + scrollTop;
+      if (scrollTop + topbarHeight >= offsetTop - 4) {
+        current = sections[i];
+      }
+    }
+
+    sidebarLinks.forEach(function (link) {
+      link.classList.remove('active');
+    });
+
+    if (current) {
+      current.link.classList.add('active');
+
+      // Scroll sidebar to keep active link visible
+      var sidebar = document.getElementById('sidebar');
+      var linkRect = current.link.getBoundingClientRect();
+      var sidebarRect = sidebar.getBoundingClientRect();
+      if (linkRect.top < sidebarRect.top + 60 || linkRect.bottom > sidebarRect.bottom - 40) {
+        sidebar.scrollTop += linkRect.top - sidebarRect.top - 100;
+      }
+    }
+  }
+
+  var ticking = false;
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      window.requestAnimationFrame(function () {
+        onScroll();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Run on load
+  onScroll();
+})();
+</script>
+
+</body>
+</html>

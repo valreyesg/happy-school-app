@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía de Capacitación — Happy School App v1.0.0-beta</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f9fafb;
+    color: #1a1a2e;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: 260px;
+    height: 100vh;
+    background: #1a1a2e;
+    color: #e2e8f0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+  }
+  #sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid #2d2d4e;
+  }
+  #sidebar-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  #sidebar-header .role-badge {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    background: #92400e;
+    color: #fef3c7;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border: 1px solid #f59e0b;
+  }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section {
+    padding: 8px 20px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #4b5563;
+  }
+  #sidebar nav a {
+    display: block;
+    padding: 8px 20px 8px 28px;
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 13.5px;
+    line-height: 1.4;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+  }
+  #sidebar nav a:hover {
+    color: #e2e8f0;
+    background: #252545;
+    border-left-color: #f59e0b;
+  }
+  #sidebar nav a.active {
+    color: #fcd34d;
+    background: #252545;
+    border-left-color: #f59e0b;
+    font-weight: 600;
+  }
+  #sidebar-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #2d2d4e;
+    font-size: 11px;
+    color: #4b5563;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    margin-left: 260px;
+    flex: 1;
+    min-height: 100vh;
+  }
+  #topbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+  }
+  #topbar .breadcrumb {
+    font-size: 13px;
+    color: #6b7280;
+  }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 20px;
+    font-weight: 600;
+    border: 1px solid #f59e0b;
+  }
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a1a2e;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  h1 .subtitle {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #fef3c7;
+    scroll-margin-top: 80px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    scroll-margin-top: 80px;
+  }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code {
+    font-family: 'Courier New', monospace;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #b45309;
+  }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  /* ===== META HEADER ===== */
+  .doc-meta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0 32px;
+    padding: 16px 20px;
+    background: #fffbeb;
+    border-radius: 10px;
+    border: 1px solid #fcd34d;
+  }
+  .doc-meta .meta-item { font-size: 13px; color: #92400e; }
+  .doc-meta .meta-item span { font-weight: 600; }
+
+  /* ===== CALLOUT / BLOCKQUOTE ===== */
+  blockquote {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #78350f;
+  }
+  blockquote strong { color: #78350f; }
+
+  /* ===== CALLOUT WARNING ===== */
+  .callout-warning {
+    border-left: 4px solid #f59e0b;
+    background: #fffbeb;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #78350f;
+  }
+  .callout-info {
+    border-left: 4px solid #3b82f6;
+    background: #eff6ff;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #1e40af;
+  }
+  .callout-tip {
+    border-left: 4px solid #10b981;
+    background: #ecfdf5;
+    padding: 14px 18px;
+    margin: 20px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    color: #065f46;
+  }
+
+  /* ===== TABLES ===== */
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead tr { background: #1a1a2e; }
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    color: #e2e8f0;
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 0.3px;
+  }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #fffbeb; }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: top;
+  }
+
+  /* ===== IMAGE PLACEHOLDERS ===== */
+  .img-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fef9c3;
+    border: 2px dashed #f59e0b;
+    border-radius: 10px;
+    padding: 32px 20px;
+    margin: 20px 0;
+    gap: 8px;
+    text-align: center;
+  }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename {
+    font-family: monospace;
+    font-size: 12px;
+    color: #b45309;
+    background: #fef3c7;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+
+  /* ===== CHECKLIST (INTERACTIVE CHECKBOXES) ===== */
+  .checklist {
+    list-style: none;
+    margin: 0 0 20px 0;
+    padding: 0;
+  }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    transition: background 0.1s;
+    font-size: 14px;
+    color: #374151;
+    cursor: pointer;
+  }
+  .checklist li:hover { background: #fffbeb; }
+  .checklist input[type="checkbox"] {
+    accent-color: #f59e0b;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .checklist label {
+    cursor: pointer;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .checklist input[type="checkbox"]:checked + label {
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+
+  /* ===== STEP ITEMS ===== */
+  .step-list {
+    list-style: none;
+    margin: 0 0 20px 0;
+    padding: 0;
+    counter-reset: step-counter;
+  }
+  .step-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-size: 14.5px;
+    color: #374151;
+    line-height: 1.6;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 26px;
+    background: #f59e0b;
+    color: #1a1a2e;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ===== PASO (NUMBERED SECTION HEADER) ===== */
+  .paso-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    padding: 16px 20px;
+    background: #1a1a2e;
+    border-radius: 10px;
+    color: #fff;
+    scroll-margin-top: 80px;
+  }
+  .paso-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    background: #f59e0b;
+    color: #1a1a2e;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .paso-header .paso-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+  }
+  .paso-header .paso-where {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  /* ===== FAQ (DETAILS/SUMMARY) ===== */
+  details {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  details[open] { border-color: #f59e0b; }
+  summary {
+    padding: 14px 18px;
+    background: #f9fafb;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: '▶';
+    font-size: 10px;
+    color: #f59e0b;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  details[open] summary { background: #fffbeb; }
+  summary:hover { background: #fffbeb; }
+  .details-body {
+    padding: 14px 18px 16px 42px;
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.7;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+  }
+  details[open] .details-body { border-top-color: #fcd34d; }
+
+  /* ===== ERROR TABLE BADGE ===== */
+  .error-badge {
+    display: inline-block;
+    background: #fee2e2;
+    color: #991b1b;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ===== ACCESS BADGE ===== */
+  .access-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1a2e;
+    color: #fcd34d;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: monospace;
+    margin: 4px 0;
+  }
+
+  /* ===== SECTION DIVIDER ===== */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0 32px;
+  }
+  .section-divider .divider-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #f59e0b;
+    white-space: nowrap;
+    padding: 4px 12px;
+    background: #1a1a2e;
+    border-radius: 20px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  /* ===== PROGRESS INDICATOR ===== */
+  .progress-note {
+    font-size: 12px;
+    color: #6b7280;
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 16px;
+  }
+
+  /* ===== ROLE TABLE BADGE ===== */
+  .rol-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .rol-directora { background: #ede9fe; color: #5b21b6; }
+  .rol-maestra   { background: #d1fae5; color: #065f46; }
+  .rol-padre     { background: #dbeafe; color: #1e40af; }
+  .rol-admin     { background: #fce7f3; color: #9d174d; }
+  .rol-puerta    { background: #fef3c7; color: #92400e; }
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta · 2026</div>
+    <div class="role-badge">Capacitación · Valeria</div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Checklist de Alta</div>
+    <a href="#antes-de-empezar">Antes de empezar</a>
+    <a href="#paso1">Paso 1 — Ciclo Escolar</a>
+    <a href="#paso2">Paso 2 — Grupos</a>
+    <a href="#paso3">Paso 3 — Personal</a>
+    <a href="#paso4">Paso 4 — Maestras titulares</a>
+    <a href="#paso5">Paso 5 — Alumnos</a>
+    <a href="#paso6">Paso 6 — Padres y tutores</a>
+    <a href="#paso7">Paso 7 — Cuentas de acceso</a>
+    <a href="#paso8">Paso 8 — Personas autorizadas</a>
+    <a href="#paso9">Paso 9 — Horarios</a>
+    <a href="#paso10">Paso 10 — Catálogos</a>
+    <a href="#paso11">Paso 11 — Conceptos de pago</a>
+    <a href="#paso12">Paso 12 — Verificación final</a>
+    <a href="#accesos-rol">Accesos por rol</a>
+
+    <div class="nav-section">Guía de Onboarding</div>
+    <a href="#primera-vez">Primera vez — Directora</a>
+    <a href="#mod1">Módulo 1 — Ciclos</a>
+    <a href="#mod2">Módulo 2 — Grupos</a>
+    <a href="#mod3">Módulo 3 — Personal</a>
+    <a href="#mod4">Módulo 4 — Alumnos</a>
+    <a href="#mod5">Módulo 5 — Padres y tutores</a>
+    <a href="#mod6">Módulo 6 — Personas autorizadas</a>
+    <a href="#mod7">Módulo 7 — Configuración</a>
+    <a href="#errores-comunes">Errores comunes</a>
+    <a href="#faq">Preguntas frecuentes</a>
+    <a href="#verificacion-post">Verificación post-alta</a>
+  </nav>
+
+  <div id="sidebar-footer">
+    Happy School App &copy; 2026<br>
+    Happys School
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div id="main">
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <div class="breadcrumb">
+      Documentación <strong>/</strong> v1.0.0-beta <strong>/</strong> Guía de Capacitación
+    </div>
+    <div class="badge">Capacitación · Valeria</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ===== PAGE TITLE ===== -->
+    <h1>
+      Guía de Capacitación
+      <span class="subtitle">Checklist de Alta + Guía de Onboarding — Happy School App v1.0.0-beta</span>
+    </h1>
+
+    <div class="doc-meta">
+      <div class="meta-item">Versión: <span>v1.0.0-beta</span></div>
+      <div class="meta-item">Uso: <span>Valeria (capacitación con Directora)</span></div>
+      <div class="meta-item">Actualizado: <span>2026</span></div>
+      <div class="meta-item">Documentos: <span>Checklist de Alta + Guía Onboarding</span></div>
+    </div>
+
+    <blockquote>
+      Este documento combina el <strong>Checklist de Alta de Escuela</strong> y la <strong>Guía de Onboarding</strong>.
+      El checklist te guía paso a paso para dejar la aplicación lista desde cero. La guía de onboarding explica <em>por qué</em> se hace cada paso, qué verá la Directora en cada pantalla, y qué hacer si algo no sale como se espera. El orden de los pasos es importante: cada uno depende del anterior.
+    </blockquote>
+
+    <!-- ============================================================ -->
+    <div class="section-divider"><div class="divider-label">Checklist de Alta de Escuela</div></div>
+    <!-- ============================================================ -->
+
+    <!-- ANTES DE EMPEZAR -->
+    <h2 id="antes-de-empezar">Antes de empezar</h2>
+    <p>Reunir la siguiente información antes de iniciar el alta de la escuela:</p>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="pre1">
+        <label for="pre1">Acceso de Directora a la aplicación</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre2">
+        <label for="pre2">Listado del personal (nombre completo, CURP, RFC, correo, teléfono, rol)</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre3">
+        <label for="pre3">Listado de alumnos inscritos (nombre, fecha de nacimiento, CURP, grupo asignado)</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre4">
+        <label for="pre4">Datos de los padres/tutores de cada alumno (nombre, parentesco, teléfono, correo)</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre5">
+        <label for="pre5">Fotografías y copias de INE de las personas autorizadas a recoger alumnos</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre6">
+        <label for="pre6">Logotipo de la escuela (opcional)</label>
+      </li>
+      <li>
+        <input type="checkbox" id="pre7">
+        <label for="pre7">Fechas exactas del ciclo escolar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 1 -->
+    <div class="paso-header" id="paso1">
+      <div class="paso-num">1</div>
+      <div>
+        <div class="paso-title">Crear el Ciclo Escolar</div>
+        <div class="paso-where">Menú lateral → Ciclos Escolares</div>
+      </div>
+    </div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">ciclos_escolares.png</div>
+      <div class="ph-desc">Módulo Ciclos Escolares con botón Nuevo Ciclo y lista de ciclos</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p1-1">
+        <label for="p1-1">Ir a <strong>Ciclos Escolares</strong> en el menú</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p1-2">
+        <label for="p1-2">Hacer clic en <strong>"Nuevo ciclo"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p1-3">
+        <label for="p1-3">Llenar: Nombre <code>2025-2026</code>, Fecha de inicio, Fecha de fin</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p1-4">
+        <label for="p1-4">Guardar el ciclo</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p1-5">
+        <label for="p1-5">Activar el ciclo haciendo clic en <strong>"Activar"</strong></label>
+      </li>
+    </ul>
+
+    <div class="callout-warning">
+      Solo puede haber un ciclo activo a la vez. Si ya existe uno de años anteriores, no lo elimines.
+    </div>
+
+    <!-- PASO 2 -->
+    <div class="paso-header" id="paso2">
+      <div class="paso-num">2</div>
+      <div>
+        <div class="paso-title">Crear los Grupos (Salones)</div>
+        <div class="paso-where">Menú lateral → Grupos</div>
+      </div>
+    </div>
+
+    <p>Repetir para cada salón:</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">grupos_nuevo.png</div>
+      <div class="ph-desc">Formulario de creación de nuevo grupo</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p2-1">
+        <label for="p2-1">Ir a <strong>Grupos</strong> en el menú</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p2-2">
+        <label for="p2-2">Hacer clic en <strong>"Nuevo grupo"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p2-3">
+        <label for="p2-3">Llenar: Nombre (ej. <code>Kinder 1A</code>), Nivel, Ciclo escolar, Cupo máximo, Color</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p2-4">
+        <label for="p2-4">Guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 3 -->
+    <div class="paso-header" id="paso3">
+      <div class="paso-num">3</div>
+      <div>
+        <div class="paso-title">Registrar al Personal</div>
+        <div class="paso-where">Menú lateral → Personal</div>
+      </div>
+    </div>
+
+    <p>Repetir para cada persona del personal:</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">personal_nuevo.png</div>
+      <div class="ph-desc">Formulario de registro de nuevo integrante del personal</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p3-1">
+        <label for="p3-1">Ir a <strong>Personal</strong> en el menú</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p3-2">
+        <label for="p3-2">Hacer clic en <strong>"Nuevo integrante"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p3-3">
+        <label for="p3-3">Llenar: Nombre completo, CURP, RFC, Correo electrónico, Teléfono, Fecha de ingreso, Rol principal, Contraseña inicial</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p3-4">
+        <label for="p3-4">Guardar</label>
+      </li>
+    </ul>
+
+    <div class="callout-tip">
+      La contraseña debe tener al menos 8 caracteres con letras y números. Ejemplo: <code>HappyS2025</code>
+    </div>
+
+    <!-- PASO 4 -->
+    <div class="paso-header" id="paso4">
+      <div class="paso-num">4</div>
+      <div>
+        <div class="paso-title">Asignar Maestras Titulares a los Grupos</div>
+        <div class="paso-where">Menú lateral → Grupos</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p4-1">
+        <label for="p4-1">Ir a <strong>Grupos</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p4-2">
+        <label for="p4-2">Entrar al detalle de cada grupo</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p4-3">
+        <label for="p4-3">Buscar <strong>"Asignar maestra titular"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p4-4">
+        <label for="p4-4">Seleccionar la maestra y guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 5 -->
+    <div class="paso-header" id="paso5">
+      <div class="paso-num">5</div>
+      <div>
+        <div class="paso-title">Registrar a los Alumnos</div>
+        <div class="paso-where">Menú lateral → Alumnos</div>
+      </div>
+    </div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">alumnos_nuevo.png</div>
+      <div class="ph-desc">Formulario de registro de nuevo alumno con campos de datos de salud</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p5-1">
+        <label for="p5-1">Ir a <strong>Alumnos</strong> en el menú</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p5-2">
+        <label for="p5-2">Hacer clic en <strong>"Nuevo alumno"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p5-3">
+        <label for="p5-3">Llenar: Nombre completo, Fecha de nacimiento, CURP (obligatorio), Grupo, Ciclo escolar, Usa pañal (solo Maternal), Alergias, Condiciones especiales, Tipo de sangre, Médico de cabecera</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p5-4">
+        <label for="p5-4">Guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 6 -->
+    <div class="paso-header" id="paso6">
+      <div class="paso-num">6</div>
+      <div>
+        <div class="paso-title">Registrar a los Padres y Tutores</div>
+        <div class="paso-where">Desde el perfil de cada alumno</div>
+      </div>
+    </div>
+
+    <p>Repetir para cada alumno:</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">perfil_alumno_padres.png</div>
+      <div class="ph-desc">Perfil del alumno mostrando sección de padres/tutores y personas autorizadas</div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p6-1">
+        <label for="p6-1">Ir al perfil del alumno (Alumnos → clic en el nombre)</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p6-2">
+        <label for="p6-2">Buscar la sección <strong>"Padres / Tutores"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p6-3">
+        <label for="p6-3">Hacer clic en <strong>"Agregar padre/tutor"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p6-4">
+        <label for="p6-4">Llenar: Nombre completo, Parentesco, Teléfono, Teléfono WhatsApp, Correo electrónico, ¿Es tutor principal?</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p6-5">
+        <label for="p6-5">Guardar</label>
+      </li>
+    </ul>
+
+    <div class="callout-info">
+      Si dos alumnos son hermanos, sus padres pueden compartir el mismo correo.
+    </div>
+
+    <!-- PASO 7 -->
+    <div class="paso-header" id="paso7">
+      <div class="paso-num">7</div>
+      <div>
+        <div class="paso-title">Crear Cuentas de Acceso para los Padres</div>
+        <div class="paso-where">Menú lateral → Usuarios</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p7-1">
+        <label for="p7-1">Ir a <strong>Usuarios</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p7-2">
+        <label for="p7-2">Buscar al padre/tutor en la lista</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p7-3">
+        <label for="p7-3">Hacer clic en <strong>"Crear cuenta"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p7-4">
+        <label for="p7-4">Anotar o compartir los datos generados con el padre</label>
+      </li>
+    </ul>
+
+    <!-- PASO 8 -->
+    <div class="paso-header" id="paso8">
+      <div class="paso-num">8</div>
+      <div>
+        <div class="paso-title">Registrar las Personas Autorizadas para Recoger</div>
+        <div class="paso-where">Desde el perfil de cada alumno</div>
+      </div>
+    </div>
+
+    <div class="callout-warning">
+      <strong>Se necesitan obligatoriamente:</strong> Fotografía del rostro + Foto INE frente + Foto INE reverso. Sin las 3 imágenes, el registro no se puede guardar.
+    </div>
+
+    <p>Repetir para cada alumno:</p>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p8-1">
+        <label for="p8-1">Ir al perfil del alumno</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p8-2">
+        <label for="p8-2">Buscar <strong>"Personas autorizadas"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p8-3">
+        <label for="p8-3">Hacer clic en <strong>"Agregar persona autorizada"</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p8-4">
+        <label for="p8-4">Llenar: Nombre completo, Parentesco, Teléfono, Foto de la persona, INE por delante, INE por detrás</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p8-5">
+        <label for="p8-5">Guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 9 -->
+    <div class="paso-header" id="paso9">
+      <div class="paso-num">9</div>
+      <div>
+        <div class="paso-title">Configurar los Horarios de la Escuela</div>
+        <div class="paso-where">Menú lateral → Configuración</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p9-1">
+        <label for="p9-1">Ir a <strong>Configuración</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p9-2">
+        <label for="p9-2">Configurar: Hora de inicio del filtro <code>7:00 AM</code>, Hora límite sin retardo <code>8:30 AM</code>, Hora de salida normal <code>3:00 PM</code>, Hora de salida extensión <code>6:00 PM</code>, Costo por hora de extensión, Máximo de retardos por mes <code>3</code></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p9-3">
+        <label for="p9-3">Guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 10 -->
+    <div class="paso-header" id="paso10">
+      <div class="paso-num">10</div>
+      <div>
+        <div class="paso-title">Configurar los Catálogos</div>
+        <div class="paso-where">Menú lateral → Catálogos</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p10-1">
+        <label for="p10-1">Ir a <strong>Catálogos</strong></label>
+      </li>
+      <li>
+        <input type="checkbox" id="p10-2">
+        <label for="p10-2">Revisar cada categoría y ajustar opciones</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p10-3">
+        <label for="p10-3">Guardar los cambios</label>
+      </li>
+    </ul>
+
+    <!-- PASO 11 -->
+    <div class="paso-header" id="paso11">
+      <div class="paso-num">11</div>
+      <div>
+        <div class="paso-title">Configurar los Conceptos de Pago</div>
+        <div class="paso-where">Menú lateral → Configuración → Conceptos de pago</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p11-1">
+        <label for="p11-1">Agregar los conceptos: Colegiatura mensual por nivel, Servicio de extensión, Inscripción, Materiales, Otros</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p11-2">
+        <label for="p11-2">Asignar precio a cada concepto</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p11-3">
+        <label for="p11-3">Guardar</label>
+      </li>
+    </ul>
+
+    <!-- PASO 12 -->
+    <div class="paso-header" id="paso12">
+      <div class="paso-num">12</div>
+      <div>
+        <div class="paso-title">Verificación Final</div>
+        <div class="paso-where">Revisión general antes de comenzar operaciones</div>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="p12-1">
+        <label for="p12-1">El ciclo escolar está activo</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-2">
+        <label for="p12-2">Todos los grupos tienen maestra titular asignada</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-3">
+        <label for="p12-3">Todos los alumnos tienen grupo asignado</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-4">
+        <label for="p12-4">Todos los alumnos tienen al menos un padre/tutor registrado</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-5">
+        <label for="p12-5">Los padres que necesitan acceso tienen cuenta creada</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-6">
+        <label for="p12-6">Los horarios de la escuela están configurados</label>
+      </li>
+      <li>
+        <input type="checkbox" id="p12-7">
+        <label for="p12-7">Las personas autorizadas tienen sus fotos y documentos subidos</label>
+      </li>
+    </ul>
+
+    <!-- ACCESOS POR ROL -->
+    <h2 id="accesos-rol">Accesos por Rol</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Plataforma</th>
+            <th>Cómo acceder</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rol-badge rol-directora">Directora</span></td>
+            <td>Solo web</td>
+            <td><div class="access-badge">https://[url-de-la-escuela]/login</div></td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-maestra">Maestra</span></td>
+            <td>Web + App móvil</td>
+            <td>Web + app Happy School</td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-padre">Padre/Tutor</span></td>
+            <td>Web + App móvil</td>
+            <td>Web + app Happy School</td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-admin">Administrativo</span></td>
+            <td>Solo web</td>
+            <td><div class="access-badge">https://[url-de-la-escuela]/login</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============================================================ -->
+    <div class="section-divider"><div class="divider-label">Guía de Onboarding</div></div>
+    <!-- ============================================================ -->
+
+    <blockquote>
+      Esta guía explica <strong>por qué</strong> se hace cada paso, qué verá la Directora en cada pantalla, y qué hacer si algo no sale como se esperaba. Úsala en paralelo con el Checklist.
+    </blockquote>
+
+    <!-- PRIMERA VEZ -->
+    <h2 id="primera-vez">Cómo entrar — Primera vez que entra la Directora</h2>
+
+    <ol class="step-list">
+      <li><div class="step-num">1</div><div>Abrir Chrome y entrar a la dirección de la app</div></li>
+      <li><div class="step-num">2</div><div>Ingresar correo y contraseña temporal</div></li>
+      <li><div class="step-num">3</div><div>El sistema pedirá cambiar la contraseña (mínimo 8 caracteres con letras y números, ej: <code>Happys2026</code>)</div></li>
+      <li><div class="step-num">4</div><div>Después del cambio, llega al Dashboard principal con menú lateral</div></li>
+    </ol>
+
+    <!-- MODULO 1 -->
+    <h2 id="mod1">Módulo 1 — Ciclos Escolares</h2>
+
+    <p>Un ciclo escolar funciona como el <strong>"contenedor"</strong> de todo. Sin un ciclo activo, no se pueden crear grupos, y sin grupos no se pueden inscribir alumnos.</p>
+
+    <h3>Cómo crear un ciclo</h3>
+    <ol class="step-list">
+      <li><div class="step-num">1</div><div>Ir a <strong>Ciclos Escolares</strong> en el menú lateral</div></li>
+      <li><div class="step-num">2</div><div>Clic en <strong>"Nuevo ciclo"</strong></div></li>
+      <li><div class="step-num">3</div><div>Llenar el Nombre (formato <code>2025-2026</code>) y las fechas de inicio y fin</div></li>
+      <li><div class="step-num">4</div><div>Guardar y luego clic en <strong>"Activar"</strong></div></li>
+    </ol>
+
+    <div class="callout-info">
+      <strong>Para ciclos futuros:</strong> la app tiene una opción para copiar la estructura del ciclo anterior (grupos y maestras). Solo puede haber un ciclo activo. Los datos de ciclos anteriores se conservan.
+    </div>
+
+    <!-- MODULO 2 -->
+    <h2 id="mod2">Módulo 2 — Grupos</h2>
+
+    <p>Niveles disponibles en la aplicación:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nivel en la app</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Maternal</strong></td>
+            <td>Bebés y niños pequeños (1-2 años)</td>
+          </tr>
+          <tr>
+            <td><strong>Prekinder</strong></td>
+            <td>Preparación para kinder (3 años aprox.)</td>
+          </tr>
+          <tr>
+            <td><strong>Kinder 1</strong></td>
+            <td>Primer año de kinder (3-4 años)</td>
+          </tr>
+          <tr>
+            <td><strong>Kinder 2</strong></td>
+            <td>Segundo año de kinder (4-5 años)</td>
+          </tr>
+          <tr>
+            <td><strong>Kinder 3</strong></td>
+            <td>Tercer año de kinder (5-6 años)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout-tip">
+      Un grupo puede tener solo una maestra titular, pero varias maestras de materias especiales.
+    </div>
+
+    <!-- MODULO 3 -->
+    <h2 id="mod3">Módulo 3 — Personal</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Rol</th>
+            <th>Qué puede hacer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rol-badge rol-maestra">Maestra titular</span></td>
+            <td>Ver su grupo, asistencia, bitácora, tareas, filtro, QR</td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-maestra">Maestra especial</span></td>
+            <td>Igual que titular pero en varios grupos</td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-puerta">Maestra de puerta</span></td>
+            <td>Solo filtro de entrada y salida, QR</td>
+          </tr>
+          <tr>
+            <td><span class="rol-badge rol-admin">Administrativo</span></td>
+            <td>Portal de pagos, reportes, notificaciones</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout-info">
+      Una maestra puede ser titular de un grupo y especial en otros: registrar con rol <code>Maestra titular</code> y asignarla como especial en los demás grupos.
+    </div>
+
+    <!-- MODULO 4 -->
+    <h2 id="mod4">Módulo 4 — Alumnos</h2>
+
+    <p>El <strong>CURP es obligatorio y único</strong>. Si el mismo niño se reinscribe, el sistema lo reconocerá por su CURP y no creará un duplicado.</p>
+
+    <div class="callout-warning">
+      Si aparece el error <span class="error-badge">"El CURP ya está registrado"</span>, verificar si es el mismo niño y buscar el registro existente en lugar de crear uno nuevo.
+    </div>
+
+    <!-- MODULO 5 -->
+    <h2 id="mod5">Módulo 5 — Padres y Tutores</h2>
+
+    <p>Hay dos pasos distintos que no deben confundirse:</p>
+
+    <ol class="step-list">
+      <li>
+        <div class="step-num">1</div>
+        <div>
+          <strong>El registro del padre/tutor:</strong> Sus datos de contacto vinculados al alumno (nombre, parentesco, teléfono, correo). Se hace desde el perfil del alumno.
+        </div>
+      </li>
+      <li>
+        <div class="step-num">2</div>
+        <div>
+          <strong>La cuenta de acceso:</strong> El usuario y contraseña para entrar a la app. Se crea desde el módulo de Usuarios, una vez que el padre ya está registrado.
+        </div>
+      </li>
+    </ol>
+
+    <div class="callout-tip">
+      Primero se registran los datos, después se crea la cuenta. Máximo 2 padres/tutores por alumno.
+    </div>
+
+    <!-- MODULO 6 -->
+    <h2 id="mod6">Módulo 6 — Personas Autorizadas</h2>
+
+    <p>Restricciones importantes a comunicar a la Directora:</p>
+
+    <ul>
+      <li>Sin las <strong>3 imágenes obligatorias</strong> (foto de rostro, INE frente, INE reverso), el registro no se puede guardar.</li>
+      <li>Máximo <strong>2 personas autorizadas</strong> por alumno.</li>
+      <li>Si una persona no registrada llega a recoger, la maestra <strong>no puede autorizar la salida</strong>.</li>
+    </ul>
+
+    <!-- MODULO 7 -->
+    <h2 id="mod7">Módulo 7 — Configuración General</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Configuración</th>
+            <th>Valor sugerido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Inicio del filtro de entrada</td>
+            <td><code>7:00 AM</code></td>
+          </tr>
+          <tr>
+            <td>Límite sin retardo</td>
+            <td><code>8:30 AM</code></td>
+          </tr>
+          <tr>
+            <td>Hora de salida normal</td>
+            <td><code>3:00 PM</code></td>
+          </tr>
+          <tr>
+            <td>Hora de salida extensión</td>
+            <td><code>6:00 PM</code></td>
+          </tr>
+          <tr>
+            <td>Máximo de retardos por mes</td>
+            <td><code>3</code></td>
+          </tr>
+          <tr>
+            <td>Días de pago sin recargo</td>
+            <td>Del 1 al 5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ERRORES COMUNES -->
+    <h2 id="errores-comunes">Errores comunes durante el alta</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mensaje de error</th>
+            <th>Por qué ocurre</th>
+            <th>Cómo resolverlo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="error-badge">"El CURP ya está registrado"</span></td>
+            <td>Ya existe un registro con ese CURP</td>
+            <td>Verificar si es el mismo niño, buscar el registro existente</td>
+          </tr>
+          <tr>
+            <td><span class="error-badge">"El correo ya está en uso"</span></td>
+            <td>Ese correo ya tiene cuenta</td>
+            <td>Usar correo diferente o buscar la cuenta existente</td>
+          </tr>
+          <tr>
+            <td><span class="error-badge">"ciclo_id requerido"</span></td>
+            <td>No hay ciclo activo</td>
+            <td>Primero activar un ciclo escolar</td>
+          </tr>
+          <tr>
+            <td><span class="error-badge">"Las imágenes son obligatorias"</span></td>
+            <td>Falta foto o INE en persona autorizada</td>
+            <td>Subir las 3 imágenes requeridas</td>
+          </tr>
+          <tr>
+            <td><span class="error-badge">"Máximo 2 padres por alumno"</span></td>
+            <td>El alumno ya tiene 2 padres registrados</td>
+            <td>Editar uno de los existentes</td>
+          </tr>
+          <tr>
+            <td><span class="error-badge">"Máximo 2 personas autorizadas"</span></td>
+            <td>Ya tiene 2 personas autorizadas</td>
+            <td>Editar o reemplazar una</td>
+          </tr>
+          <tr>
+            <td>El grupo aparece vacío</td>
+            <td>La maestra no está asignada al grupo</td>
+            <td>Asignar la maestra titular al grupo</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- FAQ -->
+    <h2 id="faq">Preguntas frecuentes del onboarding</h2>
+
+    <details>
+      <summary>¿Se pueden importar alumnos desde Excel?</summary>
+      <div class="details-body">
+        Actualmente no. Cada alumno se registra individualmente desde el módulo de Alumnos. En versiones futuras se contempla la importación masiva.
+      </div>
+    </details>
+
+    <details>
+      <summary>¿Qué pasa con los datos del ciclo anterior?</summary>
+      <div class="details-body">
+        Se conservan. Al crear un nuevo ciclo, los datos anteriores siguen disponibles para consulta. La app también tiene una opción para copiar la estructura del ciclo anterior (grupos y maestras asignadas).
+      </div>
+    </details>
+
+    <details>
+      <summary>¿Los padres pueden cambiar su contraseña?</summary>
+      <div class="details-body">
+        Sí. Desde <strong>"Mi perfil"</strong> en la app web o móvil, el padre puede actualizar su contraseña en cualquier momento.
+      </div>
+    </details>
+
+    <details>
+      <summary>¿Qué pasa si un alumno cambia de grupo durante el año?</summary>
+      <div class="details-body">
+        Se puede editar el perfil del alumno y cambiar el grupo asignado. El historial de asistencia y bitácora se conserva.
+      </div>
+    </details>
+
+    <details>
+      <summary>¿Una maestra puede estar en varios grupos?</summary>
+      <div class="details-body">
+        Sí. Una maestra puede ser titular de un grupo y maestra especial en otros. Se registra con rol <code>Maestra titular</code> y se asigna manualmente como especial en los grupos adicionales.
+      </div>
+    </details>
+
+    <details>
+      <summary>¿Qué pasa si una persona autorizada ya no puede recoger al alumno?</summary>
+      <div class="details-body">
+        Se puede editar o eliminar la persona autorizada desde el perfil del alumno. La Directora o la Maestra titular tienen permiso para hacer este cambio.
+      </div>
+    </details>
+
+    <!-- VERIFICACION POST ALTA -->
+    <h2 id="verificacion-post">Checklist rápido de verificación post-alta</h2>
+
+    <p>Al concluir el proceso de alta, confirmar que todo está en orden:</p>
+
+    <ul class="checklist">
+      <li>
+        <input type="checkbox" id="vp1">
+        <label for="vp1">Hay un ciclo escolar activo</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp2">
+        <label for="vp2">Cada grupo tiene maestra titular asignada</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp3">
+        <label for="vp3">Todos los alumnos tienen CURP registrado</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp4">
+        <label for="vp4">Todos los alumnos tienen al menos un padre/tutor con teléfono</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp5">
+        <label for="vp5">Los padres que necesitan acceso tienen cuenta creada</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp6">
+        <label for="vp6">Los horarios del filtro están configurados correctamente</label>
+      </li>
+      <li>
+        <input type="checkbox" id="vp7">
+        <label for="vp7">Los catálogos reflejan las actividades reales de la escuela</label>
+      </li>
+    </ul>
+
+    <hr>
+    <p style="text-align:center; color:#9ca3af; font-size:13px;">
+      Happy School App — v1.0.0-beta &nbsp;|&nbsp; Happys School — 2026
+    </p>
+
+  </div><!-- /#content -->
+</div><!-- /#main -->
+
+<!-- ===== SIDEBAR SCROLL HIGHLIGHTING JS ===== -->
+<script>
+  (function () {
+    const navLinks = document.querySelectorAll('#sidebar nav a');
+    const sections = [];
+
+    navLinks.forEach(function (link) {
+      const href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        const el = document.querySelector(href);
+        if (el) sections.push({ link: link, el: el });
+      }
+    });
+
+    function updateActive() {
+      const scrollY = window.scrollY;
+      const offset = 100;
+      let active = null;
+
+      for (let i = 0; i < sections.length; i++) {
+        const top = sections[i].el.getBoundingClientRect().top + scrollY;
+        if (scrollY + offset >= top) {
+          active = sections[i];
+        }
+      }
+
+      navLinks.forEach(function (l) { l.classList.remove('active'); });
+      if (active) active.link.classList.add('active');
+    }
+
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+
+    // Smooth scroll for sidebar links
+    navLinks.forEach(function (link) {
+      link.addEventListener('click', function (e) {
+        const href = link.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>

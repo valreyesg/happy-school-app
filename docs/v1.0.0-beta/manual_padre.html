@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual Padre/Tutor — Happy School App v1.0.0-beta</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #1a1a2e; display: flex; min-height: 100vh; }
+  #sidebar { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; background: #1c1917; color: #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; }
+  #sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid #292524; }
+  #sidebar-header .logo { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version { font-size: 11px; color: #6b7280; margin-top: 4px; font-family: 'Courier New', monospace; }
+  #sidebar-header .role-badge { display: inline-block; margin-top: 10px; padding: 3px 10px; background: #7c2d12; color: #fed7aa; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+  #sidebar nav { padding: 12px 0; flex: 1; }
+  #sidebar nav .nav-section { padding: 8px 20px 4px; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; }
+  #sidebar nav a { display: block; padding: 8px 20px 8px 28px; color: #9ca3af; text-decoration: none; font-size: 13.5px; line-height: 1.4; transition: all 0.15s; border-left: 3px solid transparent; }
+  #sidebar nav a:hover { color: #e2e8f0; background: #292524; border-left-color: #f97316; }
+  #sidebar nav a.active { color: #fdba74; background: #292524; border-left-color: #f97316; font-weight: 600; }
+  #sidebar-footer { padding: 16px 20px; border-top: 1px solid #292524; font-size: 11px; color: #4b5563; }
+  #main { margin-left: 260px; flex: 1; min-height: 100vh; }
+  #topbar { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+  #topbar .breadcrumb { font-size: 13px; color: #6b7280; }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge { font-size: 11px; padding: 3px 10px; background: #ffedd5; color: #7c2d12; border-radius: 20px; font-weight: 600; }
+  #content { max-width: 860px; margin: 0 auto; padding: 48px 40px 80px; }
+  h1 { font-size: 32px; font-weight: 800; color: #1a1a2e; line-height: 1.2; margin-bottom: 8px; }
+  h1 .subtitle { display: block; font-size: 16px; font-weight: 400; color: #6b7280; margin-top: 6px; }
+  h2 { font-size: 22px; font-weight: 700; color: #1a1a2e; margin-top: 48px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #ffedd5; scroll-margin-top: 80px; }
+  h3 { font-size: 16px; font-weight: 600; color: #374151; margin-top: 24px; margin-bottom: 10px; scroll-margin-top: 80px; }
+  p { margin-bottom: 14px; line-height: 1.7; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 20px; }
+  li { margin-bottom: 6px; line-height: 1.6; font-size: 14.5px; color: #374151; }
+  code { font-family: 'Courier New', monospace; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 13px; color: #ea580c; }
+  strong { font-weight: 600; color: #1f2937; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+  .doc-meta { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0 32px; padding: 16px 20px; background: #fff7ed; border-radius: 10px; border: 1px solid #fed7aa; }
+  .doc-meta .meta-item { font-size: 13px; color: #7c2d12; }
+  .doc-meta .meta-item span { font-weight: 600; }
+  blockquote { border-left: 4px solid #f97316; background: #fff7ed; padding: 14px 18px; margin: 20px 0; border-radius: 0 8px 8px 0; font-size: 14px; color: #7c2d12; }
+  .table-wrap { overflow-x: auto; margin: 16px 0 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead tr { background: #1c1917; }
+  thead th { padding: 10px 14px; text-align: left; color: #e2e8f0; font-weight: 600; font-size: 12.5px; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #fff7ed; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+  .img-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; background: #fef9c3; border: 2px dashed #f59e0b; border-radius: 10px; padding: 32px 20px; margin: 20px 0; gap: 8px; text-align: center; }
+  .img-placeholder .ph-icon { font-size: 32px; }
+  .img-placeholder .ph-title { font-size: 13px; font-weight: 700; color: #92400e; }
+  .img-placeholder .ph-filename { font-family: monospace; font-size: 12px; color: #b45309; background: #fef3c7; padding: 2px 8px; border-radius: 4px; }
+  .img-placeholder .ph-desc { font-size: 12px; color: #78350f; }
+  .access-badge { display: inline-flex; align-items: center; gap: 6px; background: #1c1917; color: #fdba74; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; margin: 8px 0 16px; font-family: 'Courier New', monospace; }
+  .steps ol { list-style: none; margin: 0; padding: 0; }
+  .steps ol li { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .steps ol li .step-num { min-width: 28px; height: 28px; background: #f97316; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .steps ol li .step-text { font-size: 14.5px; color: #374151; line-height: 1.6; }
+  /* Notif table */
+  .notif-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 16px 0 24px; }
+  .notif-table th { background: #1c1917; color: #e2e8f0; padding: 10px 14px; text-align: left; font-size: 12.5px; }
+  .notif-table td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; vertical-align: top; color: #374151; }
+  .notif-table tr:nth-child(even) td { background: #f9fafb; }
+  /* Feature summary */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .feature-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px 16px; }
+  .feature-card .fc-title { font-size: 13px; font-weight: 700; color: #1f2937; margin-bottom: 6px; }
+  .feature-card .fc-desc { font-size: 12.5px; color: #6b7280; line-height: 1.5; }
+  /* FAQ */
+  details { border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+  summary { padding: 14px 18px; font-size: 14px; font-weight: 600; cursor: pointer; background: #f9fafb; color: #1f2937; list-style: none; display: flex; align-items: center; gap: 8px; }
+  summary::before { content: '▶'; font-size: 11px; color: #f97316; transition: transform 0.2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details .faq-answer { padding: 14px 18px; font-size: 14px; color: #374151; border-top: 1px solid #e5e7eb; line-height: 1.7; }
+  .page-footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }
+</style>
+</head>
+<body>
+
+<aside id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>👨‍👩‍👧</span> Happy School</div>
+    <div class="version">v1.0.0-beta</div>
+    <div class="role-badge">Papá / Mamá / Tutor</div>
+  </div>
+  <nav>
+    <div class="nav-section">Primeros pasos</div>
+    <a href="#instalacion">Descargar e instalar</a>
+    <a href="#inicio-sesion">Cómo entrar</a>
+    <div class="nav-section">Pantalla principal</div>
+    <a href="#dashboard">Pantalla principal</a>
+    <div class="nav-section">Funciones</div>
+    <a href="#qr">Código QR</a>
+    <a href="#bitacora">Bitácora</a>
+    <a href="#calendario">Calendario</a>
+    <a href="#comida">Menú de comida</a>
+    <a href="#pagos">Pagos</a>
+    <a href="#notificaciones">Notificaciones</a>
+    <div class="nav-section">Más</div>
+    <a href="#contrasena">Cambiar contraseña</a>
+    <a href="#faq">Preguntas frecuentes</a>
+    <a href="#resumen">Resumen</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · 2026</div>
+</aside>
+
+<main id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Documentación / <strong>Manual Padre/Tutor</strong></div>
+    <div class="badge">Web + Mobile</div>
+  </div>
+
+  <div id="content">
+    <h1>Manual de Usuario — Papá / Mamá / Tutor
+      <span class="subtitle">Portal web + App móvil · Happy School App v1.0.0-beta · Happys School</span>
+    </h1>
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Fecha:</span> 2026-05-08</div>
+      <div class="meta-item">📱 <span>Mobile:</span> App Happy School (iOS / Android)</div>
+      <div class="meta-item">🖥️ <span>Web:</span> Chrome (sin instalar)</div>
+    </div>
+
+    <blockquote>
+      <strong>¿Para quién es este manual?</strong><br>
+      Para los <strong>papás, mamás y tutores</strong> con acceso a la aplicación Happy School. Aquí encontrarás todo lo que puedes ver y hacer para estar al tanto del día de tu hijo/a en el kinder.
+    </blockquote>
+
+    <hr>
+
+    <!-- INSTALACIÓN -->
+    <h2 id="instalacion">Cómo descargar e instalar la app</h2>
+
+    <h3>En el celular</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Abrir la <strong>App Store</strong> (iPhone) o <strong>Play Store</strong> (Android)</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Buscar <strong>"Happy School"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Descargar e instalar la app</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Abrir la app cuando termine de instalar</div></li>
+    </ol></div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">app_store_padre.png</div>
+      <div class="ph-desc">Captura de la app Happy School en la App Store / Play Store</div>
+    </div>
+
+    <h3>En la computadora o tablet</h3>
+    <p>No es necesario instalar nada. Solo abrir <strong>Chrome</strong> y entrar a la dirección que te dé la escuela.</p>
+
+    <hr>
+
+    <!-- INICIO SESIÓN -->
+    <h2 id="inicio-sesion">Cómo entrar a la app</h2>
+
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Abrir la app Happy School (en celular) o la página web (en computadora)</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Escribir tu <strong>correo electrónico</strong> y tu <strong>contraseña</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Tocar o hacer clic en <strong>"Iniciar sesión"</strong></div></li>
+    </ol></div>
+
+    <h3>Primera vez que entras</h3>
+    <p>La primera vez, el sistema te pedirá que <strong>cambies tu contraseña</strong>:</p>
+    <ul>
+      <li>Al menos <strong>8 caracteres</strong> con <strong>letras y números</strong></li>
+      <li>Ejemplo: <code>MiHijo2026</code></li>
+    </ul>
+    <p>Guarda bien tu nueva contraseña.</p>
+
+    <h3>¿Olvidaste tu contraseña?</h3>
+    <p>Comunícate con la escuela para que la restablezcan.</p>
+
+    <hr>
+
+    <!-- DASHBOARD -->
+    <h2 id="dashboard">Lo primero que ves — Pantalla principal</h2>
+    <p>Al entrar a la app, lo primero que ves es un <strong>resumen del día de tu hijo/a</strong>.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">dashboard_padre_mobile.png</div>
+      <div class="ph-desc">Dashboard del padre en mobile con tarjeta del hijo mostrando estado de entrada, resumen del día, pagos y tareas</div>
+    </div>
+
+    <h3>Información del día</h3>
+    <p>Cada hijo registrado aparece como una "tarjeta" con:</p>
+    <p><strong>Estado de la entrada:</strong></p>
+    <ul>
+      <li>Si ya llegó a la escuela: hora de entrada ✅</li>
+      <li>Si llegó tarde: retardo ⏰</li>
+      <li>Si no pudo entrar: motivo del rechazo (ej: fiebre)</li>
+    </ul>
+    <p><strong>Alerta de retardos:</strong></p>
+    <ul>
+      <li>⚠️ 1 o 2 retardos → Aviso para evitar más tardanzas</li>
+      <li>🚫 3 o más retardos → Tu hijo <strong>no puede entrar</strong> al día siguiente. Hablar con la Directora.</li>
+    </ul>
+    <p><strong>Resumen del día:</strong> Estado de ánimo (😊 😢 😴 😤), comportamiento, si tiene fiebre, incidentes.</p>
+    <p><strong>Salida:</strong> Si ya se fue, a qué hora y quién lo recogió.</p>
+    <p><strong>Pagos:</strong> Si hay un pago pendiente, aparece un aviso en color amarillo o rojo.</p>
+    <p><strong>Tareas:</strong> Si hay tareas asignadas, aparece un listado con la fecha de entrega.</p>
+    <p><strong>Eventos próximos:</strong> Los eventos escolares de los próximos 3 días.</p>
+
+    <hr>
+
+    <!-- QR -->
+    <h2 id="qr">Código QR de tu hijo/a</h2>
+    <p>El código QR sirve para que las maestras registren la entrada y salida de tu hijo más rápido.</p>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">qr_padre_mobile.png</div>
+      <div class="ph-desc">Pantalla de QR del padre en mobile mostrando el código QR del hijo y el botón "Generar pase temporal"</div>
+    </div>
+
+    <h3>¿Dónde está el código QR?</h3>
+    <ul>
+      <li><strong>En el celular:</strong> Tocar el ícono de QR (🔳) en la tarjeta del hijo en el Dashboard, o ir a la pantalla de QR desde la navegación inferior</li>
+      <li><strong>En la computadora:</strong> En el Dashboard, sección del código QR de cada hijo</li>
+    </ul>
+
+    <h3>¿Qué hacer con el código QR?</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Cuando llegues con tu hijo al kinder, abrir la app en tu celular</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Mostrar el código QR de tu hijo a la maestra en la puerta</div></li>
+      <li><div class="step-num">3</div><div class="step-text">La maestra escanea el código con su teléfono</div></li>
+      <li><div class="step-num">4</div><div class="step-text">¡Listo! La entrada queda registrada automáticamente</div></li>
+    </ol></div>
+
+    <h3>Pase temporal QR</h3>
+    <p>¿Viene alguien a recoger a tu hijo hoy que no está registrado como autorizado (abuela, tía, vecina)?</p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Ir a la pantalla de QR de tu hijo</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Tocar <strong>"Generar pase temporal"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Escribir el <strong>nombre completo</strong> de la persona que va a recogerlo</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Se genera un código QR especial</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Descargarlo o enviarlo por WhatsApp a esa persona</div></li>
+    </ol></div>
+    <p>Cuando la persona llegue al kinder, la maestra escanea ese QR y ve el nombre que autorizaste. <strong>Solo funciona ese día.</strong> Puedes cancelarlo desde la misma pantalla si ya no lo necesitas.</p>
+
+    <blockquote><strong>Importante:</strong> Este pase es para casos extraordinarios. Si una persona va a recoger a tu hijo regularmente, pídele a la Directora que la registre como persona autorizada permanente.</blockquote>
+
+    <hr>
+
+    <!-- BITÁCORA -->
+    <h2 id="bitacora">Bitácora — El diario del día</h2>
+    <p>La bitácora es el registro detallado de lo que hizo, comió, y cómo estuvo tu hijo durante el día.</p>
+    <div class="access-badge">▸ Dashboard → nombre de tu hijo → o menú "Bitácora"</div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">bitacora_padre_mobile.png</div>
+      <div class="ph-desc">Bitácora del hijo en mobile mostrando pestañas: Entrada, Salida, Comida, Actividades, Salud</div>
+    </div>
+
+    <h3>Secciones de la bitácora (pestañas)</h3>
+    <ul>
+      <li>🚪 <strong>Entrada</strong> — Hora de llegada, retardos del mes, chequeo de la maestra</li>
+      <li>👋 <strong>Salida</strong> — Hora de salida, quién lo recogió, si fue anticipada</li>
+      <li>🍽️ <strong>Comida</strong> — Qué comió en cada tiempo y cuánto</li>
+      <li>🎨 <strong>Actividades</strong> — Actividades del día y fotos de la maestra</li>
+      <li>📚 <strong>Tareas</strong> — Las tareas del día y si las entregaste</li>
+      <li>🚿 <strong>Higiene</strong> — Cambios de pañal y visitas al baño (principalmente Maternal)</li>
+      <li>🌡️ <strong>Salud</strong> — Fiebre, vómito, medicamentos</li>
+      <li>⚠️ <strong>Incidentes</strong> — Si ocurrió algo relevante (requiere tu firma)</li>
+      <li>🌟 <strong>Comportamiento</strong> — Cómo se portó</li>
+      <li>Nota de la maestra</li>
+    </ul>
+    <p>Para ver bitácoras de otros días, usar las flechas ← → de navegación.</p>
+
+    <h3>Declarar medicamentos</h3>
+    <p>Si tu hijo necesita un medicamento durante el día en la escuela:</p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Ir a la bitácora del día de hoy</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Buscar la sección <strong>"Medicamentos"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Tocar <strong>"Declarar medicamento"</strong></div></li>
+      <li><div class="step-num">4</div><div class="step-text">Llenar: nombre del medicamento, dosis, horarios, y <strong>subir foto de la receta</strong> (obligatorio)</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Guardar</div></li>
+    </ol></div>
+    <p>Puedes eliminar un medicamento solo si la maestra todavía no lo ha dado.</p>
+
+    <h3>Firmar un incidente digitalmente</h3>
+    <p>Si hubo un incidente, el sistema te pedirá que lo <strong>firmes digitalmente</strong>:</p>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Entrar a la bitácora del día</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Ir a la pestaña <strong>"⚠️ Incidentes"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Leer la descripción del incidente</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Tocar <strong>"Firmar"</strong></div></li>
+      <li><div class="step-num">5</div><div class="step-text">Usar tu dedo (celular) o el ratón (computadora) para hacer tu firma</div></li>
+      <li><div class="step-num">6</div><div class="step-text">Confirmar</div></li>
+    </ol></div>
+    <blockquote>Firmar solo confirma que ya te enteraste del incidente — no significa que estás de acuerdo con que algo estuvo mal.</blockquote>
+
+    <hr>
+
+    <!-- CALENDARIO -->
+    <h2 id="calendario">Calendario escolar</h2>
+    <div class="access-badge">▸ Menú → Calendario</div>
+    <p>Aquí puedes ver todos los eventos del ciclo escolar: días festivos, festivales, reuniones de padres, fechas importantes.</p>
+    <ul>
+      <li>El calendario muestra el mes actual con puntos de colores en los días con eventos</li>
+      <li>Tocar cualquier día para ver los eventos de ese día</li>
+    </ul>
+
+    <h3>Agregar un evento a tu Google Calendar</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Tocar el evento para ver los detalles</div></li>
+      <li><div class="step-num">2</div><div class="step-text">Tocar <strong>"Agregar a Google Calendar"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">La app abre Google Calendar con los datos ya llenos</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Confirmar para guardar</div></li>
+    </ol></div>
+    <p>En la versión web puedes descargar el calendario del mes en PDF para imprimirlo.</p>
+
+    <hr>
+
+    <!-- COMIDA -->
+    <h2 id="comida">Menú de comida semanal</h2>
+    <div class="access-badge">▸ Menú → Comida</div>
+    <p>Aquí puedes ver el menú de la semana y confirmar si tu hijo usará el servicio de comida.</p>
+
+    <blockquote>La confirmación del servicio de comida <strong>solo está disponible los domingos</strong> para la semana siguiente.</blockquote>
+
+    <h3>Cómo confirmar el servicio</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">El domingo, entrar a la sección <strong>"Comida"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Activar el interruptor <strong>"¿Quieres el servicio de comida?"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Elegir modalidad: <strong>Semana completa</strong> o <strong>Días específicos</strong></div></li>
+      <li><div class="step-num">4</div><div class="step-text">Elegir método de pago: <strong>Transferencia</strong> (debes subir comprobante) o <strong>Efectivo</strong> (pagas el lunes)</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Si elegiste transferencia, subir foto del comprobante</div></li>
+      <li><div class="step-num">6</div><div class="step-text">Tocar <strong>"Confirmar"</strong></div></li>
+    </ol></div>
+
+    <hr>
+
+    <!-- PAGOS -->
+    <h2 id="pagos">Pagos</h2>
+    <div class="access-badge">▸ Menú → Pagos</div>
+
+    <div class="img-placeholder">
+      <div class="ph-icon">📸</div>
+      <div class="ph-title">Captura pendiente</div>
+      <div class="ph-filename">pagos_padre_mobile.png</div>
+      <div class="ph-desc">Pantalla de pagos del padre mostrando estado general, lista de pagos del mes y opción de subir comprobante</div>
+    </div>
+
+    <h3>¿Qué puedes ver?</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Estado</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td>✅ Al corriente</td><td>No debes nada</td></tr>
+        <tr><td>⚠️ Atención</td><td>Hay un pago pendiente con el monto</td></tr>
+        <tr><td>🔴 Vencido</td><td>El plazo de pago pasó</td></tr>
+        <tr><td>⛔ Suspendido</td><td>Se requiere atención urgente</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cómo subir un comprobante de pago</h3>
+    <div class="steps"><ol>
+      <li><div class="step-num">1</div><div class="step-text">Encontrar el pago con estado <strong>"Pendiente"</strong> o <strong>"Vencido"</strong></div></li>
+      <li><div class="step-num">2</div><div class="step-text">Tocar el botón <strong>"Subir comprobante"</strong></div></li>
+      <li><div class="step-num">3</div><div class="step-text">Seleccionar la foto desde tu galería o tomar una foto</div></li>
+      <li><div class="step-num">4</div><div class="step-text">Opcionalmente escribir el número de referencia</div></li>
+      <li><div class="step-num">5</div><div class="step-text">Tocar <strong>"Enviar"</strong></div></li>
+    </ol></div>
+    <p>El comprobante quedará en estado <strong>"En revisión"</strong> hasta que la escuela lo valide.</p>
+    <p>Si fue rechazado, verás el motivo y un botón para volver a subir uno correcto.</p>
+
+    <hr>
+
+    <!-- NOTIFICACIONES -->
+    <h2 id="notificaciones">Notificaciones que recibes</h2>
+
+    <div class="table-wrap">
+    <table class="notif-table">
+      <thead><tr><th>Notificación</th><th>Cuándo llega</th></tr></thead>
+      <tbody>
+        <tr><td>Tu hijo llegó</td><td>Cuando se registra su entrada en la escuela</td></tr>
+        <tr><td>Tu hijo no pudo entrar</td><td>Si fue rechazado por fiebre o síntomas</td></tr>
+        <tr><td>Tu hijo ya salió</td><td>Cuando se registra su salida</td></tr>
+        <tr><td>Salida anticipada</td><td>Si tu hijo sale antes del horario normal</td></tr>
+        <tr><td>Incidente registrado</td><td>Si ocurrió algo y necesitas firmarlo</td></tr>
+        <tr><td>Aviso de la escuela</td><td>Cuando la Directora envía un comunicado urgente</td></tr>
+        <tr><td>Tarea nueva</td><td>Cuando la maestra publica una nueva tarea</td></tr>
+        <tr><td>Recordatorio de pago</td><td>Si hay un pago próximo o vencido</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>Si no recibes notificaciones</h3>
+    <ul>
+      <li><strong>iPhone:</strong> Configuración → Happy School → Notificaciones → Activar</li>
+      <li><strong>Android:</strong> Configuración → Apps → Happy School → Notificaciones → Activar</li>
+    </ul>
+
+    <hr>
+
+    <!-- CONTRASEÑA -->
+    <h2 id="contrasena">Cambiar tu contraseña</h2>
+    <ul>
+      <li><strong>En el celular:</strong> Dashboard → ícono de usuario o menú → "Cambiar contraseña"</li>
+      <li><strong>En la computadora:</strong> Menú → tu nombre → "Cambiar contraseña"</li>
+    </ul>
+
+    <hr>
+
+    <!-- FAQ -->
+    <h2 id="faq">Preguntas frecuentes</h2>
+
+    <details>
+      <summary>¿Puedo ver la información de todos mis hijos en la misma cuenta?</summary>
+      <div class="faq-answer">Sí. Si tienes más de un hijo en la escuela, todos aparecen en la misma app con sus tarjetas individuales.</div>
+    </details>
+    <details>
+      <summary>¿A qué hora puedo ver la bitácora del día?</summary>
+      <div class="faq-answer">La maestra va llenando la bitácora durante el día. Puedes verla desde que ella guarda la información. Normalmente está disponible antes o al terminar la jornada.</div>
+    </details>
+    <details>
+      <summary>¿Puedo ver la bitácora de días que ya pasaron?</summary>
+      <div class="faq-answer">Sí. Navega entre fechas usando las flechas ← → en la pantalla de Bitácora.</div>
+    </details>
+    <details>
+      <summary>¿El código QR de mi hijo cambia?</summary>
+      <div class="faq-answer">No. El código QR permanente no cambia. Solo el pase temporal cambia cada vez que lo generas.</div>
+    </details>
+    <details>
+      <summary>¿Qué pasa si no confirmo el servicio de comida el domingo?</summary>
+      <div class="faq-answer">Tu hijo no tendrá servicio de comida esa semana. Comunícate con la Directora si hay alguna situación especial.</div>
+    </details>
+    <details>
+      <summary>¿Mis datos y los de mi hijo están seguros?</summary>
+      <div class="faq-answer">Sí. La información solo es visible para ti, la maestra de tu hijo, y la Directora. Nadie más tiene acceso.</div>
+    </details>
+
+    <hr>
+
+    <!-- RESUMEN -->
+    <h2 id="resumen">Resumen de lo que puedes hacer</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-title">📊 Dashboard</div>
+        <div class="fc-desc">Ver el resumen del día de tu hijo/a</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">📓 Bitácora</div>
+        <div class="fc-desc">Ver el diario del día, declarar medicamentos, firmar incidentes</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">📅 Calendario</div>
+        <div class="fc-desc">Ver eventos escolares, agregar a Google Calendar</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">🍽️ Comida</div>
+        <div class="fc-desc">Ver el menú semanal, confirmar el servicio (los domingos)</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">💳 Pagos</div>
+        <div class="fc-desc">Ver el estado de tus pagos, subir comprobantes</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-title">🔳 QR</div>
+        <div class="fc-desc">Ver el código QR de tu hijo/a, generar pases temporales</div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      Happy School App — v1.0.0-beta &nbsp;|&nbsp; Happys School &nbsp;|&nbsp; 2026
+    </div>
+  </div>
+</main>
+
+<script>
+  const sections = document.querySelectorAll('h2[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

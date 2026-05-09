@@ -1,15 +1,15 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+68 (Validación QA web + Fix FiltroSalida)
+**Última actualización:** 2026-05-08 — Sesión XX+69 (Validación QA mobile: Dashboard maestra + Bitácora maestra — 5 bugs fix)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
 ### 📋 VALERIA — Validar ítems XX+63 al XX+66 (pendientes — mobile)
-- [ ] **Dashboard maestra mobile** — Abre la app, carga normal sin errores
+- [x] **Dashboard maestra mobile** — Abre la app, carga normal sin errores ✅ XX+69
+- [x] **Ítem 12 parcial** — Bitácora maestra mobile: badge Pendiente/Guardada, comida extra, actividades del día ✅ XX+69
 - [ ] **Ítem 15** — Bitácora padre mobile: botones galería y cámara siguen funcionando
 - [ ] **Ítem 16** — Navegar fechas en bitácora padre mobile, asistencia maestra, bitácora maestra mobile
-- [ ] **Ítem 12** — Bitácora maestra mobile: secciones se ven igual que antes
 - [ ] **Ítem 17-19** — Dashboard padre web, FiltroSalida, FiltroEntrada: funcionan igual
 - [ ] **Ítem 20** — Dashboard padre mobile: eventos con `fecha_inicio` null no crashean la app
 - [ ] **Ítem 23** — Bitácora padre web: sección medicamentos funciona y aparece solo **una** vez

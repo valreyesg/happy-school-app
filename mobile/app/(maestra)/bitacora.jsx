@@ -58,12 +58,90 @@ function BoolBtn({ label, value, onChange }) {
 
 function SelectorAlumno() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [fecha, setFecha] = useState(ultimoDiaHabil);
+  const [mostrarEditorActividades, setMostrarEditorActividades] = useState(false);
+  const [actividadesEditor, setActividadesEditor] = useState([{ descripcion: '', orden: 1, fotoUri: null, fotoPreview: null }]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['mi-grupo-bitacora', fecha],
     queryFn: () => api.get(`/grupos/mi-grupo?fecha=${fecha}`).then(r => r.data),
   });
+
+  // Actividades del grupo para esta fecha
+  const grupoId = data?.id || null;
+  const { data: actividadesGrupo = [] } = useQuery({
+    queryKey: ['actividades-grupo', grupoId, fecha],
+    queryFn: () => api.get(`/bitacora/actividades-grupo?grupo_id=${grupoId}&fecha=${fecha}`).then(r => r.data).catch(() => []),
+    enabled: !!(grupoId && fecha),
+    staleTime: 60000,
+  });
+
+  const guardarActividadesMutation = useMutation({
+    mutationFn: async ({ grupo_id, fecha: f, actividades, fotos }) => {
+      const fd = new FormData();
+      fd.append('grupo_id', grupo_id);
+      fd.append('fecha', f);
+      fd.append('actividades', JSON.stringify(actividades.map(({ descripcion, orden }) => ({ descripcion, orden }))));
+      // fotos: array paralelo al de actividades, null si no tiene foto nueva
+      fotos.forEach((foto, i) => {
+        if (foto) {
+          fd.append('fotos', {
+            uri: foto.uri,
+            name: foto.fileName || `actividad_${i}.jpg`,
+            type: 'image/jpeg',
+          });
+        }
+      });
+      return api.post('/bitacora/actividades-grupo', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['actividades-grupo', grupoId, fecha]);
+      setMostrarEditorActividades(false);
+      Alert.alert('✅', 'Actividades del día guardadas.');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo guardar las actividades.'),
+  });
+
+  const guardarActividades = () => {
+    const conDescripcion = actividadesEditor.filter(a => a.descripcion.trim());
+    if (conDescripcion.length === 0) {
+      Alert.alert('', 'Agrega al menos una actividad.');
+      return;
+    }
+    guardarActividadesMutation.mutate({
+      grupo_id: grupoId,
+      fecha,
+      actividades: conDescripcion.map(({ descripcion }, i) => ({ descripcion: descripcion.trim(), orden: i + 1 })),
+      fotos: conDescripcion.map(a => a.fotoUri ? { uri: a.fotoUri, fileName: a.fotoFileName } : null),
+    });
+  };
+
+  const pickFotoActividad = (idx) => {
+    Alert.alert('Foto de actividad', 'Selecciona origen', [
+      {
+        text: 'Cámara', onPress: async () => {
+          const result = await ImagePicker.launchCameraAsync({ quality: 0.7 });
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setActividadesEditor(prev => prev.map((a, i) => i === idx ? { ...a, fotoUri: asset.uri, fotoFileName: asset.fileName || 'foto.jpg', fotoPreview: asset.uri } : a));
+          }
+        }
+      },
+      {
+        text: 'Galería', onPress: async () => {
+          const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.7 });
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setActividadesEditor(prev => prev.map((a, i) => i === idx ? { ...a, fotoUri: asset.uri, fotoFileName: asset.fileName || 'foto.jpg', fotoPreview: asset.uri } : a));
+          }
+        }
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
 
   if (isLoading) {
     return (
@@ -88,6 +166,107 @@ function SelectorAlumno() {
       </View>
       <SelectorFecha fecha={fecha} onChange={setFecha} />
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+
+        {/* Actividades del día — nivel grupo, igual que en web */}
+        {grupoId && (
+          <View style={{ marginHorizontal: 16, marginTop: 12, marginBottom: 4, backgroundColor: '#FAF5FF', borderRadius: RADIUS.xl, padding: 14, borderWidth: 1, borderColor: '#E9D5FF' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: actividadesGrupo.length > 0 || mostrarEditorActividades ? 10 : 0 }}>
+              <Text style={{ fontSize: 12, fontWeight: '900', color: '#805AD5', textTransform: 'uppercase' }}>🎨 Actividades del día</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  if (!mostrarEditorActividades) {
+                    setActividadesEditor(
+                      actividadesGrupo.length > 0
+                        ? actividadesGrupo.map((a, i) => ({ descripcion: a.descripcion, orden: i + 1, fotoUri: null, fotoPreview: a.foto_url || null }))
+                        : [{ descripcion: '', orden: 1, fotoUri: null, fotoPreview: null }]
+                    );
+                  }
+                  setMostrarEditorActividades(!mostrarEditorActividades);
+                }}
+                style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: mostrarEditorActividades ? '#EDF2F7' : '#E9D5FF', borderRadius: RADIUS.md }}
+              >
+                <Text style={{ fontSize: 12, fontWeight: '700', color: '#805AD5' }}>
+                  {mostrarEditorActividades ? '✕ Cancelar' : actividadesGrupo.length > 0 ? '✏️ Editar' : '+ Definir'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Modo lectura */}
+            {!mostrarEditorActividades && actividadesGrupo.map((act, i) => (
+              <View key={act.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5, paddingHorizontal: 8, backgroundColor: '#F3E8FF', borderRadius: RADIUS.md, marginBottom: 5 }}>
+                {act.foto_url ? (
+                  <Image source={{ uri: act.foto_url }} style={{ width: 24, height: 24, borderRadius: 4 }} resizeMode="cover" />
+                ) : null}
+                <Text style={{ flex: 1, fontSize: 12, fontWeight: '700', color: '#4A5568' }}>{act.descripcion}</Text>
+              </View>
+            ))}
+
+            {/* Editor */}
+            {mostrarEditorActividades && (
+              <View>
+                {actividadesEditor.map((act, idx) => (
+                  <View key={idx} style={{ marginBottom: 10, padding: 10, backgroundColor: '#F3E8FF', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#D6BCFA' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                      <TextInput
+                        style={[s.input, { flex: 1, marginTop: 0 }]}
+                        placeholder={`Actividad ${idx + 1}…`}
+                        value={act.descripcion}
+                        onChangeText={v => setActividadesEditor(prev => prev.map((a, i) => i === idx ? { ...a, descripcion: v } : a))}
+                        multiline
+                      />
+                      {actividadesEditor.length > 1 && (
+                        <TouchableOpacity onPress={() => setActividadesEditor(prev => prev.filter((_, i) => i !== idx))} style={{ padding: 4 }}>
+                          <Text style={{ color: '#E53E3E', fontSize: 18, fontWeight: '900' }}>✕</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                    {/* Foto de actividad */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                      {act.fotoPreview ? (
+                        <View style={{ position: 'relative' }}>
+                          <Image source={{ uri: act.fotoPreview }} style={{ width: 48, height: 48, borderRadius: 6, borderWidth: 1, borderColor: '#D6BCFA' }} resizeMode="cover" />
+                          <TouchableOpacity
+                            onPress={() => setActividadesEditor(prev => prev.map((a, i) => i === idx ? { ...a, fotoUri: null, fotoPreview: null, fotoFileName: null } : a))}
+                            style={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, borderRadius: 9, backgroundColor: '#E53E3E', alignItems: 'center', justifyContent: 'center' }}
+                          >
+                            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '900', lineHeight: 13 }}>✕</Text>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                      <TouchableOpacity
+                        onPress={() => pickFotoActividad(idx)}
+                        style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: '#EDE9FE', borderRadius: RADIUS.md, borderWidth: 1, borderColor: '#C4B5FD' }}
+                      >
+                        <Ionicons name="camera-outline" size={14} color="#805AD5" />
+                        <Text style={{ fontSize: 11, fontWeight: '700', color: '#805AD5' }}>
+                          {act.fotoPreview ? 'Cambiar foto' : 'Agregar foto'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => setActividadesEditor(prev => [...prev, { descripcion: '', orden: prev.length + 1, fotoUri: null, fotoPreview: null }])}
+                    style={{ flex: 1, paddingVertical: 9, borderRadius: RADIUS.md, backgroundColor: '#EDF2F7', alignItems: 'center', borderWidth: 1, borderColor: '#CBD5E0' }}
+                  >
+                    <Text style={{ color: '#4A5568', fontSize: 12, fontWeight: '700' }}>+ Agregar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={guardarActividades}
+                    disabled={guardarActividadesMutation.isPending}
+                    style={{ flex: 2, paddingVertical: 9, backgroundColor: '#805AD5', borderRadius: RADIUS.md, alignItems: 'center' }}
+                  >
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '900' }}>
+                      {guardarActividadesMutation.isPending ? 'Guardando...' : '💾 Guardar'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+
         {alumnos.map(alumno => (
           <TouchableOpacity
             key={alumno.id}
@@ -101,7 +280,7 @@ function SelectorAlumno() {
               <Text style={s.alumnoNombre}>{alumno.nombre_completo}</Text>
               <Text style={s.alumnoSub}>{alumno.grupo_nombre}</Text>
             </View>
-            {alumno.bitacora_hoy ? (
+            {alumno.estado_animo ? (
               <View style={s.badgeVerde}><Text style={s.badgeTxt}>✓ Guardada</Text></View>
             ) : (
               <View style={s.badgeGris}><Text style={s.badgeTxt}>Pendiente</Text></View>
@@ -504,7 +683,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
 
   const guardarParticipacion = () => {
     const actividadesConParticipacion = Object.entries(actividadesParticipacion)
-      .map(([id, participo]) => ({ actividad_grupo_id: parseInt(id), participo }));
+      .map(([id, participo]) => ({ actividad_grupo_id: id, participo }));
     if (actividadesConParticipacion.length === 0) {
       Alert.alert('', 'Selecciona al menos una actividad.');
       return;
@@ -816,7 +995,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
           {tiempoActivo === 'comida_extra' && (
             <Text style={s.extensionSubText}>Alumno con extensión de horario activa</Text>
           )}
-          {menuPrecargado && comidas[tiempoActivo]?.que_comio ? (
+          {menuPrecargado && tiempoActivo !== 'comida_extra' && comidas[tiempoActivo]?.que_comio ? (
             <View style={{ backgroundColor: '#EDE9FE', borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4, marginBottom: 4, alignSelf: 'flex-start' }}>
               <Text style={{ fontSize: 10, fontWeight: '700', color: '#6D28D9' }}>📋 Precargado del menú semanal</Text>
             </View>
@@ -868,7 +1047,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
           </View>
         </Seccion>
 
-        {/* Actividades del día */}
+        {/* Participación en actividades del día (definidas a nivel grupo desde el selector) */}
         {actividadesGrupo.length > 0 && (
           <Seccion titulo="Actividades del día">
             <Text style={{ fontSize: 11, color: '#718096', fontWeight: '600', marginBottom: 10 }}>

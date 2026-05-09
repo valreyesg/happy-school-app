@@ -68,8 +68,6 @@
 
 ---
 
-## 🔧 FASE B — Pendientes restantes
-
 ### 📱 Deploy y Producción
 - [ ] Backend en Railway o Render (plan gratis disponible)
 - [ ] Web en Vercel o Netlify

@@ -1,59 +1,34 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+72 (Paridad web↔mobile dashboard padre: badge hora entrada + retardos del mes)
+**Última actualización:** 2026-05-08 — Sesión XX+73 (Documentación v1.0.0-beta: 11 documentos .md redactados)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
 
-## 📚 DOCUMENTACIÓN — Pre-QA / Piloto con escuela real
+## 📚 DOCUMENTACIÓN — Versión HTML con imágenes (próxima sesión)
 
-> Orden de ejecución acordado con Valeria (2026-05-08). Hacer antes del deploy.
+> Los 11 documentos .md están completos en `docs/v1.0.0-beta/`. Falta convertirlos a HTML estilo Mintlify con capturas de pantalla reales.
 
-### 1️⃣ Manual de usuario — Directora
-- [ ] Redactar manual completo para el rol Directora (portal web)
-- Incluir: Dashboard, Alumnos, Grupos, Personal, Usuarios, Ciclos Escolares, Pagos, Configuración, Turno Puerta, Niños Extensión, Calendario, Bitácora, Asistencia, Reportes, WhatsApp
+### Archivos HTML a generar (7 en total)
 
-### 2️⃣ Manual de usuario — Administrador
-- [ ] Redactar manual completo para el rol Administrador (portal web)
-- Incluir: Dashboard, Pagos, Reportes, Notificaciones, Inscripciones
+| Archivo | Contenido | Audiencia |
+|---------|-----------|-----------|
+| `manual_directora.html` | Manual Directora | Directora |
+| `manual_maestra.html` | Manual Maestra | Maestras |
+| `manual_padre.html` | Manual Padre/Tutor | Padres |
+| `manual_administrador.html` | Manual Administrador | Administrativo |
+| `guia_capacitacion.html` | Checklist alta + Guía onboarding | Valeria |
+| `faq_soporte.html` | FAQ casos comunes | Valeria |
+| `guia_tecnica.html` | Variables + Migraciones + Respaldo + Rollback | Valeria |
 
-### 3️⃣ Manual de usuario — Maestra
-- [ ] Redactar manual completo para el rol Maestra (portal web + app mobile)
-- Web: Dashboard, Asistencia, Bitácora, Filtro Entrada, Filtro Salida, Tareas, Galería
-- Mobile: Dashboard, Asistencia, Bitácora, Tareas, QR Scanner
+### Requisitos para la siguiente sesión
 
-### 4️⃣ Manual de usuario — Padre
-- [ ] Redactar manual completo para el rol Padre (portal web + app mobile)
-- Web: Dashboard, Bitácora, Calendario, Pagos, Comida Semanal
-- Mobile: Dashboard, Bitácora, Calendario, Pagos, QR
-
-### 5️⃣ Guía de onboarding — configurar escuela desde cero
-- [ ] Redactar guía paso a paso para la primera configuración de la app
-- Cubrir flujo completo: acceso inicial → ciclo escolar → grupos → personal/maestras → alumnos → padres → personas autorizadas → configuración horarios → catálogos
-
-### 6️⃣ Checklist de alta de escuela — orden exacto
-- [ ] Redactar checklist ejecutable (con casillas) en el orden correcto de dependencias
-- Orden: Ciclo escolar → Grupos → Personal (maestras) → Asignar maestra titular a grupo → Alumnos → Padres/tutores → Personas autorizadas → Configuración (horarios, precios) → Catálogos → Verificación final
-
-### 7️⃣ FAQ / Casos comunes de soporte
-- [ ] Redactar documento de preguntas frecuentes y situaciones comunes durante el piloto
-- Incluir: qué hacer si un padre no puede entrar, cómo corregir una salida mal registrada, cómo resetear contraseña, qué pasa si el QR no escanea, cómo agregar persona autorizada, etc.
-
-### 8️⃣ Guía de variables de entorno
-- [ ] Documentar cada variable en `.env` (backend y mobile): qué hace, si es obligatoria u opcional, ejemplo de valor
-- Aplica para cuando se configure en Railway/Render/Vercel
-
-### 9️⃣ Guía de migraciones en producción
-- [ ] Documentar cómo aplicar las 51 migraciones en la BD de producción (Railway/Render PostgreSQL)
-- Incluir: comando exacto, orden, qué hacer si falla una migración
-
-### 🔟 Plan de respaldo de base de datos
-- [ ] Documentar cómo hacer backup manual de PostgreSQL en producción
-- Incluir: comando pg_dump, dónde guardar el archivo, frecuencia recomendada
-
-### 1️⃣1️⃣ Plan de rollback
-- [ ] Documentar qué hacer si algo falla en producción durante el piloto
-- Incluir: cómo revertir un deploy en Railway/Render, cómo restaurar BD desde backup
+- [ ] **Capturas de pantalla reales** de la app (web + mobile) por cada sección de cada manual
+  - Estrategia: levantar backend + web, tomar capturas pantalla a pantalla
+  - Guardar en `docs/v1.0.0-beta/assets/img/` con nombre descriptivo
+  - Ej: `dashboard_directora.png`, `filtro_entrada_web.png`, `qr_padre_mobile.png`
+- [ ] **Generar HTMLs** estilo Mintlify: sidebar fijo, contenido scrollable, offline (sin dependencias externas)
+- [ ] **Cada HTML es autocontenido** — CSS y fuentes inlineadas, imágenes referenciadas por ruta relativa
 
 ---
 

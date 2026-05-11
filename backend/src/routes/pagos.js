@@ -7,6 +7,7 @@ const { PDFDocument, rgb, StandardFonts } = require('pdf-lib');
 const multer = require('multer');
 const { uploadToCloudinary } = require('../services/cloudinaryService');
 const whatsappService = require('../services/whatsappService');
+const { enviarPush } = require('../services/pushService');
 
 const uploadMemory = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -1331,17 +1332,15 @@ router.post('/alumno/:alumnoId/recordatorio', authorize('directora', 'administra
       SELECT al.nombre_completo AS alumno_nombre,
              COALESCE(t.telefono_whatsapp, t.telefono) AS tutor_telefono,
              t.nombre_completo AS tutor_nombre,
+             t.usuario_id AS tutor_usuario_id,
              COALESCE(SUM(CASE WHEN p.estado IN ('pendiente','vencido') THEN p.monto_total ELSE 0 END), 0) AS saldo_pendiente,
-             EXTRACT(DAY FROM (
-               SELECT MIN(fecha_limite) FROM pagos
-               WHERE alumno_id = al.id AND estado IN ('pendiente','vencido')
-             )) AS dia_vencimiento
+             EXTRACT(DAY FROM MIN(p.fecha_limite)) AS dia_vencimiento
       FROM alumnos al
       LEFT JOIN alumno_padre ap ON ap.alumno_id = al.id AND ap.es_tutor_principal = true
       LEFT JOIN padres t ON t.id = ap.padre_id
       LEFT JOIN pagos p ON p.alumno_id = al.id AND p.estado IN ('pendiente','vencido')
       WHERE al.id = $1
-      GROUP BY al.nombre_completo, t.telefono_whatsapp, t.telefono, t.nombre_completo
+      GROUP BY al.nombre_completo, t.telefono_whatsapp, t.telefono, t.nombre_completo, t.usuario_id
     `, [alumnoId]);
 
     if (!result.rows[0]) return res.status(404).json({ error: 'Alumno no encontrado' });
@@ -1359,6 +1358,7 @@ router.post('/alumno/:alumnoId/recordatorio', authorize('directora', 'administra
         nombre_padre: r.tutor_nombre || 'Estimado padre/madre',
         nombre_alumno: r.alumno_nombre,
         dia: r.dia_vencimiento ? String(Math.round(r.dia_vencimiento)) : 'próximo',
+        fecha_hoy: new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }),
         monto: fmt(r.saldo_pendiente),
       },
       alumnoId,
@@ -1366,6 +1366,17 @@ router.post('/alumno/:alumnoId/recordatorio', authorize('directora', 'administra
 
     if (resultado.omitido) return res.status(503).json({ error: 'WhatsApp no está activo o no configurado' });
     if (resultado.error) return res.status(500).json({ error: resultado.error });
+
+    if (r.tutor_usuario_id) {
+      const tituloNotif = `💳 Adeudo pendiente — ${r.alumno_nombre}`;
+      const cuerpoNotif = `Tienes un adeudo de ${fmt(r.saldo_pendiente)} pendiente de pago. El vencimiento es el 5 de cada mes.`;
+      const datosNotif = JSON.stringify({ tipo: 'alerta_pago', alumno_id: String(alumnoId) });
+      await query(
+        `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra) VALUES ($1, $2, $3, 'alerta_pago', $4)`,
+        [r.tutor_usuario_id, tituloNotif, cuerpoNotif, datosNotif]
+      );
+      enviarPush(r.tutor_usuario_id, tituloNotif, cuerpoNotif, { tipo: 'alerta_pago', alumno_id: String(alumnoId) });
+    }
 
     res.json({ ok: true, destinatario: r.tutor_nombre, telefono: r.tutor_telefono, monto: r.saldo_pendiente });
   } catch (err) { next(err); }

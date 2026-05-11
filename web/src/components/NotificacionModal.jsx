@@ -79,6 +79,18 @@ const CONFIG_TIPO = {
     icono: '💳',
     label: 'Recordatorio de pago',
   },
+  sin_recoger: {
+    color: '#C05621',
+    bgLight: '#FFFAF0',
+    icono: '⏰',
+    label: 'Alumno sin recoger',
+  },
+  persona_no_autorizada: {
+    color: '#C53030',
+    bgLight: '#FFF5F5',
+    icono: '🚨',
+    label: 'Persona no autorizada',
+  },
 };
 
 const fallback = {

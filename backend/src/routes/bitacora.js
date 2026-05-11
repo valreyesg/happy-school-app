@@ -434,7 +434,8 @@ router.post('/guardar', async (req, res, next) => {
         const padresFiebre = await query(`
           SELECT a.id AS alumno_id, a.nombre_completo AS alumno_nombre,
                  COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-                 p.nombre_completo AS padre_nombre
+                 p.nombre_completo AS padre_nombre,
+                 p.usuario_id
           FROM alumnos a
           JOIN alumno_padre ap ON ap.alumno_id = a.id
           JOIN padres p ON ap.padre_id = p.id
@@ -446,6 +447,15 @@ router.post('/guardar', async (req, res, next) => {
             { nombre_completo: r.alumno_nombre, id: r.alumno_id },
             temperatura_dia
           ).catch(() => {});
+          if (r.usuario_id) {
+            const tituloFiebre = `🌡️ Alerta de fiebre — ${r.alumno_nombre}`;
+            const cuerpoFiebre = `${r.alumno_nombre} presentó fiebre hoy${temperatura_dia ? ` (${temperatura_dia}°C)` : ''}.`;
+            await query(
+              `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra) VALUES ($1, $2, $3, 'alerta_fiebre', $4)`,
+              [r.usuario_id, tituloFiebre, cuerpoFiebre, JSON.stringify({ tipo: 'alerta_fiebre', alumno_id: String(alumno_id) })]
+            );
+            enviarPush(r.usuario_id, tituloFiebre, cuerpoFiebre, { tipo: 'alerta_fiebre', alumno_id: String(alumno_id) });
+          }
         }
       }
     }

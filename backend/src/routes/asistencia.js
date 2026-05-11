@@ -398,7 +398,7 @@ router.post('/salida', async (req, res, next) => {
       // Notificar inmediatamente a padres
       const alumnoResult = await query(`
         SELECT a.nombre_completo, COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
-               p.nombre_completo AS padre_nombre
+               p.nombre_completo AS padre_nombre, p.usuario_id
         FROM alumnos a
         JOIN alumno_padre ap ON ap.alumno_id = a.id AND ap.es_tutor_principal = true
         JOIN padres p ON ap.padre_id = p.id
@@ -413,6 +413,16 @@ router.post('/salida', async (req, res, next) => {
           variables: { nombre_alumno: info.nombre_completo },
           alumnoId: alumno_id,
         });
+        if (info.usuario_id) {
+          const tituloAlerta = `🚨 Alerta — persona no autorizada`;
+          const cuerpoAlerta = `Una persona no autorizada intentó recoger a ${info.nombre_completo}. El alumno está seguro en la escuela. Comunícate de inmediato.`;
+          const datosAlerta  = JSON.stringify({ tipo: 'persona_no_autorizada', alumno_id: String(alumno_id) });
+          await query(
+            `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra) VALUES ($1, $2, $3, 'persona_no_autorizada', $4)`,
+            [info.usuario_id, tituloAlerta, cuerpoAlerta, datosAlerta]
+          );
+          enviarPush(info.usuario_id, tituloAlerta, cuerpoAlerta, { tipo: 'persona_no_autorizada', alumno_id: String(alumno_id) });
+        }
       }
     }
 

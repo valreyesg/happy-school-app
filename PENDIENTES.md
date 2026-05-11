@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-11 — Sesión XX+77 (sin_comida + pago_comida_lunes validados + fixes UI Comida Pagos + manuales)
+**Última actualización:** 2026-05-11 — Sesión XX+78 (Validación sin_recoger + Fix extensión horario job automático)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -48,8 +48,6 @@
 ### 🔔 WhatsApp — Validar con Twilio
 > Sandbox: `join although-previous` → +14155238886. Números registrados: 9931669869 (Héctor) y 9932160007 (Adriana).
 > ✅ `retardo` — validado sesión XX+75
-
-- [ ] `sin_recoger` — Botón 📲 en FiltroSalida. Pasos: esperar después de las 15:00, buscar alumno Camila (sin salida registrada), presionar 📲. Verificar que llega WA a 9932160007.
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

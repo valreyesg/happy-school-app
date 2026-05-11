@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { authenticate, authorize } = require('../middleware/auth');
 const { query } = require('../config/database');
-const { enviarMensaje } = require('../services/whatsappService');
+const { enviarMensaje, notificarFiebre } = require('../services/whatsappService');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../services/cloudinaryService');
 const { enviarPush } = require('../services/pushService');
 
@@ -409,15 +409,6 @@ router.post('/guardar', async (req, res, next) => {
       `, [alumno_id]);
 
       for (const { alumno_nombre, telefono, padre_nombre, usuario_id } of padresResult.rows) {
-        await enviarMensaje({
-          telefono,
-          clave: 'bitacora_lista',
-          variables: {
-            nombre_padre: padre_nombre.split(' ')[0],
-            nombre_alumno: alumno_nombre,
-          },
-          alumnoId: alumno_id,
-        });
         if (usuario_id) {
           await query(`
             INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
@@ -429,6 +420,32 @@ router.post('/guardar', async (req, res, next) => {
             JSON.stringify({ alumno_id }),
           ]);
           enviarPush(usuario_id, `Bitácora lista — ${alumno_nombre}`, `La maestra registró la bitácora de hoy de ${alumno_nombre}.`, { tipo: 'bitacora_lista', alumno_id: String(alumno_id) });
+        }
+      }
+    }
+
+    // Alerta de fiebre: si tuvo_fiebre=true, notificar a padres (solo 1 vez por día)
+    if (tuvo_fiebre) {
+      const yaAlertaFiebre = await query(
+        "SELECT id FROM log_whatsapp WHERE alumno_id = $1 AND tipo = 'fiebre' AND DATE(created_at) = $2",
+        [alumno_id, fechaFinal]
+      );
+      if (yaAlertaFiebre.rows.length === 0) {
+        const padresFiebre = await query(`
+          SELECT a.id AS alumno_id, a.nombre_completo AS alumno_nombre,
+                 COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+                 p.nombre_completo AS padre_nombre
+          FROM alumnos a
+          JOIN alumno_padre ap ON ap.alumno_id = a.id
+          JOIN padres p ON ap.padre_id = p.id
+          WHERE a.id = $1 AND p.telefono IS NOT NULL
+        `, [alumno_id]);
+        for (const r of padresFiebre.rows) {
+          await notificarFiebre(
+            { nombre_completo: r.padre_nombre, telefono: r.telefono },
+            { nombre_completo: r.alumno_nombre, id: r.alumno_id },
+            temperatura_dia
+          ).catch(() => {});
         }
       }
     }

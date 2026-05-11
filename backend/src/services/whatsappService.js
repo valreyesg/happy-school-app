@@ -27,6 +27,9 @@ const rellenarPlantilla = (plantilla, variables) => {
 };
 
 const enviarMensaje = async ({ telefono, clave, variables, alumnoId, mensajeDirecto }) => {
+  // Guarda: sin teléfono no hay envío
+  if (!telefono || !String(telefono).trim()) return { omitido: true };
+
   // Flag de entorno: si WHATSAPP_ENABLED=false → no-op sin tocar BD
   if (process.env.WHATSAPP_ENABLED === 'false') return { omitido: true };
 
@@ -109,24 +112,23 @@ const notificarRetardo = async (alumno, padre, numeroRetardo) => {
   });
 };
 
-const notificarReciboPago = async (padre, alumno, concepto, monto) => {
+const notificarFiebre = async (padre, alumno, temperatura) => {
   return enviarMensaje({
     telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'recibo_pago',
+    clave: 'fiebre',
     variables: {
       nombre_padre: padre.nombre_completo.split(' ')[0],
-      concepto,
-      monto: monto.toFixed(2),
       nombre_alumno: alumno.nombre_completo,
+      temperatura: temperatura || '—',
     },
     alumnoId: alumno.id,
   });
 };
 
-const notificarBitacoraLista = async (padre, alumno) => {
+const notificarSinComida = async (padre, alumno) => {
   return enviarMensaje({
     telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'bitacora_lista',
+    clave: 'sin_comida',
     variables: {
       nombre_padre: padre.nombre_completo.split(' ')[0],
       nombre_alumno: alumno.nombre_completo,
@@ -147,7 +149,7 @@ const notificarIncidente = async (padre, alumno) => {
   });
 };
 
-// ── Plantillas sin disparador automático ──────────────────────────────────────
+// ── Notificaciones con disparador manual ──────────────────────────────────────
 
 const notificarRecordatorioPago = async (padre, alumno, dia, monto) => {
   return enviarMensaje({
@@ -178,28 +180,6 @@ const notificarRecargo = async (padre, alumno, montoRecargo, diasAtraso, total) 
   });
 };
 
-const notificarEventoNuevo = async (padre, alumno, titulo, fecha, descripcion) => {
-  return enviarMensaje({
-    telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'evento_nuevo',
-    variables: { titulo, fecha, descripcion: descripcion || '' },
-    alumnoId: alumno.id,
-  });
-};
-
-const notificarBoletaLista = async (padre, alumno, periodo) => {
-  return enviarMensaje({
-    telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'boleta_lista',
-    variables: {
-      nombre_padre: padre.nombre_completo.split(' ')[0],
-      nombre_alumno: alumno.nombre_completo,
-      periodo,
-    },
-    alumnoId: alumno.id,
-  });
-};
-
 const notificarSinRecoger = async (padre, alumno, horaSalida) => {
   return enviarMensaje({
     telefono: padre.telefono_whatsapp || padre.telefono,
@@ -209,53 +189,6 @@ const notificarSinRecoger = async (padre, alumno, horaSalida) => {
       nombre_alumno: alumno.nombre_completo,
       hora: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
       hora_salida: horaSalida,
-    },
-    alumnoId: alumno.id,
-  });
-};
-
-const notificarDocumentosPendientes = async (padre, alumno, documentosFaltantes) => {
-  return enviarMensaje({
-    telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'documentos_pendientes',
-    variables: {
-      nombre_padre: padre.nombre_completo.split(' ')[0],
-      nombre_alumno: alumno.nombre_completo,
-      documentos_faltantes: documentosFaltantes,
-    },
-    alumnoId: alumno.id,
-  });
-};
-
-const notificarEncuestaNueva = async (padre, alumno, titulo) => {
-  return enviarMensaje({
-    telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'encuesta_nueva',
-    variables: {
-      nombre_padre: padre.nombre_completo.split(' ')[0],
-      titulo,
-    },
-    alumnoId: alumno.id,
-  });
-};
-
-// aviso_nuevo no tiene alumno específico; alumnoId es opcional
-const notificarAvisoNuevo = async (telefono, titulo, alumnoId) => {
-  return enviarMensaje({
-    telefono,
-    clave: 'aviso_nuevo',
-    variables: { titulo },
-    alumnoId: alumnoId || null,
-  });
-};
-
-const notificarSuspension = async (padre, alumno) => {
-  return enviarMensaje({
-    telefono: padre.telefono_whatsapp || padre.telefono,
-    clave: 'suspension',
-    variables: {
-      nombre_padre: padre.nombre_completo.split(' ')[0],
-      nombre_alumno: alumno.nombre_completo,
     },
     alumnoId: alumno.id,
   });
@@ -276,17 +209,11 @@ const notificarPagoComidaLunes = async (padre, alumno, monto) => {
 module.exports = {
   enviarMensaje,
   notificarRetardo,
-  notificarReciboPago,
-  notificarBitacoraLista,
+  notificarFiebre,
+  notificarSinComida,
   notificarIncidente,
   notificarRecordatorioPago,
   notificarRecargo,
-  notificarEventoNuevo,
-  notificarBoletaLista,
   notificarSinRecoger,
-  notificarDocumentosPendientes,
-  notificarEncuestaNueva,
-  notificarAvisoNuevo,
-  notificarSuspension,
   notificarPagoComidaLunes,
 };

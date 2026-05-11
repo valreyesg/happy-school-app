@@ -1,6 +1,6 @@
 # PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-08 — Sesión XX+74 (Documentación v1.0.0-beta: 7 HTMLs generados estilo Mintlify)
+**Última actualización:** 2026-05-11 — Sesión XX+75 (Plantillas WhatsApp finales + validación retardo Twilio)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -46,10 +46,21 @@
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
 ### 🔔 WhatsApp — Validar con Twilio
-- [ ] **Validar con Twilio** — Probar en browser:
-  - `sin_recoger`: botón 📲 en FiltroSalida después de las 15:00 con alumno Camila (mama.camila@happyschool.edu.mx → tel 9932160007)
-  - `recordatorio_pago`: botón 📲 en tabla Adeudos (Pagos), padre con saldo pendiente
-- [ ] Conectar disparadores futuros (si se decide): `boleta_lista`, `pago_comida_lunes`, `recargo` (jobs)
+> Sandbox: `join although-previous` → +14155238886. Números registrados: 9931669869 (Héctor) y 9932160007 (Adriana).
+> ✅ `retardo` — validado sesión XX+75
+
+- [ ] `sin_recoger` — Botón 📲 en FiltroSalida. Pasos: esperar después de las 15:00, buscar alumno Camila (sin salida registrada), presionar 📲. Verificar que llega WA a 9932160007.
+- [ ] `recordatorio_pago` — Botón 📲 en Pagos → tabla Adeudos, alumno con saldo pendiente. Verificar WA al tutor principal.
+- [ ] `recargo` — Botón ⚠️ en Pagos → tabla Adeudos, visible solo desde día 6 del mes, alumno con `monto_recargo > 0`. Verificar WA al tutor.
+- [ ] `alerta_salud` — Registrar vómito en Bitácora → módulo salud. Verificar WA a padres del alumno.
+- [ ] `medicamento` — Registrar medicamento en Bitácora. Verificar WA a padres.
+- [ ] `incidente` — Registrar incidente en Bitácora. Verificar WA a padres.
+- [ ] `fiebre` — Marcar `tuvo_fiebre = true` al guardar bitácora del día. Verificar WA a padres (solo 1 vez por día).
+- [ ] `salida_anticipada` — Registrar salida antes de las 15:00 en FiltroSalida. Verificar WA al tutor.
+- [ ] `persona_no_autorizada` — Intentar registrar salida con persona no autorizada en FiltroSalida. Verificar alerta WA.
+- [ ] `sin_comida` — Disparador pendiente de conectar a flujo de insumos/comida (función existe, falta botón/acción).
+- [ ] `pago_comida_lunes` — Disparador pendiente de conectar (función existe, falta job o botón).
+- [ ] Pruebas completas con credenciales Twilio reales (producción) — sandbox validado, pendiente cuenta real y número aprobado Meta.
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

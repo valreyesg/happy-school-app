@@ -621,6 +621,8 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
   const [modalPago, setModalPago] = useState(false);
   const [modalRecibo, setModalRecibo] = useState(null); // pago seleccionado
   const [enviandoWA, setEnviandoWA] = useState(false);
+  const [enviandoRecargo, setEnviandoRecargo] = useState(false);
+  const diaHoy = new Date().getDate();
 
   const { data: estado } = useQuery({
     queryKey: ['estado-alumno', alumno.id, mes, anio],
@@ -644,6 +646,20 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
       alert(err.response?.data?.error || 'No se pudo enviar el recordatorio');
     } finally {
       setEnviandoWA(false);
+    }
+  };
+
+  const handleAvisoRecargo = async (e) => {
+    e.stopPropagation();
+    if (!window.confirm(`¿Enviar aviso de recargo por WhatsApp al tutor de ${alumno.nombre_completo}?`)) return;
+    setEnviandoRecargo(true);
+    try {
+      await api.post(`/pagos/alumno/${alumno.id}/aviso-recargo`);
+      alert(`Aviso de recargo enviado al tutor de ${alumno.nombre_completo} 📲`);
+    } catch (err) {
+      alert(err.response?.data?.error || 'No se pudo enviar el aviso de recargo');
+    } finally {
+      setEnviandoRecargo(false);
     }
   };
 
@@ -686,6 +702,16 @@ function FilaAlumno({ alumno, conceptos, metodos, tiposConcepto, mes, anio }) {
                 className="text-xs px-2 py-1.5 rounded-lg border border-green-400 text-green-700 hover:bg-green-50 disabled:opacity-50 transition-colors"
               >
                 {enviandoWA ? '…' : '📲'}
+              </button>
+            )}
+            {alumno.recargo_pendiente > 0 && diaHoy >= 6 && (
+              <button
+                onClick={handleAvisoRecargo}
+                disabled={enviandoRecargo}
+                title="Enviar aviso de recargo por WhatsApp"
+                className="text-xs px-2 py-1.5 rounded-lg border border-red-400 text-red-700 hover:bg-red-50 disabled:opacity-50 transition-colors"
+              >
+                {enviandoRecargo ? '…' : '⚠️'}
               </button>
             )}
             <button
@@ -1409,13 +1435,16 @@ export default function PagosDirectora() {
           grupo_color: p.color_hex,
           pagos: [],
           saldo_pendiente: 0,
+          recargo_pendiente: 0,
           semaforo: 'verde',
         });
       }
       const al = map.get(p.alumno_id);
       al.pagos.push(p);
-      if (['pendiente', 'vencido'].includes(p.estado))
+      if (['pendiente', 'vencido'].includes(p.estado)) {
         al.saldo_pendiente += parseFloat(p.monto_total);
+        if (p.monto_recargo > 0) al.recargo_pendiente += parseFloat(p.monto_recargo);
+      }
     });
     // Calcular semáforo
     map.forEach(al => {

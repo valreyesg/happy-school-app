@@ -1371,6 +1371,65 @@ router.post('/alumno/:alumnoId/recordatorio', authorize('directora', 'administra
   } catch (err) { next(err); }
 });
 
+// ─── AVISO DE RECARGO POR WHATSAPP ────────────────────────────────────────────
+// POST /pagos/alumno/:alumnoId/aviso-recargo
+// Envía plantilla 'recargo' al tutor de alumnos con pagos vencidos con recargo
+// Visible desde día 6 del mes
+
+router.post('/alumno/:alumnoId/aviso-recargo', authorize('directora', 'administrativo'), async (req, res, next) => {
+  try {
+    const { alumnoId } = req.params;
+
+    // Solo permitir desde día 6 del mes
+    const diaActual = new Date().getDate();
+    if (diaActual < 6) {
+      return res.status(400).json({ error: 'El aviso de recargo solo está disponible a partir del día 6 del mes' });
+    }
+
+    // Obtener alumno + tutor + recargo pendiente
+    const result = await query(`
+      SELECT al.nombre_completo AS alumno_nombre,
+             COALESCE(t.telefono_whatsapp, t.telefono) AS tutor_telefono,
+             t.nombre_completo AS tutor_nombre,
+             COALESCE(SUM(p.monto_recargo), 0) AS total_recargo,
+             COALESCE(SUM(p.monto_total), 0) AS total_deuda,
+             MAX(EXTRACT(DAY FROM AGE(NOW(), p.fecha_limite))) AS dias_atraso
+      FROM alumnos al
+      LEFT JOIN alumno_padre ap ON ap.alumno_id = al.id AND ap.es_tutor_principal = true
+      LEFT JOIN padres t ON t.id = ap.padre_id
+      LEFT JOIN pagos p ON p.alumno_id = al.id AND p.estado IN ('pendiente','vencido') AND p.monto_recargo > 0
+      WHERE al.id = $1
+      GROUP BY al.nombre_completo, t.telefono_whatsapp, t.telefono, t.nombre_completo
+    `, [alumnoId]);
+
+    if (!result.rows[0]) return res.status(404).json({ error: 'Alumno no encontrado' });
+    const r = result.rows[0];
+
+    if (!r.tutor_telefono) return res.status(400).json({ error: 'El alumno no tiene tutor con teléfono registrado' });
+    if (parseFloat(r.total_recargo) <= 0) return res.status(400).json({ error: 'El alumno no tiene recargo pendiente' });
+
+    const fmt = (n) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
+
+    const resultado = await whatsappService.enviarMensaje({
+      telefono: r.tutor_telefono,
+      clave: 'recargo',
+      variables: {
+        nombre_padre: r.tutor_nombre || 'Estimado padre/madre',
+        nombre_alumno: r.alumno_nombre,
+        monto_recargo: fmt(r.total_recargo),
+        dias_atraso: Math.round(r.dias_atraso) || 1,
+        total: fmt(r.total_deuda),
+      },
+      alumnoId,
+    });
+
+    if (resultado.omitido) return res.status(503).json({ error: 'WhatsApp no está activo o no configurado' });
+    if (resultado.error) return res.status(500).json({ error: resultado.error });
+
+    res.json({ ok: true, destinatario: r.tutor_nombre, telefono: r.tutor_telefono, recargo: r.total_recargo });
+  } catch (err) { next(err); }
+});
+
 // ─── ENVIAR RECIBO POR WHATSAPP ────────────────────────────────────────────────
 // POST /pagos/:id/enviar   body: { canal: 'whatsapp' }
 

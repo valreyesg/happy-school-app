@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-11 — Sesión XX+76 (Validación WhatsApp Twilio + fixes notificaciones web/mobile)
+**Última actualización:** 2026-05-11 — Sesión XX+77 (sin_comida + pago_comida_lunes validados + fixes UI Comida Pagos + manuales)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---
@@ -50,16 +50,6 @@
 > ✅ `retardo` — validado sesión XX+75
 
 - [ ] `sin_recoger` — Botón 📲 en FiltroSalida. Pasos: esperar después de las 15:00, buscar alumno Camila (sin salida registrada), presionar 📲. Verificar que llega WA a 9932160007.
-- [x] `recordatorio_pago` — Botón 📲 en Pagos → tabla Adeudos, alumno con saldo pendiente. Verificar WA al tutor principal. ✅ validado sesión XX+76 — modal web también validado (fix: INSERT en tabla notificaciones)
-- [x] `recargo` — Botón ⚠️ en Pagos → tabla Adeudos, visible solo desde día 6 del mes, alumno con `monto_recargo > 0`. Verificar WA al tutor. ~~descartado — mismo flujo que recordatorio_pago, ya validado~~
-- [x] `alerta_salud` — Registrar vómito en Bitácora → módulo salud. Verificar WA a padres del alumno. ✅ validado sesión XX+76
-- [x] `medicamento` — Registrar medicamento en Bitácora. Verificar WA a padres. ✅ validado sesión XX+76
-- [x] `incidente` — Registrar incidente en Bitácora. Verificar WA a padres. ✅ validado sesión XX+76
-- [x] `fiebre` — Marcar `tuvo_fiebre = true` al guardar bitácora del día. Verificar WA a padres (solo 1 vez por día). ✅ validado sesión XX+76
-- [x] `salida_anticipada` — Registrar salida antes de las 15:00 en FiltroSalida. Verificar WA al tutor. ✅ validado sesión XX+76
-- [ ] `persona_no_autorizada` — Intentar registrar salida con persona no autorizada en FiltroSalida. Verificar alerta WA.
-- [ ] `sin_comida` — Disparador pendiente de conectar a flujo de insumos/comida (función existe, falta botón/acción).
-- [ ] `pago_comida_lunes` — Disparador pendiente de conectar (función existe, falta job o botón).
 
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización

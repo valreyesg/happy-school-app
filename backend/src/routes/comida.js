@@ -10,13 +10,13 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 router.get('/menu', comidaController.getMenu);
 
 // POST: Crear/actualizar menú (directora/admin)
-router.post('/menu', verifyToken, authorize(['directora', 'administrativo']),
+router.post('/menu', verifyToken, authorize('directora', 'administrativo'),
   upload.single('archivo'),
   comidaController.crearOActualizarMenu
 );
 
 // DELETE: Eliminar menú (directora/admin)
-router.delete('/menu/:id', verifyToken, authorize(['directora', 'administrativo']),
+router.delete('/menu/:id', verifyToken, authorize('directora', 'administrativo'),
   comidaController.eliminarMenu
 );
 
@@ -52,12 +52,12 @@ router.get('/confirmacion/:alumno_id', verifyToken,
 );
 
 // PUT: Directora, admin o maestra verifica pago (filtro entrada)
-router.put('/confirmacion/:id/verificar-pago', verifyToken, authorize(['directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial']),
+router.put('/confirmacion/:id/verificar-pago', verifyToken, authorize('directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial'),
   comidaController.verificarPago
 );
 
 // PUT: Directora, admin o maestra cancela comida no pagada (filtro entrada)
-router.put('/confirmacion/:id/cancelar', verifyToken, authorize(['directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial']),
+router.put('/confirmacion/:id/cancelar', verifyToken, authorize('directora', 'administrativo', 'maestra_titular', 'maestra_puerta', 'maestra_especial'),
   comidaController.cancelarComida
 );
 

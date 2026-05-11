@@ -632,7 +632,29 @@
     <h2 id="comida">Módulo: Pagos de Comida</h2>
     <div class="access-badge">▸ Menú lateral → Comida Pagos</div>
 
-    <p>Gestión del servicio de comida semanal. Navegar entre semanas con los botones <strong>← Anterior</strong> y <strong>Siguiente →</strong>. Verificar pagos recibidos (efectivo del lunes o transferencia).</p>
+    <p>Gestión del servicio de comida semanal. Navegar entre semanas con los botones <strong>← Anterior</strong> y <strong>Siguiente →</strong>.</p>
+
+    <p>Cada alumno confirmado aparece con uno de tres estados:</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Estado</th><th>Color</th><th>Descripción</th></tr></thead>
+      <tbody>
+        <tr><td>Sin verificar</td><td>Rojo</td><td>El padre confirmó pero no se ha verificado el pago</td></tr>
+        <tr><td>✅ Pagado</td><td>Verde</td><td>El pago fue verificado por la escuela</td></tr>
+        <tr><td>🚫 Cancelado</td><td>Gris</td><td>El servicio fue cancelado por falta de pago</td></tr>
+      </tbody>
+    </table></div>
+
+    <p><strong>Acciones disponibles:</strong></p>
+    <ul>
+      <li><strong>✅ Verificar pago</strong> — Marca el pago como recibido. El padre recibe notificación en la app (campanita + modal). No se envía WhatsApp desde este botón.</li>
+      <li><strong>🚫 Cancelar servicio</strong> — Cancela el servicio por falta de pago. Se envía WhatsApp y notificación en la app al padre.</li>
+    </ul>
+
+    <p><strong>Automatización de lunes:</strong></p>
+    <ul>
+      <li><strong>7:00 AM</strong> — El sistema envía WhatsApp de recordatorio a los padres con pago pendiente.</li>
+      <li><strong>8:31 AM</strong> — El sistema cancela automáticamente todos los registros con pago pendiente y notifica a cada padre.</li>
+    </ul>
 
     <hr>
 

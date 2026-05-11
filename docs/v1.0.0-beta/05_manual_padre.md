@@ -333,6 +333,9 @@ La app puede enviarte notificaciones en tu celular en los siguientes casos:
 | **Aviso de la escuela** | Cuando la Directora envía un comunicado urgente |
 | **Tarea nueva** | Cuando la maestra publica una nueva tarea |
 | **Recordatorio de pago** | Si hay un pago próximo o vencido |
+| **Recordatorio comida (lunes)** | Los lunes a las 7:00 AM si confirmaste el servicio de comida y aún no se ha verificado el pago — tienes hasta las 8:30 AM para pagar |
+| **Servicio de comida cancelado** | Si el pago no se recibió antes de las 8:30 AM del lunes, el servicio es cancelado para esa semana |
+| **Pago de comida confirmado** | Cuando la escuela verifica que recibió tu pago del servicio de comida |
 
 ### Asegúrate de recibir las notificaciones
 

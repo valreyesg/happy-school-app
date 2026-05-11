@@ -121,7 +121,7 @@ export default function App() {
         <Route path="turno-puerta" element={<DirectoraTurnoPuerta />} />
         <Route path="comida" element={<DirectoraServicioComida />} />
         <Route path="comida-menu" element={<Navigate to="/directora/comida" replace />} />
-        <Route path="comida-pagos" element={<Navigate to="/directora/comida" replace />} />
+        <Route path="comida-pagos" element={<DirectoraComidaPagos />} />
         <Route path="ciclos" element={<DirectoraCiclos />} />
         <Route path="aviso" element={<DirectoraAvisoExtraordinario />} />
       </Route>

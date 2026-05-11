@@ -1,6 +1,7 @@
 const { query } = require('../config/database');
 const cloudinaryService = require('../services/cloudinaryService');
 const whatsappService = require('../services/whatsappService');
+const { enviarPush } = require('../services/pushService');
 
 // Obtener menú de la semana
 exports.getMenu = async (req, res) => {
@@ -298,7 +299,32 @@ exports.verificarPago = async (req, res) => {
 
     if (!result.rows[0]) return res.status(404).json({ error: 'Registro no encontrado' });
 
-    res.json(result.rows[0]);
+    const registro = result.rows[0];
+
+    // Notificar al padre: pago de comida confirmado
+    const padresRes = await query(`
+      SELECT p.nombre_completo, COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             p.usuario_id, a.nombre_completo AS alumno_nombre, a.id AS alumno_id
+      FROM control_comida_semanal ccs
+      JOIN alumnos a ON ccs.alumno_id = a.id
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
+      JOIN padres p ON ap.padre_id = p.id
+      WHERE ccs.id = $1 AND p.usuario_id IS NOT NULL
+    `, [id]);
+
+    for (const padre of padresRes.rows) {
+      // Solo campanita + modal (sin WA — el WA de recordatorio lo envía el job de 7AM)
+      const titulo = `✅ Pago de comida confirmado — ${padre.alumno_nombre}`;
+      const cuerpo = `El pago de $${parseFloat(registro.monto).toFixed(2)} para el servicio de comida fue verificado correctamente.`;
+      await query(
+        `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+         VALUES ($1, $2, $3, 'pago_comida_lunes', $4)`,
+        [padre.usuario_id, titulo, cuerpo, JSON.stringify({ alumno_id: registro.alumno_id, monto: registro.monto })]
+      );
+      enviarPush(padre.usuario_id, titulo, cuerpo, { tipo: 'pago_comida_lunes', alumno_id: String(registro.alumno_id) });
+    }
+
+    res.json(registro);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -319,7 +345,38 @@ exports.cancelarComida = async (req, res) => {
 
     if (!result.rows[0]) return res.status(404).json({ error: 'Registro no encontrado' });
 
-    res.json(result.rows[0]);
+    const registro = result.rows[0];
+
+    // Notificar al padre: servicio cancelado por falta de pago
+    const padresRes = await query(`
+      SELECT p.nombre_completo, COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+             p.usuario_id, a.nombre_completo AS alumno_nombre, a.id AS alumno_id
+      FROM control_comida_semanal ccs
+      JOIN alumnos a ON ccs.alumno_id = a.id
+      JOIN alumno_padre ap ON ap.alumno_id = a.id
+      JOIN padres p ON ap.padre_id = p.id
+      WHERE ccs.id = $1 AND p.usuario_id IS NOT NULL
+    `, [id]);
+
+    for (const padre of padresRes.rows) {
+      // WA
+      whatsappService.notificarSinComida(
+        { nombre_completo: padre.nombre_completo, telefono: padre.telefono },
+        { nombre_completo: padre.alumno_nombre, id: padre.alumno_id }
+      ).catch(() => {});
+
+      // Notificación campanita + modal
+      const titulo = `❌ Servicio de comida cancelado — ${padre.alumno_nombre}`;
+      const cuerpo = `El servicio de comida de ${padre.alumno_nombre} fue cancelado por falta de pago. Comunícate con la escuela para más información.`;
+      await query(
+        `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+         VALUES ($1, $2, $3, 'sin_comida', $4)`,
+        [padre.usuario_id, titulo, cuerpo, JSON.stringify({ alumno_id: registro.alumno_id })]
+      );
+      enviarPush(padre.usuario_id, titulo, cuerpo, { tipo: 'sin_comida', alumno_id: String(registro.alumno_id) });
+    }
+
+    res.json(registro);
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -333,7 +390,10 @@ exports.procesarComidaNoPagada = async () => {
     const semana_inicio = lunes.toISOString().split('T')[0];
 
     const noPageados = await query(
-      `SELECT cc.*, a.id as alumno_id, p.telefono_whatsapp
+      `SELECT cc.*, a.id as alumno_id, a.nombre_completo AS alumno_nombre,
+              p.nombre_completo AS padre_nombre,
+              COALESCE(p.telefono_whatsapp, p.telefono) AS telefono,
+              p.usuario_id
        FROM control_comida_semanal cc
        JOIN alumnos a ON cc.alumno_id = a.id
        JOIN alumno_padre ap ON a.id = ap.alumno_id
@@ -354,13 +414,22 @@ exports.procesarComidaNoPagada = async () => {
         [registro.id]
       );
 
-      // Enviar WhatsApp
-      if (registro.telefono_whatsapp) {
-        await whatsappService.enviarMensaje({
-          telefono: registro.telefono_whatsapp,
-          mensajeDirecto: `⚠️ Servicio de comida cancelado\n\nNo se recibió pago para la semana del ${semana_inicio}.\nPor favor contacta con la escuela.`,
-          alumnoId: registro.alumno_id,
-        }).catch(() => {});
+      // WA con plantilla sin_comida
+      await whatsappService.notificarSinComida(
+        { nombre_completo: registro.padre_nombre, telefono: registro.telefono },
+        { nombre_completo: registro.alumno_nombre, id: registro.alumno_id }
+      ).catch(() => {});
+
+      // Notificación campanita + modal
+      if (registro.usuario_id) {
+        const titulo = `❌ Servicio de comida cancelado — ${registro.alumno_nombre}`;
+        const cuerpo = `El servicio de comida de ${registro.alumno_nombre} fue cancelado automáticamente por falta de pago (semana del ${semana_inicio}).`;
+        await query(
+          `INSERT INTO notificaciones (usuario_id, titulo, cuerpo, tipo, datos_extra)
+           VALUES ($1, $2, $3, 'sin_comida', $4)`,
+          [registro.usuario_id, titulo, cuerpo, JSON.stringify({ alumno_id: registro.alumno_id })]
+        ).catch(() => {});
+        enviarPush(registro.usuario_id, titulo, cuerpo, { tipo: 'sin_comida', alumno_id: String(registro.alumno_id) });
       }
     }
 

@@ -5,6 +5,45 @@
 
 ---
 
+## ✅ SESIÓN XX+77 (2026-05-11) — Validación WA sin_comida + pago_comida_lunes + fixes UI Comida Pagos + manuales
+
+**Fecha:** 2026-05-11 | **Estado:** ✅ Completado
+
+### Completado
+
+- Validado `persona_no_autorizada` WA (previa reversión salida Leticia Torres Pérez)
+- Implementado flujo completo `sin_comida` + `pago_comida_lunes`:
+  - Job 7:00 AM lunes → recordatorio WA `pago_comida_lunes` a padres con pago pendiente
+  - Job 8:31 AM lunes → cancelación automática + WA `sin_comida` + campanita/modal web+mobile
+  - Botón `✅ Verificar pago` → solo campanita+modal al padre (sin WA)
+  - Botón `🚫 Cancelar servicio` → WA `sin_comida` + campanita+modal al padre
+- Fix `authorize()` bug en `comida.js` — array vs spread (403 Forbidden admin)
+- Fix UX botones en `ComidaPagos.jsx` (admin) y `ServicioComida.jsx` (directora): 3 estados visuales (rojo/verde/gris), botones explícitos separados
+- Fix ruta directora `comida-pagos` en `App.jsx` — era redirect incorrecto a `/directora/comida`
+- Corregida plantilla `sin_comida` en BD: "fue cancelado porque no se recibió el pago antes de las 8:30 AM"
+- Corregida plantilla `pago_comida_lunes` en BD: agrega deadline "hasta las 8:30 AM" y "cancelado desde hoy"
+- Eliminado WA redundante de `verificarPago` — ya lo hace el job de 7AM
+- Manuales actualizados (md + html): maestra sin galería, padre +3 notificaciones comida, directora + admin sección pagos comida expandida
+
+### Archivos modificados
+
+- `backend/src/controllers/comidaController.js`
+- `backend/src/jobs/comidaJobs.js`
+- `backend/src/routes/comida.js`
+- `web/src/pages/directora/ComidaPagos.jsx`
+- `web/src/pages/directora/ServicioComida.jsx`
+- `web/src/App.jsx`
+- `docs/v1.0.0-beta/04_manual_maestra.md` + `manual_maestra.html`
+- `docs/v1.0.0-beta/05_manual_padre.md` + `manual_padre.html`
+- `docs/v1.0.0-beta/03_manual_directora.md` + `manual_directora.html`
+- `docs/v1.0.0-beta/06_manual_administrador.md` + `manual_administrador.html`
+
+### Pendiente siguiente sesión
+
+- Validar `sin_recoger` WA (después de las 15:00 — FiltroSalida, alumno sin salida registrada)
+
+---
+
 ## ✅ SESIÓN XX+76 (2026-05-11) — Validación WhatsApp Twilio + fixes notificaciones campanita/modal web
 
 **Fecha:** 2026-05-11 | **Estado:** ✅ Completado

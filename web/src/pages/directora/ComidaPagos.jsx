@@ -169,6 +169,8 @@ const ComidaPagos = () => {
                 className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
                   conf.pago_verificado
                     ? 'bg-green-50 border-green-300'
+                    : conf.estado === 'cancelado'
+                    ? 'bg-gray-100 border-gray-300'
                     : 'bg-red-50 border-red-300'
                 }`}
               >
@@ -188,17 +190,39 @@ const ComidaPagos = () => {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => handleVerificarPago(conf.id, !conf.pago_verificado)}
-                  disabled={actualizando === conf.id}
-                  className={`px-5 py-3 rounded-lg font-black text-sm transition-all whitespace-nowrap ml-4 ${
-                    conf.pago_verificado
-                      ? 'bg-green-500 text-white hover:bg-green-600'
-                      : 'bg-red-500 text-white hover:bg-red-600'
-                  } disabled:opacity-50`}
-                >
-                  {actualizando === conf.id ? '⏳' : conf.pago_verificado ? '✅ Pagado' : '❌ No Pagó'}
-                </button>
+                <div className="flex flex-col gap-2 ml-4">
+                  {conf.pago_verificado ? (
+                    <>
+                      <span className="text-center text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-lg">✅ Pagado</span>
+                      <button
+                        onClick={() => handleVerificarPago(conf.id, false)}
+                        disabled={actualizando === conf.id}
+                        className="px-4 py-2 rounded-lg font-black text-xs bg-red-100 text-red-700 hover:bg-red-200 transition-all disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {actualizando === conf.id ? '⏳' : '❌ Cancelar servicio'}
+                      </button>
+                    </>
+                  ) : conf.estado === 'cancelado' ? (
+                    <span className="text-center text-xs font-bold text-gray-500 bg-gray-200 px-3 py-1 rounded-lg">🚫 Cancelado</span>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleVerificarPago(conf.id, true)}
+                        disabled={actualizando === conf.id}
+                        className="px-4 py-2 rounded-lg font-black text-xs bg-green-500 text-white hover:bg-green-600 transition-all disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {actualizando === conf.id ? '⏳' : '✅ Verificar pago'}
+                      </button>
+                      <button
+                        onClick={() => handleVerificarPago(conf.id, false)}
+                        disabled={actualizando === conf.id}
+                        className="px-4 py-2 rounded-lg font-black text-xs bg-red-500 text-white hover:bg-red-600 transition-all disabled:opacity-50 whitespace-nowrap"
+                      >
+                        {actualizando === conf.id ? '⏳' : '🚫 Cancelar servicio'}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             ))}
 

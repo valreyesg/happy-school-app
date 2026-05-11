@@ -205,11 +205,25 @@ Gestión específica del servicio de comida semanal.
 
 Usar los botones **← Anterior** y **Siguiente →** para cambiar de semana.
 
+Cada alumno confirmado aparece con uno de tres estados:
+
+| Estado | Color | Descripción |
+|--------|-------|-------------|
+| Sin verificar | Rojo | El padre confirmó pero no se ha verificado el pago |
+| ✅ Pagado | Verde | El pago fue verificado por la escuela |
+| 🚫 Cancelado | Gris | El servicio fue cancelado por falta de pago |
+
 ### Verificar un pago de comida
 
 1. Buscar al alumno en la lista de la semana
-2. Si pagó, cambiar el estado a **"Pagado"**
-3. Si no pagó, dejarlo en estado sin verificar
+2. Hacer clic en **"✅ Verificar pago"** — el padre recibe notificación en la app (campanita + modal)
+3. Si el padre no pagó, hacer clic en **"🚫 Cancelar servicio"** — se envía WhatsApp y notificación al padre
+
+### Automatización de lunes
+
+El sistema ejecuta automáticamente dos acciones cada lunes:
+- **7:00 AM** — Envía WhatsApp de recordatorio a todos los padres con servicio confirmado y pago pendiente, indicando que tienen hasta las 8:30 AM para pagar.
+- **8:31 AM** — Cancela automáticamente todos los registros con pago pendiente y notifica a cada padre por WhatsApp y notificación en app.
 
 ---
 

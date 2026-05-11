@@ -141,6 +141,8 @@ export default function NotificationBell() {
       salida_anticipada: '🚪',
       alerta_vomito: '🤢',
       alerta_diarrea: '⚠️',
+      pago_comida_lunes: '🍽️',
+      sin_comida: '🚫',
     };
     return iconos[tipo] || '🔔';
   };

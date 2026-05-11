@@ -91,6 +91,18 @@ const CONFIG_TIPO = {
     icono: '🚨',
     label: 'Persona no autorizada',
   },
+  pago_comida_lunes: {
+    color: '#276749',
+    bgLight: '#F0FDF4',
+    icono: '🍽️',
+    label: 'Pago de comida',
+  },
+  sin_comida: {
+    color: '#C53030',
+    bgLight: '#FFF5F5',
+    icono: '🚫',
+    label: 'Servicio cancelado',
+  },
 };
 
 const fallback = {

@@ -15,6 +15,8 @@ const CONFIG_TIPO = {
   tarea_nueva:         { color: '#3182CE', bgLight: '#EBF8FF', icono: '📚', label: 'Tarea nueva' },
   tarea_cancelada:     { color: '#718096', bgLight: '#F7FAFC', icono: '📋', label: 'Tarea cancelada' },
   alerta_pago:         { color: '#B7791F', bgLight: '#FFFBEB', icono: '💳', label: 'Recordatorio de pago' },
+  pago_comida_lunes:   { color: '#276749', bgLight: '#F0FDF4', icono: '🍽️', label: 'Pago de comida' },
+  sin_comida:          { color: '#C53030', bgLight: '#FFF5F5', icono: '🚫', label: 'Servicio cancelado' },
 };
 
 const fallback = { color: '#3182CE', bgLight: '#EBF8FF', icono: '🔔', label: 'Notificación' };

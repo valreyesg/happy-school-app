@@ -355,14 +355,6 @@ Si el alumno escaneado tiene hermanos en la escuela, después de registrar al pr
 
 ---
 
-## Galería de fotos
-
-**Web:** Menú lateral → Galería
-
-Aquí se almacenan las fotos del salón. Esta función está en desarrollo en esta versión.
-
-Las fotos subidas desde la bitácora ya quedan disponibles para los padres directamente desde la bitácora de su hijo.
-
 ---
 
 ## Notificaciones
@@ -416,7 +408,6 @@ Registrar su entrada manualmente desde la lista de Asistencia o Filtro de Entrad
 | Asistencia | ✅ | ✅ |
 | Bitácora | ✅ | ✅ |
 | Tareas | ✅ | ✅ |
-| Galería | ✅ | — |
 
 ---
 

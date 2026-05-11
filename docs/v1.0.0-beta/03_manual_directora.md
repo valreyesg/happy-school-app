@@ -404,12 +404,30 @@ Publicar el menú semanal para que los padres lo vean desde su app.
 
 ### Pestaña: Pagos
 
-Ver quién pagó el servicio de comida de la semana.
+Ver y gestionar los pagos del servicio de comida de la semana.
 
 - Navegar entre semanas con los botones **"← Anterior"** y **"Siguiente →"**
-- Ver las tarjetas de resumen: cuántos pagaron, cuántos no, totales por método
-- Marcar pagos como verificados
+- Ver las tarjetas de resumen: cuántos pagaron, cuántos no, totales por método de pago
 - Filtrar por nivel educativo
+
+Cada alumno confirmado aparece con uno de tres estados:
+
+| Estado | Color | Descripción |
+|--------|-------|-------------|
+| Sin verificar | Rojo | El padre confirmó pero no se ha verificado el pago |
+| ✅ Pagado | Verde | El pago fue verificado por la escuela |
+| 🚫 Cancelado | Gris | El servicio fue cancelado por falta de pago |
+
+**Acciones disponibles por alumno:**
+
+- **✅ Verificar pago** — Marca el pago como recibido. El padre recibe notificación en la app (campanita + modal). No se envía WhatsApp desde este botón.
+- **🚫 Cancelar servicio** — Cancela el servicio de comida por falta de pago. Se envía WhatsApp y notificación en la app al padre.
+
+**Automatización de lunes:**
+
+El sistema ejecuta automáticamente dos acciones cada lunes:
+- **7:00 AM** — Envía WhatsApp de recordatorio a todos los padres con servicio confirmado y pago pendiente, indicando que tienen hasta las 8:30 AM para pagar.
+- **8:31 AM** — Cancela automáticamente todos los registros con pago pendiente y notifica a cada padre por WhatsApp y notificación en app.
 
 ---
 

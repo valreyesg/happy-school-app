@@ -45,10 +45,6 @@
 
 ## 🚀 FASE E — Largo plazo (1–2 meses)
 
-### 🔔 WhatsApp — Validar con Twilio
-> Sandbox: `join although-previous` → +14155238886. Números registrados: 9931669869 (Héctor) y 9932160007 (Adriana).
-> ✅ `retardo` — validado sesión XX+75
-
 ### 🚀 Optimización Final
 - [ ] Modo Offline Miss: caché local + sincronización
 - [ ] Backup automático diario

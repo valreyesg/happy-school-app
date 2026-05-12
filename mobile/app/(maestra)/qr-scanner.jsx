@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { COLORS, RADIUS } from '@/constants/theme';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, Vibration, Image, ScrollView, TextInput } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -316,13 +316,38 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
     sin_lagañas: true,
     sin_fiebre: true,
     sin_sintomas: true,
+    panial_limpio: true,
+    trajo_paniales: true,
     trae_uniforme: true,
     trae_bata: true,
     trae_termo: true,
     agua_suficiente: true,
   });
   const [temperatura, setTemperatura] = useState('');
+  const [confirmacionComida, setConfirmacionComida] = useState(null);
+  const [pagoVerificado, setPagoVerificado] = useState(false);
   const { items: checklistCatalogo } = useCatalogo('checklist-entrada');
+
+  // Cargar confirmación de comida de la semana actual
+  useEffect(() => {
+    const cargarComida = async () => {
+      try {
+        const hoy = new Date().toLocaleDateString('en-CA');
+        const [año, mes, dia] = hoy.split('-');
+        const lunes = new Date(parseInt(año), parseInt(mes) - 1, parseInt(dia));
+        lunes.setDate(lunes.getDate() - lunes.getDay() + 1);
+        const semanaInicio = lunes.toLocaleDateString('en-CA');
+        const res = await api.get(`/comida/confirmacion/${alumno.id}?semana=${semanaInicio}`);
+        if (res.data) {
+          setConfirmacionComida(res.data);
+          setPagoVerificado(res.data.pago_verificado || false);
+        }
+      } catch {
+        // Sin datos de comida, no mostrar sección
+      }
+    };
+    if (alumno?.id) cargarComida();
+  }, [alumno?.id]);
 
   const toggle = (key) => setChecks(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -337,8 +362,24 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
     { key: 'agua_suficiente', label: 'Agua suficiente', emoji: '🚰' },
   ];
 
+  const handleConfirmar = async () => {
+    // Si hay comida activa (no cancelada por directora), actualizar estado de pago
+    if (confirmacionComida && confirmacionComida.estado !== 'cancelado') {
+      try {
+        if (pagoVerificado) {
+          await api.put(`/comida/confirmacion/${confirmacionComida.id}/verificar-pago`);
+        } else if (confirmacionComida.pago_verificado) {
+          await api.put(`/comida/confirmacion/${confirmacionComida.id}/cancelar`);
+        }
+      } catch {
+        // No bloquear la entrada si falla la actualización de comida
+      }
+    }
+    onConfirmar({ ...checks, temperatura: temperatura ? parseFloat(temperatura) : null });
+  };
+
   return (
-    <View style={styles.checklistContainer}>
+    <ScrollView style={styles.checklistContainer} contentContainerStyle={{ paddingBottom: 24 }}>
       {/* Foto del alumno */}
       <View style={styles.alumnoDetectadoHeader}>
         {alumno.foto_url ? (
@@ -384,6 +425,43 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
             <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{checks[key] ? '✅' : '❌'}</Text>
           </TouchableOpacity>
         ))}
+
+        {/* Pañal — solo si usa_panial */}
+        {alumno.usa_panial && (
+          <>
+            <TouchableOpacity
+              style={[styles.checkItem, { backgroundColor: checks.panial_limpio ? '#C6F6D5' : '#FED7D7' }]}
+              onPress={() => toggle('panial_limpio')}
+              activeOpacity={0.8}
+            >
+              <Text style={{ fontSize: 20 }}>👶🏻</Text>
+              <Text style={styles.checkLabel}>Pañal limpio</Text>
+              <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{checks.panial_limpio ? '✅' : '❌'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.checkItem, { backgroundColor: checks.trajo_paniales ? '#C6F6D5' : '#FED7D7' }]}
+              onPress={() => toggle('trajo_paniales')}
+              activeOpacity={0.8}
+            >
+              <Text style={{ fontSize: 20 }}>🧷</Text>
+              <Text style={styles.checkLabel}>Trajo pañales (5)</Text>
+              <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{checks.trajo_paniales ? '✅' : '❌'}</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* Comida — solo si tiene confirmación activa (no cancelada por directora) */}
+        {confirmacionComida && confirmacionComida.estado !== 'cancelado' && (
+          <TouchableOpacity
+            style={[styles.checkItem, { backgroundColor: pagoVerificado ? '#C6F6D5' : '#FED7D7' }]}
+            onPress={() => setPagoVerificado(v => !v)}
+            activeOpacity={0.8}
+          >
+            <Text style={{ fontSize: 20 }}>🍱</Text>
+            <Text style={styles.checkLabel}>{pagoVerificado ? 'Pago verificado' : 'No pagó - Cancelar comida'}</Text>
+            <Text style={{ fontSize: 22, marginLeft: 'auto' }}>{pagoVerificado ? '✅' : '❌'}</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Botones */}
@@ -393,7 +471,7 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.confirmarBtn}
-          onPress={() => onConfirmar({ ...checks, temperatura: temperatura ? parseFloat(temperatura) : null })}
+          onPress={handleConfirmar}
           disabled={loading}
         >
           <Text style={styles.confirmarText}>
@@ -401,7 +479,7 @@ function ChecklistEntrada({ alumno, onConfirmar, onCancelar, loading }) {
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

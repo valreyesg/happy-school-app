@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-11 — Sesión XX+78 (Validación sin_recoger + Fix extensión horario job automático)
+**Última actualización:** 2026-05-12 — Sesión XX+79 (FiltroEntrada: checklist default true + fix comida cancelada web+mobile)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

@@ -23,11 +23,11 @@ function usePrecioDia() {
 // ── Modal checklist ───────────────────────────────────────────────────────────
 
 const CHECKS_DEFAULT = {
-  uñas_cortadas: false, sin_lagañas: false,
+  uñas_cortadas: true, sin_lagañas: true,
   sin_fiebre: true, temperatura: '',
   sin_sintomas: true, sintomas_notas: '',
-  panial_limpio: false, trajo_paniales: false, trae_uniforme: false,
-  trae_bata: false, trae_termo: false, agua_suficiente: false,
+  panial_limpio: true, trajo_paniales: true, trae_uniforme: true,
+  trae_bata: true, trae_termo: true, agua_suficiente: true,
 };
 
 function ModalEntrada({ alumno, onClose, onSuccess }) {
@@ -120,8 +120,8 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
   const set = (field, val) => setForm(f => ({ ...f, [field]: val }));
 
   const handleSubmit = async () => {
-    // Si hay confirmación de comida, actualizar estado de pago
-    if (confirmacionComida && !cargandoComida) {
+    // Si hay confirmación de comida activa (no cancelada por directora), actualizar estado de pago
+    if (confirmacionComida && !cargandoComida && confirmacionComida.estado !== 'cancelado') {
       try {
         if (pagoVerificado) {
           await api.put(`/comida/confirmacion/${confirmacionComida.id}/verificar-pago`);
@@ -228,8 +228,8 @@ function ModalEntrada({ alumno, onClose, onSuccess }) {
           <CheckRow field="trae_termo"      label={checklistMap['trae_termo']?.label ?? 'Termo'}           emoji={checklistMap['trae_termo']?.emoji ?? '🧴'} />
           <CheckRow field="agua_suficiente" label={checklistMap['agua_suficiente']?.label ?? 'Agua suficiente'} emoji={checklistMap['agua_suficiente']?.emoji ?? '💧'} />
 
-          {/* Sección Comida (solo si confirmó) */}
-          {confirmacionComida && (
+          {/* Sección Comida (solo si confirmó y no está ya cancelado por directora) */}
+          {confirmacionComida && confirmacionComida.estado !== 'cancelado' && (
             <>
               <p className="text-xs font-black text-gray-400 uppercase tracking-wider pt-2">Comida</p>
               <button

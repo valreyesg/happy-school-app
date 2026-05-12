@@ -114,17 +114,23 @@ Cuando llegues con tu hijo al kinder:
 
 ¿Qué pasa si hoy viene otra persona a recoger a tu hijo (una abuela, tía, vecina) y esa persona **no está registrada** como autorizada?
 
-Puedes generar un **pase temporal** que solo vale para ese día:
+Puedes generar un **pase temporal** que solo vale para ese día, directamente desde la tarjeta de tu hijo en el Dashboard:
 
+**Desde el celular (mobile):**
+1. En el Dashboard, dentro de la tarjeta de tu hijo, tocar **"Generar pase para hoy"**
+2. Escribir el **nombre completo** de la persona que va a recogerlo
+3. Tocar **"Generar pase"** → se crea el código QR especial
+4. Tocar **"Ver QR"** para mostrar el código y enviarlo a esa persona
+
+**Desde la computadora (web):**
 1. Ir a la pantalla de QR de tu hijo
 2. Tocar **"Generar pase temporal"**
-3. Escribir el **nombre completo** de la persona que va a recogerlo
-4. Se genera un código QR especial
-5. Puedes descargarlo o enviarlo por WhatsApp a esa persona
+3. Escribir el nombre de la persona y confirmar
+4. Se genera el QR — puedes descargarlo o enviarlo por WhatsApp
 
 Cuando la persona llegue al kinder, la maestra escanea ese QR y ve el nombre que autorizaste. **Solo funciona ese día.**
 
-Si ya no la necesitas, puedes **cancelar el pase** desde la misma pantalla.
+Si ya no la necesitas, puedes **cancelar el pase** tocando el botón **"Cancelar"** en la misma tarjeta. El pase queda desactivado inmediatamente.
 
 > **Importante:** Este pase es para casos extraordinarios. Si una persona va a recoger a tu hijo regularmente, pídele a la Directora que la registre como persona autorizada (proceso permanente).
 
@@ -164,7 +170,8 @@ La bitácora tiene varias secciones (pestañas):
 - Si las entregaste marcadas como completadas
 
 **🚿 Higiene** (principalmente para Maternal)
-- Cambios de pañal: cuántas veces, a qué hora, y el estado
+- Cambios de pañal: cuántas veces, a qué hora, y el estado del pañal
+  - ✅ Limpio · 💧 Pipí · 💩 Popó · 🔄 Mixto · ⚠️ Diarrea
 - Visitas al baño (para niños en proceso de entrenamiento)
 
 **🌡️ Salud**

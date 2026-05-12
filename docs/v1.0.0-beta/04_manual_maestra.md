@@ -184,11 +184,31 @@ Vista del registro de asistencia del día con todos los detalles.
 
 ### Ver el detalle de un alumno
 
-Hacer clic en el nombre de un alumno para ver:
-- Si tiene fiebre registrada y la temperatura
-- Si tiene síntomas y cuáles son
-- Si trae todo su material
-- Si el registro fue con escáner QR
+**En la computadora (web):** Hacer clic en el nombre de un alumno para abrir el panel de detalle con toda la información del chequeo de entrada.
+
+**En el celular (mobile):** Tocar la tarjeta de un alumno ya registrado para expandirla y ver directamente en la lista:
+
+**Salud:**
+- ✅/✗ Sin fiebre
+- ✅/✗ Sin síntomas
+
+**Higiene:**
+- ✅/✗ Uñas cortadas
+- ✅/✗ Sin lagañas
+- ✅/✗ Pañal limpio (solo Maternal)
+
+**Materiales:**
+- ✅/✗ Trae uniforme
+- ✅/✗ Trae bata
+- ✅/✗ Trae termo
+- ✅/✗ Agua suficiente
+
+> Si el alumno fue registrado con escáner QR, aparece una etiqueta **"QR"** en su tarjeta.
+
+### Banner de cumpleaños
+
+Si un alumno cumple años hoy, su tarjeta en la lista de Asistencia muestra un banner de color morado:
+🎂 **¡Hoy cumple años [nombre]!**
 
 ### Navegar fechas anteriores
 
@@ -221,7 +241,7 @@ Cada día se registra una bitácora por alumno. Los padres pueden ver esta infor
 - Temperatura (si aplica)
 - Si vomitó, cuántas veces y con qué intensidad
 - Número de veces que fue al baño (pipí y popó)
-- Condición del pañal (solo Maternal)
+- Condición del pañal (solo Maternal): ✅ Limpio · 💧 Pipí · 💩 Popó · 🔄 Mixto · ⚠️ Diarrea
 
 **Actividades del día:** Las actividades que se realizaron (pintura, lectura, música, patio, etc.)
 

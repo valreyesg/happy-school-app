@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture Reference — Happy School App v1.0.0-beta</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f9fafb; color: #1a1a2e; display: flex; min-height: 100vh; }
+
+  /* SIDEBAR */
+  #sidebar { position: fixed; top: 0; left: 0; width: 270px; height: 100vh; background: #0f172a; color: #e2e8f0; overflow-y: auto; display: flex; flex-direction: column; z-index: 100; }
+  #sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid #1e293b; }
+  #sidebar-header .logo { font-size: 17px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+  #sidebar-header .logo span { font-size: 22px; }
+  #sidebar-header .version { font-size: 11px; color: #6b7280; margin-top: 4px; font-family: 'Courier New', monospace; }
+  #sidebar-header .role-badge { display: inline-block; margin-top: 10px; padding: 3px 10px; background: #1e1b4b; color: #a5b4fc; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; }
+  #sidebar nav { padding: 10px 0; flex: 1; }
+  #sidebar nav .nav-section { padding: 10px 20px 4px; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #4b5563; }
+  #sidebar nav a { display: block; padding: 7px 20px 7px 26px; color: #9ca3af; text-decoration: none; font-size: 12.5px; line-height: 1.4; transition: all 0.15s; border-left: 3px solid transparent; }
+  #sidebar nav a:hover { color: #e2e8f0; background: #1e293b; border-left-color: #818cf8; }
+  #sidebar nav a.active { color: #a5b4fc; background: #1e293b; border-left-color: #818cf8; font-weight: 600; }
+  #sidebar-footer { padding: 14px 20px; border-top: 1px solid #1e293b; font-size: 11px; color: #4b5563; }
+
+  /* MAIN */
+  #main { margin-left: 270px; flex: 1; min-height: 100vh; }
+  #topbar { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #e5e7eb; padding: 13px 40px; display: flex; align-items: center; justify-content: space-between; z-index: 50; }
+  #topbar .breadcrumb { font-size: 13px; color: #6b7280; }
+  #topbar .breadcrumb strong { color: #1a1a2e; }
+  #topbar .badge { font-size: 11px; padding: 3px 10px; background: #ede9fe; color: #4c1d95; border-radius: 20px; font-weight: 600; }
+  #content { max-width: 900px; margin: 0 auto; padding: 48px 40px 100px; }
+
+  /* TYPOGRAPHY */
+  h1 { font-size: 30px; font-weight: 800; color: #1a1a2e; line-height: 1.2; margin-bottom: 8px; }
+  h1 .subtitle { display: block; font-size: 15px; font-weight: 400; color: #6b7280; margin-top: 6px; }
+  h2 { font-size: 21px; font-weight: 700; color: #1a1a2e; margin-top: 52px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #ddd6fe; scroll-margin-top: 80px; }
+  h2 .sec-num { display: inline-block; background: #7c3aed; color: #fff; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-right: 8px; vertical-align: middle; }
+  h3 { font-size: 15.5px; font-weight: 600; color: #374151; margin-top: 28px; margin-bottom: 10px; scroll-margin-top: 80px; }
+  h4 { font-size: 13.5px; font-weight: 700; color: #4b5563; margin-top: 18px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  p { margin-bottom: 14px; line-height: 1.75; color: #374151; font-size: 14.5px; }
+  ul, ol { margin: 0 0 14px 22px; }
+  li { margin-bottom: 6px; line-height: 1.65; font-size: 14px; color: #374151; }
+  strong { font-weight: 600; color: #1f2937; }
+  em { color: #6b7280; font-style: italic; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 36px 0; }
+  code { font-family: 'Courier New', monospace; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; font-size: 12.5px; color: #4c1d95; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 20px 24px; border-radius: 10px; font-size: 13px; line-height: 1.7; overflow-x: auto; margin: 16px 0 24px; font-family: 'Courier New', monospace; }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+  blockquote { border-left: 4px solid #7c3aed; background: #faf5ff; padding: 14px 18px; margin: 20px 0; border-radius: 0 8px 8px 0; font-size: 14px; color: #4c1d95; line-height: 1.7; }
+
+  /* META */
+  .doc-meta { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0 36px; padding: 16px 20px; background: #f5f3ff; border-radius: 10px; border: 1px solid #ddd6fe; }
+  .doc-meta .meta-item { font-size: 13px; color: #5b21b6; }
+  .doc-meta .meta-item span { font-weight: 700; }
+
+  /* WARNING BOX */
+  .warn-box { background: #fffbeb; border: 1px solid #fbbf24; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 14px; color: #78350f; line-height: 1.7; }
+  .warn-box strong { color: #b45309; }
+  .danger-box { background: #fff1f2; border: 1px solid #fda4af; border-left: 4px solid #ef4444; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 14px; color: #9f1239; line-height: 1.7; }
+  .info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 14px 18px; margin: 20px 0; font-size: 14px; color: #1e40af; line-height: 1.7; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 16px 0 28px; border-radius: 8px; border: 1px solid #e5e7eb; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #0f172a; }
+  thead th { padding: 10px 14px; text-align: left; color: #e2e8f0; font-weight: 600; font-size: 12px; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:hover { background: #f5f3ff; }
+  tbody td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: top; line-height: 1.5; }
+  tbody td:last-child { border-bottom: none; }
+  tbody tr:last-child td { border-bottom: none; }
+  td code { font-size: 12px; }
+
+  /* BADGES */
+  .badge-ok { display: inline-block; background: #d1fae5; color: #065f46; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .badge-warn { display: inline-block; background: #fef3c7; color: #78350f; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .badge-no { display: inline-block; background: #fee2e2; color: #7f1d1d; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .badge-role { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .role-directora { background: #ede9fe; color: #4c1d95; }
+  .role-maestra { background: #d1fae5; color: #065f46; }
+  .role-padre { background: #fee2e2; color: #7f1d1d; }
+  .role-admin { background: #dbeafe; color: #1e3a8a; }
+
+  /* INDEX */
+  .index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0 36px; }
+  .index-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; text-decoration: none; color: #374151; transition: all 0.15s; display: flex; align-items: flex-start; gap: 10px; }
+  .index-card:hover { border-color: #a78bfa; background: #faf5ff; color: #4c1d95; }
+  .index-card .ic-num { font-size: 11px; font-weight: 700; color: #7c3aed; background: #ede9fe; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+  .index-card .ic-title { font-size: 13.5px; font-weight: 600; }
+  .index-card .ic-desc { font-size: 12px; color: #6b7280; margin-top: 2px; }
+
+  /* ACCESS BADGE */
+  .access-badge { display: inline-flex; align-items: center; gap: 6px; background: #0f172a; color: #a5b4fc; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; margin: 8px 0 16px; font-family: 'Courier New', monospace; }
+
+  /* STEPS */
+  .steps ol { list-style: none; margin: 0 0 16px; padding: 0; }
+  .steps ol li { display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .steps .step-num { min-width: 28px; height: 28px; background: #7c3aed; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .steps .step-text { font-size: 14px; color: #374151; line-height: 1.65; }
+
+  /* DIR TREE */
+  .dir-tree { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px 24px; font-family: 'Courier New', monospace; font-size: 12.5px; line-height: 1.8; overflow-x: auto; margin: 16px 0 24px; }
+  .dir-tree .dir { color: #93c5fd; }
+  .dir-tree .file { color: #d1fae5; }
+  .dir-tree .comment { color: #6b7280; }
+
+  /* ENV TABLE */
+  .env-block { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 20px 24px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 2; overflow-x: auto; margin: 16px 0 24px; }
+  .env-block .env-key { color: #93c5fd; }
+  .env-block .env-val { color: #6ee7b7; }
+  .env-block .env-comment { color: #6b7280; }
+
+  /* FOOTER */
+  .page-footer { margin-top: 80px; padding-top: 24px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo"><span>🏫</span> Happy School</div>
+    <div class="version">v1.0.0-beta · Architecture Reference</div>
+    <div class="role-badge">🔧 Technical</div>
+  </div>
+  <nav>
+    <div class="nav-section">General</div>
+    <a href="#vision">1. Visión General</a>
+    <a href="#stack">2. Stack Tecnológico</a>
+    <a href="#directorios">3. Estructura Directorios</a>
+
+    <div class="nav-section">Backend</div>
+    <a href="#backend-arch">4. Arquitectura Backend</a>
+    <a href="#schema">5. Schema Base de Datos</a>
+    <a href="#endpoints">6. Rutas y Endpoints</a>
+    <a href="#jobs">7. Jobs Automáticos (Cron)</a>
+    <a href="#servicios">8. Servicios Externos</a>
+
+    <div class="nav-section">Frontend</div>
+    <a href="#web-arch">9. Web — Arquitectura</a>
+    <a href="#web-pages">10. Web — Páginas por Rol</a>
+    <a href="#mobile-arch">11. Mobile — Arquitectura</a>
+    <a href="#mobile-pages">12. Mobile — Pantallas por Rol</a>
+    <a href="#paridad">13. Paridad Web ↔ Mobile</a>
+
+    <div class="nav-section">Seguridad y Reglas</div>
+    <a href="#auth">14. Auth y Autorización</a>
+    <a href="#reglas">15. Reglas de Negocio</a>
+    <a href="#fechas">16. Fechas y Timezone</a>
+    <a href="#notificaciones">17. Sistema Notificaciones</a>
+
+    <div class="nav-section">Operación</div>
+    <a href="#bugs">18. Bugs Históricos ⚠️</a>
+    <a href="#env">19. Variables de Entorno</a>
+    <a href="#levantar">20. Cómo Levantar (Dev)</a>
+    <a href="#patrones">21. Patrones de Código</a>
+  </nav>
+  <div id="sidebar-footer">Happy School App · Referencia Técnica</div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div id="topbar">
+    <div class="breadcrumb">Docs / <strong>Architecture Reference</strong></div>
+    <div class="badge">🔧 Desarrolladores &amp; IA</div>
+  </div>
+
+  <div id="content">
+
+    <!-- HEADER -->
+    <h1>Architecture Reference
+      <span class="subtitle">Referencia técnica completa para mantenimiento y desarrollo continuo</span>
+    </h1>
+
+    <div class="doc-meta">
+      <div class="meta-item">📅 <span>Actualización:</span> 2026-05-12</div>
+      <div class="meta-item">🔖 <span>Versión:</span> v1.0.0-beta (Sesión XX+80)</div>
+      <div class="meta-item">📐 <span>Secciones:</span> 21</div>
+      <div class="meta-item">🎯 <span>Para:</span> Programadores, IA de mantenimiento</div>
+    </div>
+
+    <div class="warn-box">
+      <strong>⚠️ Lee este documento completo antes de tocar cualquier código.</strong> Contiene reglas críticas de negocio, bugs históricos documentados, patrones obligatorios y restricciones de arquitectura que si se ignoran, rompen el sistema en producción.
+    </div>
+
+    <!-- ÍNDICE -->
+    <div class="index-grid">
+      <a class="index-card" href="#vision"><span class="ic-num">01</span><div><div class="ic-title">Visión General</div><div class="ic-desc">Portales, roles, flujo diario</div></div></a>
+      <a class="index-card" href="#stack"><span class="ic-num">02</span><div><div class="ic-title">Stack Tecnológico</div><div class="ic-desc">Versiones exactas de todas las librerías</div></div></a>
+      <a class="index-card" href="#directorios"><span class="ic-num">03</span><div><div class="ic-title">Estructura de Directorios</div><div class="ic-desc">Árbol completo con descripción de cada archivo</div></div></a>
+      <a class="index-card" href="#backend-arch"><span class="ic-num">04</span><div><div class="ic-title">Arquitectura Backend</div><div class="ic-desc">Middleware stack, auth, pool BD</div></div></a>
+      <a class="index-card" href="#schema"><span class="ic-num">05</span><div><div class="ic-title">Schema Base de Datos</div><div class="ic-desc">Todas las tablas, columnas, constraints, FKs</div></div></a>
+      <a class="index-card" href="#endpoints"><span class="ic-num">06</span><div><div class="ic-title">100+ Endpoints</div><div class="ic-desc">Método, ruta, rol y descripción</div></div></a>
+      <a class="index-card" href="#jobs"><span class="ic-num">07</span><div><div class="ic-title">Jobs Automáticos</div><div class="ic-desc">4 cron jobs con horarios y lógica</div></div></a>
+      <a class="index-card" href="#servicios"><span class="ic-num">08</span><div><div class="ic-title">Servicios Externos</div><div class="ic-desc">Cloudinary, Twilio WA, Expo Push</div></div></a>
+      <a class="index-card" href="#reglas"><span class="ic-num">15</span><div><div class="ic-title">Reglas de Negocio</div><div class="ic-desc">Retardos, hermanos, QR, comida, extensión</div></div></a>
+      <a class="index-card" href="#fechas"><span class="ic-num">16</span><div><div class="ic-title">Fechas y Timezone</div><div class="ic-desc">La sección más crítica — bugs frecuentes</div></div></a>
+      <a class="index-card" href="#bugs"><span class="ic-num">18</span><div><div class="ic-title">⚠️ Bugs Históricos</div><div class="ic-desc">14 bugs documentados — NUNCA repetir</div></div></a>
+      <a class="index-card" href="#env"><span class="ic-num">19</span><div><div class="ic-title">Variables de Entorno</div><div class="ic-desc">Todas las variables con descripción</div></div></a>
+    </div>
+
+    <hr>
+
+    <!-- 1. VISION GENERAL -->
+    <h2 id="vision"><span class="sec-num">01</span> Visión General del Sistema</h2>
+    <p>Happy School App es un sistema de gestión para kinder (jardín de niños) con 4 portales distintos según rol:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Portal</th><th>Plataforma</th><th>Rol</th><th>Función principal</th></tr></thead>
+        <tbody>
+          <tr><td>Directora</td><td>Web</td><td><span class="badge-role role-directora">directora</span></td><td>Administración completa: alumnos, pagos, personal, config</td></tr>
+          <tr><td>Maestra</td><td>Web + Mobile</td><td><span class="badge-role role-maestra">maestra_titular / maestra_especial / maestra_puerta</span></td><td>Filtro entrada/salida, bitácora diaria, asistencia</td></tr>
+          <tr><td>Padre</td><td>Web + Mobile</td><td><span class="badge-role role-padre">padre</span></td><td>Ver bitácora hijo, pagos, QR de entrada, calendario</td></tr>
+          <tr><td>Administrativo</td><td>Web</td><td><span class="badge-role role-admin">administrativo</span></td><td>Finanzas y reportes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Flujo diario típico</h3>
+    <div class="steps">
+      <ol>
+        <li><span class="step-num">1</span><span class="step-text">Padre llega con hijo → muestra QR en app mobile</span></li>
+        <li><span class="step-num">2</span><span class="step-text">Maestra en puerta escanea QR (mobile) o busca alumno (web)</span></li>
+        <li><span class="step-num">3</span><span class="step-text">Se registra entrada con checklist de salud/higiene/materiales</span></li>
+        <li><span class="step-num">4</span><span class="step-text">Durante el día: maestra llena bitácora (alimentación, conducta, salud, pañal)</span></li>
+        <li><span class="step-num">5</span><span class="step-text">A la salida: maestra registra salida y quién recoge al alumno</span></li>
+        <li><span class="step-num">6</span><span class="step-text">Padre ve todo en tiempo real desde su app mobile o web</span></li>
+      </ol>
+    </div>
+
+    <hr>
+
+    <!-- 2. STACK -->
+    <h2 id="stack"><span class="sec-num">02</span> Stack Tecnológico</h2>
+
+    <h3>Backend</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Componente</th><th>Tecnología</th><th>Versión</th></tr></thead>
+        <tbody>
+          <tr><td>Runtime</td><td>Node.js</td><td>≥18</td></tr>
+          <tr><td>Framework</td><td>Express</td><td>4.x</td></tr>
+          <tr><td>Base de datos</td><td>PostgreSQL</td><td>14+</td></tr>
+          <tr><td>Driver BD</td><td>pg (node-postgres)</td><td>—</td></tr>
+          <tr><td>Auth</td><td>JWT (jsonwebtoken)</td><td>—</td></tr>
+          <tr><td>Cron jobs</td><td>node-cron</td><td>—</td></tr>
+          <tr><td>Archivos</td><td>Cloudinary SDK v2</td><td>—</td></tr>
+          <tr><td>WhatsApp</td><td>Twilio API</td><td>—</td></tr>
+          <tr><td>Push</td><td>Expo Push API</td><td>—</td></tr>
+          <tr><td>Validación</td><td>express-validator</td><td>—</td></tr>
+          <tr><td>Seguridad</td><td>helmet, cors, express-rate-limit</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Web Frontend</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Componente</th><th>Tecnología</th><th>Versión</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>React</td><td>18.2.0</td></tr>
+          <tr><td>Build tool</td><td>Vite (puerto fijo 5173)</td><td>5.0.12</td></tr>
+          <tr><td>Router</td><td>React Router DOM</td><td>6.22.0</td></tr>
+          <tr><td>Estado global</td><td>Zustand + persist → localStorage</td><td>4.5.0</td></tr>
+          <tr><td>Data fetching</td><td>TanStack Query (React Query v5)</td><td>5.17.0</td></tr>
+          <tr><td>HTTP client</td><td>Axios (con interceptores JWT refresh)</td><td>1.6.5</td></tr>
+          <tr><td>Forms</td><td>React Hook Form</td><td>7.50.0</td></tr>
+          <tr><td>CSS</td><td>TailwindCSS</td><td>3.4.1</td></tr>
+          <tr><td>Notificaciones UI</td><td>react-hot-toast</td><td>2.4.1</td></tr>
+          <tr><td>QR scanner</td><td>html5-qrcode</td><td>2.3.8</td></tr>
+          <tr><td>Excel export</td><td>xlsx</td><td>0.18.5</td></tr>
+          <tr><td>Fechas</td><td>date-fns + date-fns-tz</td><td>3.x</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Mobile App</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Componente</th><th>Tecnología</th><th>Versión</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>React Native</td><td>0.81.5</td></tr>
+          <tr><td>Plataforma</td><td>Expo SDK</td><td>54.0.34</td></tr>
+          <tr><td>Router</td><td>Expo Router (file-based)</td><td>—</td></tr>
+          <tr><td>Estado global</td><td>Zustand + persist → expo-secure-store</td><td>4.5.0</td></tr>
+          <tr><td>Data fetching</td><td>TanStack Query v5</td><td>5.17.0</td></tr>
+          <tr><td>Auth storage</td><td>expo-secure-store (cifrado)</td><td>15.0.8</td></tr>
+          <tr><td>Push</td><td>expo-notifications</td><td>0.32.17</td></tr>
+          <tr><td>Cámara/QR</td><td>expo-barcode-scanner + expo-camera</td><td>—</td></tr>
+          <tr><td>QR generación</td><td>react-native-qrcode-svg</td><td>6.2.0</td></tr>
+          <tr><td>Package ID Android/iOS</td><td>mx.happyschool.app</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 3. DIRECTORIOS -->
+    <h2 id="directorios"><span class="sec-num">03</span> Estructura de Directorios</h2>
+    <div class="dir-tree">
+<span class="dir">APP-KINDER/</span>
+├── <span class="dir">backend/src/</span>
+│   ├── <span class="file">index.js</span>         <span class="comment">← Entry point: inicia server + 4 cron jobs</span>
+│   ├── <span class="file">app.js</span>           <span class="comment">← Express app, middleware stack, rutas montadas</span>
+│   ├── <span class="dir">config/</span>
+│   │   └── <span class="file">database.js</span>  <span class="comment">← Pool PostgreSQL, timezone México, query() / getClient()</span>
+│   ├── <span class="dir">middleware/</span>
+│   │   ├── <span class="file">auth.js</span>          <span class="comment">← authenticate() verifica JWT + authorize() verifica rol</span>
+│   │   ├── <span class="file">validateRequest.js</span> <span class="comment">← Helper express-validator</span>
+│   │   └── <span class="file">errorHandler.js</span>  <span class="comment">← Último middleware, captura todas las excepciones</span>
+│   ├── <span class="dir">routes/</span>          <span class="comment">← 23 grupos de rutas, todas bajo /api/</span>
+│   │   ├── <span class="file">auth.js</span>  <span class="file">alumnos.js</span>  <span class="file">asistencia.js</span>  <span class="file">pagos.js</span>  <span class="file">bitacora.js</span>
+│   │   ├── <span class="file">comida.js</span>  <span class="file">grupos.js</span>  <span class="file">personal.js</span>  <span class="file">ciclos.js</span>  <span class="file">calendario.js</span>
+│   │   ├── <span class="file">tareas.js</span>  <span class="file">evaluaciones.js</span>  <span class="file">reportes.js</span>  <span class="file">config.js</span>
+│   │   ├── <span class="file">catalogos.js</span>  <span class="file">notificaciones.js</span>  <span class="file">plantillas.js</span>
+│   │   └── <span class="file">insumos.js</span>  <span class="file">ninos_extension.js</span>  <span class="file">visitantes.js</span>  <span class="file">galeria.js</span>  <span class="file">padres.js</span>
+│   ├── <span class="dir">jobs/</span>
+│   │   ├── <span class="file">comidaJobs.js</span>        <span class="comment">← Lunes 7:00am (WA) + 8:31am (cancelar)</span>
+│   │   ├── <span class="file">cargosMensualesJob.js</span> <span class="comment">← Día 1, 00:05am — genera cargos</span>
+│   │   ├── <span class="file">medicamentosJobs.js</span>  <span class="comment">← c/5min 7-16h — alerta medicamentos</span>
+│   │   └── <span class="file">sinRecogerJob.js</span>     <span class="comment">← c/1min 14-19h — alerta sin recoger</span>
+│   └── <span class="dir">services/</span>
+│       ├── <span class="file">cloudinaryService.js</span> <span class="comment">← Upload/delete archivos (flag CLOUDINARY_ENABLED)</span>
+│       ├── <span class="file">whatsappService.js</span>   <span class="comment">← Twilio WA + plantillas BD editables por directora</span>
+│       ├── <span class="file">qrService.js</span>         <span class="comment">← Genera QR PNG → Cloudinary</span>
+│       └── <span class="file">pushService.js</span>       <span class="comment">← Expo Push API (NO Firebase directo)</span>
+│
+├── <span class="dir">web/src/</span>
+│   ├── <span class="file">App.jsx</span>              <span class="comment">← Router principal, guards PrivateRoute, RoleRedirect</span>
+│   ├── <span class="dir">store/</span>
+│   │   ├── <span class="file">authStore.js</span>     <span class="comment">← Zustand: token/usuario, persist localStorage key:'happy-school-auth'</span>
+│   │   └── <span class="file">appConfigStore.js</span> <span class="comment">← WhatsApp activo flag</span>
+│   ├── <span class="dir">services/</span>
+│   │   ├── <span class="file">api.js</span>           <span class="comment">← Axios: VITE_API_URL, interceptores JWT refresh automático</span>
+│   │   └── <span class="file">queryClient.js</span>   <span class="comment">← TanStack Query: retry:1, staleTime:30s</span>
+│   ├── <span class="dir">layouts/</span>         <span class="comment">← DirectoraLayout, MaestraLayout, PadreLayout, AdministrativoLayout + AppShell</span>
+│   ├── <span class="dir">pages/</span>
+│   │   ├── <span class="dir">directora/</span>   <span class="comment">← 21 páginas (Dashboard, Alumnos, Pagos, Config, etc.)</span>
+│   │   ├── <span class="dir">maestra/</span>     <span class="comment">← 7 páginas (Dashboard, FiltroEntrada, FiltroSalida, etc.)</span>
+│   │   ├── <span class="dir">padre/</span>       <span class="comment">← 5 páginas (Dashboard, Bitácora, Pagos, Comida, Calendario)</span>
+│   │   └── <span class="dir">admin/</span>       <span class="comment">← 5 páginas (Dashboard, Pagos, Comida, Notificaciones, Reportes)</span>
+│   ├── <span class="dir">components/ui/</span>   <span class="comment">← AvatarAlumno, Modal, Semaforo, SignaturePad, BitacoraHelpers, etc.</span>
+│   ├── <span class="dir">hooks/</span>
+│   │   └── <span class="file">useCatalogo.js</span>   <span class="comment">← Fetch y cache catálogos dinámicos (staleTime 30min)</span>
+│   └── <span class="dir">utils/</span>           <span class="comment">← asistencia.js, catalogos.js, fecha.js, googleCalendar.js, pagos.js</span>
+│
+└── <span class="dir">mobile/</span>
+    ├── <span class="dir">app/</span>             <span class="comment">← Expo Router file-based routing</span>
+    │   ├── <span class="file">_layout.jsx</span>      <span class="comment">← Root: QueryClient + push handler + Stack</span>
+    │   ├── <span class="file">index.jsx</span>        <span class="comment">← Splash/guard → redirige por rolPrincipal</span>
+    │   ├── <span class="file">login.jsx</span>
+    │   ├── <span class="dir">(maestra)/</span>      <span class="comment">← Tabs verdes: Inicio, Asistencia, Bitácora, Tareas, QR</span>
+    │   │   ├── <span class="file">index.jsx</span>  <span class="file">asistencia.jsx</span>  <span class="file">bitacora.jsx</span> <span class="comment">(81KB)</span>
+    │   │   ├── <span class="file">tareas.jsx</span>  <span class="file">qr-scanner.jsx</span>  <span class="file">galeria.jsx</span> <span class="comment">(oculta)</span>
+    │   └── <span class="dir">(padre)/</span>        <span class="comment">← Tabs rojas: Inicio, Bitácora, Comida, Pagos, Calendario</span>
+    │       ├── <span class="file">index.jsx</span> <span class="comment">(48KB)</span>  <span class="file">bitacora.jsx</span>  <span class="file">comida.jsx</span>
+    │       ├── <span class="file">pagos.jsx</span>  <span class="file">calendario.jsx</span>  <span class="file">qr.jsx</span> <span class="comment">(oculta)</span>  <span class="file">galeria.jsx</span> <span class="comment">(oculta)</span>
+    └── <span class="dir">src/</span>
+        ├── <span class="file">store/authStore.js</span>  <span class="comment">← Igual que web pero persist en SecureStore</span>
+        ├── <span class="file">services/api.js</span>     <span class="comment">← EXPO_PUBLIC_API_URL, mismo patrón interceptores</span>
+        ├── <span class="dir">components/</span>      <span class="comment">← Button, NotificationBell, NotificacionModalUrgente, BitacoraHelpers</span>
+        ├── <span class="dir">hooks/useCatalogo.js</span> <span class="comment">← Idéntico al de web</span>
+        └── <span class="dir">constants/</span>       <span class="comment">← theme.js, catalogos.js (fallbacks), asistencia.js</span>
+    </div>
+
+    <hr>
+
+    <!-- 4. BACKEND ARCH -->
+    <h2 id="backend-arch"><span class="sec-num">04</span> Backend — Arquitectura</h2>
+
+    <h3>Middleware Stack — orden en app.js</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Middleware</th><th>Función</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>helmet()</code></td><td>Headers de seguridad, CORS policy cross-origin</td></tr>
+          <tr><td>2</td><td><code>compression()</code></td><td>GZIP en respuestas</td></tr>
+          <tr><td>3</td><td><code>morgan()</code></td><td>Logging HTTP (dev o combined según NODE_ENV)</td></tr>
+          <tr><td>4</td><td><code>cors()</code></td><td>Orígenes: WEB_URL, MOBILE_URL, localhost:5173, localhost:3001, exp://localhost:8081</td></tr>
+          <tr><td>5</td><td><code>express-rate-limit()</code></td><td>300 requests / 15 minutos</td></tr>
+          <tr><td>6</td><td><code>express.json(10mb)</code></td><td>Parse JSON</td></tr>
+          <tr><td>7</td><td><code>Cache-Control</code></td><td>no-store en /api/ — evita HTTP 304 (bug histórico #12)</td></tr>
+          <tr><td>8</td><td><code>/uploads → static</code></td><td>Archivos locales en desarrollo</td></tr>
+          <tr><td>9</td><td><code>/api/* → routes</code></td><td>Todas las rutas definidas en routes/index.js</td></tr>
+          <tr><td>10</td><td><code>GET /health</code></td><td>{"status":"ok","app":"Happy School API","version":"1.0.0"}</td></tr>
+          <tr><td>11</td><td><code>errorHandler</code></td><td>Último — captura excepciones, formatea JSON error</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>authenticate() — middleware/auth.js</h3>
+    <p>Lee <code>Authorization: Bearer &lt;token&gt;</code>, verifica con <code>JWT_SECRET</code>, hace query a <code>usuarios WHERE activo=true</code>, pone <code>req.user</code>.</p>
+    <p>Códigos de error: <code>TOKEN_EXPIRED</code> (para refresh automático) vs 401 genérico para otros casos.</p>
+
+    <h3>authorize(...roles) — middleware/auth.js</h3>
+    <p><strong>Directora siempre pasa</strong> sin importar los roles requeridos. Para otros roles: consulta <code>roles_usuario</code> y verifica contra <code>rol_principal</code> + roles adicionales.</p>
+
+    <h3>Pool de BD — config/database.js</h3>
+    <p>Max 20 conexiones · Idle timeout 30s · <strong>Timezone: America/Mexico_City en cada cliente</strong> · Logs queries &gt;100ms en dev.</p>
+
+    <hr>
+
+    <!-- 5. SCHEMA -->
+    <h2 id="schema"><span class="sec-num">05</span> Base de Datos — Schema Completo</h2>
+
+    <div class="warn-box">
+      <strong>⚠️ Antes de escribir cualquier query:</strong> verifica en este schema la tabla correcta, el nombre exacto de las columnas y cómo se hace soft-delete en esa tabla (varía por tabla). Ver también bug histórico #5 y #7.
+    </div>
+
+    <h3>Identidad y Auth</h3>
+    <pre><code>usuarios       id, nombre, email, password_hash, rol_principal, fcm_token,
+               foto_url, foto_public_id, activo, primer_login, deleted_at
+               ⚠️ UNIQUE INDEX PARCIAL en email: WHERE deleted_at IS NULL
+
+roles          id, nombre  (directora/administrativo/maestra_titular/maestra_especial/maestra_puerta/padre)
+roles_usuario  id, usuario_id FK, rol, grupo_id
+refresh_tokens id, usuario_id FK, token_hash, expires_at, revocado</code></pre>
+
+    <h3>Personal y Organización</h3>
+    <pre><code>personal           id, usuario_id FK UNIQUE, nombre, curp UNIQUE, rfc, puesto, activo BOOLEAN
+                   ⚠️ usa activo, NO deleted_at
+
+asignaciones_grupo id, personal_id FK, grupo_id FK, ciclo_id FK, es_titular BOOLEAN
+asignacion_puerta  id, personal_id FK, fecha DATE, turno ENUM(entrada/salida/completo), activo
+                   UNIQUE (fecha, turno)</code></pre>
+
+    <h3>Alumnos y Familia</h3>
+    <pre><code>alumnos            id, nombre_completo, fecha_nacimiento, nivel, nivel_codigo,
+                   grupo_id FK, ciclo_id FK, usa_panial BOOLEAN, tiene_extension BOOLEAN,
+                   foto_url, foto_public_id, qr_code_url, qr_code_data,
+                   familia_id UUID,   ← vincula hermanos
+                   activo BOOLEAN, deleted_at
+
+alumno_padre       id, alumno_id FK, padre_id FK, es_tutor_principal BOOLEAN,
+                   parentesco, activo   ← max 2 por alumno
+
+padres             id, usuario_id FK UNIQUE, nombre, parentesco,
+                   telefono_whatsapp, email, foto_url, foto_public_id, activo
+
+personas_autorizadas  id, alumno_id FK, nombre, parentesco, telefono,
+                      foto_url, ine_frente_url, ine_reverso_url, activo
+                      ← max 2 por alumno, requiere 3 fotos
+
+blacklist          id, alumno_id FK, nombre, motivo_privado, activo</code></pre>
+
+    <h3>Asistencia y Registro</h3>
+    <pre><code>registro_entrada   id, alumno_id FK, fecha DATE,
+                   hora TIME, es_retardo BOOLEAN, numero_retardo_mes INT,
+                   temperatura DECIMAL, puede_entrar BOOLEAN, motivo_no_entrada TEXT,
+                   sin_fiebre, sin_sintomas, descripcion_sintomas,
+                   unas_cortadas, sin_laganas, panial_limpio,
+                   trae_uniforme, trae_bata, trae_termo, agua_suficiente,
+                   trajo_paniales, cantidad_paniales, qr_escaneado
+                   UNIQUE (alumno_id, fecha)
+
+registro_salida    id, alumno_id FK, fecha DATE, hora TIME,
+                   padre_id FK, persona_autorizada_id FK, otro_nombre TEXT,
+                   autorizado BOOLEAN, alerta_generada BOOLEAN,
+                   es_extension BOOLEAN, minutos_tarde INT, cobro_extension DECIMAL
+                   UNIQUE (alumno_id, fecha)
+
+asistencia         id, alumno_id FK, fecha DATE,
+                   estado ENUM(presente/ausente/retardo/justificado/no_entrada),
+                   entrada_id FK, justificacion TEXT, comprobante_url
+                   UNIQUE (alumno_id, fecha)</code></pre>
+
+    <h3>Bitácora Diaria</h3>
+    <pre><code>bitacora_diaria    id, alumno_id FK, fecha DATE, comportamiento, estado_animo,
+                   tuvo_fiebre BOOLEAN, temperatura_dia DECIMAL, notas TEXT
+                   UNIQUE (alumno_id, fecha)
+
+registro_panial    id, alumno_id FK, bitacora_id FK, hora TIME,
+                   condicion ENUM(limpio/orina/heces/mixto/diarrea), irritacion BOOLEAN
+                   ⚠️ orina → mostrar "💧 Pipí"  |  heces → mostrar "💩 Popó"  (NUNCA mostrar keys al usuario)
+
+registro_comida    id, alumno_id FK, bitacora_id FK,
+                   tiempo ENUM(desayuno/colacion/comida/extra),
+                   que_comio TEXT, cuanto_comio ENUM(todo/casi_todo/poco/nada)
+                   ⚠️ cuanto_comio está aquí, NO en bitacora_diaria (bug histórico #13)
+
+actividades_fotos  id, alumno_id FK, bitacora_id FK, descripcion,
+                   url, public_id, es_grupal BOOLEAN</code></pre>
+
+    <h3>Salud y Medicamentos</h3>
+    <pre><code>toma_medicamento   id, alumno_id FK, recepcion_id FK, hora_programada TIME,
+                   administrado BOOLEAN, recordatorio_enviado BOOLEAN
+                   ← Job medicamentosJobs lee esta tabla cada 5 min
+
+incidentes         id, alumno_id FK, bitacora_id FK, descripcion TEXT,
+                   acciones_tomadas TEXT, fotos JSONB, firma_padre_url TEXT</code></pre>
+
+    <h3>Pagos</h3>
+    <pre><code>conceptos_pago     id, nombre, monto DECIMAL, tipo ENUM(colegiatura/material/comida/extension/evento),
+                   es_mensual BOOLEAN, dia_pago INT, dia_recargo INT,
+                   monto_recargo_dia DECIMAL, recargo_porcentaje DECIMAL, activo
+
+precios_nivel      id, concepto_id FK, nivel_key, monto DECIMAL
+                   UNIQUE (concepto_id, nivel_key)
+                   ← permite precio diferente por nivel de grupo
+
+pagos              id, alumno_id FK, concepto_id FK, mes INT, anio INT,
+                   monto_base, monto_recargo, monto_total,
+                   estado ENUM(pendiente/pagado/vencido/cancelado/por_confirmar),
+                   fecha_limite DATE, comprobante_url, dias_atraso
+
+pago_comida_semanal id, alumno_id FK, semana_inicio DATE,
+                    estado ENUM(pendiente/pagado/cancelado), monto, servicio_activo
+                    UNIQUE (alumno_id, semana_inicio)</code></pre>
+
+    <h3>Configuración</h3>
+    <pre><code>configuracion_general  clave PK → valor TEXT
+Claves clave:
+  hora_fin_filtro              → límite para no-retardo (ej: "08:00")
+  hora_salida_normal           → hora salida estándar (ej: "15:00")
+  alerta_minutos_sin_recoger   → minutos de gracia antes de alerta sin recoger
+  max_retardos_mes             → retardos antes de bloquear entrada (ej: "3")
+  whatsapp_activo              → "true"/"false"
+  push_activo                  → "true"/"false"
+  notificaciones_modal_tipos   → JSON array de tipos urgentes
+
+config_horario_alumno  id, alumno_id FK, ciclo_id FK,
+                       tiene_extension BOOLEAN, hora_salida_extension TIME,
+                       genera_cargos BOOLEAN, activo
+                       UNIQUE (alumno_id, ciclo_id)</code></pre>
+
+    <h3>QR Temporal</h3>
+    <pre><code>qr_temporales  id, alumno_id FK, token UUID UNIQUE,
+               nombre_autorizado TEXT, fecha_vigencia DATE,
+               cancelado BOOLEAN, created_by FK
+
+QR permanente: "HAPPYSCHOOL:ALUMNO:&lt;uuid&gt;"
+QR temporal:   "HAPPYSCHOOL:TEMP:&lt;token&gt;"   ← diferente prefix para distinguir</code></pre>
+
+    <h3>Comunicaciones</h3>
+    <pre><code>notificaciones       id, usuario_id FK, titulo, cuerpo, tipo, datos_extra JSONB,
+                     leida BOOLEAN, enviada_push BOOLEAN
+
+log_whatsapp         id, telefono, mensaje, tipo,
+                     estado ENUM(enviado/fallido/pendiente), twilio_sid, alumno_id FK
+
+plantillas_whatsapp  id, clave UNIQUE, nombre, plantilla TEXT,  ← con {{variables}}
+                     activa BOOLEAN
+                     ⚠️ clave es INMUTABLE — la directora solo edita el texto</code></pre>
+
+    <h3>Soft-delete por tabla</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tabla</th><th>Mecanismo</th><th>Filtro SQL</th></tr></thead>
+        <tbody>
+          <tr><td><code>usuarios</code></td><td><code>deleted_at</code></td><td><code>WHERE deleted_at IS NULL</code></td></tr>
+          <tr><td><code>alumnos</code></td><td><code>deleted_at</code></td><td><code>WHERE deleted_at IS NULL</code></td></tr>
+          <tr><td><code>personal</code></td><td><code>activo BOOLEAN</code></td><td><code>WHERE activo = true</code> ⚠️</td></tr>
+          <tr><td><code>grupos</code></td><td><code>deleted_at</code></td><td><code>WHERE deleted_at IS NULL</code></td></tr>
+          <tr><td><code>eventos</code></td><td>Sin soft-delete</td><td>Eliminación física</td></tr>
+          <tr><td><code>asignaciones_grupo</code></td><td>Sin soft-delete</td><td>Eliminación física</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 6. ENDPOINTS -->
+    <h2 id="endpoints"><span class="sec-num">06</span> Rutas y Endpoints</h2>
+
+    <h3>Auth — <code>/api/auth</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Path</th><th>Auth</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>POST</td><td><code>/login</code></td><td><span class="badge-no">No</span></td><td>email+password → {accessToken(15min), refreshToken(7d), usuario}</td></tr>
+          <tr><td>POST</td><td><code>/refresh</code></td><td><span class="badge-no">No</span></td><td>Rota refreshToken → nuevo accessToken</td></tr>
+          <tr><td>POST</td><td><code>/logout</code></td><td><span class="badge-no">No</span></td><td>Invalida refreshToken</td></tr>
+          <tr><td>PUT</td><td><code>/cambiar-password</code></td><td><span class="badge-ok">Sí</span></td><td>Cambia contraseña (mín 8 chars)</td></tr>
+          <tr><td>GET</td><td><code>/perfil</code></td><td><span class="badge-ok">Sí</span></td><td>Perfil del usuario autenticado</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Alumnos — <code>/api/alumnos</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Path</th><th>Roles</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/</code></td><td>todos</td><td>Lista alumnos (filtros: ciclo, grupo, activo)</td></tr>
+          <tr><td>GET</td><td><code>/mis-hijos</code></td><td>padre</td><td>Hijos del padre autenticado + estado del día</td></tr>
+          <tr><td>GET</td><td><code>/por-qr/:qrData</code></td><td>maestra</td><td>Busca alumno por código QR escaneado</td></tr>
+          <tr><td>GET/PUT/DELETE</td><td><code>/:id</code></td><td>todos/dir+adm/dir</td><td>CRUD alumno</td></tr>
+          <tr><td>GET</td><td><code>/:id/hermanos</code></td><td>todos</td><td>Hermanos con estado entrada/salida del día</td></tr>
+          <tr><td>POST/DELETE</td><td><code>/:id/familia</code></td><td>dir/admin</td><td>Vincular/desvincular hermanos (familia_id)</td></tr>
+          <tr><td>GET/POST/DELETE</td><td><code>/:id/qr-temporal</code></td><td>padre</td><td>QR temporal — obtener activo / generar / cancelar</td></tr>
+          <tr><td>GET/POST/DELETE</td><td><code>/:id/personas-autorizadas</code></td><td>dir/admin/maestra</td><td>Personas autorizadas a recoger (max 2, 3 fotos)</td></tr>
+          <tr><td>GET/POST/DELETE</td><td><code>/:id/blacklist</code></td><td>dir/admin/maestra_puerta</td><td>Personas bloqueadas</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Asistencia — <code>/api/asistencia</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Path</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>POST</td><td><code>/entrada</code></td><td>Registra entrada + checklist + retardo logic + medicamentos auto</td></tr>
+          <tr><td>POST</td><td><code>/salida</code></td><td>Registra salida + autorización + blacklist + extensión cargos</td></tr>
+          <tr><td>GET</td><td><code>/filtro-entrada</code></td><td>Lista alumnos agrupados por grupo para filtro entrada</td></tr>
+          <tr><td>GET</td><td><code>/filtro-salida</code></td><td>Lista alumnos presentes listos para salida</td></tr>
+          <tr><td>GET</td><td><code>/grupo/:grupoId</code></td><td>Asistencia del grupo (hoy o ?fecha=)</td></tr>
+          <tr><td>POST</td><td><code>/alerta-sin-recoger</code></td><td>Envía alerta manual "sin recoger" (maestra)</td></tr>
+          <tr><td>GET</td><td><code>/filtro-entrada/:alumnoId</code></td><td>Padre ve estado entrada del hijo por fecha</td></tr>
+          <tr><td>PATCH</td><td><code>/:alumnoId/justificar</code></td><td>Justifica falta con comprobante (directora/admin)</td></tr>
+          <tr><td>POST/GET</td><td><code>/salida-sanitario</code></td><td>Checklist sanitario al salir: pañal, pertenencias, estado físico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Pagos — <code>/api/pagos</code> (selección clave)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Path</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/estado/:alumnoId</code></td><td>Estado de cuenta: semáforo, saldo, historial completo</td></tr>
+          <tr><td>GET</td><td><code>/por-confirmar</code></td><td>Pagos con comprobante subido esperando aprobación directora</td></tr>
+          <tr><td>PATCH</td><td><code>/:id/confirmar</code></td><td>Aprobar o rechazar comprobante (acción: aprobar/rechazar)</td></tr>
+          <tr><td>POST</td><td><code>/:id/comprobante</code></td><td>Padre sube imagen → estado "por_confirmar"</td></tr>
+          <tr><td>GET</td><td><code>/conceptos/:id/monto-alumno/:alumnoId</code></td><td>Precio diferenciado por nivel del alumno</td></tr>
+          <tr><td>POST</td><td><code>/generar-mes</code></td><td>Auto-genera cargos mensuales (también ejecuta cron día 1)</td></tr>
+          <tr><td>GET</td><td><code>/exportar</code></td><td>Excel: detalle pagos + resumen + comida semanal</td></tr>
+          <tr><td>GET</td><td><code>/:id/recibo-publico</code></td><td>Recibo sin auth (UUID secreto, compartible por WA)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Comida — <code>/api/comida</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Método</th><th>Path</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>GET</td><td><code>/menu</code></td><td>Menú semanal (público, sin auth)</td></tr>
+          <tr><td>GET</td><td><code>/confirmaciones</code></td><td>Confirmaciones de la semana para maestras</td></tr>
+          <tr><td>POST</td><td><code>/confirmacion</code></td><td>Padre confirma/cancela servicio de comida</td></tr>
+          <tr><td>PUT</td><td><code>/confirmacion/:id/verificar-pago</code></td><td>Maestra marca pago verificado (filtro entrada)</td></tr>
+          <tr><td>PUT</td><td><code>/confirmacion/:id/cancelar</code></td><td>Maestra cancela si no llegó pago (filtro entrada)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Otros grupos de rutas (resumen)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Ruta</th><th>Función principal</th></tr></thead>
+        <tbody>
+          <tr><td><code>/api/bitacora</code></td><td>CRUD logs diarios: medicamentos, pañal, baño, comida, incidentes, fotos</td></tr>
+          <tr><td><code>/api/grupos</code></td><td>CRUD grupos, asignación maestras, estadísticas del día</td></tr>
+          <tr><td><code>/api/personal</code></td><td>CRUD personal, asignaciones, turno puerta</td></tr>
+          <tr><td><code>/api/ciclos</code></td><td>Ciclos escolares, promoción de alumnos, egresados</td></tr>
+          <tr><td><code>/api/calendario</code></td><td>Eventos, categorías, export PDF</td></tr>
+          <tr><td><code>/api/tareas</code></td><td>Tareas por grupo, entregas, alertas alumnos</td></tr>
+          <tr><td><code>/api/config</code></td><td>Lectura/escritura de configuracion_general (directora only)</td></tr>
+          <tr><td><code>/api/catalogos/:tipo</code></td><td>Catálogos dinámicos: estados_animo, comportamientos, actividades…</td></tr>
+          <tr><td><code>/api/notificaciones</code></td><td>CRUD notificaciones, registrar push token, marcar leídas</td></tr>
+          <tr><td><code>/api/plantillas</code></td><td>Plantillas WhatsApp — directora edita texto, clave inmutable</td></tr>
+          <tr><td><code>/api/insumos</code></td><td>Inventario pañales diario por alumno</td></tr>
+          <tr><td><code>/api/visitantes</code></td><td>Log de visitantes del día</td></tr>
+          <tr><td><code>/api/turnos-puerta</code></td><td>Asignación de turnos de puerta por fecha</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 7. JOBS -->
+    <h2 id="jobs"><span class="sec-num">07</span> Jobs Automáticos (Cron)</h2>
+
+    <p>Todos en <code>backend/src/jobs/</code>, registrados en <code>src/index.js</code>, timezone <strong>America/Mexico_City</strong>.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Job</th><th>Horario</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>cargosMensualesJob</code></td><td>Día 1 de mes, 00:05 AM</td><td>Genera cargos pendientes para conceptos <code>es_mensual=true</code>. Para alumnos con extensión activa genera cargo mensual de extensión. Usa precios_nivel para precio por nivel.</td></tr>
+          <tr><td><code>recordatorioComida</code></td><td>Lunes, 7:00 AM</td><td>WA plantilla <code>pago_comida_lunes</code> a padres con pago de comida pendiente + push</td></tr>
+          <tr><td><code>procesarComidaNoPagada</code></td><td>Lunes, 8:31 AM</td><td>Cancela servicios de comida no pagados + WA <code>sin_comida</code> + campanita + modal web+mobile al padre</td></tr>
+          <tr><td><code>medicamentosJobs</code></td><td>Cada 5 min, 7:00-16:00, L-V</td><td>Busca <code>toma_medicamento</code> pendientes ±10 min → notifica maestra titular + push + marca <code>recordatorio_enviado=true</code></td></tr>
+          <tr><td><code>sinRecogerJob</code></td><td>Cada minuto, 14:00-19:00, L-V</td><td>Alumnos con entrada hoy, sin salida, no alertados → determina hora efectiva (normal o extensión) → si pasó + gracia → WA <code>sin_recoger</code> + push + log</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn-box">
+      <strong>⚠️ sinRecogerJob:</strong> DEBE respetar <code>config_horario_alumno.tiene_extension</code>. Alumnos con extensión no se alertan a las 15:00 — su hora es 18:00. Si se modifica este job, verificar el JOIN a <code>config_horario_alumno</code>.
+    </div>
+
+    <hr>
+
+    <!-- 8. SERVICIOS -->
+    <h2 id="servicios"><span class="sec-num">08</span> Servicios Externos</h2>
+
+    <h3>Cloudinary (<code>services/cloudinaryService.js</code>)</h3>
+    <p>Upload de fotos de alumnos, tutores, QR codes, bitácora, actividades, documentos.</p>
+    <p><strong>Flag:</strong> <code>CLOUDINARY_ENABLED=false</code> → mock en dev (retorna data URL base64 — imagen visible sin cuenta Cloudinary real).</p>
+    <p><strong>Carpetas:</strong> <code>happyschool/qr/</code>, <code>happyschool/bitacora/</code>, <code>happyschool/actividades-alumno/</code>, <code>happyschool/tareas/</code>, <code>happyschool/visitantes/</code></p>
+
+    <h3>WhatsApp Twilio (<code>services/whatsappService.js</code>)</h3>
+    <p>Usa plantillas de la tabla <code>plantillas_whatsapp</code> (editables por directora). Verifica <code>whatsapp_activo</code> en config antes de enviar. Loguea cada envío en <code>log_whatsapp</code>.</p>
+
+    <h3>Expo Push (<code>services/pushService.js</code>)</h3>
+    <p>Envía a <code>exp.host/--/api/v2/push/send</code>. Token como <code>ExponentPushToken[xxx]</code> en <code>usuarios.fcm_token</code>.</p>
+    <div class="info-box">Push funciona 100% en APK y development build. En Expo Go: registro OK pero entrega limitada (limitación de Expo, no es un bug del código).</div>
+
+    <hr>
+
+    <!-- 9. WEB ARCH -->
+    <h2 id="web-arch"><span class="sec-num">09</span> Web Frontend — Arquitectura</h2>
+
+    <h3>URL base del API</h3>
+    <pre><code>// web/src/services/api.js
+import.meta.env.VITE_API_URL || 'http://localhost:3000/api'</code></pre>
+
+    <h3>Auth Store (Zustand)</h3>
+    <p>Persistencia en localStorage, key: <code>happy-school-auth</code>. Estado: <code>{ token, refreshToken, usuario }</code>. Axios lee el token en cada request via interceptor de request.</p>
+
+    <h3>Refresh automático de token</h3>
+    <p>Al recibir 401 <code>TOKEN_EXPIRED</code>: encola requests pendientes → POST <code>/auth/refresh</code> → actualiza tokens → reintenta. Si el refresh falla: logout forzado + redirect a <code>/login</code>.</p>
+
+    <h3>Guards de Ruta</h3>
+    <pre><code>&lt;PrivateRoute element={&lt;Pagina /&gt;} rolesPermitidos={['directora', 'maestra_titular']} /&gt;</code></pre>
+    <p>Directora tiene acceso a las páginas de maestra. Sin auth → <code>/login</code>. Rol incorrecto → home del rol autenticado.</p>
+
+    <h3>Colores por Rol</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rol</th><th>Accent</th><th>Clase Tailwind</th></tr></thead>
+        <tbody>
+          <tr><td>Directora</td><td>Morado</td><td><code>hs-purple</code></td></tr>
+          <tr><td>Maestra</td><td>Verde</td><td><code>hs-green</code></td></tr>
+          <tr><td>Padre</td><td>Rojo</td><td><code>hs-red</code></td></tr>
+          <tr><td>Administrativo</td><td>Azul</td><td><code>hs-blue</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 10. WEB PAGES -->
+    <h2 id="web-pages"><span class="sec-num">10</span> Web Frontend — Páginas por Rol</h2>
+
+    <h3>Directora — <code>/directora</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Página</th><th>Ruta</th><th>Endpoints clave</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td><code>/</code></td><td><code>/reportes/dashboard</code>, <code>/bitacora/incidentes/hoy</code></td></tr>
+          <tr><td>Alumnos</td><td><code>/alumnos</code></td><td><code>/alumnos</code> + filtros ciclo/grupo</td></tr>
+          <tr><td>Perfil alumno</td><td><code>/alumnos/:id</code></td><td><code>/alumnos/{id}</code> completo</td></tr>
+          <tr><td>Filtro Entrada</td><td><code>/filtro-entrada</code></td><td><code>/asistencia/entrada</code>, <code>/config/negocio</code>, <code>/comida/confirmacion/{id}</code></td></tr>
+          <tr><td>Filtro Salida</td><td><code>/filtro-salida</code></td><td><code>/asistencia/salida</code></td></tr>
+          <tr><td>Asistencia</td><td><code>/asistencia</code></td><td><code>/asistencia/reportes</code></td></tr>
+          <tr><td>Pagos</td><td><code>/pagos</code></td><td><code>/pagos/resumen</code></td></tr>
+          <tr><td>Servicio Comida</td><td><code>/comida</code></td><td><code>/comida/menu</code>, <code>/comida/confirmaciones</code></td></tr>
+          <tr><td>Configuración</td><td><code>/config</code></td><td><code>/config</code> (lectura/escritura config_general)</td></tr>
+          <tr><td>Bitácora</td><td><code>/bitacora</code></td><td><code>/bitacora</code></td></tr>
+          <tr><td>+ 11 más</td><td>grupos, personal, ciclos, calendario, evaluaciones, catálogos…</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Maestra — <code>/maestra</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Página</th><th>Ruta</th><th>Endpoints clave</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td><code>/</code></td><td><code>/grupos/mi-grupo</code>, <code>/turnos-puerta/hoy</code>, <code>/tareas/hoy-pendientes</code></td></tr>
+          <tr><td>Filtro Entrada</td><td><code>/filtro-entrada</code></td><td><code>/asistencia/entrada</code>, <code>/insumos/{id}</code>, <code>/comida/confirmacion/{id}</code></td></tr>
+          <tr><td>Filtro Salida</td><td><code>/filtro-salida</code></td><td><code>/asistencia/salida</code></td></tr>
+          <tr><td>Asistencia</td><td><code>/asistencia</code></td><td><code>/asistencia</code></td></tr>
+          <tr><td>Bitácora</td><td><code>/bitacora</code></td><td><code>/bitacora/{id}</code></td></tr>
+          <tr><td>Tareas</td><td><code>/tareas</code></td><td><code>/tareas</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Padre — <code>/padre</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Página</th><th>Ruta</th><th>Endpoints clave</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td><code>/</code></td><td><code>/alumnos/mis-hijos</code>, <code>/pagos/estado/{id}</code>, <code>/alumnos/{id}/qr-temporal</code></td></tr>
+          <tr><td>Bitácora</td><td><code>/bitacora</code></td><td><code>/bitacora/{id}</code> (solo lectura)</td></tr>
+          <tr><td>Pagos</td><td><code>/pagos</code></td><td><code>/pagos</code>, <code>/:id/comprobante</code></td></tr>
+          <tr><td>Comida</td><td><code>/comida</code></td><td><code>/comida/semanal</code>, <code>/comida/confirmacion</code></td></tr>
+          <tr><td>Calendario</td><td><code>/calendario</code></td><td><code>/calendario</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 11. MOBILE ARCH -->
+    <h2 id="mobile-arch"><span class="sec-num">11</span> Mobile App — Arquitectura</h2>
+
+    <h3>URL base del API</h3>
+    <pre><code>// mobile/src/services/api.js
+process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api'</code></pre>
+
+    <h3>Auth Store (Zustand + SecureStore)</h3>
+    <p>A diferencia de la web (localStorage), mobile usa <strong>expo-secure-store</strong> (cifrado en el dispositivo). Misma key: <code>happy-school-auth</code>. Mismo contrato de estado y métodos.</p>
+    <p>Método adicional: <code>registrarPushToken()</code> → solicita permisos → obtiene ExponentPushToken → POST <code>/notificaciones/registrar-token</code>.</p>
+
+    <h3>Enrutamiento (Expo Router — file-based)</h3>
+    <p>No hay configuración de rutas manual. El nombre del archivo = la ruta. Los directorios entre paréntesis <code>(maestra)</code> y <code>(padre)</code> son grupos de tabs. Tabs ocultas (sin ícono visible): <code>qr.jsx</code> y <code>galeria.jsx</code>.</p>
+
+    <h3>Polling de Notificaciones</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dato</th><th>Intervalo</th></tr></thead>
+        <tbody>
+          <tr><td>Config notificaciones</td><td>5 minutos</td></tr>
+          <tr><td>Conteo no leídas (badge)</td><td>15 segundos</td></tr>
+          <tr><td>Lista completa</td><td>Al abrir modal</td></tr>
+          <tr><td>Notificaciones urgentes</td><td>15 segundos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 12. MOBILE PAGES -->
+    <h2 id="mobile-pages"><span class="sec-num">12</span> Mobile App — Pantallas por Rol</h2>
+
+    <h3>Maestra</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pantalla</th><th>Archivo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td><code>(maestra)/index.jsx</code></td><td>Saludo hora · banner modo entrada (7-8:30am) · banner turno puerta · banner cumpleaños · FlatList alumnos con badge asistencia</td></tr>
+          <tr><td>Asistencia</td><td><code>(maestra)/asistencia.jsx</code></td><td>Selector fecha · lista alumnos · <strong>TarjetaAlumno expandible</strong> al tocar (muestra checklist entrada) · banner cumpleaños en tarjeta</td></tr>
+          <tr><td>Bitácora</td><td><code>(maestra)/bitacora.jsx</code> (81KB)</td><td>Log completo: ánimo, conducta, comida 4 tiempos, pañal (usa PANIAL_CONDICION map), insumos, vómito, fotos, firma</td></tr>
+          <tr><td>QR Scanner</td><td><code>(maestra)/qr-scanner.jsx</code></td><td><strong>Modo automático por hora:</strong> si hora ≥ horaSalidaNormal → modo salida, si no → entrada. ChecklistEntrada + ConfirmacionSalida internos. Cadena de hermanos. Banner QR temporal amarillo.</td></tr>
+          <tr><td>Tareas</td><td><code>(maestra)/tareas.jsx</code></td><td>Gestión tareas grupo, recibir entregas con foto</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Padre</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pantalla</th><th>Archivo</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard</td><td><code>(padre)/index.jsx</code> (48KB)</td><td>Tarjetas por hijo: estado entrada, retardos del mes (⚠️/🚫), snapshot bitácora, info salida, tareas expandibles, semáforo pagos, <strong>QR Temporal integrado en tarjeta</strong></td></tr>
+          <tr><td>Bitácora</td><td><code>(padre)/bitacora.jsx</code></td><td>Solo lectura del log diario del hijo</td></tr>
+          <tr><td>Comida</td><td><code>(padre)/comida.jsx</code></td><td>Confirmación semanal / días específicos + método pago + comprobante</td></tr>
+          <tr><td>Pagos</td><td><code>(padre)/pagos.jsx</code></td><td>Historial + subir comprobante (imagen)</td></tr>
+          <tr><td>QR</td><td><code>(padre)/qr.jsx</code> (oculta)</td><td>QR permanente + QR temporal: generar, ver, cancelar</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 13. PARIDAD -->
+    <h2 id="paridad"><span class="sec-num">13</span> Mapa de Paridad Web ↔ Mobile</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>Web</th><th>Mobile</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td>Dashboard maestra</td><td><code>maestra/Dashboard.jsx</code></td><td><code>(maestra)/index.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Filtro entrada</td><td><code>maestra/FiltroEntrada.jsx</code></td><td><code>qr-scanner.jsx → ChecklistEntrada</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Filtro salida</td><td><code>maestra/FiltroSalida.jsx</code></td><td><code>qr-scanner.jsx → ConfirmacionSalida</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Asistencia maestra</td><td><code>maestra/Asistencia.jsx</code></td><td><code>(maestra)/asistencia.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Bitácora maestra</td><td><code>maestra/Bitacora.jsx</code></td><td><code>(maestra)/bitacora.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Dashboard padre</td><td><code>padre/Dashboard.jsx</code></td><td><code>(padre)/index.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Bitácora padre</td><td><code>padre/Bitacora.jsx</code></td><td><code>(padre)/bitacora.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Pagos padre</td><td><code>padre/Pagos.jsx</code></td><td><code>(padre)/pagos.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>QR Temporal padre</td><td><code>padre/Dashboard → QRTemporalCard</code></td><td><code>(padre)/index → QRTemporalRow</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Portal directora</td><td><code>directora/*.jsx</code> (21 páginas)</td><td>No existe</td><td><span class="badge-ok">✅ Intencional</span></td></tr>
+          <tr><td>Firma digital incidentes</td><td>SignaturePad canvas</td><td>No implementado</td><td><span class="badge-warn">⚠️ Gap</span></td></tr>
+          <tr><td>Export PDF/Excel</td><td>Disponible</td><td>No implementado</td><td><span class="badge-warn">⚠️ Intencional</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 14. AUTH -->
+    <h2 id="auth"><span class="sec-num">14</span> Autenticación y Autorización</h2>
+
+    <h3>Roles del sistema</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rol</th><th>Acceso</th></tr></thead>
+        <tbody>
+          <tr><td><code>directora</code></td><td><strong>Acceso total</strong> — siempre pasa <code>authorize()</code></td></tr>
+          <tr><td><code>administrativo</code></td><td>Finanzas, pagos, reportes</td></tr>
+          <tr><td><code>maestra_titular</code></td><td>Su grupo: bitácora, asistencia, tareas</td></tr>
+          <tr><td><code>maestra_especial</code></td><td>Igual que titular, puede ver varios grupos</td></tr>
+          <tr><td><code>maestra_puerta</code></td><td>Solo filtro entrada/salida</td></tr>
+          <tr><td><code>padre</code></td><td>Solo información de sus hijos</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Flujo de login</h3>
+    <pre><code>POST /api/auth/login { email, password }
+  → Backend verifica bcrypt hash
+  → Retorna { accessToken (15min), refreshToken (7días), usuario }
+  → Web: guarda en localStorage  |  Mobile: guarda en SecureStore
+  → Axios agrega Bearer en cada request</code></pre>
+
+    <h3>Refresh token</h3>
+    <pre><code>Request → 401 TOKEN_EXPIRED
+  → POST /auth/refresh { refreshToken }
+  → Backend rota tokens (invalida viejo, emite nuevos)
+  → Actualiza storage + reintenta request original
+  → Si falla: logout forzado → /login</code></pre>
+
+    <hr>
+
+    <!-- 15. REGLAS -->
+    <h2 id="reglas"><span class="sec-num">15</span> Reglas de Negocio Críticas</h2>
+
+    <h3>Retardo (Late Arrival)</h3>
+    <ul>
+      <li>Si <code>hora_entrada &gt; hora_fin_filtro</code> (de config) → <code>es_retardo=true</code></li>
+      <li><code>numero_retardo_mes</code> se acumula por mes calendario</li>
+      <li>Al llegar a <code>max_retardos_mes</code> (default 3): <code>puede_entrar=false</code> al día siguiente</li>
+      <li>Dashboard padre: ⚠️ 1-2 retardos (aviso), 🚫 3+ (bloqueado)</li>
+      <li>WA plantilla <code>retardo</code> se envía automáticamente al registrar</li>
+    </ul>
+
+    <h3>Cadena de Hermanos (Sibling Chain)</h3>
+    <ul>
+      <li>Al registrar entrada/salida de alumno A → backend retorna hermanos via <code>GET /alumnos/:id/hermanos</code></li>
+      <li>Hermanos = mismo <code>familia_id</code> UUID o mismo tutor principal (<code>es_tutor_principal=true</code>)</li>
+      <li>UI ofrece registrar hermanos en secuencia sin re-escanear QR</li>
+      <li>Pre-llena "quién recoge" del hermano anterior para ahorra tiempo</li>
+    </ul>
+
+    <h3>QR Temporal</h3>
+    <ul>
+      <li>1 QR activo por alumno por día (<code>fecha_vigencia = CURRENT_DATE</code> México)</li>
+      <li>Padre ingresa nombre de quien va a recoger</li>
+      <li>Format QR: <code>HAPPYSCHOOL:TEMP:&lt;token&gt;</code> (distinto del permanente <code>HAPPYSCHOOL:ALUMNO:&lt;uuid&gt;</code>)</li>
+      <li>Maestra ve banner <strong>amarillo</strong> al escanear: <em>"PASE TEMPORAL — Verificar identidad"</em></li>
+      <li>Se invalida a medianoche hora México (no UTC) — ver sección 16</li>
+    </ul>
+
+    <h3>Extensión de Horario</h3>
+    <ul>
+      <li>Tabla <code>config_horario_alumno</code>: <code>tiene_extension</code>, <code>hora_salida_extension</code>, <code>genera_cargos</code></li>
+      <li>Si <code>genera_cargos=true</code>: cargo mensual generado automáticamente cada día 1</li>
+      <li>Job <code>sinRecogerJob</code> <strong>respeta extensión</strong>: no alerta hasta <code>hora_salida_extension + gracia</code></li>
+      <li>Precios diferenciados por nivel en tabla <code>precios_nivel</code></li>
+    </ul>
+
+    <h3>Comida Semanal</h3>
+    <ul>
+      <li>Padre confirma antes del domingo de cada semana</li>
+      <li>Lunes 7:00 AM: recordatorio WA si no pagó</li>
+      <li>Lunes 8:31 AM: cancela automático si no llegó pago</li>
+      <li><code>estado !== 'cancelado'</code> controla si se muestra sección comida en filtro entrada</li>
+      <li>3 estados visuales: pendiente (rojo), pagado (verde), cancelado (gris)</li>
+    </ul>
+
+    <h3>Semáforo de Pagos</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Estado</th><th>Condición</th><th>Color</th></tr></thead>
+        <tbody>
+          <tr><td>Verde</td><td>Sin adeudos</td><td>bg-green</td></tr>
+          <tr><td>Amarillo</td><td>1+ día de atraso</td><td>bg-yellow</td></tr>
+          <tr><td>Rojo</td><td>30+ días OR vencido</td><td>bg-red</td></tr>
+          <tr><td>Suspendido</td><td>60+ días AND vencido</td><td>bg-gray</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Condición Pañal — Display obligatorio</h3>
+    <div class="danger-box">
+      La BD guarda KEYS. La UI DEBE traducirlos. Nunca mostrar "orina" o "heces" al usuario final.
+    </div>
+    <pre><code>const PANIAL_CONDICION = {
+  limpio:  '✅ Limpio',
+  orina:   '💧 Pipí',    // ⚠️ NUNCA mostrar "orina"
+  heces:   '💩 Popó',    // ⚠️ NUNCA mostrar "heces"
+  mixto:   '🔄 Mixto',
+  diarrea: '⚠️ Diarrea',
+};
+// Uso: PANIAL_CONDICION[p.condicion] ?? p.condicion</code></pre>
+    <p>Archivos que aplican este map: <code>web/src/pages/padre/Bitacora.jsx</code>, <code>mobile/app/(padre)/bitacora.jsx</code>, <code>mobile/app/(maestra)/bitacora.jsx</code></p>
+
+    <h3>Blacklist en Salida</h3>
+    <p>El endpoint <code>POST /asistencia/salida</code> verifica tabla <code>blacklist</code> contra nombre de quien recoge. Si hay match: bloquea salida + alerta directora + WA <code>persona_no_autorizada</code>. El motivo de blacklist es privado.</p>
+
+    <hr>
+
+    <!-- 16. FECHAS -->
+    <h2 id="fechas"><span class="sec-num">16</span> Manejo de Fechas y Zona Horaria</h2>
+
+    <div class="danger-box">
+      <strong>🚨 Esta sección causó 20+ bugs durante el desarrollo.</strong> Leer antes de tocar cualquier comparación de fechas. La app opera en <strong>America/Mexico_City (UTC-6)</strong>.
+    </div>
+
+    <h3>Reglas — qué usar y qué NO usar</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Caso</th><th>❌ Incorrecto</th><th>✅ Correcto</th></tr></thead>
+        <tbody>
+          <tr><td>Fecha de hoy en frontend</td><td><code>new Date().toISOString().slice(0,10)</code></td><td><code>new Date().toLocaleDateString('en-CA', { timeZone: 'America/Mexico_City' })</code></td></tr>
+          <tr><td>Fecha de hoy en SQL</td><td><code>NOW()::date</code></td><td><code>CURRENT_DATE</code></td></tr>
+          <tr><td>Parsear fecha del API</td><td><code>new Date(apiDate)</code></td><td><code>new Date(apiDate.substring(0,10))</code></td></tr>
+          <tr><td>Comparar fechas</td><td>Directo con ISO completo</td><td>Extraer con <code>.substring(0,10)</code> primero</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Por qué falla <code>toISOString()</code></h3>
+    <p><code>toISOString()</code> devuelve hora UTC. A las 7 PM hora México (UTC-6) ya son las 00:00 AM del día siguiente en UTC. Esto rompió QR temporal, cumpleaños, filtros de asistencia y todas las queries que comparaban con "hoy".</p>
+
+    <h3>El API siempre devuelve ISO completo</h3>
+    <pre><code>// El API retorna: "2022-04-17T05:00:00.000Z"
+// SIEMPRE hacer:
+const soloFecha = apiDate.substring(0, 10)  // "2022-04-17"
+const date = new Date(soloFecha)            // fecha correcta</code></pre>
+
+    <hr>
+
+    <!-- 17. NOTIFICACIONES -->
+    <h2 id="notificaciones"><span class="sec-num">17</span> Sistema de Notificaciones</h2>
+
+    <h3>3 canales en paralelo</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Canal</th><th>Servicio</th><th>Persistencia</th></tr></thead>
+        <tbody>
+          <tr><td>In-app (campanita)</td><td>BD tabla <code>notificaciones</code></td><td>Permanente, marca leída</td></tr>
+          <tr><td>Push móvil</td><td>Expo Push API</td><td>Efímera (entregada o no)</td></tr>
+          <tr><td>WhatsApp</td><td>Twilio</td><td>Log en <code>log_whatsapp</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>13 tipos urgentes (abren modal automático)</h3>
+    <p><code>fiebre</code> · <code>vomito</code> · <code>diarrea</code> · <code>incidente</code> · <code>medicamento</code> · <code>sin_recoger</code> · <code>persona_no_autorizada</code> · <code>salida_anticipada</code> · <code>tarea_nueva</code> · <code>tarea_cancelada</code> · <code>entrada_rechazada</code> · <code>aviso_extraordinario</code> · <code>alerta_pago</code></p>
+
+    <h3>12 Plantillas WhatsApp activas</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Clave</th><th>Cuándo se envía</th></tr></thead>
+        <tbody>
+          <tr><td><code>retardo</code></td><td>Al registrar entrada tardía (automático)</td></tr>
+          <tr><td><code>fiebre</code></td><td>Maestra registra temperatura alta en bitácora</td></tr>
+          <tr><td><code>vomito</code></td><td>Maestra registra vómito en bitácora</td></tr>
+          <tr><td><code>diarrea</code></td><td>Maestra registra diarrea en bitácora</td></tr>
+          <tr><td><code>medicamento</code></td><td>Maestra administra medicamento</td></tr>
+          <tr><td><code>persona_no_autorizada</code></td><td>Intento de salida con persona en blacklist</td></tr>
+          <tr><td><code>salida_anticipada</code></td><td>Salida antes de hora normal</td></tr>
+          <tr><td><code>alerta_salud</code></td><td>Alerta general de salud</td></tr>
+          <tr><td><code>sin_recoger</code></td><td>Job automático 14-19h + botón manual miss</td></tr>
+          <tr><td><code>sin_comida</code></td><td>Cancelación de comida (job automático o manual)</td></tr>
+          <tr><td><code>pago_comida_lunes</code></td><td>Job lunes 7:00 AM</td></tr>
+          <tr><td><code>recordatorio_pago</code></td><td>Job diario 16:00 + botón admin</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">Las plantillas son editables por la directora en el portal (Configuración → Plantillas WA). Solo el texto es editable, la <code>clave</code> es inmutable — está hardcodeada en el código de envío.</div>
+
+    <hr>
+
+    <!-- 18. BUGS -->
+    <h2 id="bugs"><span class="sec-num">18</span> Bugs Históricos — NUNCA REPETIR</h2>
+
+    <div class="danger-box">
+      <strong>🚨 Lee esta tabla completa antes de escribir queries, rutas o cambios de schema.</strong>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Bug</th><th>Causa raíz</th><th>Regla a seguir</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Renombrar columna sin auditar</td><td>No hacer grep antes de migrar</td><td><code>grep -r "col_name" --include="*.{js,jsx}" . | grep -v node_modules</code> antes de cualquier rename</td></tr>
+          <tr><td>2</td><td>Fechas ISO del API inválidas</td><td>Sin <code>.substring(0,10)</code> → fecha inválida</td><td>SIEMPRE <code>.substring(0,10)</code> antes de parsear fechas del API</td></tr>
+          <tr><td>3</td><td><code>toISOString()</code> → día siguiente</td><td>Después de 6pm: UTC ≠ México</td><td>Frontend: <code>toLocaleDateString('en-CA', {timeZone:'America/Mexico_City'})</code>. Backend: <code>CURRENT_DATE</code></td></tr>
+          <tr><td>4</td><td>Backend no recarga rutas</td><td>Proceso viejo en memoria</td><td>Matar todos los procesos node ANTES de reiniciar. Windows: <code>Get-Process node | Stop-Process -Force</code></td></tr>
+          <tr><td>5</td><td>Columnas inventadas en SELECT</td><td>Asumir columnas sin leer schema</td><td>Leer el schema de la tabla (este documento sección 05) antes de escribir queries</td></tr>
+          <tr><td>6</td><td>Sin datos demo para nuevas vistas</td><td>Seed no crea datos de prueba</td><td>Crear datos demo antes de pedir validación al usuario</td></tr>
+          <tr><td>7</td><td><code>deleted_at</code> en tabla <code>personal</code></td><td><code>personal</code> usa <code>activo</code>, NO <code>deleted_at</code></td><td>Verificar mecanismo de soft-delete de cada tabla (ver tabla en sección 05)</td></tr>
+          <tr><td>8</td><td>UNIQUE index bloquea soft-delete</td><td>UNIQUE normal impide re-usar email</td><td>Usar índice parcial: <code>CREATE UNIQUE INDEX ... WHERE deleted_at IS NULL</code></td></tr>
+          <tr><td>9</td><td>Stale closure en setTimeout</td><td>React captura valor viejo del estado</td><td>Construir objeto actualizado y pasarlo directamente al setTimeout, no leer state dentro</td></tr>
+          <tr><td>10</td><td>Import named vs default</td><td><code>{ api }</code> cuando módulo exporta <code>export default</code></td><td>Verificar tipo de export antes de importar</td></tr>
+          <tr><td>11</td><td><code>onSuccess</code> en <code>useQuery</code> RQ v5</td><td>RQ v5 eliminó callbacks de useQuery</td><td><code>useEffect([data])</code> para side effects. <code>onSuccess</code> solo en <code>useMutation</code></td></tr>
+          <tr><td>12</td><td>HTTP 304 Not Modified</td><td>Express cacheaba respuestas GET</td><td>Middleware <code>Cache-Control: no-store</code> ya está en <code>/api/</code> — no remover</td></tr>
+          <tr><td>13</td><td><code>cuanto_comio</code> en tabla equivocada</td><td>Está en <code>registro_comida</code>, NO en <code>bitacora_diaria</code></td><td>JOIN a la tabla correcta. Siempre verificar el schema antes de escribir queries</td></tr>
+          <tr><td>14</td><td>Duplicados por múltiples grupos</td><td>LEFT JOIN retornaba filas duplicadas</td><td>Usar <code>LATERAL + LIMIT 1</code> para tomar solo el primer grupo</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Patrón correcto React Query v5</h3>
+    <pre><code>// ❌ INCORRECTO (RQ v4 — no funciona en v5)
+useQuery({ queryFn, onSuccess: (data) => {} })
+
+// ✅ CORRECTO
+const { data } = useQuery({ queryFn })
+useEffect(() => {
+  if (data) { /* side effect aquí */ }
+}, [data])
+
+// onSuccess SÍ funciona en mutaciones:
+useMutation({ mutationFn, onSuccess: (data) => {} })</code></pre>
+
+    <hr>
+
+    <!-- 19. ENV -->
+    <h2 id="env"><span class="sec-num">19</span> Variables de Entorno</h2>
+
+    <h3>Backend — <code>backend/.env</code></h3>
+    <div class="env-block">
+<span class="env-comment"># Servidor</span>
+<span class="env-key">NODE_ENV</span>=<span class="env-val">development</span>          <span class="env-comment"># development | production</span>
+<span class="env-key">PORT</span>=<span class="env-val">3000</span>
+<span class="env-key">TZ</span>=<span class="env-val">America/Mexico_City</span>   <span class="env-comment"># CRÍTICO: timezone Node.js y cron jobs</span>
+
+<span class="env-comment"># Base de datos</span>
+<span class="env-key">DATABASE_URL</span>=<span class="env-val">postgresql://user:password@host:5432/happy_school</span>
+
+<span class="env-comment"># JWT</span>
+<span class="env-key">JWT_SECRET</span>=<span class="env-val">&lt;secreto_largo_aleatorio&gt;</span>
+<span class="env-key">JWT_REFRESH_SECRET</span>=<span class="env-val">&lt;otro_secreto_largo&gt;</span>
+
+<span class="env-comment"># CORS (URLs de frontend en producción)</span>
+<span class="env-key">WEB_URL</span>=<span class="env-val">https://tu-dominio-web.com</span>
+<span class="env-key">MOBILE_URL</span>=<span class="env-val">https://tu-dominio-mobile.com</span>
+
+<span class="env-comment"># Cloudinary</span>
+<span class="env-key">CLOUDINARY_CLOUD_NAME</span>=<span class="env-val"></span>
+<span class="env-key">CLOUDINARY_API_KEY</span>=<span class="env-val"></span>
+<span class="env-key">CLOUDINARY_API_SECRET</span>=<span class="env-val"></span>
+<span class="env-key">CLOUDINARY_ENABLED</span>=<span class="env-val">true</span>   <span class="env-comment"># false en dev sin cuenta Cloudinary</span>
+
+<span class="env-comment"># Twilio (WhatsApp)</span>
+<span class="env-key">TWILIO_ACCOUNT_SID</span>=<span class="env-val"></span>
+<span class="env-key">TWILIO_AUTH_TOKEN</span>=<span class="env-val"></span>
+<span class="env-key">TWILIO_WHATSAPP_FROM</span>=<span class="env-val">whatsapp:+14155238886</span>  <span class="env-comment"># sandbox Twilio</span>
+<span class="env-key">WHATSAPP_ENABLED</span>=<span class="env-val">true</span>    <span class="env-comment"># false para deshabilitar WA globalmente</span>
+    </div>
+
+    <h3>Web Frontend — <code>web/.env</code></h3>
+    <div class="env-block">
+<span class="env-key">VITE_API_URL</span>=<span class="env-val">http://localhost:3000/api</span>   <span class="env-comment"># En producción: URL del backend</span>
+    </div>
+
+    <h3>Mobile App — <code>mobile/.env</code></h3>
+    <div class="env-block">
+<span class="env-key">EXPO_PUBLIC_API_URL</span>=<span class="env-val">http://localhost:3000/api</span>   <span class="env-comment"># En producción: URL del backend</span>
+    </div>
+
+    <h3>Puertos de desarrollo</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Servicio</th><th>Puerto</th><th>Nota</th></tr></thead>
+        <tbody>
+          <tr><td>Backend</td><td>3000</td><td>Verificar: <code>GET /health</code></td></tr>
+          <tr><td>Web (Vite)</td><td><strong>5173 fijo</strong></td><td>Si aparece otro puerto (5174+) = hay procesos node viejos</td></tr>
+          <tr><td>Mobile (Expo)</td><td>8081</td><td>Escanear QR con Expo Go</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr>
+
+    <!-- 20. LEVANTAR -->
+    <h2 id="levantar"><span class="sec-num">20</span> Cómo Levantar el Proyecto (Dev)</h2>
+
+    <h3>En Windows — matar procesos node primero (OBLIGATORIO)</h3>
+    <pre><code>Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force</code></pre>
+
+    <h3>Backend</h3>
+    <div class="steps">
+      <ol>
+        <li><span class="step-num">1</span><span class="step-text"><code>cd backend && cp .env.example .env</code> — configurar variables</span></li>
+        <li><span class="step-num">2</span><span class="step-text"><code>npm install</code></span></li>
+        <li><span class="step-num">3</span><span class="step-text"><code>node src/index.js</code></span></li>
+        <li><span class="step-num">4</span><span class="step-text">Verificar: <code>curl http://localhost:3000/health</code> → debe responder <code>{"status":"ok"}</code></span></li>
+      </ol>
+    </div>
+
+    <h3>Web</h3>
+    <div class="steps">
+      <ol>
+        <li><span class="step-num">1</span><span class="step-text"><code>cd web && npm install</code></span></li>
+        <li><span class="step-num">2</span><span class="step-text"><code>npm run dev</code> — debe iniciar en puerto 5173</span></li>
+        <li><span class="step-num">3</span><span class="step-text">Si inicia en 5174 o mayor: hay procesos viejos. Matar y reiniciar.</span></li>
+      </ol>
+    </div>
+
+    <h3>Mobile</h3>
+    <div class="steps">
+      <ol>
+        <li><span class="step-num">1</span><span class="step-text"><code>cd mobile && npm install</code></span></li>
+        <li><span class="step-num">2</span><span class="step-text"><code>npx expo start</code></span></li>
+        <li><span class="step-num">3</span><span class="step-text">Escanear QR con Expo Go en iOS/Android</span></li>
+      </ol>
+    </div>
+
+    <div class="info-box">
+      <strong>Nota push notifications:</strong> En Expo Go el registro funciona pero la entrega de notificaciones en background es limitada. Para pruebas completas de push, usar <code>npx expo run:android</code> o generar APK.
+    </div>
+
+    <hr>
+
+    <!-- 21. PATRONES -->
+    <h2 id="patrones"><span class="sec-num">21</span> Patrones de Código Usados</h2>
+
+    <h3>Fetch + mutación con TanStack Query</h3>
+    <pre><code>// Fetch con caching
+const { data, isLoading } = useQuery({
+  queryKey: ['nombre-dato', filtro],
+  queryFn: () => api.get('/endpoint').then(r =&gt; r.data),
+  staleTime: 30_000,
+})
+
+// Mutación con invalidación de caché
+const mutation = useMutation({
+  mutationFn: (data) =&gt; api.post('/endpoint', data),
+  onSuccess: () =&gt; {
+    queryClient.invalidateQueries({ queryKey: ['nombre-dato'] })
+    toast.success('✅ Guardado')
+  },
+  onError: (err) =&gt; toast.error(err.response?.data?.error)
+})</code></pre>
+
+    <h3>Hook de catálogo (web y mobile idéntico)</h3>
+    <pre><code>const { items, map, isLoading } = useCatalogo('animo')
+// items: [{ key: 'feliz', emoji: '😊', label: 'Feliz' }, ...]
+// map:   { feliz: { emoji: '😊', label: 'Feliz' }, ... }
+// staleTime: 30 min | gcTime: 60 min</code></pre>
+
+    <h3>Componentes BitacoraHelpers (web y mobile)</h3>
+    <pre><code>// web: web/src/components/ui/BitacoraHelpers.jsx
+// mobile: mobile/src/components/BitacoraHelpers.jsx
+&lt;Seccion titulo="SALUD" emoji="🌡️" colorTitulo="text-red-500"&gt;
+  &lt;FilaInfo label="Temperatura" valor="37.2°C" /&gt;
+  &lt;PildoraBool label="Sin fiebre" valor={true} /&gt;
+&lt;/Seccion&gt;</code></pre>
+
+    <h3>Moneda México</h3>
+    <pre><code>// Web y Mobile — idéntico
+new Intl.NumberFormat('es-MX', {
+  style: 'currency',
+  currency: 'MXN'
+}).format(monto)</code></pre>
+
+    <h3>Transacciones en Backend</h3>
+    <pre><code>const client = await getClient()
+try {
+  await client.query('BEGIN')
+  // operaciones principales...
+  await client.query('SAVEPOINT sp1')
+  // operación que puede fallar sin rollback total...
+  await client.query('COMMIT')
+} catch (err) {
+  await client.query('ROLLBACK')
+  throw err
+} finally {
+  client.release()
+}</code></pre>
+
+    <h3>Feature flags — verificar antes de usar servicios externos</h3>
+    <pre><code>// WhatsApp
+const cfg = await query("SELECT valor FROM configuracion_general WHERE clave='whatsapp_activo'")
+if (cfg.rows[0]?.valor !== 'true') return // silencioso, no lanza error
+
+// Cloudinary
+if (process.env.CLOUDINARY_ENABLED !== 'true') {
+  return { url: 'data:image/...base64...', public_id: 'mock' }
+}</code></pre>
+
+    <h3>Formato de fecha seguro para México</h3>
+    <pre><code>// ✅ Hoy en zona horaria correcta (frontend web y mobile)
+const hoy = new Date().toLocaleDateString('en-CA', {
+  timeZone: 'America/Mexico_City'
+}) // "2026-05-12"
+
+// ✅ Parsear fecha del API
+const fecha = apiDate.substring(0, 10) // "2026-05-12T..." → "2026-05-12"</code></pre>
+
+    <div class="page-footer">
+      Happy School App · Architecture Reference · v1.0.0-beta · 2026-05-12<br>
+      Generado a partir del análisis del código fuente completo y 80+ sesiones de desarrollo documentadas en ARCHIVE_LOG.md
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('h2[id]');
+  const navLinks = document.querySelectorAll('#sidebar nav a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`#sidebar nav a[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

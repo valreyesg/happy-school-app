@@ -13,6 +13,7 @@ import { useCatalogo } from '@/hooks/useCatalogo';
 import { Ionicons } from '@expo/vector-icons';
 import SelectorFecha from '@/components/SelectorFecha';
 import { Seccion, FilaInfo, PildoraBool } from '@/components/BitacoraHelpers';
+import SignaturePadMobile from '@/components/SignaturePadMobile';
 
 // ─── Catálogos de display ─────────────────────────────────────────────────────
 
@@ -113,6 +114,20 @@ export default function BitacoraPadreScreen() {
       Alert.alert('🗑', 'Medicamento eliminado');
     },
     onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se puede eliminar'),
+  });
+
+  // ── Firma de incidentes ──
+  const [incidenteFirmando, setIncidenteFirmando] = useState(null);
+
+  const firmaMutation = useMutation({
+    mutationFn: ({ incidenteId, firma_data }) =>
+      api.patch(`/bitacora/incidente/${incidenteId}/firma`, { firma_data }).then(r => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bitacora-padre', alumnoId, fecha] });
+      setIncidenteFirmando(null);
+      Alert.alert('✅', 'Incidente firmado correctamente');
+    },
+    onError: (err) => Alert.alert('Error', err?.response?.data?.error || 'No se pudo firmar'),
   });
 
   const pickMedia = async (fuente) => {
@@ -862,9 +877,12 @@ export default function BitacoraPadreScreen() {
                           <Text style={{ fontSize: 12, color: '#276749', fontWeight: '700' }}>✅ Firmado</Text>
                         </View>
                       ) : (
-                        <Text style={{ fontSize: 12, color: '#3182CE', fontWeight: '700', marginTop: 6 }}>
-                          ✍️ Pendiente de firma — revisa en el portal web
-                        </Text>
+                        <TouchableOpacity
+                          style={{ backgroundColor: '#EBF8FF', borderRadius: 8, padding: 10, marginTop: 6, flexDirection: 'row', alignItems: 'center', gap: 6 }}
+                          onPress={() => setIncidenteFirmando(inc)}
+                        >
+                          <Text style={{ fontSize: 13, color: '#2B6CB0', fontWeight: '700' }}>✍️ Firmar incidente</Text>
+                        </TouchableOpacity>
                       )}
                     </View>
                   ))
@@ -951,6 +969,14 @@ export default function BitacoraPadreScreen() {
           )}
 
         </ScrollView>
+      )}
+
+      {/* Modal firma de incidente */}
+      {incidenteFirmando && (
+        <SignaturePadMobile
+          onConfirm={(firma_data) => firmaMutation.mutate({ incidenteId: incidenteFirmando.id, firma_data })}
+          onCancel={() => setIncidenteFirmando(null)}
+        />
       )}
     </SafeAreaView>
   );

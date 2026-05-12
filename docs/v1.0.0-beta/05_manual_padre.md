@@ -213,16 +213,28 @@ La maestra verá el medicamento registrado y te confirmará cuando se lo adminis
 
 ### Firmar un incidente digitalmente
 
-Si hubo un incidente, el sistema te pedirá que lo **firmes digitalmente**:
+Si hubo un incidente, la maestra lo registra y el sistema te pide que lo **firmes digitalmente** para confirmar que te enteraste.
+
+**Desde la app (celular):**
 
 1. Entrar a la bitácora del día
 2. Ir a la pestaña **"⚠️ Incidentes"**
 3. Leer la descripción del incidente
-4. Tocar **"Firmar"**
-5. Usar tu dedo (en celular) o el ratón (en computadora) para hacer tu firma
-6. Confirmar
+4. Tocar el botón azul **"✍️ Firmar incidente"**
+5. Se abre un panel — dibujar tu firma con el dedo
+6. Tocar **"✅ Confirmar"**
 
-Esto no significa que estás de acuerdo con que ocurrió algo malo — solo confirma que ya te enteraste.
+El incidente queda marcado con un badge verde **✅ Firmado**.
+
+**Desde el portal web:**
+
+1. Entrar a la bitácora del día
+2. Ir a la pestaña **"⚠️ Incidentes"**
+3. Leer la descripción y tocar **"Firmar"**
+4. Dibujar la firma con el ratón o con el dedo (pantalla táctil)
+5. Tocar **"Confirmar firma"**
+
+> Firmar solo confirma que ya te enteraste — no significa que estás de acuerdo con que ocurrió algo malo.
 
 ---
 

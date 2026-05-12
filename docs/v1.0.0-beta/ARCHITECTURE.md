@@ -942,7 +942,7 @@ app/
   - Estado de ánimo, conducta, comida (4 tiempos)
   - Condición pañal (usa `PANIAL_CONDICION` map: orina→💧Pipí, heces→💩Popó)
   - Insumos, vómito, notas, fotos
-  - Firma digital
+  - Firma digital (solo lectura — padre firma desde su propia app)
 
 **`(maestra)/qr-scanner.jsx` — Scanner QR**
 - **Modo automático por hora:** si `hora >= horaSalidaNormal` → modo salida, sino → modo entrada
@@ -966,7 +966,10 @@ app/
     - Sin pase activo: botón "Generar pase para hoy"
     - Con pase activo: nombre autorizado + "Ver QR" + "Cancelar"
 
-**`(padre)/bitacora.jsx`** — Solo lectura del log del hijo
+**`(padre)/bitacora.jsx`** — Solo lectura del log del hijo + firma digital de incidentes
+- Tab Incidentes: botón "✍️ Firmar incidente" si `!firma_padre_url`
+- `SignaturePadMobile` (`src/components/SignaturePadMobile.jsx`): canvas táctil SVG + GestureHandler, Expo Go compatible, sin WebView
+- Mutation `PATCH /bitacora/incidente/:id/firma` con `firma_data` (SVG base64)
 
 **`(padre)/comida.jsx`** — Confirmación semanal + días específicos + método pago + comprobante
 
@@ -992,11 +995,11 @@ app/
 | Comida padre | `padre/ComidaSemanal.jsx` | `(padre)/comida.jsx` | ✅ Paridad |
 | Calendario padre | `padre/Calendario.jsx` | `(padre)/calendario.jsx` | ✅ Paridad |
 | QR Temporal padre | `padre/Dashboard.jsx` (QRTemporalCard) | `(padre)/index.jsx` (QRTemporalRow) | ✅ Paridad |
+| Firma digital incidentes | `padre/Bitacora.jsx` (SignaturePad canvas) | `(padre)/bitacora.jsx` (SignaturePadMobile SVG) | ✅ Paridad |
 | Portal directora | `directora/*.jsx` | ❌ No existe | ✅ Intencional (admin only) |
 | Portal admin | `admin/*.jsx` | ❌ No existe | ✅ Intencional (admin only) |
 
 **⚠️ Gaps conocidos (no bloqueantes para piloto):**
-- Firma digital en incidentes (web tiene SignaturePad, mobile no)
 - Export PDF/Excel de reportes (web only — intencional)
 
 ---

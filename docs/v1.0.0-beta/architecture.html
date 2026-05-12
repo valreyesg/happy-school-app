@@ -847,7 +847,7 @@ process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api'</code></pre>
         <thead><tr><th>Pantalla</th><th>Archivo</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr><td>Dashboard</td><td><code>(padre)/index.jsx</code> (48KB)</td><td>Tarjetas por hijo: estado entrada, retardos del mes (⚠️/🚫), snapshot bitácora, info salida, tareas expandibles, semáforo pagos, <strong>QR Temporal integrado en tarjeta</strong></td></tr>
-          <tr><td>Bitácora</td><td><code>(padre)/bitacora.jsx</code></td><td>Solo lectura del log diario del hijo</td></tr>
+          <tr><td>Bitácora</td><td><code>(padre)/bitacora.jsx</code></td><td>Solo lectura del log diario del hijo + <strong>firma digital de incidentes</strong> (SignaturePadMobile SVG + GestureHandler)</td></tr>
           <tr><td>Comida</td><td><code>(padre)/comida.jsx</code></td><td>Confirmación semanal / días específicos + método pago + comprobante</td></tr>
           <tr><td>Pagos</td><td><code>(padre)/pagos.jsx</code></td><td>Historial + subir comprobante (imagen)</td></tr>
           <tr><td>QR</td><td><code>(padre)/qr.jsx</code> (oculta)</td><td>QR permanente + QR temporal: generar, ver, cancelar</td></tr>
@@ -873,8 +873,8 @@ process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api'</code></pre>
           <tr><td>Bitácora padre</td><td><code>padre/Bitacora.jsx</code></td><td><code>(padre)/bitacora.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
           <tr><td>Pagos padre</td><td><code>padre/Pagos.jsx</code></td><td><code>(padre)/pagos.jsx</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
           <tr><td>QR Temporal padre</td><td><code>padre/Dashboard → QRTemporalCard</code></td><td><code>(padre)/index → QRTemporalRow</code></td><td><span class="badge-ok">✅ Paridad</span></td></tr>
+          <tr><td>Firma digital incidentes</td><td><code>padre/Bitacora.jsx</code> (SignaturePad canvas)</td><td><code>(padre)/bitacora.jsx</code> (SignaturePadMobile SVG)</td><td><span class="badge-ok">✅ Paridad</span></td></tr>
           <tr><td>Portal directora</td><td><code>directora/*.jsx</code> (21 páginas)</td><td>No existe</td><td><span class="badge-ok">✅ Intencional</span></td></tr>
-          <tr><td>Firma digital incidentes</td><td>SignaturePad canvas</td><td>No implementado</td><td><span class="badge-warn">⚠️ Gap</span></td></tr>
           <tr><td>Export PDF/Excel</td><td>Disponible</td><td>No implementado</td><td><span class="badge-warn">⚠️ Intencional</span></td></tr>
         </tbody>
       </table>

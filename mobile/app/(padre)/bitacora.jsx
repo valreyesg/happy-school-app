@@ -22,6 +22,14 @@ const TIEMPOS_COMIDA = [
   { key: 'comida',      emoji: '🍽️', label: 'Comida'      },
 ];
 
+const PANIAL_CONDICION = {
+  limpio:  '✅ Limpio',
+  orina:   '💧 Pipí',
+  heces:   '💩 Popó',
+  mixto:   '🔄 Mixto',
+  diarrea: '⚠️ Diarrea',
+};
+
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
 // ─── Selector de ciclo ────────────────────────────────────────────────────────
@@ -641,7 +649,7 @@ export default function BitacoraPadreScreen() {
                         {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                       </Text>
                       <Text style={s.panialCondicion}>
-                        {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
+                        {PANIAL_CONDICION[p.condicion] ?? p.condicion}
                         {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
                       </Text>
                     </View>

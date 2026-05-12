@@ -15,6 +15,14 @@ import SelectorFecha from '@/components/SelectorFecha';
 import { ultimoDiaHabil } from '@/utils/fecha';
 import { Seccion } from '@/components/BitacoraHelpers';
 
+const PANIAL_CONDICION = {
+  limpio:  '✅ Limpio',
+  orina:   '💧 Pipí',
+  heces:   '💩 Popó',
+  mixto:   '🔄 Mixto',
+  diarrea: '⚠️ Diarrea',
+};
+
 function Contador({ label, value, onChange }) {
   return (
     <View style={s.contadorRow}>
@@ -915,7 +923,7 @@ function FormularioBitacora({ alumnoId, nombre, usaPanial, nivelCodigo, fecha, g
             {(bitacoraData?.panial || []).map((p, i) => (
               <View key={i} style={s.panialLog}>
                 <Text style={s.panialLogTxt}>
-                  {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} — {p.condicion}
+                  {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })} — {PANIAL_CONDICION[p.condicion] ?? p.condicion}
                   {p.tiene_irritacion ? ' ⚠️ irritación' : ''}
                 </Text>
               </View>

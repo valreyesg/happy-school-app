@@ -29,6 +29,14 @@ const COMPORTAMIENTO = {
   necesita_mejorar:{ emoji: '⚠️', label: 'A mejorar', color: 'bg-red-50    text-red-700    border-red-200'    },
 };
 
+const PANIAL_CONDICION = {
+  limpio:  '✅ Limpio',
+  orina:   '💧 Pipí',
+  heces:   '💩 Popó',
+  mixto:   '🔄 Mixto',
+  diarrea: '⚠️ Diarrea',
+};
+
 
 // Sección de declaración de medicamentos (usada en 2 contextos: sin bitácora aún y tab Salud).
 function SeccionMedicamentos({
@@ -858,7 +866,7 @@ export default function PadreBitacora() {
                                 {new Date(p.hora).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
                               </span>
                               <span className="text-sm font-semibold text-gray-700">
-                                {p.condicion.charAt(0).toUpperCase() + p.condicion.slice(1)}
+                                {PANIAL_CONDICION[p.condicion] ?? p.condicion}
                                 {p.tiene_irritacion ? ' · ⚠️ irritación' : ''}
                               </span>
                             </div>

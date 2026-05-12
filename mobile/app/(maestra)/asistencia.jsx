@@ -113,41 +113,116 @@ function ModalManual({ alumno, visible, onClose, onGuardar }) {
   );
 }
 
+function esCumpleanos(fecha_nacimiento) {
+  if (!fecha_nacimiento) return false;
+  const hoy = new Date().toLocaleDateString('en-CA');
+  const [, mesHoy, diaHoy] = hoy.split('-');
+  const fn = new Date(fecha_nacimiento.substring(0, 10) + 'T12:00:00');
+  return fn.getMonth() + 1 === parseInt(mesHoy) && fn.getDate() === parseInt(diaHoy);
+}
+
+function CheckBadge({ val, label }) {
+  if (val === null || val === undefined) return null;
+  return (
+    <View style={[cb.badge, { backgroundColor: val ? '#F0FFF4' : '#FFF5F5', borderColor: val ? '#C6F6D5' : '#FED7D7' }]}>
+      <Text style={[cb.txt, { color: val ? '#276749' : '#C53030' }]}>{val ? '✓' : '✗'} {label}</Text>
+    </View>
+  );
+}
+const cb = StyleSheet.create({
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, marginRight: 4, marginBottom: 4 },
+  txt: { fontSize: 11, fontWeight: '800' },
+});
+
 // ─── Tarjeta de alumno ────────────────────────────────────────────────────────
 function TarjetaAlumno({ alumno, onRegistrar }) {
   const estado = estadoAlumno(alumno);
   const cfg = ESTADO_CONFIG[estado] || ESTADO_CONFIG.pendiente;
+  const yaRegistrado = estado !== 'pendiente';
+  const [abierto, setAbierto] = useState(false);
+  const cumple = esCumpleanos(alumno.fecha_nacimiento);
+
+  const handlePress = () => {
+    if (!yaRegistrado) {
+      onRegistrar(alumno);
+    } else {
+      setAbierto(v => !v);
+    }
+  };
 
   return (
-    <TouchableOpacity
-      style={[s.card, estado === 'pendiente' && s.cardPendiente]}
-      onPress={() => onRegistrar(alumno)}
-      activeOpacity={0.7}
-    >
-      {/* Avatar */}
-      <View style={[s.avatar, { backgroundColor: cfg.color }]}>
-        <Text style={s.avatarTxt}>{alumno.nombre_completo.charAt(0)}</Text>
-      </View>
+    <View style={[s.card, estado === 'pendiente' && s.cardPendiente]}>
+      {/* Banner cumpleaños */}
+      {cumple && (
+        <View style={s.cumpleBanner}>
+          <Text style={s.cumpleTxt}>🎂 ¡Hoy es el cumple de {alumno.nombre_completo.split(' ')[0]}! 🎈</Text>
+        </View>
+      )}
 
-      {/* Info */}
-      <View style={{ flex: 1 }}>
-        <Text style={s.nombre}>{alumno.nombre_completo}</Text>
-        {alumno.hora_entrada && (
-          <Text style={s.hora}>
-            Entrada: {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
-            {alumno.es_retardo ? ' · Retardo' : ''}
-          </Text>
-        )}
-        {alumno.temperatura && (
-          <Text style={s.hora}>🌡 {alumno.temperatura}°C</Text>
-        )}
-      </View>
+      {/* Fila principal */}
+      <TouchableOpacity style={s.cardRow} onPress={handlePress} activeOpacity={0.7}>
+        {/* Avatar */}
+        <View style={[s.avatar, { backgroundColor: cfg.color }]}>
+          <Text style={s.avatarTxt}>{alumno.nombre_completo.charAt(0)}</Text>
+        </View>
 
-      {/* Badge estado */}
-      <View style={[s.badge, { backgroundColor: cfg.bg }]}>
-        <Text style={[s.badgeTxt, { color: cfg.color }]}>{cfg.icon} {cfg.label}</Text>
-      </View>
-    </TouchableOpacity>
+        {/* Info */}
+        <View style={{ flex: 1 }}>
+          <Text style={s.nombre}>{alumno.nombre_completo}</Text>
+          {alumno.hora_entrada && (
+            <Text style={s.hora}>
+              Entrada: {new Date(alumno.hora_entrada).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+              {alumno.es_retardo ? ' · Retardo' : ''}
+            </Text>
+          )}
+          {alumno.temperatura && (
+            <Text style={s.hora}>🌡 {alumno.temperatura}°C</Text>
+          )}
+        </View>
+
+        {/* Badge estado */}
+        <View style={[s.badge, { backgroundColor: cfg.bg }]}>
+          <Text style={[s.badgeTxt, { color: cfg.color }]}>{cfg.icon} {cfg.label}</Text>
+        </View>
+
+        {/* Flecha expandir */}
+        {yaRegistrado && (
+          <Text style={{ color: '#A0AEC0', fontSize: 16, marginLeft: 4 }}>{abierto ? '▲' : '▼'}</Text>
+        )}
+      </TouchableOpacity>
+
+      {/* Detalle expandible — solo alumnos ya registrados */}
+      {abierto && yaRegistrado && (
+        <View style={s.detalle}>
+          {alumno.motivo_no_entrada && (
+            <View style={s.motivoBox}>
+              <Text style={s.motivoTxt}>🚫 {alumno.motivo_no_entrada}</Text>
+            </View>
+          )}
+          <Text style={s.detalleSub}>Salud</Text>
+          <View style={s.detalleRow}>
+            <CheckBadge val={alumno.sin_fiebre}   label="Sin fiebre" />
+            <CheckBadge val={alumno.sin_sintomas} label="Sin síntomas" />
+          </View>
+          <Text style={s.detalleSub}>Higiene</Text>
+          <View style={s.detalleRow}>
+            <CheckBadge val={alumno.uñas_cortadas} label="Uñas" />
+            <CheckBadge val={alumno.sin_lagañas}   label="Sin lagañas" />
+            {alumno.panial_limpio !== null && <CheckBadge val={alumno.panial_limpio} label="Pañal" />}
+          </View>
+          <Text style={s.detalleSub}>Materiales</Text>
+          <View style={s.detalleRow}>
+            <CheckBadge val={alumno.trae_uniforme}   label="Uniforme" />
+            <CheckBadge val={alumno.trae_bata}       label="Bata" />
+            <CheckBadge val={alumno.trae_termo}      label="Termo" />
+            <CheckBadge val={alumno.agua_suficiente} label="Agua" />
+          </View>
+          {alumno.qr_escaneado && (
+            <Text style={{ fontSize: 11, color: '#805AD5', fontWeight: '700', marginTop: 4 }}>📱 Entrada por QR</Text>
+          )}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -336,8 +411,16 @@ const s = StyleSheet.create({
   filtroTxt: { fontSize: 12, fontWeight: '700', color: '#4A5568' },
   filtroTxtOn: { color: '#fff' },
 
-  card: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, marginTop: 10, padding: 14, backgroundColor: '#F7FAFC', borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0' },
+  card: { marginHorizontal: 16, marginTop: 10, backgroundColor: '#F7FAFC', borderRadius: 14, borderWidth: 1, borderColor: '#E2E8F0', overflow: 'hidden' },
   cardPendiente: { borderColor: '#B794F4', borderWidth: 1.5 },
+  cardRow: { flexDirection: 'row', alignItems: 'center', padding: 14 },
+  cumpleBanner: { backgroundColor: '#FEFCBF', borderBottomWidth: 1, borderBottomColor: '#F6E05E', paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center' },
+  cumpleTxt: { fontSize: 13, fontWeight: '900', color: '#744210' },
+  detalle: { backgroundColor: '#F7FAFC', borderTopWidth: 1, borderTopColor: '#E2E8F0', paddingHorizontal: 14, paddingTop: 10, paddingBottom: 12 },
+  detalleSub: { fontSize: 10, fontWeight: '900', color: '#A0AEC0', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 6, marginTop: 8 },
+  detalleRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  motivoBox: { backgroundColor: '#FFF5F5', borderRadius: 8, padding: 8, marginBottom: 8 },
+  motivoTxt: { fontSize: 12, fontWeight: '700', color: '#C53030' },
   avatar: { width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
   avatarTxt: { color: '#fff', fontSize: 18, fontWeight: '900' },
   nombre: { fontSize: 15, fontWeight: '700', color: '#2D3748' },

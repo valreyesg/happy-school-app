@@ -4,7 +4,7 @@ import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, Modal, Pressable, Linking, FlatList,
   ActivityIndicator, Alert, TextInput,
 } from 'react-native';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '@/store/authStore';
@@ -481,6 +481,146 @@ const SEMAFORO_CFG = {
   suspendido: { color: '#718096', bg: '#F7FAFC', label: 'Suspendido', icon: '⛔' },
 };
 
+// ─── QR Temporal ─────────────────────────────────────────────────────────────
+function QRTemporalRow({ hijoId, hijoNombre }) {
+  const queryClient = useQueryClient();
+  const [modalGenerar, setModalGenerar] = useState(false);
+  const [modalVerQR, setModalVerQR] = useState(false);
+  const [nombre, setNombre] = useState('');
+
+  const { data: tempData, isLoading } = useQuery({
+    queryKey: ['qr-temporal', hijoId],
+    queryFn: () => api.get(`/alumnos/${hijoId}/qr-temporal`).then(r => r.data.qr_temporal).catch(() => null),
+    staleTime: 30_000,
+  });
+
+  const generarMutation = useMutation({
+    mutationFn: () => api.post(`/alumnos/${hijoId}/qr-temporal`, { nombre_autorizado: nombre.trim() }).then(r => r.data),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['qr-temporal', hijoId] });
+      setModalGenerar(false);
+      setNombre('');
+      setModalVerQR(data.qr_temporal);
+    },
+    onError: (e) => Alert.alert('Error', e?.response?.data?.error || 'No se pudo generar el pase temporal'),
+  });
+
+  const cancelarMutation = useMutation({
+    mutationFn: () => api.delete(`/alumnos/${hijoId}/qr-temporal`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['qr-temporal', hijoId] });
+      Alert.alert('Listo', 'Pase temporal cancelado');
+    },
+    onError: () => Alert.alert('Error', 'No se pudo cancelar'),
+  });
+
+  if (isLoading) return null;
+
+  return (
+    <>
+      <View style={qrs.container}>
+        <Text style={qrs.titulo}>🔐 Pase temporal</Text>
+        {tempData ? (
+          <View style={qrs.activoRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={qrs.activoNombre}>{tempData.nombre_autorizado}</Text>
+              <Text style={qrs.activoSub}>Válido solo hoy</Text>
+            </View>
+            <TouchableOpacity style={qrs.btnVer} onPress={() => setModalVerQR(tempData)} activeOpacity={0.8}>
+              <Text style={qrs.btnVerTxt}>Ver QR</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={qrs.btnCancelar}
+              onPress={() => Alert.alert('Cancelar pase', '¿Cancelar el pase temporal?', [
+                { text: 'No', style: 'cancel' },
+                { text: 'Sí, cancelar', style: 'destructive', onPress: () => cancelarMutation.mutate() },
+              ])}
+              disabled={cancelarMutation.isPending}
+              activeOpacity={0.8}
+            >
+              <Text style={qrs.btnCancelarTxt}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity style={qrs.btnGenerar} onPress={() => setModalGenerar(true)} activeOpacity={0.8}>
+            <Text style={qrs.btnGenerarTxt}>+ Generar pase para hoy</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* Modal: ingresar nombre */}
+      <Modal visible={modalGenerar} transparent animationType="slide" onRequestClose={() => { setModalGenerar(false); setNombre(''); }}>
+        <Pressable style={styles.modalOverlay} onPress={() => { setModalGenerar(false); setNombre(''); }}>
+          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#2D3748', marginBottom: 4 }}>Pase temporal de acceso</Text>
+            <Text style={{ fontSize: 13, color: '#718096', marginBottom: 12 }}>
+              ⚠️ Solo para casos extraordinarios. Las personas ya registradas usan el QR permanente.
+            </Text>
+            <Text style={{ fontSize: 12, fontWeight: '800', color: '#4A5568', marginBottom: 6 }}>
+              Nombre completo de quien recogerá a {hijoNombre.split(' ')[0]}
+            </Text>
+            <TextInput
+              style={styles.passInput}
+              placeholder="Ej: Abuela Rosa García"
+              value={nombre}
+              onChangeText={setNombre}
+              placeholderTextColor="#A0AEC0"
+            />
+            <Text style={{ fontSize: 11, color: '#718096', marginBottom: 16 }}>
+              Este pase es válido únicamente hoy. Puedes cancelarlo en cualquier momento.
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 12 }}>
+              <TouchableOpacity
+                style={[styles.passBtn, { backgroundColor: '#EDF2F7' }]}
+                onPress={() => { setModalGenerar(false); setNombre(''); }}
+              >
+                <Text style={[styles.passBtnTxt, { color: '#4A5568' }]}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.passBtn, { backgroundColor: '#805AD5', opacity: (!nombre.trim() || generarMutation.isPending) ? 0.5 : 1 }]}
+                onPress={() => generarMutation.mutate()}
+                disabled={!nombre.trim() || generarMutation.isPending}
+              >
+                <Text style={[styles.passBtnTxt, { color: '#fff' }]}>
+                  {generarMutation.isPending ? 'Generando...' : 'Generar pase'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Modal: mostrar QR generado */}
+      <Modal visible={!!modalVerQR} transparent animationType="slide" onRequestClose={() => setModalVerQR(null)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVerQR(null)}>
+          <Pressable style={styles.modalSheet} onPress={e => e.stopPropagation()}>
+            <Text style={{ fontSize: 20, fontWeight: '900', color: '#2D3748', marginBottom: 4 }}>Pase temporal</Text>
+            {modalVerQR && (
+              <>
+                <View style={qrs.qrInfoBox}>
+                  <Text style={qrs.qrInfoNombre}>Autorizado: {modalVerQR.nombre_autorizado}</Text>
+                  <Text style={qrs.qrInfoSub}>Válido solo hoy — entrada y salida</Text>
+                </View>
+                <Image
+                  source={{ uri: modalVerQR.qr_url }}
+                  style={qrs.qrImage}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontSize: 12, color: '#718096', textAlign: 'center', marginBottom: 16 }}>
+                  La maestra verá el nombre de quien autorizaste al escanear
+                </Text>
+                <TouchableOpacity style={[styles.passBtn, { backgroundColor: '#805AD5', width: '100%' }]} onPress={() => setModalVerQR(null)}>
+                  <Text style={[styles.passBtnTxt, { color: '#fff' }]}>Cerrar</Text>
+                </TouchableOpacity>
+              </>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </>
+  );
+}
+
 function HijoCard({ hijo }) {
   const { map: ANIMO } = useCatalogo('animo');
   const { map: CUANTO } = useCatalogo('cuanto');
@@ -688,6 +828,9 @@ function HijoCard({ hijo }) {
 
       {/* Tareas pendientes */}
       <HijoTareasPendientes hijoId={hijo.id} hijoNombre={hijo.nombre_completo} />
+
+      {/* QR Temporal */}
+      <QRTemporalRow hijoId={hijo.id} hijoNombre={hijo.nombre_completo} />
 
     </TouchableOpacity>
   );
@@ -920,4 +1063,29 @@ const styles = StyleSheet.create({
     borderRadius: 8, borderWidth: 1, borderColor: '#F6AD55',
   },
   salidaAnticipadaTxt: { fontSize: 10, fontWeight: '800', color: '#C05621' },
+});
+
+// Estilos QR Temporal
+const qrs = StyleSheet.create({
+  container: {
+    borderTopWidth: 1, borderTopColor: '#E9D8FD',
+    marginHorizontal: 0, paddingHorizontal: 16, paddingVertical: 12,
+  },
+  titulo: { fontSize: 11, fontWeight: '900', color: '#718096', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 },
+  activoRow: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#FFFBEB', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: '#F6E05E' },
+  activoNombre: { fontSize: 13, fontWeight: '900', color: '#92400E' },
+  activoSub: { fontSize: 11, fontWeight: '600', color: '#B45309', marginTop: 1 },
+  btnVer: { backgroundColor: '#FEF3C7', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  btnVerTxt: { fontSize: 12, fontWeight: '900', color: '#92400E' },
+  btnCancelar: { backgroundColor: '#FEE2E2', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8 },
+  btnCancelarTxt: { fontSize: 12, fontWeight: '900', color: '#C53030' },
+  btnGenerar: {
+    borderWidth: 2, borderStyle: 'dashed', borderColor: '#B794F4',
+    borderRadius: 10, paddingVertical: 10, alignItems: 'center',
+  },
+  btnGenerarTxt: { fontSize: 13, fontWeight: '800', color: '#6B46C1' },
+  qrInfoBox: { backgroundColor: '#FFFBEB', borderRadius: 10, padding: 10, borderWidth: 1, borderColor: '#F6E05E', marginBottom: 12 },
+  qrInfoNombre: { fontSize: 14, fontWeight: '900', color: '#92400E', textAlign: 'center' },
+  qrInfoSub: { fontSize: 12, fontWeight: '600', color: '#B45309', textAlign: 'center', marginTop: 2 },
+  qrImage: { width: 220, height: 220, alignSelf: 'center', borderRadius: 16, borderWidth: 4, borderColor: '#F6E05E', marginBottom: 12 },
 });

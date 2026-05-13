@@ -1,6 +1,6 @@
 ﻿# PENDIENTES — Happy School App
 
-**Última actualización:** 2026-05-12 — Sesión XX+81 (Firma digital incidentes mobile + ARCHITECTURE.md + manuales)
+**Última actualización:** 2026-05-13 — Sesión XX+82 (Ocultar Evaluaciones menú Directora)
 ⚠️ **REGLA:** Tareas completadas = MOVER a ARCHIVE_LOG + ELIMINAR de PENDIENTES (no dejar historial aquí)
 
 ---

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import {
   LayoutDashboard, Users, UserCheck, CreditCard, ClipboardList,
-  Calendar, Star, Settings, GraduationCap, DoorOpen, UtensilsCrossed, Clock, Megaphone, Eye,
+  Calendar, Settings, GraduationCap, DoorOpen, UtensilsCrossed, Clock, Megaphone, Eye,
 } from 'lucide-react';
 import AppShell from './AppShell';
 
@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { to: '/directora/pagos',       icon: CreditCard,      label: 'Pagos' },
   { to: '/directora/calendario',  icon: Calendar,        label: 'Calendario' },
   { to: '/directora/ciclos',      icon: Clock,           label: 'Ciclos' },
-  { to: '/directora/evaluaciones',icon: Star,            label: 'Evaluaciones' },
+  // { to: '/directora/evaluaciones',icon: Star,            label: 'Evaluaciones' }, // TODO: módulo pendiente
   { to: '/directora/aviso',       icon: Megaphone,       label: 'Aviso Extraordinario' },
   { to: '/directora/config',      icon: Settings,        label: 'Configuración' },
 ];

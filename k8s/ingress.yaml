@@ -1,0 +1,40 @@
+# ============================================================
+# INGRESS — Opcional para acceso con dominio personalizado
+#
+# Este archivo está desactivado por default (no incluido en kustomization.yaml).
+# Úsalo SOLO si tu cluster tiene un Ingress Controller instalado.
+#
+# Para activarlo:
+# 1. Descomenta "- ingress.yaml" en kustomization.yaml
+# 2. Cambia "happyschool.local" por tu dominio real
+# 3. Agrega al /etc/hosts del equipo donde abres el browser:
+#    127.0.0.1  happyschool.local
+#
+# Para instalar nginx-ingress en un cluster local:
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
+# ============================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: happy-school-ingress
+  namespace: happy-school
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "90"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "90"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: happyschool.local
+      http:
+        paths:
+          # Todo el tráfico va al contenedor web (nginx)
+          # nginx internamente hace proxy de /api/ → backend service
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: happy-school-web
+                port:
+                  number: 80

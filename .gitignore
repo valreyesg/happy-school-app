@@ -46,6 +46,9 @@ desktop.ini
 *.p12
 *.p8
 
+# Kubernetes secrets — contiene credenciales, NO subir al repo
+k8s/secret.yaml
+
 # Vite cache
 .vite/
 vite.config.js.timestamp-*

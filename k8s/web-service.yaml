@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: happy-school-web
+  namespace: happy-school
+  labels:
+    app: happy-school-web
+spec:
+  selector:
+    app: happy-school-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      # NodePort: la UI web es accesible en http://localhost:30080
+      nodePort: 30080
+  type: NodePort

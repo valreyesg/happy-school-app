@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: happy-school-config
+  namespace: happy-school
+data:
+  # Servidor
+  NODE_ENV: "production"
+  PORT: "3000"
+  TZ: "America/Mexico_City"
+
+  # JWT (tiempos de expiración — no son secretos)
+  JWT_ACCESS_EXPIRES: "15m"
+  JWT_REFRESH_EXPIRES: "7d"
+
+  # Cloudinary DESACTIVADO — fotos y documentos se guardan en /app/uploads (PVC)
+  CLOUDINARY_ENABLED: "false"
+
+  # WhatsApp DESACTIVADO — para activarlo se necesitan credenciales de Twilio
+  WHATSAPP_ENABLED: "false"
+
+  # URLs para CORS — apuntan a los Services internos de K8s
+  APP_URL: "http://happy-school-backend:3000"
+  WEB_URL: "http://happy-school-web:80"
+
+  # URL externa del backend (usada por cloudinaryService.js para construir URLs de archivos)
+  # Si se usa NodePort: http://localhost:30000
+  # Si se usa Ingress con dominio: cambiar al dominio real
+  APP_BASE_URL: "http://localhost:30000"

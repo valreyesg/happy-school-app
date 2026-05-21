@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-pvc
+  namespace: happy-school
+  labels:
+    app: happy-school-postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # Si tu cluster tiene una StorageClass específica, descomenta y ajusta:
+  # storageClassName: standard   # minikube
+  # storageClassName: local-path # k3s/k3d
+  # storageClassName: hostpath   # Docker Desktop

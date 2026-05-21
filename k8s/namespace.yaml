@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: happy-school
+  labels:
+    app.kubernetes.io/name: happy-school
+    app.kubernetes.io/managed-by: kustomize

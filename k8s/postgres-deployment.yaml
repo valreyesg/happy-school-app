@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: happy-school-postgres
+  namespace: happy-school
+  labels:
+    app: happy-school-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: happy-school-postgres
+  # Recreate es necesario con PVCs ReadWriteOnce
+  # RollingUpdate causaría "Multi-Attach error" porque dos pods intentarían
+  # montar el mismo PVC simultáneamente
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: happy-school-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: "happyschool"
+            - name: POSTGRES_USER
+              value: "happyschool"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: happy-school-secrets
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+            - name: TZ
+              value: "America/Mexico_City"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - happyschool
+                - -d
+                - happyschool
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - happyschool
+                - -d
+                - happyschool
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-data-pvc

@@ -1,0 +1,18 @@
+# PVC para el directorio /app/uploads del backend
+# Necesario porque CLOUDINARY_ENABLED=false → las fotos, PDFs y comprobantes
+# se guardan localmente. Sin este PVC, los archivos se pierden al reiniciar el pod.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-uploads-pvc
+  namespace: happy-school
+  labels:
+    app: happy-school-backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  # Misma nota que postgres-pvc.yaml — descomenta storageClassName si es necesario
+  # storageClassName: standard

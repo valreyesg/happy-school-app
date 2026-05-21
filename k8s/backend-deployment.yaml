@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: happy-school-backend
+  namespace: happy-school
+  labels:
+    app: happy-school-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: happy-school-backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: happy-school-backend
+    spec:
+      # ── InitContainer: Migraciones + Seed ─────────────────────
+      # Usa la MISMA imagen que el contenedor principal.
+      # Se ejecuta ANTES de que arranque el backend.
+      #
+      # Ambas operaciones son idempotentes:
+      #   - node-pg-migrate: registra migraciones aplicadas en tabla "pgmigrations"
+      #     → re-ejecutar en reinicios del pod solo aplica migraciones NUEVAS
+      #   - seed.js: usa ON CONFLICT DO NOTHING en todos los INSERT
+      #     → re-ejecutar no duplica datos
+      initContainers:
+        - name: migrate-and-seed
+          image: happy-school-backend:latest
+          imagePullPolicy: Never
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Esperando a que PostgreSQL esté listo ==="
+              until node -e "
+                const { Pool } = require('pg');
+                const pool = new Pool({
+                  connectionString: process.env.DATABASE_URL,
+                  connectionTimeoutMillis: 3000
+                });
+                pool.query('SELECT 1')
+                  .then(() => { pool.end(); process.exit(0); })
+                  .catch(() => { pool.end(); process.exit(1); });
+              " 2>/dev/null; do
+                echo "PostgreSQL no disponible, reintentando en 3s..."
+                sleep 3
+              done
+              echo "PostgreSQL listo."
+              echo ""
+              echo "=== Ejecutando migraciones ==="
+              npm run migrate
+              echo ""
+              echo "=== Ejecutando seed (idempotente) ==="
+              node scripts/seeds/seed.js
+              echo ""
+              echo "=== Init completo ==="
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: happy-school-secrets
+                  key: DATABASE_URL
+            - name: NODE_ENV
+              value: "production"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+
+      # ── Contenedor principal: Express API ─────────────────────
+      containers:
+        - name: backend
+          image: happy-school-backend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          # Variables de entorno desde ConfigMap y Secret
+          envFrom:
+            - configMapRef:
+                name: happy-school-config
+            - secretRef:
+                name: happy-school-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            # Montar el PVC en /app/uploads para persistir fotos y documentos
+            - name: uploads-storage
+              mountPath: /app/uploads
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+      volumes:
+        - name: uploads-storage
+          persistentVolumeClaim:
+            claimName: backend-uploads-pvc
